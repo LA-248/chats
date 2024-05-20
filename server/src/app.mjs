@@ -18,34 +18,32 @@ const io = new Server(server, {
 });
 
 io.on('connection', (socket) => {
-  socket.on('chat message', (message) => {
+  socket.on('chat message', (message, clientOffset, callback) => {
+    let result;
     try {
-      db.run('INSERT INTO messages (content) VALUES (?)', [message], (err) => {
-        if (err) {
-          console.error('Error inserting message into the database:', err.message);
-          return;
-        }
+      result = db.run('INSERT INTO messages (content, client_offset) VALUES (?, ?)', [message, clientOffset]);
+    } catch (error) {
+      if (error.errno === 19) {
+        // The message was already inserted, so we notify the client
+        callback();
+      } else {
+        // Nothing to do, just let the client retry
+      }
+      return;
+    }
+    io.emit('chat message', message, result.lastID);
+    callback();
+  });
+
+  if (!socket.recovered) {
+    try {
+      db.each('SELECT content FROM messages WHERE id > ?', [socket.handshake.auth.serverOffset || 0], (_err, row) => {
+        socket.emit('chat message', row.content, row.id);
       });
     } catch (error) {
       console.error('Unexpected error:', error.message);
       return;
     }
-
-    io.emit('chat message', message);
-  });
-
-  try {
-    db.each('SELECT content FROM messages', (err, row) => {
-      if (err) {
-        console.error('Error retrieving message content:', err.message);
-        return;
-      }
-
-      socket.emit('chat message', row.content);
-    });
-  } catch (error) {
-    console.error('Unexpected error:', error.message);
-    return;
   }
 });
 

@@ -4,10 +4,13 @@ import { MessageContext } from './message-context';
 
 export default function MessageInput() {
   const { messages, message, setMessage } = useContext(MessageContext);
+  let counter = 0;
   
   const handleSubmit = (event) => {
     event.preventDefault();
-    socket.emit('chat message', message); // Send the message to the server
+    // Compute a unique offset
+    const clientOffset = `${socket.id}-${counter++}`;
+    socket.emit('chat message', message, clientOffset); // Send the message to the server
     setMessage('');
   };
 
