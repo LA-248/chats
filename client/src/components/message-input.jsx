@@ -1,18 +1,33 @@
-import { useContext } from 'react';
-import { socket } from './message-list';
+import { useContext, useEffect } from 'react';
 import { MessageContext } from './message-context';
+import { socket } from './message-list';
 
 export default function MessageInput() {
-  const { messages, message, setMessage } = useContext(MessageContext);
+  const { message, setMessage, messages, setMessages } = useContext(MessageContext);
   let counter = 0;
-  
-  const handleSubmit = (event) => {
+
+  const submitChatMessage = (event) => {
     event.preventDefault();
     // Compute a unique offset
     const clientOffset = `${socket.id}-${counter++}`;
-    socket.emit('chat message', message, clientOffset); // Send the message to the server
+    // Send the message to the server
+    socket.emit('chat message', message, clientOffset);
     setMessage('');
   };
+
+  // Clear message list on socket disconnection
+  useEffect(() => {
+    const handleDisconnect = () => {
+      if (socket.disconnected) {
+        setMessages([]);
+      }
+    };
+    socket.on('disconnect', handleDisconnect);
+
+    return () => {
+      socket.off('disconnect', handleDisconnect);
+    };
+  }, [setMessages]);
 
   return (
     <div>
@@ -21,7 +36,7 @@ export default function MessageInput() {
           <li key={index}>{msg}</li>
         ))}
       </ul>
-      <form id="form" action="" onSubmit={handleSubmit}>
+      <form id="form" action="" onSubmit={submitChatMessage}>
         <input
           id="input"
           type="text"
