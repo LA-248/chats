@@ -1,18 +1,21 @@
-import { useContext, useEffect } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { MessageContext } from './message-context';
 import { socket } from './message-list';
 
 export default function MessageInput() {
   const { message, setMessage, messages, setMessages } = useContext(MessageContext);
-  let counter = 0;
+  const [counter, setCounter] = useState(0);
 
   const submitChatMessage = (event) => {
     event.preventDefault();
-    // Compute a unique offset
-    const clientOffset = `${socket.id}-${counter++}`;
-    // Send the message to the server
-    socket.emit('chat message', message, clientOffset);
-    setMessage('');
+    if (message) {
+      // Compute a unique offset
+      const clientOffset = `${socket.id}-${counter}`;
+      setCounter(counter + 1);
+      // Send the message to the server
+      socket.emit('chat message', message, clientOffset);
+      setMessage('');
+    }
   };
 
   // Clear message list on socket disconnection
