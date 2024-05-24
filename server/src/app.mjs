@@ -18,27 +18,38 @@ const io = new Server(server, {
 });
 
 io.on('connection', (socket) => {
-  socket.on('chat message', (message, clientOffset, callback) => {
+  console.log(`New connection: ${socket.id}`);
+
+  console.log(socket.rooms);
+
+  socket.on('join-room', room => {
+    socket.join(room);
+    console.log(`User ${socket.id} joined the ${room}.`);
+    console.log(socket.rooms);
+  });
+
+  socket.on('chat-message', (data, clientOffset, callback) => {
+    const { room, message } = data;
     let result;
+
     try {
-      result = db.run('INSERT INTO messages (content, client_offset) VALUES (?, ?)', [message, clientOffset]);
+      result = db.run('INSERT INTO messages (content, room, client_offset) VALUES (?, ?, ?)', [message, room, clientOffset]);
+      console.log(`Message received: ${message} in room: ${room}`);
+      io.to(room).emit('chat-message', message, result.lastID);
+      callback();
     } catch (error) {
       if (error.errno === 19) {
         // The message was already inserted, so we notify the client
         callback();
-      } else {
-        // Nothing to do, just let the client retry
       }
       return;
     }
-    io.emit('chat message', message, result.lastID);
-    callback();
   });
 
   if (!socket.recovered) {
     try {
       db.each('SELECT content FROM messages WHERE id > ?', [socket.handshake.auth.serverOffset || 0], (_err, row) => {
-        socket.emit('chat message', row.content, row.id);
+        socket.emit('chat-message', row.content, row.id);
       });
     } catch (error) {
       console.error('Unexpected error:', error.message);

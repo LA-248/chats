@@ -1,19 +1,22 @@
 import { useContext, useEffect, useState } from 'react';
 import { MessageContext } from './message-context';
-import { socket } from './message-list';
+import socket from './socket';
 
 export default function MessageInput() {
-  const { message, setMessage, messages, setMessages } = useContext(MessageContext);
+  const { message, setMessage, setMessages, room, connectedRoom } = useContext(MessageContext);
   const [counter, setCounter] = useState(0);
+  const [placeholder, setPlaceholder] = useState('');
+  const [isDisabled, setIsDisabled] = useState(false);
 
   const submitChatMessage = (event) => {
     event.preventDefault();
+
     if (message) {
       // Compute a unique offset
       const clientOffset = `${socket.id}-${counter}`;
       setCounter(counter + 1);
       // Send the message to the server
-      socket.emit('chat message', message, clientOffset);
+      socket.emit('chat-message', { room, message }, clientOffset);
       setMessage('');
     }
   };
@@ -32,22 +35,31 @@ export default function MessageInput() {
     };
   }, [setMessages]);
 
+  // Configure message input depending on if the user has joined a room or not
+  useEffect(() => {
+    if (!connectedRoom) {
+      setIsDisabled(true);
+      setPlaceholder('Join a room to start messaging');
+    } else if (connectedRoom) {
+      setIsDisabled(false);
+      setPlaceholder('Type your message');
+    }
+  }, [connectedRoom]);
+
   return (
     <div>
-      <ul id="messages">
-        {messages.map((msg, index) => (
-          <li key={index}>{msg}</li>
-        ))}
-      </ul>
-      <form id="form" action="" onSubmit={submitChatMessage}>
-        <input
-          id="input"
-          type="text"
-          placeholder="Type your message"
-          value={message}
-          onChange={(event) => setMessage(event.target.value)}
-        />
-        <button>Send</button>
+      <form id="message-form" action="" onSubmit={submitChatMessage}>
+        <div className="message-input-container">
+          <input
+            id="message-input"
+            type="text"
+            placeholder={placeholder}
+            value={message}
+            onChange={(event) => setMessage(event.target.value)}
+            disabled={isDisabled}
+          />
+          <button className="submit-message-button">Send</button>
+        </div>
       </form>
     </div>
   );
