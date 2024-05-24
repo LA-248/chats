@@ -32,7 +32,7 @@ export default function RoomInput() {
             value={room}
             onChange={(event) => setRoom(event.target.value)}
           />
-          <button className="join-room-button">Join</button>
+          {connectedRoom.length === 0 ? <button className="join-room-button">Join</button> : null}
           {connectedRoom.length > 0 ? <button className="leave-room-button" onClick={leaveRoom}>Leave</button> : null}
         </div>
       </form>
