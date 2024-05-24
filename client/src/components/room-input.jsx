@@ -14,6 +14,12 @@ export default function RoomInput() {
     }
   };
 
+  const leaveRoom = (event) => {
+    event.preventDefault();
+    socket.emit('leave-room', connectedRoom);
+    setConnectedRoom('');
+  }
+
   return (
     <div>
       <div className='connected-room'>{connectedRoom.length > 0 ? <div>Connected to room: {connectedRoom}</div> : null}</div>
@@ -27,6 +33,7 @@ export default function RoomInput() {
             onChange={(event) => setRoom(event.target.value)}
           />
           <button className="join-room-button">Join</button>
+          {connectedRoom.length > 0 ? <button className="leave-room-button" onClick={leaveRoom}>Leave</button> : null}
         </div>
       </form>
     </div>

@@ -24,7 +24,13 @@ io.on('connection', (socket) => {
 
   socket.on('join-room', room => {
     socket.join(room);
-    console.log(`User ${socket.id} joined the ${room}.`);
+    console.log(`User ${socket.id} joined the room ${room}.`);
+    console.log(socket.rooms);
+  });
+
+  socket.on('leave-room', room => {
+    socket.leave(room);
+    console.log(`User ${socket.id} left the room ${room}.`);
     console.log(socket.rooms);
   });
 
