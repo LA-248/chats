@@ -7,7 +7,7 @@ export default function Login() {
       <div className="login-container">
         <div className="login-box">
           <div className="login-header">Sign In</div>
-          <form className="login-form" action="/login/password" method="post">
+          <form className="login-form" action="http://localhost:8080/auth/login/password" method="post">
             <input
               id="username"
               placeholder="Username"
