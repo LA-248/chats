@@ -7,9 +7,9 @@ export default function SignUp() {
       <div className="sign-up-box">
         <div className="sign-up-header">Sign Up</div>
         <div className="sign-up-subtext">Create an account to get started.</div>
-        <form className="sign-up-form" action="/sign-up/password" method="post">
-          <input type="text" placeholder="Username" />
-          <input type="password" placeholder="Password" />
+        <form className="sign-up-form" action="http://localhost:8080/auth/register/password" method="post">
+          <input type="text" name="username" placeholder="Username" />
+          <input type="password" name="password" placeholder="Password" />
           <button className="sign-up-button" type="submit">
             Sign Up
           </button>
