@@ -1,8 +1,8 @@
-import MessageInput from '../components/message-input.jsx';
-import RoomInput from '../components/room-input.jsx';
-import Logout from '../components/logout.jsx';
-import { MessageList } from '../components/message-list.jsx';
-import { MessageProvider } from '../components/message-context.jsx';
+import MessageInput from '../components/MessageInput.jsx';
+import RoomInput from '../components/RoomInput.jsx';
+import Logout from '../components/UserLogout.jsx';
+import { MessageList } from '../components/MessageList.jsx';
+import { MessageProvider } from '../components/MessageContext.jsx';
 
 export default function Home() {
   return (

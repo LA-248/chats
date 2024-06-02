@@ -1,9 +1,10 @@
 import { useContext, useEffect, useState } from 'react';
-import { MessageContext } from './message-context';
-import socket from './socket';
+import { MessageContext } from './MessageContext';
+import socket from '../utils/SocketConfig';
 
 export default function MessageInput() {
-  const { message, setMessage, setMessages, room, connectedRoom } = useContext(MessageContext);
+  const { message, setMessage, setMessages, room, connectedRoom } =
+    useContext(MessageContext);
   const [counter, setCounter] = useState(0);
   const [placeholder, setPlaceholder] = useState('');
   const [isDisabled, setIsDisabled] = useState(false);

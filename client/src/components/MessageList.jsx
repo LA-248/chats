@@ -1,6 +1,6 @@
 import { useContext, useEffect } from 'react';
-import { MessageContext } from './message-context';
-import socket from './socket';
+import { MessageContext } from './MessageContext';
+import socket from '../utils/SocketConfig';
 
 function MessageList() {
   const { messages, setMessages } = useContext(MessageContext);
