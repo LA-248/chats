@@ -31,12 +31,14 @@ app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
-  cookie: { secure: true },
+  cookie: { secure: false },
 }));
+
+// Initialize Passport and session
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Routes
+// Attach routes
 app.use('/auth', authRouter);
 
 const io = new Server(server, {

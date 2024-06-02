@@ -1,6 +1,7 @@
 import express from 'express';
 import passport from 'passport';
 import { handleSignUp } from '../controllers/sign-up-controller.mjs';
+import { checkAuthStatus } from '../controllers/auth-status-controller.mjs';
 
 const authRouter = express.Router();
 
@@ -25,5 +26,8 @@ authRouter.post('/logout', (req, res) => {
     res.redirect('http://localhost:3000/login');
   });
 });
+
+// Retrieve authentication status
+authRouter.get('/status', checkAuthStatus);
 
 export default authRouter;

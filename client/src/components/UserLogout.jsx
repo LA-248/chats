@@ -7,6 +7,7 @@ export default function Logout() {
     try {
       const response = await fetch('http://localhost:8080/auth/logout', {
         method: 'POST',
+        credentials: 'include',
       });
 
       if (!response.ok) {
@@ -15,7 +16,7 @@ export default function Logout() {
 
       navigate('/login');
     } catch (error) {
-      console.error('Logout error:', error);
+      console.error(error);
     }
   };
 
