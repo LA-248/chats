@@ -16,14 +16,25 @@ authRouter.post('/login/password', passport.authenticate('local', {
 
 // Logout
 authRouter.post('/logout', (req, res) => {
-  req.logout(err => {
+  req.logout((err) => {
     if (err) {
       console.error('Logout error:', err);
       res.status(500).json('Error logging out.');
       return;
     }
-    console.log('Session destroyed');
-    res.redirect('http://localhost:3000/login');
+
+    req.session.destroy((err) => {
+      if (err) {
+        console.error('Session destruction error:', err);
+        res.status(500).json('Error destroying session.');
+        return;
+      }
+
+      res.clearCookie('connect.sid');
+      console.log('Session destroyed');
+      res.status(200).json('Logout successful');
+      return;
+    });
   });
 });
 
