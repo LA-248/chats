@@ -1,10 +1,10 @@
 import { useContext } from 'react';
 import { MessageContext } from './MessageContext';
-import socket from '../utils/SocketConfig';
+import { SocketContext } from '../pages/home';
 
 export default function RoomInput() {
-  let { room, setRoom, connectedRoom, setConnectedRoom } =
-    useContext(MessageContext);
+  let { room, setRoom, connectedRoom, setConnectedRoom } = useContext(MessageContext);
+  const socket = useContext(SocketContext);
 
   const submitRoomName = (event) => {
     event.preventDefault();

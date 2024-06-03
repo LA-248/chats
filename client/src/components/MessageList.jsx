@@ -1,9 +1,10 @@
 import { useContext, useEffect } from 'react';
 import { MessageContext } from './MessageContext';
-import socket from '../utils/SocketConfig';
+import { SocketContext } from '../pages/home';
 
 function MessageList() {
   const { messages, setMessages } = useContext(MessageContext);
+  const socket = useContext(SocketContext);
 
   useEffect(() => {
     // Listen for incoming messages from the server and update the messages list
@@ -15,7 +16,7 @@ function MessageList() {
     return () => {
       socket.off('chat-message');
     };
-  }, [setMessages]);
+  }, [setMessages, socket]);
 
   return (
     <ul id="messages">

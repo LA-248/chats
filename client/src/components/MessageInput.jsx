@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from 'react';
 import { MessageContext } from './MessageContext';
-import socket from '../utils/SocketConfig';
+import { SocketContext } from '../pages/home';
 
 export default function MessageInput() {
   const { message, setMessage, setMessages, room, connectedRoom } =
@@ -8,6 +8,7 @@ export default function MessageInput() {
   const [counter, setCounter] = useState(0);
   const [placeholder, setPlaceholder] = useState('');
   const [isDisabled, setIsDisabled] = useState(false);
+  const socket = useContext(SocketContext);
 
   const submitChatMessage = (event) => {
     event.preventDefault();
@@ -34,7 +35,7 @@ export default function MessageInput() {
     return () => {
       socket.off('disconnect', handleDisconnect);
     };
-  }, [setMessages]);
+  }, [setMessages, socket]);
 
   // Configure message input depending on if the user has joined a room or not
   useEffect(() => {
