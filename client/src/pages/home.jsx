@@ -16,6 +16,7 @@ export default function Home() {
       auth: {
         serverOffset: 0,
       },
+      withCredentials: true,
     });
     setSocket(socket);
 
