@@ -65,7 +65,7 @@ io.on('connection', (socket) => {
   
     handleJoiningRoom(socket);
     handleLeavingRoom(socket);
-    handleChatMessages(socket);
+    handleChatMessages(socket, io);
     displayChatMessages(socket);
 
   } else {

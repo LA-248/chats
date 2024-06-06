@@ -7,11 +7,13 @@ function MessageList() {
   const socket = useContext(SocketContext);
 
   useEffect(() => {
-    // Listen for incoming messages from the server and update the messages list
-    socket.on('chat-message', (message, serverOffset) => {
+    const handleMessage = (message, serverOffset) => {
       setMessages((prevMessages) => prevMessages.concat(message));
       socket.auth.serverOffset = serverOffset;
-    });
+    };
+
+    // Listen for incoming messages from the server and update the messages list
+    socket.on('chat-message', handleMessage);
 
     return () => {
       socket.off('chat-message');

@@ -16,7 +16,7 @@ const handleLeavingRoom = (socket) => {
   });
 }
 
-const handleChatMessages = (socket) => {
+const handleChatMessages = (socket, io) => {
   socket.on('chat-message', (data, clientOffset, callback) => {
     const { room, message } = data;
     let result;

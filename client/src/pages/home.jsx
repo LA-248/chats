@@ -12,16 +12,16 @@ export default function Home() {
   const [socket, setSocket] = useState(null);
 
   useEffect(() => {
-    const socket = io('http://localhost:8080', {
+    const socketInstance = io('http://localhost:8080', {
       auth: {
         serverOffset: 0,
       },
       withCredentials: true,
     });
-    setSocket(socket);
+    setSocket(socketInstance);
 
     return () => {
-      socket.disconnect();
+      socketInstance.disconnect();
     };
   }, []);
 
