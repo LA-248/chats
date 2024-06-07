@@ -12,6 +12,8 @@ import { Server } from 'socket.io';
 import { sessionMiddleware } from './middlewares/session-middleware.mjs';
 
 import authRouter from './routes/auth.mjs';
+import usersRouter from './routes/users.mjs';
+
 import {
   displayChatMessages,
   handleChatMessages,
@@ -40,6 +42,7 @@ app.use(passport.session());
 
 // Attach routes
 app.use('/auth', authRouter);
+app.use('/users', usersRouter);
 
 const io = new Server(server, {
   cors: {

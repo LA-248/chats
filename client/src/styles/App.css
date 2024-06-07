@@ -7,7 +7,6 @@
 
 body {
   margin: 0;
-  padding-bottom: 3rem;
   background-color: #212121;
 }
 
@@ -16,7 +15,6 @@ body {
   flex-direction: column;
   justify-content: end;
   height: 100vh;
-  padding-bottom: 20px;
 }
 
 /* Message + Room Input */
@@ -135,4 +133,18 @@ body {
   text-align: center;
   color: white;
   margin-bottom: 10px;
+}
+
+/* User Information */
+
+.account-info-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-bottom: 20px;
+}
+
+.account-username {
+  font-size: 13px;
+  color: white;
 }
