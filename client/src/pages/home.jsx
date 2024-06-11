@@ -41,7 +41,7 @@ export default function Home() {
   }, []);
 
   return (
-    // Ensure that socket is initialised before passing it to child components
+    // Render child components only if the socket is initialised
     socket && (
       <SocketContext.Provider value={socket}>
         <MessageProvider>

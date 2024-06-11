@@ -9,7 +9,7 @@ const handleSignUp = (req, res) => {
 
   crypto.pbkdf2(password, salt, 310000, 32, 'sha256', (err, hashedPassword) => {
     if (err) {
-      res.status(500).send('Error creating account. Please try again.');
+      res.status(500).json('Error creating account. Please try again.');
       console.error(err.message);
       return;
     }
@@ -19,7 +19,7 @@ const handleSignUp = (req, res) => {
 
     db.run('INSERT INTO users (username, hashed_password, salt) VALUES (?, ?, ?)', [username, hashedPasswordHex, salt], (err) => {
       if (err) {
-        res.status(500).send('An unexpected error occurred.');
+        res.status(500).json('An unexpected error occurred.');
         console.error(err.message);
         return;
       }
@@ -35,7 +35,7 @@ const handleSignUp = (req, res) => {
         req.login(user, (err) => {
           if (err) {
             console.error('Login error:', err.message);
-            res.status(500).json('')
+            res.status(500).json('Error logging in.');
             return;
           }
 
