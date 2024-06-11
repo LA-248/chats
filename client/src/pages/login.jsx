@@ -1,13 +1,47 @@
-import { Link } from 'react-router-dom';
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import '../styles/Login.css';
 
 export default function Login() {
+  const navigate = useNavigate();
+
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+
+  // Handle the submission of the login form
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    try {
+      const response = await fetch('http://localhost:8080/auth/login/password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, password }),
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message);
+      }
+
+      const data = await response.json();
+      // if the login was successful, redirect the user to the URL provided by the backend
+      navigate(data.redirectUrl);
+    } catch(error) {
+      setErrorMessage(error.message);
+    }
+  }
+
   return (
     <div>
       <div className="login-container">
         <div className="login-box">
           <div className="login-header">Sign In</div>
-          <form className="login-form" action="http://localhost:8080/auth/login/password" method="post">
+          <form className="login-form" onSubmit={handleSubmit}>
             <input
               id="username"
               placeholder="Username"
@@ -16,6 +50,11 @@ export default function Login() {
               autoComplete="username"
               required
               autoFocus
+              value={username}
+              onChange={(event) => {
+                setUsername(event.target.value);
+                setErrorMessage('');
+              }}
             />
             <input
               id="current-password"
@@ -24,11 +63,17 @@ export default function Login() {
               type="password"
               autoComplete="current-password"
               required
+              value={password}
+              onChange={(event) => {
+                setPassword(event.target.value);
+                setErrorMessage('');
+              }}
             />
             <button className="login-button" type="submit">
               Sign in
             </button>
           </form>
+          {errorMessage && <div className="error-message">{errorMessage}</div>}
           <div className="sign-up-redirect">
             Don't have an account? <Link to="/register">Sign up</Link>
           </div>

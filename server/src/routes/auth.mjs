@@ -9,10 +9,23 @@ const authRouter = express.Router();
 authRouter.post('/register/password', handleSignUp);
 
 // Login
-authRouter.post('/login/password', passport.authenticate('local', {
-  successRedirect: 'http://localhost:3000',
-  failureRedirect: 'http://localhost:3000/login',
-}));
+authRouter.post('/login/password', (req, res, next) => {
+  passport.authenticate('local', (err, user) => {
+    if (err) {
+      return res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+    if (!user) {
+      return res.status(401).json({ success: false, message: 'Invalid username or password' });
+    }
+    req.login(user, (err) => {
+      if (err) {
+        return res.status(500).json({ success: false, message: 'Login failed' });
+      }
+      // Redirect URL is included so the frontend can redirect the user after a successful log in
+      return res.status(200).json({ success: true, message: 'Login successful', redirectUrl: '/' });
+    });
+  })(req, res, next)
+});
 
 // Logout
 authRouter.post('/logout', (req, res) => {

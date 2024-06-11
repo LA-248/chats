@@ -6,7 +6,6 @@ import sharedSession from 'express-socket.io-session';
 import passport from 'passport';
 import configurePassport from './config/passport-auth-setup.mjs';
 import cors from 'cors';
-import bodyParser from 'body-parser';
 import { createServer } from 'node:http';
 import { Server } from 'socket.io';
 import { sessionMiddleware } from './middlewares/session-middleware.mjs';
@@ -27,8 +26,8 @@ const server = createServer(app);
 app.set('view engine', 'ejs');
 app.use(express.static('../../client/src/styles'));
 
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 app.use(cors({
   origin: 'http://localhost:3000',
