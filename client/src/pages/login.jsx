@@ -30,8 +30,8 @@ export default function Login() {
 
       const data = await response.json();
       // if the login was successful, redirect the user to the URL provided by the backend
-      navigate(data.redirectUrl);
-    } catch(error) {
+      navigate(data.redirectPath);
+    } catch (error) {
       setErrorMessage(error.message);
     }
   }
