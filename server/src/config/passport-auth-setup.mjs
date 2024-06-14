@@ -1,5 +1,5 @@
 import passport from 'passport';
-import authenticateUser from '../controllers/login-controller.mjs';
+import authenticateUser from '../services/authenticate-user.mjs';
 import { Strategy as LocalStrategy } from 'passport-local';
 import { db } from '../services/database.mjs';
 
