@@ -17,7 +17,11 @@ export default function MessageInput() {
       const clientOffset = `${socket.id}-${counter}`;
       setCounter(counter + 1);
       // Send the message to the server
-      socket.emit('chat-message', { room, message }, clientOffset);
+      socket.emit('chat-message', { room, message }, clientOffset, (response) => {
+        if (response) {
+          console.log(response);
+        }
+      });
       setMessage('');
     }
   };
