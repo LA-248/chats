@@ -5,11 +5,22 @@ const MessageContext = createContext();
 const MessageProvider = ({ children }) => {
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState([]);
-  const [room, setRoom] = useState('');
-  let [connectedRoom, setConnectedRoom] = useState('');
+  const [username, setUsername] = useState('');
+  const [selectedChat, setSelectedChat] = useState('');
 
   return (
-    <MessageContext.Provider value={{ message, setMessage, messages, setMessages, room, setRoom, connectedRoom, setConnectedRoom }}>
+    <MessageContext.Provider
+      value={{
+        message,
+        setMessage,
+        messages,
+        setMessages,
+        username,
+        setUsername,
+        selectedChat,
+        setSelectedChat,
+      }}
+    >
       {children}
     </MessageContext.Provider>
   );
