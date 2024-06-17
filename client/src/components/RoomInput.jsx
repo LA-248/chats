@@ -33,12 +33,12 @@ export default function RoomInput() {
           <input
             id="room-input"
             type="text"
-            placeholder="Enter a room name"
+            placeholder="Enter a username"
             value={room}
             onChange={(event) => setRoom(event.target.value)}
           />
           {connectedRoom.length === 0 ? (
-            <button className="join-room-button">Join</button>
+            <button className="join-room-button" style={{marginLeft: '10px'}}>Start chat</button>
           ) : null}
           {connectedRoom.length > 0 ? (
             <button className="leave-room-button" onClick={leaveRoom}>
