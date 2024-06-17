@@ -1,5 +1,4 @@
 import MessageInput from '../components/MessageInput.jsx';
-import RoomInput from '../components/RoomInput.jsx';
 import Logout from '../components/UserLogout.jsx';
 import { io } from 'https://cdn.socket.io/4.7.5/socket.io.esm.min.js';
 import { MessageList } from '../components/MessageList.jsx';
@@ -8,6 +7,7 @@ import { createContext, useEffect, useState } from 'react';
 import DisplayUsername from '../components/DisplayUsername.jsx';
 import fetchUserData from '../utils/FetchUserData.jsx';
 import Sidebar from '../components/Sidebar.jsx';
+import ContactHeader from '../components/ContactHeader.jsx';
 
 export const SocketContext = createContext();
 
@@ -48,7 +48,6 @@ export default function Home() {
         <MessageProvider>
           <div className="main-container">
             <div className="sidebar-container">
-              <RoomInput />
               <Sidebar />
               <div className="user-controls">
                 <DisplayUsername username={username} />
@@ -56,6 +55,7 @@ export default function Home() {
               </div>
             </div>
             <div className="chat-window-container">
+              <ContactHeader />
               <MessageList />
               <div className="input-container">
                 <MessageInput />
