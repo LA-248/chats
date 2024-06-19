@@ -1,8 +1,8 @@
 import express from 'express';
-import { handleSignUp } from '../controllers/sign-up-controller.mjs';
-import { handleUserLogin } from '../controllers/login-controller.mjs';
-import { checkAuthStatus } from '../controllers/auth-status-controller.mjs';
-import { handleLogout } from '../controllers/logout-controller.mjs';
+import { handleSignUp } from '../controllers/auth/sign-up-controller.mjs';
+import { handleUserLogin } from '../controllers/auth/login-controller.mjs';
+import { checkAuthStatus } from '../controllers/auth/auth-status-controller.mjs';
+import { handleLogout } from '../controllers/auth/logout-controller.mjs';
 
 const authRouter = express.Router();
 

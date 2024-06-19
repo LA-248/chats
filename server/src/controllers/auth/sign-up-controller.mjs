@@ -1,5 +1,6 @@
 import crypto from 'crypto';
-import { db } from '../services/database.mjs';
+import { db } from '../../services/database.mjs';
+
 
 const handleSignUp = (req, res) => {
   const { username, password } = req.body;

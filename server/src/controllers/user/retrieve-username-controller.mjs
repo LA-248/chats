@@ -1,4 +1,4 @@
-import { getUsernameById } from '../models/user-model.mjs';
+import { getUsernameById } from '../../models/user-model.mjs';
 
 export const retrieveUsername = async (req, res) => {
   try {
