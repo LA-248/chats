@@ -1,10 +1,8 @@
 import { insertNewMessage, retrieveMessages } from '../models/message-model.mjs';
 
-const handleJoiningRoom = (socket) => {
-  socket.on('join-room', room => {
-    socket.join(room);
-    console.log(`User ${socket.id} joined the room ${room}.`);
-    console.log(socket.rooms);
+const handleChatList = (socket) => {
+  socket.on('chat-list', (username) => {
+    console.log(`Added ${username} to chat list`);
   });
 }
 
@@ -45,7 +43,7 @@ const displayChatMessages = async (socket) => {
 }
 
 export {
-  handleJoiningRoom,
+  handleChatList,
   handleChatMessages,
   displayChatMessages,
 };

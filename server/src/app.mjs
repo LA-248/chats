@@ -15,8 +15,8 @@ import usersRouter from './routes/users.mjs';
 
 import {
   displayChatMessages,
+  handleChatList,
   handleChatMessages,
-  handleJoiningRoom,
 } from './handlers/socket-handlers.mjs';
 
 const app = express();
@@ -72,8 +72,10 @@ io.on('connection', (socket) => {
     console.log(`User connected`);
     console.log(`User ID: ${userId}`);
     console.log(socket.rooms);
-  
-    handleJoiningRoom(socket);
+
+    socket.emit('user-id', userId);
+
+    handleChatList(socket);
     handleChatMessages(socket, io);
     displayChatMessages(socket);
   } else {
