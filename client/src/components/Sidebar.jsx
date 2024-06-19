@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { MessageContext } from './MessageContext';
 import { SocketContext } from '../pages/home';
 
@@ -6,6 +6,15 @@ export default function Sidebar() {
   const [chatList, setChatList] = useState([]);
   const { username, setUsername, setSelectedChat } = useContext(MessageContext);
   const socket = useContext(SocketContext);
+
+  useEffect(() => {
+    // Retrieve chat list from local storage
+    const storedChatList = localStorage.getItem('chat-list');
+    if (storedChatList) {
+      // Need to parse JSON back to JavaScript object so it can be mapped through
+      setChatList(JSON.parse(storedChatList));
+    }
+  }, []);
 
   const addChat = (event) => {
     event.preventDefault();
@@ -18,7 +27,10 @@ export default function Sidebar() {
         lastMessage: 'Cool!',
         time: '12:30 PM',
       };
-      setChatList(chatList.concat(newChatItem));
+      // Update chat list and store it in local storage
+      const updatedChatList = chatList.concat(newChatItem);
+      setChatList(updatedChatList);
+      localStorage.setItem('chat-list', JSON.stringify(updatedChatList));
       setUsername('');
     }
   };
