@@ -8,23 +8,15 @@ const handleJoiningRoom = (socket) => {
   });
 }
 
-const handleLeavingRoom = (socket) => {
-  socket.on('leave-room', room => {
-    socket.leave(room);
-    console.log(`User ${socket.id} left the room ${room}.`);
-    console.log(socket.rooms);
-  });
-}
-
 const handleChatMessages = (socket, io) => {
   socket.on('chat-message', async (data, clientOffset, callback) => {
-    const { room, message } = data;
+    const { username, message } = data;
 
     try {
       // Insert message into the database
-      const result = await insertNewMessage(message, room, clientOffset);
-      console.log(`Message received: ${message} in room: ${room}`);
-      io.to(room).emit('chat-message', message, result.lastID);
+      const result = await insertNewMessage(message, username, clientOffset);
+      console.log(`Message received: ${message} in room: ${username}`);
+      io.to(username).emit('chat-message', message, result.lastID);
     } catch (error) {
       // Check if the message was already inserted
       if (error.errno === 19) {
@@ -54,7 +46,6 @@ const displayChatMessages = async (socket) => {
 
 export {
   handleJoiningRoom,
-  handleLeavingRoom,
   handleChatMessages,
   displayChatMessages,
 };

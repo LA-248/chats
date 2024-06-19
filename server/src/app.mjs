@@ -17,7 +17,6 @@ import {
   displayChatMessages,
   handleChatMessages,
   handleJoiningRoom,
-  handleLeavingRoom,
 } from './handlers/socket-handlers.mjs';
 
 const app = express();
@@ -52,6 +51,15 @@ const io = new Server(server, {
   connectionStateRecovery: {},
 });
 
+app.get('/', (req, res) => {
+  if (req.session.passport && req.session.passport.user) {
+    console.log(req.session.passport.user);
+    res.send(`User ID: ${req.session.passport.user}`);
+  } else {
+    res.send('User not authenticated');
+  }
+});
+
 io.use(sharedSession(sessionMiddleware, { autoSave: true }));
 
 io.on('connection', (socket) => {
@@ -66,10 +74,8 @@ io.on('connection', (socket) => {
     console.log(socket.rooms);
   
     handleJoiningRoom(socket);
-    handleLeavingRoom(socket);
     handleChatMessages(socket, io);
     displayChatMessages(socket);
-
   } else {
     socket.disconnect();
   }
