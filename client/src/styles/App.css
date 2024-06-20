@@ -72,8 +72,6 @@ body {
   justify-content: start;
   align-items: center;
   padding: 10px;
-  margin-top: 10px;
-  margin-bottom: 10px;
   border-bottom: 1px solid rgb(75, 73, 73);
 }
 
@@ -125,12 +123,12 @@ body {
 
 .contact-header-container {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  gap: 10px;
   position: fixed;
   top: 0;
-  justify-content: start;
+  padding: 10px;
   color: white;
-  height: 100%;
 }
 
 /* Message Input */
@@ -227,4 +225,5 @@ body {
   color: red;
   text-decoration: underline;
   margin-top: 20px;
+  text-align: center;
 }

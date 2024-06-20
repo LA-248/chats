@@ -1,12 +1,11 @@
 import { useContext, useEffect, useState } from 'react';
 import { MessageContext } from './MessageContext';
-import { SocketContext } from '../pages/home';
 
 export default function Sidebar() {
   const [chatList, setChatList] = useState([]);
   const [userId, setUserId] = useState(null);
+  const [errorMessage, setErrorMessage] = useState(null);
   const { username, setUsername, setSelectedChat } = useContext(MessageContext);
-  const socket = useContext(SocketContext);
 
   useEffect(() => {
     // Retrieve chat list from local storage
@@ -22,37 +21,63 @@ export default function Sidebar() {
         method: 'GET',
         credentials: 'include',
       });
-  
+
       const data = await response.json();
       setUserId(data.userId);
-    }
+    };
 
     retrieveUserId();
   }, []);
 
-  const addChat = (event) => {
+  // Add a chat to the user's chat list
+  const addChat = async (event) => {
     event.preventDefault();
 
-    if (username) {
-      socket.emit('chat-list', username);
-      const newChatItem = {
-        userId: userId,
-        id: chatList.length + 1,
-        name: username,
-        lastMessage: 'Cool!',
-        time: '12:30 PM',
-      };
-      // Update chat list and store it in local storage
-      const updatedChatList = chatList.concat(newChatItem);
-      setChatList(updatedChatList);
-      localStorage.setItem('chat-list', JSON.stringify(updatedChatList));
-      setUsername('');
+    try {
+      // If there is already an active chat with the user, throw an error
+      const exists = chatList.some((chat) => chat.name === username);
+      if (exists) {
+        throw new Error('You already have an active chat with this user');
+      }
+
+      if (username) {
+        const response = await fetch('http://localhost:8080/users/chat_list', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ username: username }),
+          credentials: 'include',
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.errorMessage);
+        }
+
+        const newChatItem = {
+          userId: userId,
+          id: chatList.length + 1,
+          name: username,
+          lastMessage: 'Cool!',
+          time: '12:30 PM',
+        };
+
+        // Update chat list and store it in local storage
+        const updatedChatList = chatList.concat(newChatItem);
+        setChatList(updatedChatList);
+        localStorage.setItem('chat-list', JSON.stringify(updatedChatList));
+        setUsername('');
+      }
+    } catch (err) {
+      setErrorMessage(err.message);
     }
   };
 
   return (
     <div className="sidebar">
       <div>
+        {errorMessage && <div className="error-message">{errorMessage}</div>}
         <form id="username-form" action="" onSubmit={addChat}>
           <div className="username-input-container">
             <input
@@ -60,7 +85,10 @@ export default function Sidebar() {
               type="text"
               placeholder="Enter a username"
               value={username}
-              onChange={(event) => setUsername(event.target.value)}
+              onChange={(event) => {
+                setUsername(event.target.value);
+                setErrorMessage('');
+              }}
             />
             <button className="join-room-button" style={{ marginLeft: '10px' }}>
               Start chat

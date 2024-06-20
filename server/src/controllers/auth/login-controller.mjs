@@ -2,12 +2,14 @@ import passport from 'passport';
 
 export const handleUserLogin = (req, res, next) => {
   passport.authenticate('local', (err, user) => {
-    if (err) {
-      return res.status(500).json({ success: false, message: 'Internal server error' });
-    }
     if (!user) {
       return res.status(401).json({ success: false, message: 'Invalid username or password' });
     }
+
+    if (err) {
+      return res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+    
     req.login(user, (err) => {
       if (err) {
         return res.status(500).json({ success: false, message: 'Login failed' });

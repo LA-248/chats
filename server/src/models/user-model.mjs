@@ -17,6 +17,11 @@ const getUserByUsername = (username) => {
       if (err) {
         return reject(err);
       }
+
+      if (!user) {
+        return reject('User does not exist. Make sure that the username is correct.');
+      }
+
       resolve(user);
     });
   });

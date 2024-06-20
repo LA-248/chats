@@ -15,7 +15,6 @@ import usersRouter from './routes/users.mjs';
 
 import {
   displayChatMessages,
-  handleChatList,
   handleChatMessages,
 } from './handlers/socket-handlers.mjs';
 
@@ -75,7 +74,6 @@ io.on('connection', (socket) => {
 
     socket.emit('user-id', userId);
 
-    handleChatList(socket);
     handleChatMessages(socket, io);
     displayChatMessages(socket);
   } else {

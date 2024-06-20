@@ -1,10 +1,5 @@
 import { insertNewMessage, retrieveMessages } from '../models/message-model.mjs';
-
-const handleChatList = (socket) => {
-  socket.on('chat-list', (username) => {
-    console.log(`Added ${username} to chat list`);
-  });
-}
+import { getUserByUsername } from '../models/user-model.mjs';
 
 const handleChatMessages = (socket, io) => {
   socket.on('chat-message', async (data, clientOffset, callback) => {
@@ -43,7 +38,6 @@ const displayChatMessages = async (socket) => {
 }
 
 export {
-  handleChatList,
   handleChatMessages,
   displayChatMessages,
 };
