@@ -1,5 +1,29 @@
 import { insertNewMessage, retrieveMessages } from '../models/message-model.mjs';
-import { getUserByUsername } from '../models/user-model.mjs';
+
+// TODO: Store user-socket associations in database
+// Store user-to-socket mappings
+// This allows for socket connections to be associated with the correct user
+const userSockets = new Map();
+const manageSocketConnections = (socket) => {
+  socket.on('authenticate', (userId) => {
+    if (!userSockets.has(userId)) {
+      userSockets.set(userId, new Set());
+    }
+    userSockets.get(userId).add(socket.id);
+
+    socket.on('disconnect', () => {
+      const userSet = userSockets.get(userId);
+      if (userSet) {
+        userSet.delete(socket.id);
+        if (userSet.size === 0) {
+          userSockets.delete(userId);
+        }
+      }
+    });
+
+    console.log(userSockets);
+  });
+}
 
 const handleChatMessages = (socket, io) => {
   socket.on('chat-message', async (data, clientOffset, callback) => {
@@ -38,6 +62,7 @@ const displayChatMessages = async (socket) => {
 }
 
 export {
+  manageSocketConnections,
   handleChatMessages,
   displayChatMessages,
 };

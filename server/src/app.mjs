@@ -16,6 +16,7 @@ import usersRouter from './routes/users.mjs';
 import {
   displayChatMessages,
   handleChatMessages,
+  manageSocketConnections,
 } from './handlers/socket-handlers.mjs';
 
 const app = express();
@@ -72,8 +73,7 @@ io.on('connection', (socket) => {
     console.log(`User ID: ${userId}`);
     console.log(socket.rooms);
 
-    socket.emit('user-id', userId);
-
+    manageSocketConnections(socket);
     handleChatMessages(socket, io);
     displayChatMessages(socket);
   } else {

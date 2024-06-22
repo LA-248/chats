@@ -1,11 +1,14 @@
 import { useContext, useEffect, useState } from 'react';
 import { MessageContext } from './MessageContext';
+import { retrieveUserId } from '../utils/FetchUserId';
+import { SocketContext } from '../pages/home';
 
 export default function Sidebar() {
   const [chatList, setChatList] = useState([]);
   const [userId, setUserId] = useState(null);
   const [errorMessage, setErrorMessage] = useState(null);
   const { username, setUsername, setSelectedChat } = useContext(MessageContext);
+  const socket = useContext(SocketContext);
 
   useEffect(() => {
     // Retrieve chat list from local storage
@@ -15,19 +18,25 @@ export default function Sidebar() {
       setChatList(JSON.parse(storedChatList));
     }
 
-    // Fetch the user's ID which is used to display their chat list
-    const retrieveUserId = async () => {
-      const response = await fetch('http://localhost:8080/users/id', {
-        method: 'GET',
-        credentials: 'include',
-      });
-
-      const data = await response.json();
-      setUserId(data.userId);
+    const handleUserId = async () => {
+      try {
+        // Fetch the user's ID which is used to display their chat list
+        const id = await retrieveUserId();
+        setUserId(id);
+      } catch (err) {
+        console.error(err.message);
+      }
     };
 
-    retrieveUserId();
+    handleUserId();
   }, []);
+
+  // 
+  useEffect(() => {
+    if (socket && userId) {
+      socket.emit('authenticate', userId);
+    }
+  }, [socket, userId]);
 
   // Add a chat to the user's chat list
   const addChat = async (event) => {
