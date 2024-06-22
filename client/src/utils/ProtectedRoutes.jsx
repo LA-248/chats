@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Outlet, Navigate } from 'react-router-dom';
 
+// Set up route protection - done by retrieving the auth status from the backend
 export default function ProtectedRoutes() {
   const [authenticationStatus, setAuthenticationStatus] = useState(null);
   const [error, setError] = useState(null);

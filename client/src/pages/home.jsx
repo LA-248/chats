@@ -5,7 +5,7 @@ import { MessageList } from '../components/MessageList.jsx';
 import { MessageProvider } from '../components/MessageContext.jsx';
 import { createContext, useEffect, useState } from 'react';
 import DisplayUsername from '../components/DisplayUsername.jsx';
-import fetchUserData from '../utils/FetchUserData.jsx';
+import fetchUsername from '../utils/FetchUsername.jsx';
 import Sidebar from '../components/Sidebar.jsx';
 import ContactHeader from '../components/ContactHeader.jsx';
 
@@ -19,7 +19,7 @@ export default function Home() {
     // Retrieve account username
     const fetchUser = async () => {
       try {
-        const userData = await fetchUserData();
+        const userData = await fetchUsername();
         setUsername(userData);
       } catch (error) {
         console.error('Failed to fetch user data:', error.message);

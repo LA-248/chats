@@ -1,4 +1,4 @@
-export default async function fetchUserData() {
+export default async function fetchUsername() {
   try {
     const response = await fetch('http://localhost:8080/users/username', {
       method: 'GET',
