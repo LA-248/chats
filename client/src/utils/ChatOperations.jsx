@@ -32,6 +32,8 @@ export const addChat = async (inputUsername, chatList, userId) => {
       };
 
       return newChatItem;
+    } else {
+      throw new Error('Please enter a username');
     }
   } catch (error) {
     throw error;

@@ -1,4 +1,4 @@
-export default function AddChatForm({ inputUsername, setInputUsername, handleAddChat, errorMessage }) {
+export default function AddChatForm({ inputUsername, setInputUsername, handleAddChat, errorMessage, setErrorMessage}) {
   return (
     <div>
       {errorMessage && <div className="error-message">{errorMessage}</div>}
@@ -11,6 +11,7 @@ export default function AddChatForm({ inputUsername, setInputUsername, handleAdd
             value={inputUsername}
             onChange={(event) => {
               setInputUsername(event.target.value);
+              setErrorMessage('');
             }}
           />
           <button className="start-chat-button" style={{ marginLeft: '10px' }}>

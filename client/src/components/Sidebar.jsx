@@ -82,6 +82,7 @@ export default function Sidebar() {
         setInputUsername={setInputUsername}
         handleAddChat={handleAddChat}
         errorMessage={errorMessage}
+        setErrorMessage={setErrorMessage}
       />
 
       <ChatList 
