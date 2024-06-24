@@ -1,4 +1,7 @@
-import { insertNewMessage, retrieveMessages } from '../models/message-model.mjs';
+import {
+  insertNewMessage,
+  retrieveMessages,
+} from '../models/message-model.mjs';
 
 // TODO: Store user-socket associations in database
 // Store user-to-socket mappings
@@ -6,34 +9,39 @@ import { insertNewMessage, retrieveMessages } from '../models/message-model.mjs'
 const userSockets = new Map();
 const manageSocketConnections = (socket) => {
   socket.on('authenticate', (userId) => {
-    if (!userSockets.has(userId)) {
-      userSockets.set(userId, new Set());
-    }
-    userSockets.get(userId).add(socket.id);
+    userSockets.set(userId, socket.id);
 
     socket.on('disconnect', () => {
-      const userSet = userSockets.get(userId);
-      if (userSet) {
-        userSet.delete(socket.id);
-        if (userSet.size === 0) {
-          userSockets.delete(userId);
-        }
+      if (userSockets.get(userId) === socket.id) {
+        userSockets.delete(userId);
       }
     });
 
     console.log(userSockets);
   });
-}
+};
 
 const handleChatMessages = (socket, io) => {
   socket.on('chat-message', async (data, clientOffset, callback) => {
-    const { username, message } = data;
+    const { username, recipientId, message } = data;
+    const targetUserSocketId = userSockets.get(recipientId);
 
     try {
+      // Send to the target user
+      socket.to(targetUserSocketId).emit('chat-message', {
+        from: username,
+        message: message,
+      });
+
+      // Send to yourself
+      socket.emit('chat-message', {
+        from: 'You',
+        message: message,
+      });
+
       // Insert message into the database
-      const result = await insertNewMessage(message, username, clientOffset);
-      console.log(`Message received: ${message} in room: ${username}`);
-      io.to(username).emit('chat-message', message, result.lastID);
+      // const result = await insertNewMessage(message, recipientId, clientOffset);
+      console.log(`Message received: ${message} in room: ${targetUserSocketId}`);
     } catch (error) {
       // Check if the message was already inserted
       if (error.errno === 19) {
@@ -44,7 +52,7 @@ const handleChatMessages = (socket, io) => {
       }
     }
   });
-}
+};
 
 const displayChatMessages = async (socket) => {
   if (!socket.recovered) {
@@ -59,10 +67,6 @@ const displayChatMessages = async (socket) => {
       return;
     }
   }
-}
-
-export {
-  manageSocketConnections,
-  handleChatMessages,
-  displayChatMessages,
 };
+
+export { manageSocketConnections, handleChatMessages, displayChatMessages };

@@ -7,8 +7,8 @@ function MessageList() {
   const socket = useContext(SocketContext);
 
   useEffect(() => {
-    const handleMessage = (message, serverOffset) => {
-      setMessages((prevMessages) => prevMessages.concat(message));
+    const handleMessage = (messageData, serverOffset) => {
+      setMessages((prevMessages) => prevMessages.concat(messageData));
       socket.auth.serverOffset = serverOffset;
     };
 
@@ -22,8 +22,10 @@ function MessageList() {
 
   return (
     <ul id="messages">
-      {messages.map((message, index) => (
-        <li key={index}>{message}</li>
+      {messages.map((messageData, index) => (
+        <li key={index}>
+          {messageData.from}: {messageData.message}
+        </li>
       ))}
     </ul>
   );

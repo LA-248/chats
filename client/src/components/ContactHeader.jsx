@@ -6,6 +6,7 @@ export default function ContactHeader() {
 
   return (
     <div className="contact-header-container">
+      {selectedChat && <div className="chat-pic" style={{height: '35px', width: '35px'}}></div>}
       <div className="recipient-username">{selectedChat}</div>
     </div>
   );

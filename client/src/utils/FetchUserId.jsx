@@ -11,7 +11,7 @@ export const retrieveUserId = async () => {
 
     const data = await response.json();
     return data.userId;
-  } catch (err) {
-    throw new Error(err.message);
+  } catch (error) {
+    throw error.message;
   }
 };

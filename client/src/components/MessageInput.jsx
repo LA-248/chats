@@ -1,11 +1,27 @@
 import { useContext, useEffect, useState } from 'react';
 import { MessageContext } from './MessageContext';
 import { SocketContext } from '../pages/home';
+import fetchUsername from '../utils/FetchUsername';
 
 export default function MessageInput() {
-  const { message, setMessage, setMessages, username } = useContext(MessageContext);
+  const { message, setMessage, setMessages, selectedChat, recipientId } = useContext(MessageContext);
   const [counter, setCounter] = useState(0);
+  const [isDisabled, setIsDisabled] = useState(true);
   const socket = useContext(SocketContext);
+  const [username, setUsername] = useState('');
+
+  useEffect(() => {
+    // Retrieve account username
+    const fetchUser = async () => {
+      try {
+        const userData = await fetchUsername();
+        setUsername(userData);
+      } catch (error) {
+        console.error('Failed to fetch user data:', error.message);
+      }
+    };
+    fetchUser();
+  }, []);
 
   const submitChatMessage = (event) => {
     event.preventDefault();
@@ -15,7 +31,7 @@ export default function MessageInput() {
       const clientOffset = `${socket.id}-${counter}`;
       setCounter(counter + 1);
       // Send the message to the server
-      socket.emit('chat-message', { username, message }, clientOffset, (response) => {
+      socket.emit('chat-message', { username, recipientId, message }, clientOffset, (response) => {
         if (response) {
           console.log(response);
         }
@@ -38,6 +54,18 @@ export default function MessageInput() {
     };
   }, [setMessages, socket]);
 
+  useEffect(() => {
+    const conditionalInput = () => {
+      if (selectedChat === null) {
+        setIsDisabled(true);
+      } else {
+        setIsDisabled(false);
+      }
+    }
+
+    conditionalInput();
+  }, [selectedChat]);
+
   return (
     <div>
       <form id="message-form" action="" onSubmit={submitChatMessage}>
@@ -45,7 +73,8 @@ export default function MessageInput() {
           <input
             id="message-input"
             type="text"
-            placeholder="Message"
+            disabled={isDisabled}
+            placeholder={isDisabled ?  "Select a chat" : "Message"}
             value={message}
             onChange={(event) => setMessage(event.target.value)}
           />

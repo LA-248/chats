@@ -2,12 +2,17 @@ import { useContext, useEffect, useState } from 'react';
 import { MessageContext } from './MessageContext';
 import { retrieveUserId } from '../utils/FetchUserId';
 import { SocketContext } from '../pages/home';
+import { fetchRecipientUserId } from '../utils/FetchRecipientUserId';
+import { addChat } from '../utils/ChatOperations';
+import AddChatForm from './AddChatForm';
+import ChatList from './ChatList';
 
 export default function Sidebar() {
   const [chatList, setChatList] = useState([]);
   const [userId, setUserId] = useState(null);
+  const [inputUsername, setInputUsername] = useState('');
   const [errorMessage, setErrorMessage] = useState(null);
-  const { username, setUsername, setSelectedChat } = useContext(MessageContext);
+  const { setUsername, selectedChat, setSelectedChat, setRecipientId } = useContext(MessageContext);
   const socket = useContext(SocketContext);
 
   useEffect(() => {
@@ -31,99 +36,60 @@ export default function Sidebar() {
     handleUserId();
   }, []);
 
-  // 
+  // Needed to store user-to-socket mappings on the server
   useEffect(() => {
     if (socket && userId) {
       socket.emit('authenticate', userId);
     }
   }, [socket, userId]);
 
-  // Add a chat to the user's chat list
-  const addChat = async (event) => {
+  const handleAddChat = async (event) => {
     event.preventDefault();
 
     try {
-      // If there is already an active chat with the user, throw an error
-      const exists = chatList.some((chat) => chat.name === username);
-      if (exists) {
-        throw new Error('You already have an active chat with this user');
-      }
-
-      if (username) {
-        const response = await fetch('http://localhost:8080/users/chat_list', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ username: username }),
-          credentials: 'include',
-        });
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.errorMessage);
-        }
-
-        const newChatItem = {
-          userId: userId,
-          id: chatList.length + 1,
-          name: username,
-          lastMessage: 'Cool!',
-          time: '12:30 PM',
-        };
-
-        // Update chat list and store it in local storage
-        const updatedChatList = chatList.concat(newChatItem);
-        setChatList(updatedChatList);
-        localStorage.setItem('chat-list', JSON.stringify(updatedChatList));
-        setUsername('');
-      }
+      const newChatItem = await addChat(inputUsername, chatList, userId);
+      const updatedChatList = chatList.concat(newChatItem);
+      setChatList(updatedChatList);
+      localStorage.setItem('chat-list', JSON.stringify(updatedChatList));
+      setInputUsername('');
     } catch (err) {
       setErrorMessage(err.message);
     }
   };
 
+  // Retrieve the ID of the chat user selected
+  // We can then get the socket ID associated with the recipient's user ID
+  // This is needed so private messages are sent to the correct user
+  useEffect(() => {
+    if (selectedChat) {
+      const getRecipientId = async () => {
+        try {
+          const userId = await fetchRecipientUserId(selectedChat);
+          setRecipientId(userId);
+        } catch (error) {
+          setErrorMessage(error.message);
+        }
+      };
+
+      getRecipientId();
+    }
+  }, [selectedChat, userId, setRecipientId]);
+
   return (
     <div className="sidebar">
-      <div>
-        {errorMessage && <div className="error-message">{errorMessage}</div>}
-        <form id="username-form" action="" onSubmit={addChat}>
-          <div className="username-input-container">
-            <input
-              id="username-input"
-              type="text"
-              placeholder="Enter a username"
-              value={username}
-              onChange={(event) => {
-                setUsername(event.target.value);
-                setErrorMessage('');
-              }}
-            />
-            <button className="join-room-button" style={{ marginLeft: '10px' }}>
-              Start chat
-            </button>
-          </div>
-        </form>
-      </div>
+      <AddChatForm 
+        inputUsername={inputUsername}
+        setInputUsername={setInputUsername}
+        handleAddChat={handleAddChat}
+        errorMessage={errorMessage}
+      />
 
-      <div className="chat-list">
-        {chatList
-          .filter((chat) => chat.userId === userId)
-          .map((chat) => (
-            <div
-              className="chat-item"
-              key={chat.id}
-              onClick={() => setSelectedChat(chat.name)}
-            >
-              <div className="chat-pic"></div>
-              <div className="chat-info">
-                <h4 className="chat-name">{chat.name}</h4>
-                <p className="chat-last-message">{chat.lastMessage}</p>
-              </div>
-              <div className="chat-time">{chat.time}</div>
-            </div>
-          ))}
-      </div>
+      <ChatList 
+        chatList={chatList}
+        userId={userId}
+        setSelectedChat={setSelectedChat}
+        setUsername={setUsername}
+      />
     </div>
   );
 }

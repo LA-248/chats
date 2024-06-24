@@ -27,4 +27,20 @@ const getUserByUsername = (username) => {
   });
 }
 
-export { getUsernameById, getUserByUsername };
+const getIdByUsername = (username) => {
+  return new Promise((resolve, reject) => {
+    db.get('SELECT id FROM users WHERE username = ?', [username], (err, user) => {
+      if (err) {
+        return reject(err);
+      }
+
+      if (!user) {
+        return reject('User does not exist. Make sure that the username is correct.');
+      }
+
+      resolve(user);
+    });
+  });
+}
+
+export { getUsernameById, getUserByUsername, getIdByUsername };
