@@ -27,21 +27,27 @@ const handleChatMessages = (socket, io) => {
     const targetUserSocketId = userSockets.get(recipientId);
 
     try {
-      // Send to the target user
-      socket.to(targetUserSocketId).emit('chat-message', {
-        from: username,
-        message: message,
-      });
+      if (targetUserSocketId) {
+        // Ensure the room is the same for both users by sorting the socket IDs
+        const roomName = [socket.id, targetUserSocketId].sort().join('-');
 
-      // Send to yourself
-      socket.emit('chat-message', {
-        from: 'You',
-        message: message,
-      });
+        // Make the recipient join the private chat room
+        io.in(targetUserSocketId).socketsJoin(roomName);
+
+        // Make the sender join the room
+        socket.join(roomName);
+
+        // Send the message to both room participants
+        io.to(roomName).emit('chat-message', {
+          from: username,
+          message: message,
+        });
+
+        console.log(`Message received: ${message} from ${username} in room: ${roomName}`);
+      }
 
       // Insert message into the database
       // const result = await insertNewMessage(message, recipientId, clientOffset);
-      console.log(`Message received: ${message} in room: ${targetUserSocketId}`);
     } catch (error) {
       // Check if the message was already inserted
       if (error.errno === 19) {
