@@ -3,7 +3,7 @@ import { MessageContext } from './MessageContext';
 import { retrieveUserId } from '../utils/FetchUserId';
 import { SocketContext } from '../pages/home';
 import { fetchRecipientUserId } from '../utils/FetchRecipientUserId';
-import { addChat } from '../utils/ChatOperations';
+import { addChat } from '../utils/AddToChatList';
 import AddChatForm from './AddChatForm';
 import ChatList from './ChatList';
 
