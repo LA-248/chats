@@ -25,29 +25,29 @@ const handleChatMessages = (socket, io) => {
   socket.on('chat-message', async (data, clientOffset, callback) => {
     const { username, recipientId, message } = data;
     const targetUserSocketId = userSockets.get(recipientId);
+    const userId = socket.handshake.session.passport.user;
 
     try {
-      if (targetUserSocketId) {
-        // Ensure the room is the same for both users by sorting the socket IDs
-        const roomName = [socket.id, targetUserSocketId].sort().join('-');
+      // Create a consistent room name using user IDs
+      // Ensure the room is the same for both users by sorting the user IDs
+      const roomName = [userId, recipientId].sort().join('-');
 
-        // Make the recipient join the private chat room
-        io.in(targetUserSocketId).socketsJoin(roomName);
+      // Make the recipient join the private chat room
+      io.in(targetUserSocketId).socketsJoin(roomName);
 
-        // Make the sender join the room
-        socket.join(roomName);
+      // Make the sender join the room
+      socket.join(roomName);
 
-        // Send the message to both room participants
-        io.to(roomName).emit('chat-message', {
-          from: username,
-          message: message,
-        });
+      // Send the message to both room participants
+      io.to(roomName).emit('chat-message', {
+        from: username,
+        message: message,
+      });
 
-        console.log(`Message received: ${message} from ${username} in room: ${roomName}`);
-      }
+      console.log(`Message received: ${message} from ${username} in room: ${roomName}`);
 
       // Insert message into the database
-      // const result = await insertNewMessage(message, recipientId, clientOffset);
+      const result = await insertNewMessage(message, roomName, clientOffset);
     } catch (error) {
       // Check if the message was already inserted
       if (error.errno === 19) {
