@@ -1,4 +1,8 @@
+import { useNavigate } from 'react-router-dom';
+
 export default function ChatList({ chatList, userId, setSelectedChat, setUsername }) {
+  const navigate = useNavigate();
+  
   return (
     <div className="chat-list">
       {chatList
@@ -10,6 +14,7 @@ export default function ChatList({ chatList, userId, setSelectedChat, setUsernam
             onClick={() => {
               setSelectedChat(chat.name);
               setUsername(chat.name);
+              navigate(`/messages/${chat.room}`);
             }}
           >
             <div className="chat-pic"></div>

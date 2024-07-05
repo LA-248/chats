@@ -47,7 +47,7 @@ const handleChatMessages = (socket, io) => {
       console.log(`Message received: ${message} from ${username} in room: ${roomName}`);
 
       // Insert message into the database
-      const result = await insertNewMessage(message, roomName, clientOffset);
+      await insertNewMessage(message, username, roomName, clientOffset);
     } catch (error) {
       // Check if the message was already inserted
       if (error.errno === 19) {
@@ -60,14 +60,18 @@ const handleChatMessages = (socket, io) => {
   });
 };
 
-const displayChatMessages = async (socket) => {
+const displayChatMessages = async (socket, room) => {
   if (!socket.recovered) {
     try {
-      // Get messages from database for display
-      const messages = await retrieveMessages(socket.handshake.auth.serverOffset);
-      for (let i = 0; i < messages.length; i++) {
-        socket.emit('chat-message', messages[i].content, messages[i].id);
-      }
+      // Get messages from database for display, filtered by room
+      const messages = await retrieveMessages(socket.handshake.auth.serverOffset, room);
+      console.log(messages);
+
+      socket.emit('initial-messages', messages.map(msg => ({
+        from: msg.sender_username,
+        message: msg.content,
+        id: msg.id,
+      })));
     } catch (error) {
       console.error('Unexpected error:', error.message);
       return;

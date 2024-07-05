@@ -75,7 +75,12 @@ io.on('connection', (socket) => {
 
     manageSocketConnections(socket);
     handleChatMessages(socket, io);
-    displayChatMessages(socket);
+
+    socket.on('join-room', (room) => {
+      socket.join(room);
+      // Load messages for the room
+      displayChatMessages(socket, room);
+    });
   } else {
     socket.disconnect();
   }
