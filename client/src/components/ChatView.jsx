@@ -1,11 +1,13 @@
-import { useContext, useEffect } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { MessageContext } from './MessageContext';
 import { SocketContext } from '../pages/home';
 import { useParams } from 'react-router-dom';
+import { initializeUserId } from '../utils/FetchUserId';
 
 function ChatView() {
   const { messages, setMessages } = useContext(MessageContext);
   const socket = useContext(SocketContext);
+  const [userId, setUserId] = useState(null);
   // Extract room from URL
   const { room } = useParams();
 
@@ -32,19 +34,27 @@ function ChatView() {
     socket.on('chat-message', handleMessage);
 
     return () => {
+      socket.emit('leave-room', room);
       socket.off('initial-messages', handleInitialMessages);
       socket.off('chat-message', handleMessage);
     };
   }, [setMessages, socket, room]);
 
+  useEffect(() => {
+    initializeUserId(setUserId);
+  }, []);
+
   return (
-    <ul id="messages">
-      {messages.map((messageData, index) => (
-        <li key={index}>
-          {messageData.from}: {messageData.message}
-        </li>
-      ))}
-    </ul>
+    // If the user is not a part of the private chat, don't render the messages
+    room.includes(userId) && (
+      <ul id="messages">
+        {messages.map((messageData, index) => (
+          <li key={index}>
+            {messageData.from}: {messageData.message}
+          </li>
+        ))}
+      </ul>
+    )
   );
 }
 
