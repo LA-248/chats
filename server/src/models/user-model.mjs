@@ -1,11 +1,24 @@
 import { db } from '../services/database.mjs';
 
+const insertNewUser = (username, hashedPassword) => {
+  return new Promise((resolve, reject) => {
+    db.run('INSERT INTO users (username, hashed_password) VALUES (?, ?)', [username, hashedPassword], (err) => {
+      if (err) {
+        return reject(err);
+      }
+
+      resolve();
+    });
+  })
+}
+
 const getUsernameById = (userId) => {
   return new Promise((resolve, reject) => {
     db.get('SELECT username FROM users WHERE id = ?', [userId], (err, user) => {
       if (err) {
         return reject(err);
       }
+      
       resolve(user);
     });
   });
@@ -43,4 +56,4 @@ const getIdByUsername = (username) => {
   });
 }
 
-export { getUsernameById, getUserByUsername, getIdByUsername };
+export { insertNewUser, getUsernameById, getUserByUsername, getIdByUsername };

@@ -1,65 +1,47 @@
-import crypto from 'crypto';
+import bcrypt from 'bcrypt';
 import { db } from '../../services/database.mjs';
+import { getUserByUsername, insertNewUser } from '../../models/user-model.mjs';
 
-
-const handleSignUp = (req, res) => {
+const handleSignUp = async (req, res) => {
   const { username, password } = req.body;
 
-  db.get('SELECT username FROM users WHERE username = ?', [username], (err, row) => {
-    if (err) {
-      res.status(500).json({ message: 'An unexpected error occurred.' });
-      console.error(err.message);
-      return;
-    }
-
+  try {
     // Check if username already exists
-    if (row) {
-      res.status(409).json({ message: 'Username already taken'});
-      return;
+    const existingUser = await new Promise((resolve, reject) => {
+      db.get('SELECT username FROM users WHERE username = ?', [username], (err, row) => {
+        if (err) reject(err);
+          else resolve(row);
+        }
+      );
+    });
+
+    if (existingUser) {
+      return res.status(409).json({ message: 'Username already taken' });
     }
 
-    // Generate a salt
-    const salt = crypto.randomBytes(16).toString('hex');
+    // Hash user password
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-    crypto.pbkdf2(password, salt, 310000, 32, 'sha256', (err, hashedPassword) => {
+    // Insert new user
+    await insertNewUser(username, hashedPassword);
+
+    // Fetch the newly created user
+    const newUser = await getUserByUsername(username);
+
+    // Automatically log in the newly created user
+    req.login(newUser, (err) => {
       if (err) {
-        res.status(500).json({ message: 'Error creating account. Please try again.' });
-        console.error(err.message);
+        console.error('Login error:', err.message);
+        res.status(500).json({ message: 'Error logging in. Please try again.' });
         return;
       }
 
-      // Convert hashedPassword to hex string for database storage
-      const hashedPasswordHex = hashedPassword.toString('hex');
-
-      db.run('INSERT INTO users (username, hashed_password, salt) VALUES (?, ?, ?)', [username, hashedPasswordHex, salt], (err) => {
-        if (err) {
-          res.status(500).json({ message: 'An unexpected error occurred.' });
-          console.error(err.message);
-          return;
-        }
-      
-        db.get('SELECT * FROM users WHERE username = ?', [username], (err, user) => {
-          if (err) {
-            res.status(500).json({ message: 'An unexpected error occurred.' });
-            console.error(err.message);
-            return;
-          }
-
-          // Automatically log in the newly created user
-          req.login(user, (err) => {
-            if (err) {
-              console.error('Login error:', err.message);
-              res.status(500).json({ message: 'Error logging in. Please try again.' });
-              return;
-            }
-
-            res.status(200).json({ redirectPath: '/' });
-            return;
-          });
-        });
-      });
+      res.status(200).json({ redirectPath: '/' });
     });
-  });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ message: 'An unexpected error occurred' });
+  }
 };
 
 export { handleSignUp };
