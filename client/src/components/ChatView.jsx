@@ -13,10 +13,13 @@ function ChatView() {
 
   useEffect(() => {
     const handleMessage = (messageData, serverOffset) => {
-      // Concatenate new message to existing messages
-      setMessages((prevMessages) => prevMessages.concat(messageData));
-      if (serverOffset) {
-        socket.auth.serverOffset = serverOffset;
+      // Append message to UI only if the user is currently in the room where the message was sent
+      if (room === messageData.room) {
+        // Concatenate new message to existing messages
+        setMessages((prevMessages) => prevMessages.concat(messageData));
+        if (serverOffset) {
+          socket.auth.serverOffset = serverOffset;
+        }
       }
     };
 
@@ -45,7 +48,7 @@ function ChatView() {
   }, []);
 
   return (
-    // If the user is not a part of the private chat, don't render the messages
+    // Only render the messages if the user is a part of the private chat
     room.includes(userId) && (
       <ul id="messages">
         {messages.map((messageData, index) => (

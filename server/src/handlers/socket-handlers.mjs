@@ -42,6 +42,7 @@ const handleChatMessages = (socket, io) => {
       io.to(roomName).emit('chat-message', {
         from: username,
         message: message,
+        room: roomName,
       });
 
       console.log(`Message received: ${message} from ${username} in room: ${roomName}`);
