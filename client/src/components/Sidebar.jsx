@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from 'react';
 import { MessageContext } from './MessageContext';
-import { retrieveUserId } from '../utils/FetchUserId';
+import { initializeUserId } from '../utils/FetchUserId';
 import { SocketContext } from '../pages/home';
 import { fetchRecipientUserId } from '../utils/FetchRecipientUserId';
 import { addChat } from '../utils/AddToChatList';
@@ -23,17 +23,7 @@ export default function Sidebar() {
       setChatList(JSON.parse(storedChatList));
     }
 
-    const handleUserId = async () => {
-      try {
-        // Fetch the user's ID which is used to display their chat list
-        const id = await retrieveUserId();
-        setUserId(id);
-      } catch (err) {
-        console.error(err.message);
-      }
-    };
-
-    handleUserId();
+    initializeUserId(setUserId);
   }, []);
 
   // Needed to store user-to-socket mappings on the server
@@ -52,13 +42,13 @@ export default function Sidebar() {
       setChatList(updatedChatList);
       localStorage.setItem('chat-list', JSON.stringify(updatedChatList));
       setInputUsername('');
-    } catch (err) {
-      setErrorMessage(err.message);
+    } catch (error) {
+      setErrorMessage(error.message);
     }
   };
 
   // Retrieve the ID of the chat user selected
-  // We can then get the socket ID associated with the recipient's user ID
+  // We can then get the socket ID associated with the recipient's user ID on the server
   // This is needed so private messages are sent to the correct user
   useEffect(() => {
     if (selectedChat) {

@@ -1,4 +1,4 @@
-export const retrieveUserId = async () => {
+const retrieveUserId = async () => {
   try {
     const response = await fetch('http://localhost:8080/users/id', {
       method: 'GET',
@@ -15,3 +15,15 @@ export const retrieveUserId = async () => {
     throw error.message;
   }
 };
+
+const initializeUserId = async (setUserId) => {
+  try {
+    // Fetch the user's ID which is used to display their chat list
+    const id = await retrieveUserId();
+    setUserId(id);
+  } catch (err) {
+    console.error(err.message);
+  }
+};
+
+export { retrieveUserId, initializeUserId };
