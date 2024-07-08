@@ -1,5 +1,6 @@
 import {
   insertNewMessage,
+  retrieveLastMessageSent,
   retrieveMessages,
 } from '../models/message-model.mjs';
 
@@ -38,17 +39,21 @@ const handleChatMessages = (socket, io) => {
       // Make the sender join the room
       socket.join(roomName);
 
+      console.log(`Message received: ${message} from ${username} in room: ${roomName}`);
+
+      // Insert message into the database
+      await insertNewMessage(message, username, roomName, clientOffset);
+
+      // Retrieve most recent message sent in a chat room
+      const lastMessage = await retrieveLastMessageSent(roomName);
+
       // Send the message to both room participants
       io.to(roomName).emit('chat-message', {
         from: username,
         message: message,
         room: roomName,
+        lastMessage: lastMessage,
       });
-
-      console.log(`Message received: ${message} from ${username} in room: ${roomName}`);
-
-      // Insert message into the database
-      await insertNewMessage(message, username, roomName, clientOffset);
     } catch (error) {
       // Check if the message was already inserted
       if (error.errno === 19) {

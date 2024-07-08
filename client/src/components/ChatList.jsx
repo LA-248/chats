@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { MessageContext } from './MessageContext';
 
 export default function ChatList({ chatList, userId, setSelectedChat, setUsername }) {
-  const [activeChatId, setActiveChatId] = useState(null);
+  const { activeChatId, setActiveChatId } = useContext(MessageContext);
   const navigate = useNavigate();
+  const storedChat = JSON.parse(localStorage.getItem('chat-list'));
 
   return (
     <div className="chat-list">
@@ -25,7 +27,7 @@ export default function ChatList({ chatList, userId, setSelectedChat, setUsernam
               <div className="chat-pic"></div>
               <div className="chat-info">
                 <h4 className="chat-name">{chat.name}</h4>
-                <p className="chat-last-message">{chat.lastMessage}</p>
+                <p className="chat-last-message">{storedChat[chat.id - 1].lastMessage}</p>
               </div>
               <div className="chat-time">{chat.time}</div>
             </div>

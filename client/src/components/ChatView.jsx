@@ -5,7 +5,7 @@ import { useParams } from 'react-router-dom';
 import { initializeUserId } from '../utils/FetchUserId';
 
 function ChatView() {
-  const { messages, setMessages } = useContext(MessageContext);
+  const { messages, setMessages, setLastMessage, activeChatId } = useContext(MessageContext);
   const socket = useContext(SocketContext);
   const [userId, setUserId] = useState(null);
   // Extract room from URL
@@ -21,6 +21,11 @@ function ChatView() {
           socket.auth.serverOffset = serverOffset;
         }
       }
+
+      // Update current active chat in local storage with most recent message sent
+      let storedChats = JSON.parse(localStorage.getItem('chat-list'));
+      storedChats[activeChatId - 1].lastMessage = messageData.lastMessage;
+      localStorage.setItem('chat-list', JSON.stringify(storedChats));
     };
 
     const handleInitialMessages = (initialMessages) => {
@@ -41,7 +46,7 @@ function ChatView() {
       socket.off('initial-messages', handleInitialMessages);
       socket.off('chat-message', handleMessage);
     };
-  }, [setMessages, socket, room]);
+  }, [setMessages, socket, room, setLastMessage, activeChatId]);
 
   useEffect(() => {
     initializeUserId(setUserId);

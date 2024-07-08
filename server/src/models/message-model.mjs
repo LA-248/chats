@@ -22,4 +22,16 @@ const retrieveMessages = (serverOffset, room) => {
   });
 };
 
-export { insertNewMessage, retrieveMessages };
+const retrieveLastMessageSent = (room) => {
+  return new Promise((resolve, reject) => {
+    db.get('SELECT content FROM messages WHERE room = ? ORDER BY id DESC LIMIT 1', [room], (err, row) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(row.content);
+      }
+    });
+  });
+}
+
+export { insertNewMessage, retrieveMessages, retrieveLastMessageSent };
