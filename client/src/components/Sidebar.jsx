@@ -40,7 +40,12 @@ export default function Sidebar() {
       const newChatItem = await addChat(inputUsername, chatList, userId);
       const updatedChatList = chatList.concat(newChatItem);
       setChatList(updatedChatList);
-      localStorage.setItem('chat-list', JSON.stringify(updatedChatList));
+
+      // Update the chat list in localStorage with the new chat item
+      const existingChatList = JSON.parse(localStorage.getItem('chat-list')) || [];
+      const newChatList = existingChatList.concat(newChatItem);
+      localStorage.setItem('chat-list', JSON.stringify(newChatList));
+
       setInputUsername('');
     } catch (error) {
       setErrorMessage(error.message);
