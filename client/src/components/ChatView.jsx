@@ -5,7 +5,7 @@ import { useParams } from 'react-router-dom';
 import { initializeUserId } from '../utils/FetchUserId';
 
 function ChatView() {
-  const { messages, setMessages, setLastMessage, activeChatId } = useContext(MessageContext);
+  const { messages, setMessages, activeChatId } = useContext(MessageContext);
   const socket = useContext(SocketContext);
   const [userId, setUserId] = useState(null);
   // Extract room from URL
@@ -46,7 +46,7 @@ function ChatView() {
       socket.off('initial-messages', handleInitialMessages);
       socket.off('chat-message', handleMessage);
     };
-  }, [setMessages, socket, room, setLastMessage, activeChatId]);
+  }, [setMessages, socket, room, activeChatId]);
 
   useEffect(() => {
     initializeUserId(setUserId);

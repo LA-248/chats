@@ -22,4 +22,12 @@ const retrieveIdByUsername = async (req, res) => {
   }
 };
 
-export { retrieveUsernameById, retrieveIdByUsername };
+const retrieveUserIdFromSession = async (req, res) => {
+  if (req.session.passport && req.session.passport.user) {
+    res.json({ userId: req.session.passport.user });
+  } else {
+    res.json({ errorMessage: 'User not authenticated' });
+  }
+};
+
+export { retrieveUsernameById, retrieveIdByUsername, retrieveUserIdFromSession };
