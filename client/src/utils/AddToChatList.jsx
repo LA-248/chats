@@ -33,7 +33,7 @@ export const addChat = async (inputUsername, chatList, userId) => {
         id: chatList.length + 1,
         name: inputUsername,
         lastMessage: null,
-        time: '12:30 PM',
+        time: null,
         recipientId: recipientId,
         room: room,
       };

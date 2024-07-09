@@ -29,7 +29,7 @@ export default function ChatList({ chatList, userId, setSelectedChat, setUsernam
                 <h4 className="chat-name">{chat.name}</h4>
                 <p className="chat-last-message">{storedChat[chat.id - 1].lastMessage}</p>
               </div>
-              <div className="chat-time">{chat.time}</div>
+              <div className="chat-time">{storedChat[chat.id - 1].time}</div>
             </div>
           </div>
         ))}

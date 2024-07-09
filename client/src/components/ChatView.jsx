@@ -25,6 +25,7 @@ function ChatView() {
       // Update current active chat in local storage with most recent message sent
       let storedChats = JSON.parse(localStorage.getItem('chat-list'));
       storedChats[activeChatId - 1].lastMessage = messageData.lastMessage;
+      storedChats[activeChatId - 1].time = messageData.eventTime;
       localStorage.setItem('chat-list', JSON.stringify(storedChats));
     };
 
@@ -57,8 +58,12 @@ function ChatView() {
     room.includes(userId) && (
       <ul id="messages">
         {messages.map((messageData, index) => (
-          <li key={index}>
-            {messageData.from}: {messageData.message}
+          <li className="individual-message" key={index}>
+            <div className='message-info-container'>
+              <div className='message-from'>{messageData.from}:</div>
+              <div className='message-content'>{messageData.message}</div>
+            </div>
+            <div className='message-time'>{messageData.eventTime}</div>
           </li>
         ))}
       </ul>
