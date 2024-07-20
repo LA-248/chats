@@ -8,12 +8,11 @@ import AddChatForm from './AddChatForm';
 import ChatList from './ChatList';
 
 export default function Sidebar() {
-  const [chatList, setChatList] = useState([]);
   const [userId, setUserId] = useState(null);
   const [inputUsername, setInputUsername] = useState('');
   const [errorMessage, setErrorMessage] = useState(null);
-  const { setUsername, selectedChat, setSelectedChat, setRecipientId } = useContext(MessageContext);
-  const socket = useContext(SocketContext);
+  const { setUsername, selectedChat, setSelectedChat, setRecipientId, chatList, setChatList } = useContext(MessageContext);
+  const socket = useContext(SocketContext); 
 
   useEffect(() => {
     // Retrieve chat list from local storage
@@ -24,7 +23,7 @@ export default function Sidebar() {
     }
 
     initializeUserId(setUserId);
-  }, []);
+  }, [setChatList]);
 
   // Needed to store user-to-socket mappings on the server
   useEffect(() => {
@@ -80,8 +79,7 @@ export default function Sidebar() {
         setErrorMessage={setErrorMessage}
       />
 
-      <ChatList 
-        chatList={chatList}
+      <ChatList
         userId={userId}
         setSelectedChat={setSelectedChat}
         setUsername={setUsername}
