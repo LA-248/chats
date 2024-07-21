@@ -39,8 +39,8 @@ export default function ChatList({ userId, setSelectedChat, setUsername }) {
                 <h4 className="chat-name">{chat.name}</h4>
                 <p className="chat-last-message">{storedChat[chat.id - 1].lastMessage}</p>
               </div>
-              <div className="container">
-              <div className="chat-time">{storedChat[chat.id - 1].time}</div>
+              <div className="chat-utilities">
+                <div className="chat-time">{storedChat[chat.id - 1].time}</div>
                 {hoverChatId === chat.id && (
                   <button
                     onClick={(event) => {
