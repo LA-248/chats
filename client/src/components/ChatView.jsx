@@ -5,7 +5,7 @@ import { useParams } from 'react-router-dom';
 import { initializeUserId } from '../utils/FetchUserId';
 
 function ChatView() {
-  const { messages, setMessages, activeChatId } = useContext(MessageContext);
+  const { messages, setMessages, activeChatId, setChatList } = useContext(MessageContext);
   const socket = useContext(SocketContext);
   const [userId, setUserId] = useState(null);
   // Extract room from URL
@@ -22,10 +22,22 @@ function ChatView() {
         }
       }
 
-      // Update current active chat in local storage with most recent message sent
-      let storedChats = JSON.parse(localStorage.getItem('chat-list'));
-      storedChats[activeChatId - 1].lastMessage = messageData.lastMessage;
-      storedChats[activeChatId - 1].time = messageData.eventTime;
+      // Update chat list with the new last message and time
+      setChatList((prevChatList) => prevChatList.map((chat) =>
+          chat.room === messageData.room ? {...chat, lastMessage: messageData.message, time: messageData.eventTime} : chat
+        )
+      );
+
+      // Update chat in local storage with most recent message sent and time
+      const storedChats = JSON.parse(localStorage.getItem('chat-list'));
+      // Find the chat in the list that corresponds to the room the message was sent from
+      // Then update the last message and event time
+      for (let i = 0; i < storedChats.length; i++) {
+        if (storedChats[i].room === messageData.room) {
+          storedChats[i].lastMessage = messageData.lastMessage;
+          storedChats[i].time = messageData.eventTime;
+        }
+      }
       localStorage.setItem('chat-list', JSON.stringify(storedChats));
     };
 
@@ -47,7 +59,7 @@ function ChatView() {
       socket.off('initial-messages', handleInitialMessages);
       socket.off('chat-message', handleMessage);
     };
-  }, [setMessages, socket, room, activeChatId]);
+  }, [setMessages, socket, room, activeChatId, setChatList]);
 
   useEffect(() => {
     initializeUserId(setUserId);
@@ -59,11 +71,11 @@ function ChatView() {
       <ul id="messages">
         {messages.map((messageData, index) => (
           <li className="individual-message" key={index}>
-            <div className='message-info-container'>
-              <div className='message-from'>{messageData.from}:</div>
-              <div className='message-content'>{messageData.message}</div>
+            <div className="message-info-container">
+              <div className="message-from">{messageData.from}:</div>
+              <div className="message-content">{messageData.message}</div>
             </div>
-            <div className='message-time'>{messageData.eventTime}</div>
+            <div className="message-time">{messageData.eventTime}</div>
           </li>
         ))}
       </ul>

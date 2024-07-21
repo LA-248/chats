@@ -30,7 +30,7 @@ export const addChat = async (inputUsername, chatList, userId) => {
 
       const newChatItem = {
         userId: userId,
-        id: chatList.length + 1,
+        id: chatList.length > 0 ? chatList[chatList.length - 1].id + 1 : 1,
         name: inputUsername,
         lastMessage: null,
         time: null,
