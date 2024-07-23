@@ -1,19 +1,21 @@
 import { io } from 'https://cdn.socket.io/4.7.5/socket.io.esm.min.js';
 import { MessageProvider } from '../components/MessageContext.jsx';
 import { createContext, useEffect, useState } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import MessageInput from '../components/MessageInput.jsx';
 import Logout from '../components/UserLogout.jsx';
 import DisplayUsername from '../components/DisplayUsername.jsx';
 import fetchUsername from '../utils/FetchUsername.jsx';
 import Sidebar from '../components/Sidebar.jsx';
 import ContactHeader from '../components/ContactHeader.jsx';
+import HomepagePlaceholder from '../components/HomepagePlaceholder.jsx';
 
 export const SocketContext = createContext();
 
 export default function Home() {
   const [socket, setSocket] = useState(null);
   const [username, setUsername] = useState('');
+  const location = useLocation();
 
   useEffect(() => {
     // Retrieve account username
@@ -59,7 +61,7 @@ export default function Home() {
                     fontWeight: '600',
                     fontSize: '20px',
                     textDecoration: 'none',
-                    marginTop:'10px',
+                    marginTop: '10px',
                   }}
                 >
                   Chats
@@ -67,8 +69,14 @@ export default function Home() {
               </div>
             </div>
             <div className="chat-window-container">
-              <ContactHeader />
-              <Outlet />
+              {location.pathname === '/' ? (
+                <HomepagePlaceholder />
+              ) : (
+                <>
+                  <ContactHeader />
+                  <Outlet />
+                </>
+              )}
               <div className="input-container">
                 <MessageInput />
               </div>

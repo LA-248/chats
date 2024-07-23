@@ -15,6 +15,28 @@ body {
   height: 100vh;
 }
 
+/* CHAT WINDOW PLACEHOLDER */
+
+.hero-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  gap: 20px;
+}
+
+.hero-text {
+  font-size: 16px;
+  font-weight: 600;
+  color: white;
+}
+
+.chat-icon {
+  height: 90px;
+  width: auto;
+}
+
 /* SIDEBAR */
 
 .sidebar {
