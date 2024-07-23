@@ -42,6 +42,7 @@ app.use(passport.session());
 app.use('/auth', authRouter);
 app.use('/users', usersRouter);
 
+// Set up a Socket.IO server
 const io = new Server(server, {
   cors: {
     origin: 'http://localhost:3000',

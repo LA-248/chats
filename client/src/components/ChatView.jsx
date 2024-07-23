@@ -22,7 +22,7 @@ function ChatView() {
         }
       }
 
-      // Update chat list with the new last message and time
+      // Update chat list state with the new last message and time
       setChatList((prevChatList) => prevChatList.map((chat) =>
           chat.room === messageData.room ? {...chat, lastMessage: messageData.message, time: messageData.eventTime} : chat
         )
@@ -30,8 +30,7 @@ function ChatView() {
 
       // Update chat in local storage with most recent message sent and time
       const storedChats = JSON.parse(localStorage.getItem('chat-list'));
-      // Find the chat in the list that corresponds to the room the message was sent from
-      // Then update the last message and event time
+      // Find the chat in the list that corresponds to the room the message was sent from, then update the last message and event time
       for (let i = 0; i < storedChats.length; i++) {
         if (storedChats[i].room === messageData.room) {
           storedChats[i].lastMessage = messageData.lastMessage;
