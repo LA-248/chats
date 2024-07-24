@@ -46,7 +46,9 @@ export default function ChatList({ userId, setSelectedChat, setUsername }) {
                     onClick={(event) => {
                       event.stopPropagation();
                       removeChat(chat.id);
-                      navigate('/');
+                      if (activeChatId === chat.id) {
+                        navigate('/');
+                      }
                     }}
                     className="chat-delete-button"
                   >
