@@ -4,9 +4,8 @@ import { SocketContext } from '../pages/home';
 import fetchUsername from '../utils/FetchUsername';
 
 export default function MessageInput() {
-  const { message, setMessage, setMessages, selectedChat, recipientId } = useContext(MessageContext);
+  const { message, setMessage, setMessages, selectedChat, recipientId, isDisabled, setIsDisabled } = useContext(MessageContext);
   const [counter, setCounter] = useState(0);
-  const [isDisabled, setIsDisabled] = useState(true);
   const socket = useContext(SocketContext);
   const [username, setUsername] = useState('');
 
@@ -64,7 +63,7 @@ export default function MessageInput() {
     }
 
     conditionalInput();
-  }, [selectedChat]);
+  }, [selectedChat, setIsDisabled]);
 
   return (
     <div>

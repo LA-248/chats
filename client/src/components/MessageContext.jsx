@@ -10,6 +10,7 @@ const MessageProvider = ({ children }) => {
   const [selectedChat, setSelectedChat] = useState(null);
   const [recipientId, setRecipientId] = useState(null);
   const [chatList, setChatList] = useState([]);
+  const [isDisabled, setIsDisabled] = useState(true);
 
   return (
     <MessageContext.Provider
@@ -28,6 +29,8 @@ const MessageProvider = ({ children }) => {
         setRecipientId,
         chatList,
         setChatList,
+        isDisabled,
+        setIsDisabled,
       }}
     >
       {children}
