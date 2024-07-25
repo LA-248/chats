@@ -1,5 +1,9 @@
+import { fetchRecipientUserId } from './FetchRecipientUserId';
+
 // Add a chat to the user's chat list
 export const addChat = async (inputUsername, chatList, userId) => {
+  const recipientId = await fetchRecipientUserId(inputUsername);
+
   try {
     // If there is already an active chat with the user, throw an error
     const exists = chatList.some((chat) => chat.name === inputUsername);
@@ -14,7 +18,7 @@ export const addChat = async (inputUsername, chatList, userId) => {
           'Content-Type': 'application/json',
         },
         // Send the username entered to the backend to ensure that it exists in the database
-        body: JSON.stringify({ username: inputUsername }),
+        body: JSON.stringify({ username: inputUsername, recipientId: recipientId }),
         credentials: 'include',
       });
 
@@ -24,7 +28,8 @@ export const addChat = async (inputUsername, chatList, userId) => {
       }
 
       const data = await response.json();
-      const recipientId = data.userId;
+      const lastMessageContent = data.lastMessage;
+      const lastMessageTime = data.eventTime;
       // Ensure the room is the same for both users by sorting the user IDs
       const room = [userId, recipientId].sort().join('-');
 
@@ -32,8 +37,8 @@ export const addChat = async (inputUsername, chatList, userId) => {
         userId: userId,
         id: chatList.length > 0 ? chatList[chatList.length - 1].id + 1 : 1,
         name: inputUsername,
-        lastMessage: null,
-        time: null,
+        lastMessage: lastMessageContent,
+        time: lastMessageTime,
         recipientId: recipientId,
         room: room,
       };

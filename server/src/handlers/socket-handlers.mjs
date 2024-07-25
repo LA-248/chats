@@ -1,6 +1,6 @@
 import {
   insertNewMessage,
-  retrieveLastMessageSent,
+  retrieveLastMessageInfo,
   retrieveMessages,
 } from '../models/message-model.mjs';
 import retrieveCurrentTime from '../utils/time-utils.mjs';
@@ -27,13 +27,13 @@ const handleChatMessages = (socket, io) => {
   socket.on('chat-message', async (data, clientOffset, callback) => {
     const { username, recipientId, message } = data;
     const targetUserSocketId = userSockets.get(recipientId);
-    const userId = socket.handshake.session.passport.user;
+    const senderId = socket.handshake.session.passport.user;
     const currentTime = retrieveCurrentTime();
 
     try {
       // Create a consistent room name using user IDs
       // Ensure the room is the same for both users by sorting the user IDs
-      const roomName = [userId, recipientId].sort().join('-');
+      const roomName = [senderId, recipientId].sort().join('-');
 
       // Make the recipient join the private chat room
       io.in(targetUserSocketId).socketsJoin(roomName);
@@ -44,10 +44,10 @@ const handleChatMessages = (socket, io) => {
       console.log(`Message received: ${message} from ${username} in room: ${roomName}`);
 
       // Insert message into the database with relevant metadata
-      await insertNewMessage(message, username, roomName, currentTime, clientOffset);
+      await insertNewMessage(message, username, senderId, recipientId, roomName, currentTime, clientOffset);
 
       // Retrieve most recent message sent in a chat room
-      const lastMessage = await retrieveLastMessageSent(roomName);
+      const lastMessage = await retrieveLastMessageInfo(roomName);
 
       // Send the message to both room participants
       io.to(roomName).emit('chat-message', {
