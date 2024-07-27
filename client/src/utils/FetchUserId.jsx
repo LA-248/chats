@@ -6,13 +6,14 @@ const retrieveUserId = async () => {
     });
 
     if (!response.ok) {
-      throw new Error('Failed to retrieve user ID');
+      const errorMessage = await response.json();
+      throw new Error(errorMessage.error);
     }
 
     const data = await response.json();
     return data.userId;
   } catch (error) {
-    throw error.message;
+    throw error;
   }
 };
 
@@ -21,8 +22,8 @@ const initializeUserId = async (setUserId) => {
     // Fetch the user's ID which is used to display their chat list
     const id = await retrieveUserId();
     setUserId(id);
-  } catch (err) {
-    console.error(err.message);
+  } catch (error) {
+    console.error(error);
   }
 };
 

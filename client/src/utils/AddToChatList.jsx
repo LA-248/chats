@@ -2,14 +2,18 @@ import { fetchRecipientUserId } from './FetchRecipientUserId';
 
 // Add a chat to the user's chat list
 export const addChat = async (inputUsername, chatList, userId) => {
-  const recipientId = await fetchRecipientUserId(inputUsername);
-
   try {
     // If there is already an active chat with the user, throw an error
     const exists = chatList.some((chat) => chat.name === inputUsername);
     if (exists) {
       throw new Error('You already have an active chat with this user');
     }
+
+    if (!inputUsername) {
+      throw new Error('Please enter a username');
+    }
+
+    const recipientId = await fetchRecipientUserId(inputUsername);
 
     if (inputUsername) {
       const response = await fetch('http://localhost:8080/users/chat_list', {
@@ -44,8 +48,6 @@ export const addChat = async (inputUsername, chatList, userId) => {
       };
 
       return newChatItem;
-    } else {
-      throw new Error('Please enter a username');
     }
   } catch (error) {
     throw error;

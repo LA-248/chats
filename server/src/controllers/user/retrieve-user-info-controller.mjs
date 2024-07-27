@@ -17,8 +17,11 @@ const retrieveIdByUsername = async (req, res) => {
     const user = await getIdByUsername(username);
     res.status(200).json({ userId: user.id});
   } catch (err) {
+    if (err === 'User does not exist. Make sure that the username is correct.') {
+      return res.status(404).json({ error: err });
+    }
     console.error('Error retrieving user ID:', err);
-    res.status(500).json({ error: 'An unexpected error occurred, please try again' });
+    res.status(500).json({ error: 'An unexpected error occurred.' });
   }
 };
 

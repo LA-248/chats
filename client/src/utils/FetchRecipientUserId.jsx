@@ -1,3 +1,4 @@
+// Retrieve the ID of a message recipient from the database using their username
 export const fetchRecipientUserId = async (username) => {
   try {
     const response = await fetch('http://localhost:8080/users/recipient_id', {
@@ -17,6 +18,6 @@ export const fetchRecipientUserId = async (username) => {
     const data = await response.json();
     return data.userId;
   } catch (error) {
-    throw error.message;
+    throw error;
   }
 };
