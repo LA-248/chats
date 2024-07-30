@@ -1,9 +1,10 @@
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MessageContext } from './MessageContext';
 
-export default function ChatList({ userId, setSelectedChat, setUsername }) {
+export default function ChatList({ userId, setSelectedChat, setUsername, chatSearchInputText }) {
   const { activeChatId, setActiveChatId, chatList, setChatList } = useContext(MessageContext);
+  const [filteredChats, setFilteredChats] = useState([]);
   const [hoverChatId, setHoverChatId] = useState(null);
   const navigate = useNavigate();
   const storedChat = JSON.parse(localStorage.getItem('chat-list'));
@@ -15,9 +16,21 @@ export default function ChatList({ userId, setSelectedChat, setUsername }) {
     localStorage.setItem('chat-list', JSON.stringify(updatedChatList));
   };
 
+  // Filter chat list based on search input
+  useEffect(() => {
+    if (chatSearchInputText) {
+      const filtered = chatList.filter((chat) =>
+        chat.name.toLowerCase().includes(chatSearchInputText.toLowerCase())
+      );
+      setFilteredChats(filtered);
+    } else {
+      setFilteredChats(chatList);
+    }
+  }, [chatSearchInputText, chatList]);
+
   return (
     <div className="chat-list">
-      {chatList
+      {filteredChats
         .filter((chat) => chat.userId === userId)
         .map((chat) => (
           <div className="chat-item-container" key={chat.id}>

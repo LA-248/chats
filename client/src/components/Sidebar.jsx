@@ -4,12 +4,14 @@ import { initializeUserId } from '../utils/FetchUserId';
 import { SocketContext } from '../pages/home';
 import { fetchRecipientUserId } from '../utils/FetchRecipientUserId';
 import { addChat } from '../utils/AddToChatList';
-import AddChatForm from './AddChatForm';
+import AddChatInput from './AddChatInput';
 import ChatList from './ChatList';
+import ChatSearch from './ChatSearch';
 
 export default function Sidebar() {
   const [userId, setUserId] = useState(null);
   const [inputUsername, setInputUsername] = useState('');
+  const [chatSearchInputText, setChatSearchInputText] = useState('');
   const [errorMessage, setErrorMessage] = useState(null);
   const { setUsername, selectedChat, setSelectedChat, setRecipientId, chatList, setChatList } = useContext(MessageContext);
   const socket = useContext(SocketContext); 
@@ -71,7 +73,7 @@ export default function Sidebar() {
 
   return (
     <div className="sidebar">
-      <AddChatForm 
+      <AddChatInput
         inputUsername={inputUsername}
         setInputUsername={setInputUsername}
         handleAddChat={handleAddChat}
@@ -79,11 +81,20 @@ export default function Sidebar() {
         setErrorMessage={setErrorMessage}
       />
 
-      <ChatList
-        userId={userId}
-        setSelectedChat={setSelectedChat}
-        setUsername={setUsername}
-      />
+      <div className="sidebar-items">
+        <ChatList
+          userId={userId}
+          setSelectedChat={setSelectedChat}
+          setUsername={setUsername}
+          chatSearchInputText={chatSearchInputText}
+        />
+        <ChatSearch
+          chatSearchInputText={chatSearchInputText}
+          setChatSearchInputText={setChatSearchInputText}
+          chatList={chatList}
+          setChatList={setChatList}
+        />
+      </div>
     </div>
   );
 }

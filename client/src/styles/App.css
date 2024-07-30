@@ -42,7 +42,7 @@ body {
 .sidebar {
   display: flex;
   flex-direction: column;
-  width: 400px; /* Hard coded for now */
+  width: 400px;
 }
 
 .chat-list {
@@ -160,6 +160,28 @@ body {
 .logout-button:hover {
   cursor: pointer;
   opacity: 0.9;
+}
+
+/* Chat Search */
+
+.chat-search-input-container {
+  display: flex;
+  justify-content: center;
+}
+
+#chat-search-input {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+  font-size: 13px;
+  border-radius: 25px;
+  height: auto;
+  width: 95%;
+  background-color: #303030;
+  color: white;
+  border: solid 1px gray;
+  font-weight: 400;
 }
 
 /* CHAT WINDOW */

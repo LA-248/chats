@@ -28,7 +28,7 @@ const retrieveLastMessageInfo = (room) => {
       if (err) {
         reject(err);
       } else if (!row) {
-        resolve({ content: null, event_time: null });
+        resolve({ content: '', event_time: '' });
       } else {
         resolve(row);
       }
