@@ -3,11 +3,11 @@ import { MessageContext } from './MessageContext';
 import { SocketContext } from '../pages/home';
 import fetchUsername from '../utils/FetchUsername';
 
-export default function MessageInput() {
-  const { message, setMessage, setMessages, selectedChat, recipientId, isDisabled, setIsDisabled } = useContext(MessageContext);
+export default function MessageInput({ setMessages }) {
+  const { message, setMessage, recipientId } = useContext(MessageContext);
   const [counter, setCounter] = useState(0);
-  const socket = useContext(SocketContext);
   const [username, setUsername] = useState('');
+  const socket = useContext(SocketContext);
 
   useEffect(() => {
     // Retrieve account username
@@ -53,18 +53,6 @@ export default function MessageInput() {
     };
   }, [setMessages, socket]);
 
-  useEffect(() => {
-    const conditionalInput = () => {
-      if (selectedChat === null) {
-        setIsDisabled(true);
-      } else {
-        setIsDisabled(false);
-      }
-    }
-
-    conditionalInput();
-  }, [selectedChat, setIsDisabled]);
-
   return (
     <div>
       <form id="message-form" action="" onSubmit={submitChatMessage}>
@@ -72,8 +60,7 @@ export default function MessageInput() {
           <input
             id="message-input"
             type="text"
-            disabled={isDisabled}
-            placeholder={isDisabled ?  "Select a chat" : "Message"}
+            placeholder="Message"
             value={message}
             onChange={(event) => setMessage(event.target.value)}
           />

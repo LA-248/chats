@@ -3,6 +3,8 @@ import { MessageContext } from './MessageContext';
 import { SocketContext } from '../pages/home';
 import { useParams } from 'react-router-dom';
 import { initializeUserId } from '../utils/FetchUserId';
+import ContactHeader from './ContactHeader';
+import MessageInput from './MessageInput';
 
 function ChatView() {
   const { messages, setMessages, activeChatId, setChatList } = useContext(MessageContext);
@@ -65,20 +67,28 @@ function ChatView() {
   }, []);
 
   return (
-    // Only render the messages if the user is a part of the private chat
-    room.includes(userId) && (
-      <ul id="messages">
-        {messages.map((messageData, index) => (
-          <li className="individual-message" key={index}>
-            <div className="message-info-container">
-              <div className="message-from">{messageData.from}:</div>
-              <div className="message-content">{messageData.message}</div>
-            </div>
-            <div className="message-time">{messageData.eventTime}</div>
-          </li>
-        ))}
-      </ul>
-    )
+    <div>
+      <ContactHeader />
+
+      {/* Only render the messages if the user is a part of the private chat */}
+      {room.includes(userId) && (
+        <ul id="messages">
+          {messages.map((messageData, index) => (
+            <li className="individual-message" key={index}>
+              <div className="message-info-container">
+                <div className="message-from">{messageData.from}:</div>
+                <div className="message-content">{messageData.message}</div>
+              </div>
+              <div className="message-time">{messageData.eventTime}</div>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <div className="input-container">
+        <MessageInput setMessages={setMessages} />
+      </div>
+    </div>
   );
 }
 

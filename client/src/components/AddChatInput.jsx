@@ -1,4 +1,4 @@
-export default function AddChatForm({ inputUsername, setInputUsername, handleAddChat, errorMessage, setErrorMessage}) {
+export default function AddChatInput({ inputUsername, setInputUsername, handleAddChat, errorMessage, setErrorMessage}) {
   return (
     <div>
       {errorMessage && <div className="error-message">{errorMessage}</div>}

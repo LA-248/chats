@@ -2,33 +2,34 @@ import { io } from 'https://cdn.socket.io/4.7.5/socket.io.esm.min.js';
 import { MessageProvider } from '../components/MessageContext.jsx';
 import { createContext, useEffect, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
-import MessageInput from '../components/MessageInput.jsx';
 import Logout from '../components/UserLogout.jsx';
 import DisplayUsername from '../components/DisplayUsername.jsx';
 import fetchUsername from '../utils/FetchUsername.jsx';
 import Sidebar from '../components/Sidebar.jsx';
-import ContactHeader from '../components/ContactHeader.jsx';
 import HomepagePlaceholder from '../components/HomepagePlaceholder.jsx';
 
 export const SocketContext = createContext();
 
 export default function Home() {
   const [socket, setSocket] = useState(null);
-  const [username, setUsername] = useState('');
+  const [loggedInUsername, setLoggedInUsername] = useState('');
   const location = useLocation();
 
   useEffect(() => {
-    // Retrieve account username
+    // Retrieve the username of the logged in user
     const fetchUser = async () => {
       try {
         const userData = await fetchUsername();
-        setUsername(userData);
+        setLoggedInUsername(userData);
       } catch (error) {
         console.error('Failed to fetch user data:', error.message);
       }
     };
     fetchUser();
+  }, []);
 
+  useEffect(() => {
+    // Create a new socket connection
     const socketInstance = io('http://localhost:8080', {
       auth: {
         serverOffset: 0,
@@ -52,7 +53,7 @@ export default function Home() {
             <div className="sidebar-container">
               <Sidebar />
               <div className="user-controls">
-                <DisplayUsername username={username} />
+                <DisplayUsername username={loggedInUsername} />
                 <Logout />
                 <a
                   href="/"
@@ -69,17 +70,7 @@ export default function Home() {
               </div>
             </div>
             <div className="chat-window-container">
-              {location.pathname === '/' ? (
-                <HomepagePlaceholder />
-              ) : (
-                <>
-                  <ContactHeader />
-                  <Outlet />
-                </>
-              )}
-              <div className="input-container">
-                <MessageInput />
-              </div>
+              {location.pathname === '/' ? <HomepagePlaceholder /> : <Outlet />}
             </div>
           </div>
         </MessageProvider>

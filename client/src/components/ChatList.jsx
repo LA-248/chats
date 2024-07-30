@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { MessageContext } from './MessageContext';
 
 export default function ChatList({ userId, setSelectedChat, setUsername }) {
-  const { activeChatId, setActiveChatId, chatList, setChatList, setIsDisabled } = useContext(MessageContext);
+  const { activeChatId, setActiveChatId, chatList, setChatList } = useContext(MessageContext);
   const [hoverChatId, setHoverChatId] = useState(null);
   const navigate = useNavigate();
   const storedChat = JSON.parse(localStorage.getItem('chat-list'));
@@ -50,7 +50,6 @@ export default function ChatList({ userId, setSelectedChat, setUsername }) {
                       removeChat(chat.id);
                       if (activeChatId === chat.id) {
                         navigate('/');
-                        setIsDisabled(true);
                       }
                     }}
                     className="chat-delete-button"
