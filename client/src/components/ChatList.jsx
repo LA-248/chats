@@ -1,16 +1,18 @@
 import { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MessageContext } from './MessageContext';
+import parseCustomDate from '../utils/ParseDate';
 
 export default function ChatList({ userId, setSelectedChat, setUsername, chatSearchInputText }) {
-  const { activeChatId, setActiveChatId, chatList, setChatList } = useContext(MessageContext);
+  const { chatList, setChatList } = useContext(MessageContext);
   const [filteredChats, setFilteredChats] = useState([]);
+  const [activeChatId, setActiveChatId] = useState(null);
   const [hoverChatId, setHoverChatId] = useState(null);
   const navigate = useNavigate();
-  const storedChat = JSON.parse(localStorage.getItem('chat-list'));
 
   // Remove a conversation from the chat list
   const removeChat = (id) => {
+    const storedChat = JSON.parse(localStorage.getItem('chat-list'));
     const updatedChatList = storedChat.filter((chat) => chat.id !== id);
     setChatList(updatedChatList);
     localStorage.setItem('chat-list', JSON.stringify(updatedChatList));
@@ -27,6 +29,17 @@ export default function ChatList({ userId, setSelectedChat, setUsername, chatSea
       setFilteredChats(chatList);
     }
   }, [chatSearchInputText, chatList]);
+
+  // Sort the chat list by most recently active
+  useEffect(() => {
+    const storedChat = JSON.parse(localStorage.getItem('chat-list')) || [];
+    if (storedChat.length > 0) {
+      // Use the time format that includes seconds for precise sorting
+      const sorted = storedChat.sort((a, b) => parseCustomDate(b.timeWithSeconds) - parseCustomDate(a.timeWithSeconds));
+      setChatList(sorted);
+      localStorage.setItem('chat-list', JSON.stringify(sorted));
+    }
+  }, [setChatList]);
 
   return (
     <div className="chat-list">

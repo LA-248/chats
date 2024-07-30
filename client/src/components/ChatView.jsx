@@ -5,9 +5,10 @@ import { useParams } from 'react-router-dom';
 import { initializeUserId } from '../utils/FetchUserId';
 import ContactHeader from './ContactHeader';
 import MessageInput from './MessageInput';
+import parseCustomDate from '../utils/ParseDate';
 
 function ChatView() {
-  const { messages, setMessages, activeChatId, setChatList } = useContext(MessageContext);
+  const { messages, setMessages, setChatList } = useContext(MessageContext);
   const socket = useContext(SocketContext);
   const [userId, setUserId] = useState(null);
   // Extract room from URL
@@ -37,9 +38,13 @@ function ChatView() {
         if (storedChats[i].room === messageData.room) {
           storedChats[i].lastMessage = messageData.lastMessage;
           storedChats[i].time = messageData.eventTime;
+          storedChats[i].timeWithSeconds = messageData.eventTimeWithSeconds;
         }
       }
-      localStorage.setItem('chat-list', JSON.stringify(storedChats));
+
+      const sorted = storedChats.sort((a, b) => parseCustomDate(b.timeWithSeconds) - parseCustomDate(a.timeWithSeconds));
+      setChatList(sorted);
+      localStorage.setItem('chat-list', JSON.stringify(sorted));
     };
 
     const handleInitialMessages = (initialMessages) => {
@@ -60,7 +65,7 @@ function ChatView() {
       socket.off('initial-messages', handleInitialMessages);
       socket.off('chat-message', handleMessage);
     };
-  }, [setMessages, socket, room, activeChatId, setChatList]);
+  }, [setMessages, socket, room, setChatList]);
 
   useEffect(() => {
     initializeUserId(setUserId);

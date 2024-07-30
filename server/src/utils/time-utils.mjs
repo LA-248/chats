@@ -1,6 +1,6 @@
 import { format } from 'date-fns';
 
-export default function retrieveCurrentTime() {
+function retrieveCurrentTime() {
   const currentTime = new Date();
   const hours = currentTime.getHours().toString().padStart(2, '0');
   const minutes = currentTime.getMinutes().toString().padStart(2, '0');
@@ -10,3 +10,17 @@ export default function retrieveCurrentTime() {
 
   return `${formattedDate} - ${formattedTime}`;
 }
+
+function retrieveCurrentTimeWithSeconds() {
+  const currentTime = new Date();
+  const hours = currentTime.getHours().toString().padStart(2, '0');
+  const minutes = currentTime.getMinutes().toString().padStart(2, '0');
+  const seconds = currentTime.getSeconds().toString().padStart(2, '0');
+
+  const formattedTime = `${hours}:${minutes}:${seconds}`;
+  const formattedDate = format(new Date(currentTime), 'dd/MM/yyyy');
+
+  return `${formattedDate} - ${formattedTime}`;
+}
+
+export { retrieveCurrentTime, retrieveCurrentTimeWithSeconds };

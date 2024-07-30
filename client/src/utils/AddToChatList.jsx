@@ -34,15 +34,18 @@ export const addChat = async (inputUsername, chatList, userId) => {
       const data = await response.json();
       const lastMessageContent = data.lastMessage;
       const lastMessageTime = data.eventTime;
+      const lastMessageTimeWithSeconds = data.eventTimeWithSeconds;
       // Ensure the room is the same for both users by sorting the user IDs
       const room = [userId, recipientId].sort().join('-');
 
+      // Add new chat item with relevant data
       const newChatItem = {
         userId: userId,
         id: chatList.length > 0 ? chatList[chatList.length - 1].id + 1 : 1,
         name: inputUsername,
         lastMessage: lastMessageContent,
         time: lastMessageTime,
+        timeWithSeconds: lastMessageTimeWithSeconds,
         recipientId: recipientId,
         room: room,
       };

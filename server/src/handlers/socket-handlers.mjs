@@ -3,7 +3,7 @@ import {
   retrieveLastMessageInfo,
   retrieveMessages,
 } from '../models/message-model.mjs';
-import retrieveCurrentTime from '../utils/time-utils.mjs';
+import { retrieveCurrentTime, retrieveCurrentTimeWithSeconds } from '../utils/time-utils.mjs';
 
 // TODO: Store user-socket associations in database
 // Store user-to-socket mappings
@@ -29,6 +29,7 @@ const handleChatMessages = (socket, io) => {
     const targetUserSocketId = userSockets.get(recipientId);
     const senderId = socket.handshake.session.passport.user;
     const currentTime = retrieveCurrentTime();
+    const currentTimeWithSeconds = retrieveCurrentTimeWithSeconds();
 
     try {
       // Create a consistent room name using user IDs
@@ -44,7 +45,7 @@ const handleChatMessages = (socket, io) => {
       console.log(`Message received: ${message} from ${username} in room: ${roomName}`);
 
       // Insert message into the database with relevant metadata
-      await insertNewMessage(message, username, senderId, recipientId, roomName, currentTime, clientOffset);
+      await insertNewMessage(message, username, senderId, recipientId, roomName, currentTime, currentTimeWithSeconds, clientOffset);
 
       // Retrieve most recent message sent in a chat room
       const lastMessage = await retrieveLastMessageInfo(roomName);
@@ -56,6 +57,7 @@ const handleChatMessages = (socket, io) => {
         room: roomName,
         lastMessage: lastMessage,
         eventTime: currentTime,
+        eventTimeWithSeconds: currentTimeWithSeconds,
       });
     } catch (error) {
       // Check if the message was already inserted

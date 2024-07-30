@@ -1,8 +1,8 @@
 import { db } from '../services/database.mjs';
 
-const insertNewMessage = (message, sender_username, sender_id, recipient_id, room, event_time, clientOffset) => {
+const insertNewMessage = (message, sender_username, sender_id, recipient_id, room, event_time, event_time_seconds, clientOffset) => {
   return new Promise((resolve, reject) => {
-    db.run('INSERT INTO messages (content, sender_username, sender_id, recipient_id, room, event_time, client_offset) VALUES (?, ?, ?, ?, ?, ?, ?)', [message, sender_username, sender_id, recipient_id, room, event_time, clientOffset], function(err) {
+    db.run('INSERT INTO messages (content, sender_username, sender_id, recipient_id, room, event_time, event_time_seconds, client_offset) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', [message, sender_username, sender_id, recipient_id, room, event_time, event_time_seconds, clientOffset], function(err) {
       if (err) {
         reject(err);
       }
@@ -24,11 +24,11 @@ const retrieveMessages = (serverOffset, room) => {
 
 const retrieveLastMessageInfo = (room) => {
   return new Promise((resolve, reject) => {
-    db.get('SELECT content, event_time FROM messages WHERE room = ? ORDER BY id DESC LIMIT 1', [room], (err, row) => {
+    db.get('SELECT content, event_time, event_time_seconds FROM messages WHERE room = ? ORDER BY id DESC LIMIT 1', [room], (err, row) => {
       if (err) {
         reject(err);
       } else if (!row) {
-        resolve({ content: '', event_time: '' });
+        resolve({ content: '', event_time: '', event_time_seconds: '' });
       } else {
         resolve(row);
       }
