@@ -3,6 +3,8 @@ import { fetchRecipientUserId } from './FetchRecipientUserId';
 // Add a chat to the user's chat list
 export const addChat = async (inputUsername, chatList, userId) => {
   try {
+    const storedChats = JSON.parse(localStorage.getItem('chat-list'));
+
     // If there is already an active chat with the user, throw an error
     const exists = chatList.some((chat) => chat.name === inputUsername);
     if (exists) {
@@ -31,6 +33,20 @@ export const addChat = async (inputUsername, chatList, userId) => {
         throw new Error(errorData.errorMessage);
       }
 
+      // Extract all 'id' values from storedChats into an array
+      /*
+      This makes sure that each chat has a unique ID by getting the largest ID number,
+      even if chats are deleted and re-added
+      */
+      function retrieveAllChatIds() {
+        if (storedChats) {
+          const getValues = (obj, key) => Object.values(obj).map(item => item[key]);
+          const chatIds = getValues(storedChats, 'id');
+          return chatIds;
+        }
+      }
+      const allChatIds = retrieveAllChatIds();
+
       const data = await response.json();
       const lastMessageContent = data.lastMessage;
       const lastMessageTime = data.eventTime;
@@ -41,7 +57,7 @@ export const addChat = async (inputUsername, chatList, userId) => {
       // Add new chat item with relevant data
       const newChatItem = {
         userId: userId,
-        id: chatList.length > 0 ? chatList[chatList.length - 1].id + 1 : 1,
+        id: chatList.length > 0 ? Math.max(...allChatIds) + 1 : 1,
         name: inputUsername,
         lastMessage: lastMessageContent,
         time: lastMessageTime,
