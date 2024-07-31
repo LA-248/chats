@@ -62,13 +62,15 @@ export default function ChatList({ userId, setSelectedChat, setUsername, chatSea
             >
               <div className="chat-pic"></div>
               <div className="chat-info">
-                <h4 className="chat-name">{chat.name}</h4>
+                <div className="chat-name-and-time">
+                  <h4 className="chat-name">{chat.name}</h4>
+                  <div className="chat-time">{chat.time}</div>
+                </div>
                 <p className="chat-last-message">
                   {chat.lastMessage.content ? chat.lastMessage.content : chat.lastMessage}
                 </p>
               </div>
               <div className="chat-utilities">
-                <div className="chat-time">{chat.time}</div>
                 {hoverChatId === chat.id && (
                   <button
                     onClick={(event) => {

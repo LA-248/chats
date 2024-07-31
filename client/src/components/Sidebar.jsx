@@ -73,12 +73,11 @@ export default function Sidebar() {
 
   return (
     <div className="sidebar">
-      <AddChatInput
-        inputUsername={inputUsername}
-        setInputUsername={setInputUsername}
-        handleAddChat={handleAddChat}
-        errorMessage={errorMessage}
-        setErrorMessage={setErrorMessage}
+      <ChatSearch
+        chatSearchInputText={chatSearchInputText}
+        setChatSearchInputText={setChatSearchInputText}
+        chatList={chatList}
+        setChatList={setChatList}
       />
 
       <div className="sidebar-items">
@@ -88,11 +87,12 @@ export default function Sidebar() {
           setUsername={setUsername}
           chatSearchInputText={chatSearchInputText}
         />
-        <ChatSearch
-          chatSearchInputText={chatSearchInputText}
-          setChatSearchInputText={setChatSearchInputText}
-          chatList={chatList}
-          setChatList={setChatList}
+        <AddChatInput
+          inputUsername={inputUsername}
+          setInputUsername={setInputUsername}
+          handleAddChat={handleAddChat}
+          errorMessage={errorMessage}
+          setErrorMessage={setErrorMessage}
         />
       </div>
     </div>

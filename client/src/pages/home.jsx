@@ -51,7 +51,6 @@ export default function Home() {
         <MessageProvider>
           <div className="main-container">
             <div className="sidebar-container">
-              <Sidebar />
               <div className="user-controls">
                 <DisplayUsername username={loggedInUsername} />
                 <Logout />
@@ -60,7 +59,7 @@ export default function Home() {
                   style={{
                     color: 'white',
                     fontWeight: '600',
-                    fontSize: '20px',
+                    fontSize: '24px',
                     textDecoration: 'none',
                     marginTop: '10px',
                   }}
@@ -68,6 +67,7 @@ export default function Home() {
                   Chats
                 </a>
               </div>
+              <Sidebar />
             </div>
             <div className="chat-window-container">
               {location.pathname === '/' ? <HomepagePlaceholder /> : <Outlet />}

@@ -13,6 +13,7 @@ body {
 .main-container {
   display: flex;
   height: 100vh;
+  overflow-y: hidden;
 }
 
 /* CHAT WINDOW PLACEHOLDER */
@@ -39,15 +40,22 @@ body {
 
 /* SIDEBAR */
 
-.sidebar {
+.sidebar-container {
   display: flex;
   flex-direction: column;
-  width: 400px;
+  width: 350px;
+  height: 100vh;
+  overflow-y: hidden;
+}
+
+.sidebar-container:hover {
+  overflow-y: auto;
 }
 
 .chat-list {
   flex-grow: 1;
-  overflow-y: auto;
+  overflow: hidden;
+  margin-bottom: 70px;
 }
 
 .chat-item-container {
@@ -57,6 +65,7 @@ body {
 .chat-item {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   padding: 10px;
   border-radius: 10px;
   border: none;
@@ -77,11 +86,21 @@ body {
   height: 50px;
   border-radius: 50%;
   background-color: #ccc;
+  flex-shrink: 0;
 }
 
 .chat-info {
+  display: flex;
+  flex-direction: column;
   flex-grow: 1;
   margin-left: 10px;
+}
+
+.chat-name-and-time {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-grow: 1;
 }
 
 .chat-name {
@@ -91,10 +110,13 @@ body {
 }
 
 .chat-last-message {
-  margin: 0;
+  max-width: 250px;
   font-size: 14px;
   color: #888;
   margin-top: 5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .chat-utilities {
@@ -106,6 +128,8 @@ body {
 .chat-time {
   font-size: 14px;
   color: white;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .chat-delete-button {
@@ -120,14 +144,18 @@ body {
   cursor: pointer;
 }
 
-/* Username Input */
+/* Add Chat Input */
 
 .username-input-container {
   display: flex;
-  justify-content: start;
-  align-items: center;
+  justify-content: center;
   padding: 10px;
-  border-bottom: 1px solid rgb(75, 73, 73);
+  width: auto;
+  position: absolute;
+  bottom: 0;
+  padding: 10px;
+  background-color: #212121;
+  border-top: 1px solid rgb(75, 73, 73);
 }
 
 #username-input {
@@ -166,7 +194,9 @@ body {
 
 .chat-search-input-container {
   display: flex;
-  justify-content: center;
+  justify-content: start;
+  align-items: center;
+  padding: 10px;
 }
 
 #chat-search-input {
@@ -177,35 +207,44 @@ body {
   font-size: 13px;
   border-radius: 25px;
   height: auto;
-  width: 95%;
   background-color: #303030;
   color: white;
   border: solid 1px gray;
-  font-weight: 400;
+  font-weight: 400;;
+  flex-grow: 1;
 }
 
 /* CHAT WINDOW */
 
 .chat-window-container {
-  flex-grow: 1;
   display: flex;
   flex-direction: column;
-  justify-content: end;
+  flex-grow: 1;
   height: 100vh;
   border-left: 1px solid rgb(75, 73, 73);
-  padding: 20px;
+  overflow-y: auto;
 }
 
 /* Contact Header */
 
 .contact-header-container {
   display: flex;
-  align-items: center;
-  gap: 10px;
+  justify-content: flex-start;
+  align-items: flex-start;
   position: fixed;
-  top: 0;
-  padding: 10px;
+  margin-bottom: 10px;
+  width: 100%;
+}
+.contact-header {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 20px 20px 20px 20px;
+  width: 100%;
+  gap: 10px;
   color: white;
+  background-color: #212121;
+  border-bottom: 1px solid rgb(75, 73, 73);
 }
 
 .recipient-username {
@@ -224,6 +263,7 @@ body {
   display: flex;
   justify-content: start;
   align-items: center;
+  padding: 0px 20px 20px 20px;
 }
 
 #message-input {
@@ -268,18 +308,25 @@ body {
 /* Messages List */
 
 #messages {
+  flex-grow: 1;
   display: flex;
   flex-direction: column;
-  align-items: start;
-  list-style-type: none;
+  justify-content: flex-end;
   gap: 15px;
+  list-style-type: none;
   color: white;
-  margin-bottom: 20px;
-  overflow-y: auto;
+  padding: 20px;
+  margin-top: 70px;
 }
 
-.message-info-container {
+.message-container {
   display: flex;
+  flex-direction: column;
+}
+
+.message-metadata {
+  display: flex;
+  align-items: center;
   gap: 5px;
 }
 
@@ -290,6 +337,13 @@ body {
 .message-time {
   font-size: 12px;
   color: #888;
+}
+
+.message-content {
+  max-width: 1000px;
+  white-space: normal;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 /* USER INFORMATION */
@@ -304,13 +358,12 @@ body {
 }
 
 .user-controls {
-  position: fixed;
-  bottom: 0;
   display: flex;
   flex-direction: column;
   justify-content: start;
   align-items: start;
   padding: 10px;
+  padding-bottom: 0px;
   gap: 5px;
 }
 

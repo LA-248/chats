@@ -80,11 +80,13 @@ function ChatView() {
         <ul id="messages">
           {messages.map((messageData, index) => (
             <li className="individual-message" key={index}>
-              <div className="message-info-container">
-                <div className="message-from">{messageData.from}:</div>
+              <div className="message-container">
+                <div className="message-metadata">
+                  <div className="message-from">{messageData.from}</div>
+                  <div className="message-time">{messageData.eventTime}</div>
+                </div>
                 <div className="message-content">{messageData.message}</div>
               </div>
-              <div className="message-time">{messageData.eventTime}</div>
             </li>
           ))}
         </ul>
