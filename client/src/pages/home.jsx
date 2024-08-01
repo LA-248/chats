@@ -61,7 +61,6 @@ export default function Home() {
                     fontWeight: '600',
                     fontSize: '24px',
                     textDecoration: 'none',
-                    marginTop: '10px',
                   }}
                 >
                   Chats

@@ -29,7 +29,7 @@ export default function Login() {
       }
 
       const data = await response.json();
-      // if the login was successful, redirect the user to the URL provided by the backend
+      // If the login was successful, redirect the user to the URL provided by the backend
       navigate(data.redirectPath);
     } catch (error) {
       setErrorMessage(error.message);
@@ -78,6 +78,7 @@ export default function Login() {
             Don't have an account? <Link to="/register">Sign up</Link>
           </div>
         </div>
+        <div className="logotype">Chats</div>
       </div>
     </div>
   );

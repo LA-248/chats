@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { MessageContext } from './MessageContext';
 import parseCustomDate from '../utils/ParseDate';
 
-export default function ChatList({ userId, setSelectedChat, setUsername, chatSearchInputText }) {
+export default function ChatList({ userId, setSelectedChat, setUsername, chatSearchInputText, setChatSearchInputText }) {
   const { chatList, setChatList } = useContext(MessageContext);
   const [filteredChats, setFilteredChats] = useState([]);
   const [activeChatId, setActiveChatId] = useState(null);
@@ -66,25 +66,26 @@ export default function ChatList({ userId, setSelectedChat, setUsername, chatSea
                   <h4 className="chat-name">{chat.name}</h4>
                   <div className="chat-time">{chat.time}</div>
                 </div>
-                <p className="chat-last-message">
-                  {chat.lastMessage.content ? chat.lastMessage.content : chat.lastMessage}
-                </p>
-              </div>
-              <div className="chat-utilities">
-                {hoverChatId === chat.id && (
-                  <button
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      removeChat(chat.id);
-                      if (activeChatId === chat.id) {
-                        navigate('/');
-                      }
-                    }}
-                    className="chat-delete-button"
-                  >
-                    Delete
-                  </button>
-                )}
+                <div className="chat-metadata-container">
+                  <p className="chat-last-message">{chat.lastMessage.content ? chat.lastMessage.content : chat.lastMessage}</p>
+                  <div className="chat-utilities">
+                    {hoverChatId === chat.id && (
+                      <button
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          removeChat(chat.id);
+                          setChatSearchInputText('');
+                          if (activeChatId === chat.id) {
+                            navigate('/');
+                          }
+                        }}
+                        className="chat-delete-button"
+                      >
+                        Delete
+                      </button>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
           </div>

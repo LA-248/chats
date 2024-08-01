@@ -15,6 +15,7 @@ export default function Sidebar() {
   const [errorMessage, setErrorMessage] = useState(null);
   const { setUsername, selectedChat, setSelectedChat, setRecipientId, chatList, setChatList } = useContext(MessageContext);
   const socket = useContext(SocketContext); 
+  const storedChats = JSON.parse(localStorage.getItem('chat-list'));
 
   useEffect(() => {
     // Retrieve chat list from local storage
@@ -73,27 +74,43 @@ export default function Sidebar() {
 
   return (
     <div className="sidebar">
-      <ChatSearch
-        chatSearchInputText={chatSearchInputText}
-        setChatSearchInputText={setChatSearchInputText}
-        chatList={chatList}
-        setChatList={setChatList}
+      <AddChatInput
+        inputUsername={inputUsername}
+        setInputUsername={setInputUsername}
+        handleAddChat={handleAddChat}
+        errorMessage={errorMessage}
+        setErrorMessage={setErrorMessage}
       />
 
-      <div className="sidebar-items">
-        <ChatList
-          userId={userId}
-          setSelectedChat={setSelectedChat}
-          setUsername={setUsername}
+      {storedChats && storedChats.length > 0 ? (
+        <ChatSearch
           chatSearchInputText={chatSearchInputText}
+          setChatSearchInputText={setChatSearchInputText}
+          chatList={chatList}
+          setChatList={setChatList}
         />
-        <AddChatInput
-          inputUsername={inputUsername}
-          setInputUsername={setInputUsername}
-          handleAddChat={handleAddChat}
-          errorMessage={errorMessage}
-          setErrorMessage={setErrorMessage}
-        />
+      ) : null}
+
+      <div className="sidebar-items">
+        {storedChats && storedChats.length > 0 ? (
+          <ChatList
+            userId={userId}
+            setSelectedChat={setSelectedChat}
+            setUsername={setUsername}
+            chatSearchInputText={chatSearchInputText}
+            setChatSearchInputText={setChatSearchInputText}
+          />
+        ) : (
+          <div className="chat-list-empty-container">
+            <div className="chat-list-empty-message">
+              You have no active chats
+            </div>
+            <div className="chat-list-empty-subtext">
+              To get started, enter the username of the person you would like to
+              chat with above
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

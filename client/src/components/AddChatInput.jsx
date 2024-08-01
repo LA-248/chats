@@ -1,7 +1,6 @@
 export default function AddChatInput({ inputUsername, setInputUsername, handleAddChat, errorMessage, setErrorMessage}) {
   return (
-    <div>
-      {errorMessage && <div className="error-message">{errorMessage}</div>}
+    <div className="username-form-container">
       <form id="username-form" action="" onSubmit={handleAddChat}>
         <div className="username-input-container">
           <input
@@ -19,6 +18,7 @@ export default function AddChatInput({ inputUsername, setInputUsername, handleAd
           </button>
         </div>
       </form>
+      {errorMessage && <div className="error-message">{errorMessage}</div>}
     </div>
   );
 }
