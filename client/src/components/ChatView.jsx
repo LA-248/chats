@@ -77,24 +77,33 @@ function ChatView() {
 
       {/* Only render the messages if the user is a part of the private chat */}
       {room.includes(userId) && (
-        <ul id="messages">
-          {messages.map((messageData, index) => (
-            <li className="individual-message" key={index}>
-              <div className="message-container">
-                <div className="message-metadata">
-                  <div className="message-from">{messageData.from}</div>
-                  <div className="message-time">{messageData.eventTime}</div>
-                </div>
-                <div className="message-content">{messageData.message}</div>
-              </div>
-            </li>
-          ))}
-        </ul>
+        <>
+          <div className="messages-and-input-container">
+            <div className="messages-container">
+              <ul id="messages">
+                {messages.map((messageData, index) => (
+                  <li className="individual-message" key={index}>
+                    <div className="message-container">
+                      <div className="message-metadata">
+                        <div className="message-from">{messageData.from}</div>
+                        <div className="message-time">
+                          {messageData.eventTime}
+                        </div>
+                      </div>
+                      <div className="message-content">
+                        {messageData.message}
+                      </div>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div className="message-form-container">
+              <MessageInput setMessages={setMessages} />
+            </div>
+          </div>
+        </>
       )}
-
-      <div className="input-container">
-        <MessageInput setMessages={setMessages} />
-      </div>
     </div>
   );
 }
