@@ -1,8 +1,4 @@
-import {
-  insertNewMessage,
-  retrieveLastMessageInfo,
-  retrieveMessages,
-} from '../models/message-model.mjs';
+import { Message } from '../models/message-model.mjs';
 import { retrieveCurrentTime, retrieveCurrentTimeWithSeconds } from '../utils/time-utils.mjs';
 
 // TODO: Store user-socket associations in database
@@ -45,10 +41,10 @@ const handleChatMessages = (socket, io) => {
       console.log(`Message received: ${message} from ${username} in room: ${roomName}`);
 
       // Insert message into the database with relevant metadata
-      await insertNewMessage(message, username, senderId, recipientId, roomName, currentTime, currentTimeWithSeconds, clientOffset);
+      await Message.insertNewMessage(message, username, senderId, recipientId, roomName, currentTime, currentTimeWithSeconds, clientOffset);
 
       // Retrieve most recent message sent in a chat room
-      const lastMessage = await retrieveLastMessageInfo(roomName);
+      const lastMessage = await Message.retrieveLastMessageInfo(roomName);
 
       // Send the message to both room participants
       io.to(roomName).emit('chat-message', {
@@ -75,7 +71,7 @@ const displayChatMessages = async (socket, room) => {
   if (!socket.recovered) {
     try {
       // Get messages from database for display, filtered by room
-      const messages = await retrieveMessages(socket.handshake.auth.serverOffset, room);
+      const messages = await Message.retrieveMessages(socket.handshake.auth.serverOffset, room);
       console.log(messages);
 
       socket.emit('initial-messages', messages.map(msg => ({

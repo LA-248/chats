@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt';
 import { db } from '../../services/database.mjs';
-import { getUserByUsername, insertNewUser } from '../../models/user-model.mjs';
+import { User } from '../../models/user-model.mjs';
 
 const handleSignUp = async (req, res) => {
   const { username, password } = req.body;
@@ -23,10 +23,10 @@ const handleSignUp = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Insert new user
-    await insertNewUser(username, hashedPassword);
+    await User.insertNewUser(username, hashedPassword);
 
     // Fetch the newly created user
-    const newUser = await getUserByUsername(username);
+    const newUser = await User.getUserByUsername(username);
 
     // Automatically log in the newly created user
     req.login(newUser, (err) => {
@@ -35,7 +35,6 @@ const handleSignUp = async (req, res) => {
         res.status(500).json({ message: 'Error logging in. Please try again.' });
         return;
       }
-
       res.status(200).json({ redirectPath: '/' });
     });
   } catch (error) {

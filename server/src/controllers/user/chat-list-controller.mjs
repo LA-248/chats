@@ -1,11 +1,11 @@
-import { retrieveLastMessageInfo } from '../../models/message-model.mjs';
-import { getUserByUsername } from '../../models/user-model.mjs';
+import { User } from '../../models/user-model.mjs';
+import { Message } from '../../models/message-model.mjs';
 
 // Handle adding a new chat to the chat list
 export const handleChatList = async (req, res) => {
   try {
     const username = req.body.username;
-    const user = await getUserByUsername(username);
+    const user = await User.getUserByUsername(username);
 
     const senderId = req.session.passport.user;
     const recipientId = req.body.recipientId;
@@ -15,7 +15,7 @@ export const handleChatList = async (req, res) => {
     
     // Retrieve info related to the last chat message sent in a specific room
     // This is done to keep info related to the most recent message visible in the chat preview when a user deletes and re-adds a chat
-    const lastMessage = await retrieveLastMessageInfo(room);
+    const lastMessage = await Message.retrieveLastMessageInfo(room);
 
     // Send metadata to frontend to be used when adding a conversation to the chat list
     res.status(200).json({

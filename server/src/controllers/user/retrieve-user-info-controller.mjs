@@ -1,9 +1,9 @@
-import { getIdByUsername, getUsernameById } from '../../models/user-model.mjs';
+import { User } from '../../models/user-model.mjs';
 
 const retrieveUsernameById = async (req, res) => {
   try {
     const userId = req.session.passport.user;
-    const user = await getUsernameById(userId);
+    const user = await User.getUsernameById(userId);
     res.status(200).json({ username: user.username });
   } catch (err) {
     console.error('Error retrieving username:', err);
@@ -14,7 +14,7 @@ const retrieveUsernameById = async (req, res) => {
 const retrieveIdByUsername = async (req, res) => {
   try {
     const username = req.body.username;
-    const user = await getIdByUsername(username);
+    const user = await User.getIdByUsername(username);
     res.status(200).json({ userId: user.id});
   } catch (err) {
     if (err === 'User does not exist. Make sure that the username is correct.') {
