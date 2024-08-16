@@ -1,16 +1,11 @@
 import { useEffect } from 'react';
+import clearErrorMessage from '../utils/ErrorMessageTimeout';
 
 export default function AddChatInput({ inputUsername, setInputUsername, handleAddChat, errorMessage, setErrorMessage}) {
 
   // Clear error message after a certain amount of time
   useEffect(() => {
-    if (errorMessage) {
-      const timer = setTimeout(() => {
-        setErrorMessage(null);
-      }, 5000);
-
-      return () => clearTimeout(timer);
-    }
+    clearErrorMessage(errorMessage, setErrorMessage);
   }, [errorMessage, setErrorMessage]);
   
   return (
@@ -32,7 +27,7 @@ export default function AddChatInput({ inputUsername, setInputUsername, handleAd
           </button>
         </div>
       </form>
-      {errorMessage && <div className="error-message">{errorMessage}</div>}
+      {errorMessage && <div className="error-message" style={{ marginTop: '10px' }}>{errorMessage}</div>}
     </div>
   );
 }

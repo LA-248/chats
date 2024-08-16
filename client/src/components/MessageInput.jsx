@@ -3,11 +3,17 @@ import { useContext, useEffect, useState } from 'react';
 import { MessageContext } from './MessageContext';
 import { SocketContext } from '../pages/home';
 import fetchUsername from '../utils/FetchUsername';
+import clearErrorMessage from '../utils/ErrorMessageTimeout';
 
 export default function MessageInput({ setMessages }) {
   const { message, setMessage, recipientId } = useContext(MessageContext);
   const [username, setUsername] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
   const socket = useContext(SocketContext);
+
+  useEffect(() => {
+    clearErrorMessage(errorMessage, setErrorMessage);
+  }, [errorMessage]);
 
   useEffect(() => {
     // Retrieve account username
@@ -31,7 +37,7 @@ export default function MessageInput({ setMessages }) {
       // Send the message to the server
       socket.emit('chat-message', { username, recipientId, message }, clientOffset, (response) => {
         if (response) {
-          console.log(response);
+          setErrorMessage(response);
         }
       });
       setMessage('');
@@ -55,6 +61,7 @@ export default function MessageInput({ setMessages }) {
   return (
     <div>
       <form id="message-form" action="" onSubmit={submitChatMessage}>
+        <div className="error-message" style={{marginBottom: '10px', textAlign: 'left'}}>{errorMessage}</div>
         <div className="message-input-container">
           <input
             id="message-input"
