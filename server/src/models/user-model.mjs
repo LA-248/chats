@@ -1,6 +1,8 @@
 import { db } from '../services/database.mjs';
 
 const User = {
+  // INSERT OPERATIONS
+
   insertNewUser: function(username, hashedPassword) {
     return new Promise((resolve, reject) => {
       db.run('INSERT INTO users (username, hashed_password) VALUES (?, ?)', [username, hashedPassword], (err) => {
@@ -12,6 +14,8 @@ const User = {
       });
     })
   },
+
+  // READ OPERATIONS
   
   getUsernameById: function(userId) {
     return new Promise((resolve, reject) => {

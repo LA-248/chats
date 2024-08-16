@@ -35,8 +35,8 @@ export const addChat = async (inputUsername, chatList, userId) => {
 
       // Extract all 'id' values from storedChats into an array
       /*
-      This makes sure that each chat has a unique ID by getting the largest ID number,
-      even if chats are deleted and re-added
+      This ensures that each chat has a unique ID by getting the largest current ID number and adding 1 when a chat is added,
+      this is done because chats are sorted based on message recency and IDs are not organised linearly
       */
       function retrieveAllChatIds() {
         if (storedChats) {
