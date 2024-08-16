@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import { MessageContext } from './MessageContext';
 import { initializeUserId } from '../utils/FetchUserId';
 import { SocketContext } from '../pages/home';
@@ -7,6 +7,7 @@ import { addChat } from '../utils/AddToChatList';
 import AddChatInput from './AddChatInput';
 import ChatList from './ChatList';
 import ChatSearch from './ChatSearch';
+import sortChatList from '../utils/SortChatList.jsx';
 
 export default function Sidebar() {
   const [userId, setUserId] = useState(null);
@@ -35,24 +36,26 @@ export default function Sidebar() {
     }
   }, [socket, userId]);
 
-  const handleAddChat = async (event) => {
-    event.preventDefault();
-
-    try {
-      const newChatItem = await addChat(inputUsername, chatList, userId);
-      const updatedChatList = chatList.concat(newChatItem);
-      setChatList(updatedChatList);
-
-      // Update the chat list in localStorage with the new chat item
-      const existingChatList = JSON.parse(localStorage.getItem('chat-list')) || [];
-      const newChatList = existingChatList.concat(newChatItem);
-      localStorage.setItem('chat-list', JSON.stringify(newChatList));
-
-      setInputUsername('');
-    } catch (error) {
-      setErrorMessage(error.message);
-    }
-  };
+    const handleAddChat = useCallback(async (event) => {
+      event.preventDefault();
+  
+      try {
+        const newChatItem = await addChat(inputUsername, chatList, userId);
+        const updatedChatList = chatList.concat(newChatItem);
+        setChatList(updatedChatList);
+  
+        // Update the chat list in localStorage with the new chat item
+        const existingChatList = JSON.parse(localStorage.getItem('chat-list')) || [];
+        const newChatList = existingChatList.concat(newChatItem);
+        localStorage.setItem('chat-list', JSON.stringify(newChatList));
+  
+        sortChatList(setChatList);
+  
+        setInputUsername('');
+      } catch (error) {
+        setErrorMessage(error.message);
+      }
+    }, [chatList, setChatList, inputUsername, userId]);
 
   // Retrieve the ID of the chat user selected
   // We can then get the socket ID associated with the recipient's user ID on the server

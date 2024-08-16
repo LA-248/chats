@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MessageContext } from './MessageContext';
-import parseCustomDate from '../utils/ParseDate';
+import sortChatList from '../utils/SortChatList';
 
 export default function ChatList({ userId, setSelectedChat, setUsername, chatSearchInputText, setChatSearchInputText }) {
   const { chatList, setChatList } = useContext(MessageContext);
@@ -32,13 +32,7 @@ export default function ChatList({ userId, setSelectedChat, setUsername, chatSea
 
   // Sort the chat list by most recently active
   useEffect(() => {
-    const storedChat = JSON.parse(localStorage.getItem('chat-list')) || [];
-    if (storedChat.length > 0) {
-      // Use the time format that includes seconds for precise sorting
-      const sorted = storedChat.sort((a, b) => parseCustomDate(b.timeWithSeconds) - parseCustomDate(a.timeWithSeconds));
-      setChatList(sorted);
-      localStorage.setItem('chat-list', JSON.stringify(sorted));
-    }
+    sortChatList(setChatList);
   }, [setChatList]);
 
   return (

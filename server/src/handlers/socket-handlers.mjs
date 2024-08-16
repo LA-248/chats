@@ -58,8 +58,8 @@ const handleChatMessages = (socket, io) => {
     } catch (error) {
       // Check if the message was already inserted
       if (error.errno === 19) {
-        // If it was, notify the client
-        callback('Message already inserted');
+        callback('Error sending message. Please try again.');
+        console.error('Message with this client offset already exists:', clientOffset);
       } else {
         console.error(`Error inserting message: ${error.message}`);
       }

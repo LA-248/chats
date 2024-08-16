@@ -1,3 +1,4 @@
+import { v4 as uuidv4 } from 'uuid';
 import { useContext, useEffect, useState } from 'react';
 import { MessageContext } from './MessageContext';
 import { SocketContext } from '../pages/home';
@@ -5,7 +6,6 @@ import fetchUsername from '../utils/FetchUsername';
 
 export default function MessageInput({ setMessages }) {
   const { message, setMessage, recipientId } = useContext(MessageContext);
-  const [counter, setCounter] = useState(0);
   const [username, setUsername] = useState('');
   const socket = useContext(SocketContext);
 
@@ -27,8 +27,7 @@ export default function MessageInput({ setMessages }) {
 
     if (message) {
       // Compute a unique offset
-      const clientOffset = `${socket.id}-${counter}`;
-      setCounter(counter + 1);
+      const clientOffset = uuidv4();
       // Send the message to the server
       socket.emit('chat-message', { username, recipientId, message }, clientOffset, (response) => {
         if (response) {
