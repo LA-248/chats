@@ -39,6 +39,7 @@ function ChatView() {
           storedChats[i].lastMessage = messageData.lastMessage;
           storedChats[i].time = messageData.eventTime;
           storedChats[i].timeWithSeconds = messageData.eventTimeWithSeconds;
+          storedChats[i].hasNewMessage = true;
         }
       }
 

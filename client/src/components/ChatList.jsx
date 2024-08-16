@@ -51,6 +51,12 @@ export default function ChatList({ userId, setSelectedChat, setUsername, chatSea
                 setActiveChatId(chat.id);
                 setSelectedChat(chat.name);
                 setUsername(chat.name);
+
+                chat.hasNewMessage = false;
+                const updatedChatList = [...chatList];
+                setChatList(updatedChatList);
+                localStorage.setItem('chat-list', JSON.stringify(updatedChatList));
+
                 navigate(`/messages/${chat.room}`);
               }}
             >
@@ -58,7 +64,14 @@ export default function ChatList({ userId, setSelectedChat, setUsername, chatSea
               <div className="chat-info">
                 <div className="chat-name-and-time">
                   <h4 className="chat-name">{chat.name}</h4>
-                  <div className="chat-time">{chat.time}</div>
+                  <div className="time-and-notification-container">
+                    <div className="chat-time">{chat.time}</div>
+                    {activeChatId !== chat.id && chat.hasNewMessage ? (
+                      <span className="unread-message-alert"></span>
+                    ) : (
+                      (chat.hasNewMessage = false)
+                    )}
+                  </div>
                 </div>
                 <div className="chat-metadata-container">
                   <p className="chat-last-message">{chat.lastMessage.content ? chat.lastMessage.content : chat.lastMessage}</p>

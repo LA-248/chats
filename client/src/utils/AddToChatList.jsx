@@ -60,6 +60,7 @@ export const addChat = async (inputUsername, chatList, userId) => {
         id: chatList.length > 0 ? Math.max(...allChatIds) + 1 : 1,
         name: inputUsername,
         lastMessage: lastMessageContent,
+        hasNewMessage: false,
         time: lastMessageTime,
         timeWithSeconds: lastMessageTimeWithSeconds,
         recipientId: recipientId,

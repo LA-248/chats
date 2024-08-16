@@ -198,8 +198,25 @@ body {
   max-width: 300px;
 }
 
+.time-and-notification-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
 .active {
   background-color: #343434;
+}
+
+.unread-message-alert {
+  width: 15px;
+  height: 15px;
+  background-color: greenyellow;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 /* Add Chat Input */
@@ -421,7 +438,6 @@ body {
   font-size: 14px;
   color: red;
   text-decoration: underline;
-  margin-top: 10px;
   text-align: center;
 }
 
