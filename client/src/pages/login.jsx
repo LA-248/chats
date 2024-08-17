@@ -73,7 +73,7 @@ export default function Login() {
               Sign in
             </button>
           </form>
-          {errorMessage && <div className="error-message">{errorMessage}</div>}
+          {errorMessage && <div className="error-message" style={{ marginTop: "10px" }}>{errorMessage}</div>}
           <div className="sign-up-redirect">
             Don't have an account? <Link to="/register">Sign up</Link>
           </div>

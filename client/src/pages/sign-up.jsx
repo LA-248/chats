@@ -13,6 +13,14 @@ export default function SignUp() {
     event.preventDefault();
 
     try {
+      if (username === '' || password === '') {
+        throw new Error('Please ensure both fields are filled');
+      } else if (username.length < 2) {
+        throw new Error('Username must contain at least 2 characters');
+      } else if (password.length < 4) {
+        throw new Error('Password must contain at least 4 characters');
+      }
+
       const response = await fetch('http://localhost:8080/auth/register/password', {
           method: 'POST',
           headers: {
@@ -63,7 +71,7 @@ export default function SignUp() {
             Sign Up
           </button>
         </form>
-        {errorMessage && <div className="error-message">{errorMessage}</div>}
+        {errorMessage && <div className="error-message" style={{ marginTop: "10px" }}>{errorMessage}</div>}
         <div className="login-redirect">
           Already have an account? <Link to="/login">Log in</Link>
         </div>

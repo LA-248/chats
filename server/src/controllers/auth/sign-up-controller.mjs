@@ -31,15 +31,14 @@ const handleSignUp = async (req, res) => {
     // Automatically log in the newly created user
     req.login(newUser, (err) => {
       if (err) {
-        console.error('Login error:', err.message);
-        res.status(500).json({ message: 'Error logging in. Please try again.' });
-        return;
+        console.error('Login error:', err);
+        return res.status(500).json({ message: 'Error logging in. Please try again.' });
       }
-      res.status(200).json({ redirectPath: '/' });
+      return res.status(200).json({ redirectPath: '/' });
     });
   } catch (error) {
-    console.error(error.message);
-    res.status(500).json({ message: 'An unexpected error occurred' });
+    console.error(error);
+    return res.status(500).json({ message: 'An unexpected error occurred.' });
   }
 };
 
