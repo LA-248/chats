@@ -3,7 +3,7 @@ import passport from 'passport';
 export const handleUserLogin = (req, res, next) => {
   passport.authenticate('local', (err, user) => {
     if (!user) {
-      return res.status(401).json({ success: false, message: 'Invalid username or password' });
+      return res.status(401).json({ success: false, message: 'Incorrect username or password' });
     }
 
     if (err) {

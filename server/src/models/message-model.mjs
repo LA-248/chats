@@ -1,16 +1,32 @@
-import { db } from '../services/database.mjs';
+import { pool } from "../../db/index.mjs";
 
 const Message  = {
   // INSERT OPERATIONS
 
+  createMessagesTable: function() {
+    return new Promise((resolve, reject) => {
+      pool.query('CREATE TABLE IF NOT EXISTS messages (id SERIAL PRIMARY KEY, sender_username TEXT, sender_id INTEGER, recipient_id INTEGER, client_offset TEXT UNIQUE, content TEXT, room TEXT, event_time TEXT, event_time_seconds TEXT)', (err) => {
+        if (err) {
+          return reject(`Database error: ${err.message}`);
+        }
+        return resolve();
+      });
+    });
+  },
+
   insertNewMessage: function(message, sender_username, sender_id, recipient_id, room, event_time, event_time_seconds, clientOffset) {
     return new Promise((resolve, reject) => {
-      db.run('INSERT INTO messages (content, sender_username, sender_id, recipient_id, room, event_time, event_time_seconds, client_offset) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', [message, sender_username, sender_id, recipient_id, room, event_time, event_time_seconds, clientOffset], function(err) {
-        if (err) {
-          reject(err);
-        }
-        resolve({ lastID: this.insertId });
-      });
+      pool.query(`
+        INSERT INTO messages (content, sender_username, sender_id, recipient_id, room, event_time, event_time_seconds, client_offset) 
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id`, 
+        [message, sender_username, sender_id, recipient_id, room, event_time, event_time_seconds, clientOffset], 
+        (err, result) => {
+          if (err) {
+            return reject(`Database error: ${err.message}`);
+          }
+
+          return resolve({ lastID: result.rows[0].id });
+        });
     });
   },
 
@@ -18,24 +34,24 @@ const Message  = {
   
   retrieveMessages: function(serverOffset, room) {
     return new Promise((resolve, reject) => {
-      db.all('SELECT content, sender_username, event_time, id FROM messages WHERE id > ? AND room = ?', [serverOffset || 0, room], (_err, rows) => {
-        if (_err) {
-          reject(_err);
+      pool.query('SELECT content, sender_username, event_time, id FROM messages WHERE id > $1 AND room = $2', [serverOffset || 0, room], (err, result) => {
+        if (err) {
+          return reject(`Database error: ${err.message}`);
         }
-        resolve(rows);
+        return resolve(result.rows);
       });
     });
   },
   
   retrieveLastMessageInfo: function(room) {
     return new Promise((resolve, reject) => {
-      db.get('SELECT content, event_time, event_time_seconds FROM messages WHERE room = ? ORDER BY id DESC LIMIT 1', [room], (err, row) => {
+      pool.query('SELECT content, event_time, event_time_seconds FROM messages WHERE room = $1 ORDER BY id DESC LIMIT 1', [room], (err, result) => {
         if (err) {
-          reject(err);
-        } else if (!row) {
-          resolve({ content: '', event_time: '', event_time_seconds: '' });
+          return reject(`Database error: ${err.message}`);
+        } else if (result.rows.length === 0) {
+          return resolve({ content: '', event_time: '', event_time_seconds: '' });
         } else {
-          resolve(row);
+          return resolve(result.rows[0]);
         }
       });
     });

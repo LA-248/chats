@@ -1,7 +1,7 @@
 import passport from 'passport';
 import authenticateUser from '../services/authenticate-user.mjs';
 import { Strategy as LocalStrategy } from 'passport-local';
-import { db } from '../services/database.mjs';
+import { pool } from '../../db/index.mjs';
 
 export default function configurePassport() {
   passport.use(new LocalStrategy(authenticateUser));
@@ -13,8 +13,8 @@ export default function configurePassport() {
   
   // Retrieves the user data from the session and makes it available in the request object
   passport.deserializeUser(function (id, cb) {
-    db.get('SELECT * FROM users WHERE id = ?', [id], (err, user) => {
-      cb(err, user);
+    pool.query('SELECT * FROM users WHERE id = $1', [id], (err, result) => {
+      cb(err, result.rows[0]);
     });
   });
 }

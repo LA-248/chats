@@ -61,7 +61,8 @@ const handleChatMessages = (socket, io) => {
         callback('Error sending message. Please try again.');
         console.error('Message with this client offset already exists:', clientOffset);
       } else {
-        console.error(`Error inserting message: ${error.message}`);
+        callback('Error sending message. Please try again.');
+        console.error(`Error inserting message: ${error}`);
       }
     }
   });

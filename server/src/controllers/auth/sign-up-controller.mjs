@@ -1,5 +1,4 @@
 import bcrypt from 'bcrypt';
-import { db } from '../../services/database.mjs';
 import { User } from '../../models/user-model.mjs';
 
 const handleSignUp = async (req, res) => {
@@ -7,13 +6,7 @@ const handleSignUp = async (req, res) => {
 
   try {
     // Check if username already exists
-    const existingUser = await new Promise((resolve, reject) => {
-      db.get('SELECT username FROM users WHERE username = ?', [username], (err, row) => {
-        if (err) reject(err);
-          else resolve(row);
-        }
-      );
-    });
+    const existingUser = await User.getUserByUsername(username);
 
     if (existingUser) {
       return res.status(409).json({ message: 'Username already taken' });

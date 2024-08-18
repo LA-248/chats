@@ -7,6 +7,11 @@ export const handleChatList = async (req, res) => {
     const username = req.body.username;
     const user = await User.getUserByUsername(username);
 
+    // If there are no rows, the user does not exist
+    if (!user) {
+      throw new Error('User does not exist. Make sure that the username is correct.');
+    }
+
     const senderId = req.session.passport.user;
     const recipientId = req.body.recipientId;
 
@@ -25,8 +30,11 @@ export const handleChatList = async (req, res) => {
       eventTime: lastMessage.event_time,
       eventTimeWithSeconds: lastMessage.event_time_seconds,
     });
-  } catch (err) {
-    console.error('Error:', err);
-    res.status(404).json({ errorMessage: err });
+  } catch (error) {
+    if (error.message === 'User does not exist. Make sure that the username is correct.') {
+      return res.status(404).json({ message: error.message });
+    }
+    console.error('Error:', error);
+    res.status(500).json({ message: 'Error adding chat. Please try again.' });
   }
 };

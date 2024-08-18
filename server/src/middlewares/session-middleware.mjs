@@ -2,15 +2,16 @@ import dotenv from 'dotenv';
 dotenv.config({ path: '../.env' });
 
 import session from 'express-session';
-import connectSqlite3 from 'connect-sqlite3';
+import connectPgSimple from 'connect-pg-simple';
+import { pool } from '../../db/index.mjs';
 
-const SQLiteStore = connectSqlite3(session);
+const PostgresSessionStore = connectPgSimple(session);
 
-// Session-based auth
+// Session-based auth with PostgreSQL
 export const sessionMiddleware = session({
-  store: new SQLiteStore({
-    db: '../db/database.db',
-    table: 'sessions',
+  store: new PostgresSessionStore({
+    pool: pool,
+    tableName: 'sessions',
   }),
   secret: process.env.SESSION_SECRET,
   resave: false,

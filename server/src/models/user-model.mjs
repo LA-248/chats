@@ -1,16 +1,26 @@
-import { db } from '../services/database.mjs';
+import { pool } from '../../db/index.mjs';
 
 const User = {
   // INSERT OPERATIONS
 
+  createUsersTable: function() {
+    return new Promise((resolve, reject) => {
+      pool.query('CREATE TABLE IF NOT EXISTS users (id SERIAL PRIMARY KEY, username TEXT, hashed_password TEXT)', (err) => {
+        if (err) {
+          return reject(`Database error: ${err.message}`);
+        }
+        return resolve();
+      });
+    });
+  },
+
   insertNewUser: function(username, hashedPassword) {
     return new Promise((resolve, reject) => {
-      db.run('INSERT INTO users (username, hashed_password) VALUES (?, ?)', [username, hashedPassword], (err) => {
+      pool.query('INSERT INTO users (username, hashed_password) VALUES ($1, $2)', [username, hashedPassword], (err) => {
         if (err) {
-          return reject(err);
+          return reject(`Database error: ${err.message}`);
         }
-  
-        resolve();
+        return resolve();
       });
     })
   },
@@ -19,44 +29,33 @@ const User = {
   
   getUsernameById: function(userId) {
     return new Promise((resolve, reject) => {
-      db.get('SELECT username FROM users WHERE id = ?', [userId], (err, user) => {
+      pool.query('SELECT username FROM users WHERE id = $1', [userId], (err, result) => {
         if (err) {
-          return reject(err);
+          return reject(`Database error: ${err.message}`);
         }
-        
-        resolve(user);
+        return resolve(result.rows[0]);
       });
     });
   },
   
   getUserByUsername: function(username) {
     return new Promise((resolve, reject) => {
-      db.get('SELECT * FROM users WHERE username = ?', [username], (err, user) => {
+      pool.query('SELECT * FROM users WHERE username = $1', [username], (err, result) => {
         if (err) {
-          return reject(err);
+          return reject(`Database error: ${err.message}`);
         }
-  
-        if (!user) {
-          return reject('User does not exist. Make sure that the username is correct.');
-        }
-  
-        resolve(user);
+        return resolve(result.rows[0]);
       });
     });
   },
   
   getIdByUsername: function(username) {
     return new Promise((resolve, reject) => {
-      db.get('SELECT id FROM users WHERE username = ?', [username], (err, user) => {
+      pool.query('SELECT id FROM users WHERE username = $1', [username], (err, result) => {
         if (err) {
-          return reject(err);
+          return reject(`Database error: ${err.message}`);
         }
-  
-        if (!user) {
-          return reject('User does not exist. Make sure that the username is correct.');
-        }
-  
-        resolve(user);
+        return resolve(result.rows[0]);
       });
     });
   },

@@ -9,6 +9,7 @@ import cors from 'cors';
 import { createServer } from 'node:http';
 import { Server } from 'socket.io';
 import { sessionMiddleware } from './middlewares/session-middleware.mjs';
+import { createTables, pool } from '../db/index.mjs';
 
 import authRouter from './routes/auth.mjs';
 import usersRouter from './routes/users.mjs';
@@ -88,6 +89,10 @@ io.on('connection', (socket) => {
 });
 
 const port = process.env.PORT || 4000;
+
+const result = await pool.query('SELECT NOW()');
+console.log(result.rows[0]);
+createTables();
 
 server.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
