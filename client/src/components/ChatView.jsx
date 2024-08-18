@@ -2,7 +2,7 @@ import { useContext, useEffect, useState } from 'react';
 import { MessageContext } from './MessageContext';
 import { SocketContext } from '../pages/home';
 import { useParams } from 'react-router-dom';
-import { initializeUserId } from '../utils/FetchUserId';
+import { retrieveUserId } from '../utils/FetchUserId';
 import ContactHeader from './ContactHeader';
 import MessageInput from './MessageInput';
 import parseCustomDate from '../utils/ParseDate';
@@ -11,6 +11,7 @@ function ChatView() {
   const { messages, setMessages, setChatList } = useContext(MessageContext);
   const socket = useContext(SocketContext);
   const [userId, setUserId] = useState(null);
+  const [errorMessage, setErrorMessage] = useState('');
   // Extract room from URL
   const { room } = useParams();
 
@@ -69,7 +70,7 @@ function ChatView() {
   }, [setMessages, socket, room, setChatList]);
 
   useEffect(() => {
-    initializeUserId(setUserId);
+    retrieveUserId(setUserId, setErrorMessage);
   }, []);
 
   return (
@@ -99,6 +100,11 @@ function ChatView() {
                 ))}
               </ul>
             </div>
+            {errorMessage ? (
+              <div className="error-message" style={{ margin: '10px' }}>
+                {errorMessage}
+              </div>
+            ) : null}
             <div className="message-form-container">
               <MessageInput setMessages={setMessages} />
             </div>

@@ -29,8 +29,8 @@ export const addChat = async (inputUsername, chatList, userId) => {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.errorMessage);
+        const errorResponse = await response.json();
+        throw new Error(errorResponse.message);
       }
 
       // Extract all 'id' values from storedChats into an array

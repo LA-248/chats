@@ -1,6 +1,6 @@
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { MessageContext } from './MessageContext';
-import { initializeUserId } from '../utils/FetchUserId';
+import { retrieveUserId } from '../utils/FetchUserId';
 import { SocketContext } from '../pages/home';
 import { fetchRecipientUserId } from '../utils/FetchRecipientUserId';
 import { addChat } from '../utils/AddToChatList';
@@ -26,7 +26,7 @@ export default function Sidebar() {
       setChatList(JSON.parse(storedChatList));
     }
 
-    initializeUserId(setUserId);
+    retrieveUserId(setUserId, setErrorMessage);
   }, [setChatList]);
 
   // Needed to store user-to-socket mappings on the server
@@ -50,7 +50,7 @@ export default function Sidebar() {
       localStorage.setItem('chat-list', JSON.stringify(newChatList));
   
       sortChatList(setChatList);
-  
+      
       setInputUsername('');
     } catch (error) {
       setErrorMessage(error.message);

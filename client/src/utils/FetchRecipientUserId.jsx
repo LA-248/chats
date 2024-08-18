@@ -11,8 +11,8 @@ export const fetchRecipientUserId = async (username) => {
     });
 
     if (!response.ok) {
-      const errorMessage = await response.json();
-      throw new Error(errorMessage.error);
+      const errorResponse = await response.json();
+      throw new Error(errorResponse.message);
     }
 
     const data = await response.json();

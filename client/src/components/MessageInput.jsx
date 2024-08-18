@@ -22,7 +22,7 @@ export default function MessageInput({ setMessages }) {
         const userData = await fetchUsername();
         setUsername(userData);
       } catch (error) {
-        console.error('Failed to fetch user data:', error.message);
+        setErrorMessage(error.message);
       }
     };
     fetchUser();

@@ -6,13 +6,14 @@ import Logout from '../components/UserLogout.jsx';
 import DisplayUsername from '../components/DisplayUsername.jsx';
 import fetchUsername from '../utils/FetchUsername.jsx';
 import Sidebar from '../components/Sidebar.jsx';
-import HomepagePlaceholder from '../components/HomepagePlaceholder.jsx';
+import ChatWindowPlaceholder from '../components/ChatWindowPlaceholder.jsx';
 
 export const SocketContext = createContext();
 
 export default function Home() {
   const [socket, setSocket] = useState(null);
   const [loggedInUsername, setLoggedInUsername] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
   const location = useLocation();
 
   useEffect(() => {
@@ -22,7 +23,7 @@ export default function Home() {
         const userData = await fetchUsername();
         setLoggedInUsername(userData);
       } catch (error) {
-        console.error('Failed to fetch user data:', error.message);
+        setErrorMessage(error.message);
       }
     };
     fetchUser();
@@ -53,6 +54,11 @@ export default function Home() {
             <div className="sidebar-container">
               <div className="user-controls">
                 <DisplayUsername username={loggedInUsername} />
+                {errorMessage ? (
+                  <div className="error-message" style={{ margin: '10px' }}>
+                    {errorMessage}
+                  </div>
+                ) : null}
                 <Logout />
                 <a
                   href="/"
@@ -69,7 +75,11 @@ export default function Home() {
               <Sidebar />
             </div>
             <div className="chat-window-container">
-              {location.pathname === '/' ? <HomepagePlaceholder /> : <Outlet />}
+              {location.pathname === '/' ? (
+                <ChatWindowPlaceholder />
+              ) : (
+                <Outlet />
+              )}
             </div>
           </div>
         </MessageProvider>

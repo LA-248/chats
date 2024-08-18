@@ -6,13 +6,13 @@ export default async function fetchUsername() {
     });
   
     if (!response.ok) {
-      const errorMessage = await response.json();
-      throw new Error(errorMessage.error);
+      const errorResponse = await response.json();
+      throw new Error(errorResponse.message);
     }
   
     const data = await response.json();
     return data.username;
   } catch (error) {
-    return console.error('Error fetching user data:', error.message);
+    throw error;
   }
 }
