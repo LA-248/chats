@@ -6,6 +6,8 @@ import { retrieveUserId } from '../utils/FetchUserId';
 import ContactHeader from './ContactHeader';
 import MessageInput from './MessageInput';
 import parseCustomDate from '../utils/ParseDate';
+import fetchChatList from '../utils/FetchChatList';
+import updateChat from '../utils/UpdateChat';
 
 function ChatView() {
   const { messages, setMessages, setChatList } = useContext(MessageContext);
@@ -16,7 +18,7 @@ function ChatView() {
   const { room } = useParams();
 
   useEffect(() => {
-    const handleMessage = (messageData, serverOffset) => {
+    const handleMessage = async (messageData, serverOffset) => {
       // Append message to UI only if the user is currently in the room where the message was sent
       if (room === messageData.room) {
         // Concatenate new message to existing messages
@@ -32,21 +34,11 @@ function ChatView() {
         )
       );
 
-      // Update chat in local storage with most recent message sent and time
-      const storedChats = JSON.parse(localStorage.getItem('chat-list'));
-      // Find the chat in the list that corresponds to the room the message was sent from, then update the last message and event time
-      for (let i = 0; i < storedChats.length; i++) {
-        if (storedChats[i].room === messageData.room) {
-          storedChats[i].lastMessage = messageData.lastMessage;
-          storedChats[i].time = messageData.eventTime;
-          storedChats[i].timeWithSeconds = messageData.eventTimeWithSeconds;
-          storedChats[i].hasNewMessage = true;
-        }
-      }
 
-      const sorted = storedChats.sort((a, b) => parseCustomDate(b.timeWithSeconds) - parseCustomDate(a.timeWithSeconds));
-      setChatList(sorted);
-      localStorage.setItem('chat-list', JSON.stringify(sorted));
+      // Update chat in database with most recent message sent and time
+      await updateChat(messageData.message, messageData.eventTime, messageData.eventTimeWithSeconds, true, messageData.room);
+      const storedChats = await fetchChatList();
+      setChatList(storedChats);
     };
 
     const handleInitialMessages = (initialMessages) => {
@@ -76,7 +68,7 @@ function ChatView() {
   return (
     <div>
       <ContactHeader />
-
+      
       {/* Only render the messages if the user is a part of the private chat */}
       {room.includes(userId) && (
         <>

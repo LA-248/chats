@@ -13,6 +13,7 @@ import { createTables, pool } from '../db/index.mjs';
 
 import authRouter from './routes/auth.mjs';
 import usersRouter from './routes/users.mjs';
+import chatsRouter from './routes/chats.mjs';
 
 import {
   displayChatMessages,
@@ -42,6 +43,7 @@ app.use(passport.session());
 // Attach routes
 app.use('/auth', authRouter);
 app.use('/users', usersRouter);
+app.use('/chats', chatsRouter);
 
 // Set up a Socket.IO server
 const io = new Server(server, {

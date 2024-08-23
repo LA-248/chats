@@ -1,9 +1,11 @@
 import { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MessageContext } from './MessageContext';
-import sortChatList from '../utils/SortChatList';
+import fetchChatList from '../utils/FetchChatList';
+import deleteChat from '../utils/DeleteChat';
+import updateChat from '../utils/UpdateChat';
 
-export default function ChatList({ userId, setSelectedChat, setUsername, chatSearchInputText, setChatSearchInputText }) {
+export default function ChatList({ setSelectedChat, setUsername, chatSearchInputText, setChatSearchInputText }) {
   const { chatList, setChatList } = useContext(MessageContext);
   const [filteredChats, setFilteredChats] = useState([]);
   const [activeChatId, setActiveChatId] = useState(null);
@@ -11,11 +13,11 @@ export default function ChatList({ userId, setSelectedChat, setUsername, chatSea
   const navigate = useNavigate();
 
   // Remove a conversation from the chat list
-  const removeChat = (id) => {
-    const storedChat = JSON.parse(localStorage.getItem('chat-list'));
-    const updatedChatList = storedChat.filter((chat) => chat.id !== id);
+  const removeChat = async (id) => {
+    await deleteChat(id);
+    const storedChatList = await fetchChatList();
+    const updatedChatList = storedChatList.filter((chat) => chat.id !== id);
     setChatList(updatedChatList);
-    localStorage.setItem('chat-list', JSON.stringify(updatedChatList));
   };
 
   // Filter chat list based on search input
@@ -25,78 +27,86 @@ export default function ChatList({ userId, setSelectedChat, setUsername, chatSea
         chat.name.toLowerCase().includes(chatSearchInputText.toLowerCase())
       );
       setFilteredChats(filtered);
+      console.log(filtered);
     } else {
       setFilteredChats(chatList);
     }
   }, [chatSearchInputText, chatList]);
 
-  // Sort the chat list by most recently active
+  // Display the user's chat list
   useEffect(() => {
-    sortChatList(setChatList);
+    const displayChatList = async () => {
+      const result = await fetchChatList();
+      console.log(result);
+      setChatList(result);
+    }
+
+    displayChatList();
   }, [setChatList]);
 
   return (
     <div className="chat-list">
-      {filteredChats
-        .filter((chat) => chat.userId === userId)
-        .map((chat) => (
-          <div className="chat-item-container" key={chat.id}>
-            <div
-              // Add the active class if the current chat's ID matches the activeChatId
-              className={`chat-item ${chat.id === activeChatId ? 'active' : ''}`}
-              key={chat.id}
-              onMouseEnter={() => setHoverChatId(chat.id)}
-              onMouseLeave={() => setHoverChatId(null)}
-              onClick={() => {
-                setActiveChatId(chat.id);
-                setSelectedChat(chat.name);
-                setUsername(chat.name);
+      {filteredChats.map((chat) => (
+        <div className="chat-item-container" key={chat.chat_id}>
+          <div
+            // Add the active class if the current chat's ID matches the activeChatId
+            className={`chat-item ${
+              chat.chat_id === activeChatId ? 'active' : ''
+            }`}
+            key={chat.chat_id}
+            onMouseEnter={() => setHoverChatId(chat.chat_id)}
+            onMouseLeave={() => setHoverChatId(null)}
+            onClick={async () => {
+              setActiveChatId(chat.chat_id);
+              setSelectedChat(chat.name);
+              setUsername(chat.name);
 
-                chat.hasNewMessage = false;
-                const updatedChatList = [...chatList];
-                setChatList(updatedChatList);
-                localStorage.setItem('chat-list', JSON.stringify(updatedChatList));
+              // Need to update the chat with the new hasNewMessage status when it's opened
+              chat.has_new_message = false;
+              const updatedChatList = [...chatList];
+              setChatList(updatedChatList);
+              await updateChat(chat.last_message, chat.timestamp, chat.timestamp_with_seconds, false, chat.room);
 
-                navigate(`/messages/${chat.room}`);
-              }}
-            >
-              <div className="chat-pic"></div>
-              <div className="chat-info">
-                <div className="chat-name-and-time">
-                  <h4 className="chat-name">{chat.name}</h4>
-                  <div className="time-and-notification-container">
-                    <div className="chat-time">{chat.time}</div>
-                    {activeChatId !== chat.id && chat.hasNewMessage ? (
-                      <span className="unread-message-alert"></span>
-                    ) : (
-                      (chat.hasNewMessage = false)
-                    )}
-                  </div>
+              navigate(`/messages/${chat.room}`);
+            }}
+          >
+            <div className="chat-pic"></div>
+            <div className="chat-info">
+              <div className="chat-name-and-time">
+                <h4 className="chat-name">{chat.name}</h4>
+                <div className="time-and-notification-container">
+                  <div className="chat-time">{chat.timestamp}</div>
+                  {activeChatId !== chat.chat_id && chat.has_new_message ? (
+                    <span className="unread-message-alert"></span>
+                  ) : (
+                    (chat.hasNewMessage = false)
+                  )}
                 </div>
-                <div className="chat-metadata-container">
-                  <p className="chat-last-message">{chat.lastMessage.content ? chat.lastMessage.content : chat.lastMessage}</p>
-                  <div className="chat-utilities">
-                    {hoverChatId === chat.id && (
-                      <button
-                        onClick={(event) => {
-                          event.stopPropagation();
-                          removeChat(chat.id);
-                          setChatSearchInputText('');
-                          if (activeChatId === chat.id) {
-                            navigate('/');
-                          }
-                        }}
-                        className="chat-delete-button"
-                      >
-                        Delete
-                      </button>
-                    )}
-                  </div>
+              </div>
+              <div className="chat-metadata-container">
+                <p className="chat-last-message">{chat.last_message.content ? chat.last_message.content : chat.last_message}</p>
+                <div className="chat-utilities">
+                  {hoverChatId === chat.chat_id && (
+                    <button
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        removeChat(chat.chat_id);
+                        setChatSearchInputText('');
+                        if (activeChatId === chat.chat_id) {
+                          navigate('/');
+                        }
+                      }}
+                      className="chat-delete-button"
+                    >
+                      Delete
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
           </div>
-        ))}
+        </div>
+      ))}
     </div>
   );
 }

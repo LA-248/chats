@@ -5,7 +5,7 @@ const Message  = {
 
   createMessagesTable: function() {
     return new Promise((resolve, reject) => {
-      pool.query('CREATE TABLE IF NOT EXISTS messages (id SERIAL PRIMARY KEY, sender_username TEXT, sender_id INTEGER, recipient_id INTEGER, client_offset TEXT UNIQUE, content TEXT, room TEXT, event_time TEXT, event_time_seconds TEXT)', (err) => {
+      pool.query(`CREATE TABLE IF NOT EXISTS messages (id SERIAL PRIMARY KEY, sender_username TEXT, sender_id INTEGER, recipient_id INTEGER, client_offset TEXT UNIQUE, content TEXT DEFAULT NULL, room TEXT, event_time TEXT DEFAULT NULL, event_time_seconds TEXT DEFAULT NULL)`, (err) => {
         if (err) {
           return reject(`Database error: ${err.message}`);
         }
@@ -48,11 +48,8 @@ const Message  = {
       pool.query('SELECT content, event_time, event_time_seconds FROM messages WHERE room = $1 ORDER BY id DESC LIMIT 1', [room], (err, result) => {
         if (err) {
           return reject(`Database error: ${err.message}`);
-        } else if (result.rows.length === 0) {
-          return resolve({ content: '', event_time: '', event_time_seconds: '' });
-        } else {
-          return resolve(result.rows[0]);
         }
+        return resolve(result.rows[0]);
       });
     });
   },

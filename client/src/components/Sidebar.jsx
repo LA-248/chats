@@ -7,7 +7,6 @@ import { addChat } from '../utils/AddToChatList';
 import AddChatInput from './AddChatInput';
 import ChatList from './ChatList';
 import ChatSearch from './ChatSearch';
-import sortChatList from '../utils/SortChatList.jsx';
 
 export default function Sidebar() {
   const [userId, setUserId] = useState(null);
@@ -16,18 +15,10 @@ export default function Sidebar() {
   const [errorMessage, setErrorMessage] = useState(null);
   const { setUsername, selectedChat, setSelectedChat, setRecipientId, chatList, setChatList } = useContext(MessageContext);
   const socket = useContext(SocketContext); 
-  const storedChats = JSON.parse(localStorage.getItem('chat-list'));
 
   useEffect(() => {
-    // Retrieve chat list from local storage
-    const storedChatList = localStorage.getItem('chat-list');
-    if (storedChatList) {
-      // Need to parse JSON back to JavaScript object so it can be mapped through
-      setChatList(JSON.parse(storedChatList));
-    }
-
     retrieveUserId(setUserId, setErrorMessage);
-  }, [setChatList]);
+  }, []);
 
   // Needed to store user-to-socket mappings on the server
   useEffect(() => {
@@ -40,22 +31,15 @@ export default function Sidebar() {
     event.preventDefault();
   
     try {
-      const newChatItem = await addChat(inputUsername, chatList, userId);
+      const newChatItem = await addChat(inputUsername, chatList);
       const updatedChatList = chatList.concat(newChatItem);
       setChatList(updatedChatList);
-  
-      // Update the chat list in localStorage with the new chat item
-      const existingChatList = JSON.parse(localStorage.getItem('chat-list')) || [];
-      const newChatList = existingChatList.concat(newChatItem);
-      localStorage.setItem('chat-list', JSON.stringify(newChatList));
-  
-      sortChatList(setChatList);
-      
+      // sortChatList(setChatList);
       setInputUsername('');
     } catch (error) {
       setErrorMessage(error.message);
     }
-  }, [chatList, setChatList, inputUsername, userId]);
+  }, [chatList, setChatList, inputUsername]);
 
   // Retrieve the ID of the chat user selected
   // We can then get the socket ID associated with the recipient's user ID on the server
@@ -85,36 +69,34 @@ export default function Sidebar() {
         setErrorMessage={setErrorMessage}
       />
 
-      {storedChats && storedChats.length > 0 ? (
-        <ChatSearch
-          chatSearchInputText={chatSearchInputText}
-          setChatSearchInputText={setChatSearchInputText}
-          chatList={chatList}
-          setChatList={setChatList}
-        />
-      ) : null}
+      <ChatSearch
+        chatSearchInputText={chatSearchInputText}
+        setChatSearchInputText={setChatSearchInputText}
+        chatList={chatList}
+        setChatList={setChatList}
+      />
 
+      <ChatList
+        userId={userId}
+        setSelectedChat={setSelectedChat}
+        setUsername={setUsername}
+        chatSearchInputText={chatSearchInputText}
+        setChatSearchInputText={setChatSearchInputText}
+      />
+
+      {/* 
       <div className="sidebar-items">
-        {storedChats && storedChats.length > 0 ? (
-          <ChatList
-            userId={userId}
-            setSelectedChat={setSelectedChat}
-            setUsername={setUsername}
-            chatSearchInputText={chatSearchInputText}
-            setChatSearchInputText={setChatSearchInputText}
-          />
-        ) : (
-          <div className="chat-list-empty-container">
-            <div className="chat-list-empty-message">
-              You have no active chats
-            </div>
-            <div className="chat-list-empty-subtext">
-              To get started, enter the username of the person you would like to
-              chat with above
-            </div>
+        <div className="chat-list-empty-container">
+          <div className="chat-list-empty-message">
+            You have no active chats
           </div>
-        )}
-      </div>
+          <div className="chat-list-empty-subtext">
+            To get started, enter the username of the person you would like to
+            chat with above
+          </div>
+        </div>
+      </div>        
+      */}
     </div>
   );
 }

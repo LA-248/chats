@@ -44,14 +44,13 @@ const handleChatMessages = (socket, io) => {
       await Message.insertNewMessage(message, username, senderId, recipientId, roomName, currentTime, currentTimeWithSeconds, clientOffset);
 
       // Retrieve most recent message sent in a chat room
-      const lastMessage = await Message.retrieveLastMessageInfo(roomName);
+      // const lastMessage = await Message.retrieveLastMessageInfo(roomName);
 
       // Send the message to both room participants
       io.to(roomName).emit('chat-message', {
         from: username,
         message: message,
         room: roomName,
-        lastMessage: lastMessage,
         eventTime: currentTime,
         eventTimeWithSeconds: currentTimeWithSeconds,
       });
@@ -73,7 +72,6 @@ const displayChatMessages = async (socket, room) => {
     try {
       // Get messages from database for display, filtered by room
       const messages = await Message.retrieveMessages(socket.handshake.auth.serverOffset, room);
-      console.log(messages);
 
       socket.emit('initial-messages', messages.map(msg => ({
         from: msg.sender_username,
