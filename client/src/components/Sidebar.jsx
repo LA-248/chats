@@ -7,6 +7,7 @@ import { addChat } from '../utils/AddToChatList';
 import AddChatInput from './AddChatInput';
 import ChatList from './ChatList';
 import ChatSearch from './ChatSearch';
+import fetchChatList from '../utils/FetchChatList';
 
 export default function Sidebar() {
   const [userId, setUserId] = useState(null);
@@ -32,9 +33,10 @@ export default function Sidebar() {
   
     try {
       const newChatItem = await addChat(inputUsername, chatList);
-      const updatedChatList = chatList.concat(newChatItem);
+      let updatedChatList = chatList.concat(newChatItem);
+      // Get the most recent and sorted version of the user's chat list - ensures chat list is in correct order after a chat is deleted and re-added
+      updatedChatList = await fetchChatList();
       setChatList(updatedChatList);
-      // sortChatList(setChatList);
       setInputUsername('');
     } catch (error) {
       setErrorMessage(error.message);

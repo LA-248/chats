@@ -1,11 +1,12 @@
 import { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { SocketContext } from '../pages/home';
 import { MessageContext } from './MessageContext';
 import fetchChatList from '../utils/FetchChatList';
 import deleteChat from '../utils/DeleteChat';
-import updateChat from '../utils/UpdateChat';
 
 export default function ChatList({ setSelectedChat, setUsername, chatSearchInputText, setChatSearchInputText }) {
+  const socket = useContext(SocketContext);
   const { chatList, setChatList } = useContext(MessageContext);
   const [filteredChats, setFilteredChats] = useState([]);
   const [activeChatId, setActiveChatId] = useState(null);
@@ -37,7 +38,6 @@ export default function ChatList({ setSelectedChat, setUsername, chatSearchInput
   useEffect(() => {
     const displayChatList = async () => {
       const result = await fetchChatList();
-      console.log(result);
       setChatList(result);
     }
 
@@ -61,11 +61,17 @@ export default function ChatList({ setSelectedChat, setUsername, chatSearchInput
               setSelectedChat(chat.name);
               setUsername(chat.name);
 
-              // Need to update the chat with the new hasNewMessage status when it's opened
-              chat.has_new_message = false;
-              const updatedChatList = [...chatList];
-              setChatList(updatedChatList);
-              await updateChat(chat.last_message, chat.timestamp, chat.timestamp_with_seconds, false, chat.room);
+              // When opening a chat, if it has a new message(s), send the updated hasNewMessage status to the server
+              if (chat.has_new_message) {
+                socket.emit('update-message-read-status', { 
+                  hasNewMessage: false,
+                  room: chat.room,
+                });
+                // Update chat list state
+                chat.has_new_message = false;
+                const updatedChatList = [...chatList];
+                setChatList(updatedChatList);
+              }
 
               navigate(`/messages/${chat.room}`);
             }}

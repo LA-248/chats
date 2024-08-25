@@ -1,3 +1,4 @@
+import { Chat } from '../models/chat-model.mjs';
 import { Message } from '../models/message-model.mjs';
 import { retrieveCurrentTime, retrieveCurrentTimeWithSeconds } from '../utils/time-utils.mjs';
 
@@ -43,8 +44,8 @@ const handleChatMessages = (socket, io) => {
       // Insert message into the database with relevant metadata
       await Message.insertNewMessage(message, username, senderId, recipientId, roomName, currentTime, currentTimeWithSeconds, clientOffset);
 
-      // Retrieve most recent message sent in a chat room
-      // const lastMessage = await Message.retrieveLastMessageInfo(roomName);
+      // Set the chat as unread for the recipient when a new message is received
+      await Chat.updateMessageReadStatus(true, roomName, recipientId);
 
       // Send the message to both room participants
       io.to(roomName).emit('chat-message', {

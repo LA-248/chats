@@ -1,4 +1,4 @@
-export default async function updateChat(message, timestamp, timestampWithSeconds, hasNewMessage, room) {
+export default async function updateChat(message, timestamp, timestampWithSeconds, room) {
   try {
     const response = await fetch('http://localhost:8080/chats/', {
       method: 'PUT',
@@ -9,7 +9,6 @@ export default async function updateChat(message, timestamp, timestampWithSecond
         lastMessage: message,
         timestamp: timestamp,
         timestampWithSeconds: timestampWithSeconds,
-        hasNewMessage: hasNewMessage,
         room: room,
       }),
       credentials: 'include',

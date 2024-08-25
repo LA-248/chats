@@ -78,11 +78,9 @@ const updateChatInChatList = async (req, res) => {
     const lastMessage = req.body.lastMessage;
     const timestamp = req.body.timestamp;
     const timestampWithSeconds = req.body.timestampWithSeconds;
-    const hasNewMessage = req.body.hasNewMessage;
     const room = req.body.room;
-    const recipientId = req.body.recipientId;
 
-    const updatedChatList = await Chat.updateChatInChatList(lastMessage, timestamp, timestampWithSeconds, hasNewMessage, room, recipientId);
+    const updatedChatList = await Chat.updateChatInChatList(lastMessage, timestamp, timestampWithSeconds, room);
     console.log(updatedChatList);
     return res.status(200).json({ updatedChatList: updatedChatList });
   } catch (error) {

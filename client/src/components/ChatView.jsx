@@ -5,7 +5,6 @@ import { useParams } from 'react-router-dom';
 import { retrieveUserId } from '../utils/FetchUserId';
 import ContactHeader from './ContactHeader';
 import MessageInput from './MessageInput';
-import parseCustomDate from '../utils/ParseDate';
 import fetchChatList from '../utils/FetchChatList';
 import updateChat from '../utils/UpdateChat';
 
@@ -34,9 +33,8 @@ function ChatView() {
         )
       );
 
-
       // Update chat in database with most recent message sent and time
-      await updateChat(messageData.message, messageData.eventTime, messageData.eventTimeWithSeconds, true, messageData.room);
+      await updateChat(messageData.message, messageData.eventTime, messageData.eventTimeWithSeconds, messageData.room);
       const storedChats = await fetchChatList();
       setChatList(storedChats);
     };

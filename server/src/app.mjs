@@ -20,6 +20,7 @@ import {
   handleChatMessages,
   manageSocketConnections,
 } from './handlers/socket-handlers.mjs';
+import { Chat } from './models/chat-model.mjs';
 
 const app = express();
 const server = createServer(app);
@@ -84,6 +85,11 @@ io.on('connection', (socket) => {
       socket.join(room);
       // Load messages for the room
       displayChatMessages(socket, room);
+    });
+
+    // Update message read status in database
+    socket.on('update-message-read-status', async ({ hasNewMessage, room }) => {
+      await Chat.updateMessageReadStatus(hasNewMessage, room, userId);
     });
   } else {
     socket.disconnect();
