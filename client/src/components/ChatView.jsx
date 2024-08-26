@@ -27,20 +27,8 @@ function ChatView() {
         }
       }
 
-      // Update chat list state with the new last message and time
-      setChatList((prevChatList) =>
-        prevChatList.map((chat) =>
-          chat.room === messageData.room
-            ? {
-                ...chat,
-                lastMessage: messageData.message,
-                time: messageData.eventTime,
-              }
-            : chat
-        )
-      );
-
-      // Update chat in database with most recent message sent and time
+      // Update chat in state and database with most recent message sent and time
+      // Use the room to determine which chat in the list to update
       await updateChat(messageData.message, messageData.eventTime, messageData.eventTimeWithSeconds, messageData.room);
       const storedChats = await fetchChatList();
       setChatList(storedChats);
