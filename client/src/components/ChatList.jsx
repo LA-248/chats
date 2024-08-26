@@ -50,9 +50,7 @@ export default function ChatList({ setSelectedChat, setUsername, chatSearchInput
         <div className="chat-item-container" key={chat.chat_id}>
           <div
             // Add the active class if the current chat's ID matches the activeChatId
-            className={`chat-item ${
-              chat.chat_id === activeChatId ? 'active' : ''
-            }`}
+            className={`chat-item ${chat.chat_id === activeChatId ? 'active' : ''}`}
             key={chat.chat_id}
             onMouseEnter={() => setHoverChatId(chat.chat_id)}
             onMouseLeave={() => setHoverChatId(null)}

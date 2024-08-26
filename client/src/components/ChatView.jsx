@@ -28,8 +28,15 @@ function ChatView() {
       }
 
       // Update chat list state with the new last message and time
-      setChatList((prevChatList) => prevChatList.map((chat) =>
-          chat.room === messageData.room ? {...chat, lastMessage: messageData.message, time: messageData.eventTime} : chat
+      setChatList((prevChatList) =>
+        prevChatList.map((chat) =>
+          chat.room === messageData.room
+            ? {
+                ...chat,
+                lastMessage: messageData.message,
+                time: messageData.eventTime,
+              }
+            : chat
         )
       );
 
@@ -64,42 +71,38 @@ function ChatView() {
   }, []);
 
   return (
-    <div>
+    <div className="chat-view-container">
       <ContactHeader />
-      
+
       {/* Only render the messages if the user is a part of the private chat */}
       {room.includes(userId) && (
-        <>
-          <div className="messages-and-input-container">
-            <div className="messages-container">
-              <ul id="messages">
-                {messages.map((messageData, index) => (
-                  <li className="individual-message" key={index}>
-                    <div className="message-container">
-                      <div className="message-metadata">
-                        <div className="message-from">{messageData.from}</div>
-                        <div className="message-time">
-                          {messageData.eventTime}
-                        </div>
-                      </div>
-                      <div className="message-content">
-                        {messageData.message}
+        <div className="chat-content-container">
+          <div className="messages-container">
+            <ul id="messages">
+              {messages.map((messageData, index) => (
+                <li className="individual-message" key={index}>
+                  <div className="message-container">
+                    <div className="message-metadata">
+                      <div className="message-from">{messageData.from}</div>
+                      <div className="message-time">
+                        {messageData.eventTime}
                       </div>
                     </div>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            {errorMessage ? (
-              <div className="error-message" style={{ margin: '10px' }}>
-                {errorMessage}
-              </div>
-            ) : null}
-            <div className="message-form-container">
-              <MessageInput setMessages={setMessages} />
-            </div>
+                    <div className="message-content">{messageData.message}</div>
+                  </div>
+                </li>
+              ))}
+            </ul>
           </div>
-        </>
+          {errorMessage ? (
+            <div className="error-message" style={{ margin: '10px' }}>
+              {errorMessage}
+            </div>
+          ) : null}
+          <div className="message-form-container">
+            <MessageInput setMessages={setMessages} />
+          </div>
+        </div>
       )}
     </div>
   );

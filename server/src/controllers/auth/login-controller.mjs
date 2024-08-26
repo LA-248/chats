@@ -17,5 +17,5 @@ export const handleUserLogin = (req, res, next) => {
       // Redirect URL is included so the frontend can redirect the user after a successful log in
       return res.status(200).json({ success: true, message: 'Login successful', redirectPath: '/' });
     });
-  })(req, res, next)
+  })(req, res, next);
 };
