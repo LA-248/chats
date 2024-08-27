@@ -1,6 +1,7 @@
 import { User } from '../../models/user-model.mjs';
 import { Message } from '../../models/message-model.mjs';
 import { Chat } from '../../models/chat-model.mjs';
+import { retrieveCurrentTimeWithSeconds } from '../../utils/time-utils.mjs';
 
 // Handle adding a new chat to a user's chat list
 const addChat = async (req, res) => {
@@ -15,6 +16,7 @@ const addChat = async (req, res) => {
 
     const senderId = req.session.passport.user;
     const recipientId = req.body.recipientId;
+    const currentTimeWithSeconds = retrieveCurrentTimeWithSeconds();
 
     // Ensure the room is the same for both users by sorting the user IDs
     const room = [senderId, recipientId].sort().join('-');
@@ -28,7 +30,8 @@ const addChat = async (req, res) => {
     const content = lastMessageData ? lastMessageData.content : '';
     const hasNewMessage = false;
     const timestamp = lastMessageData ? lastMessageData.event_time : '';
-    const timestampWithSeconds = lastMessageData ? lastMessageData.event_time_seconds : '';
+    // Use the timestamp with seconds to set a newly added chat to the top of the chat list
+    const timestampWithSeconds = lastMessageData ? lastMessageData.event_time_seconds : currentTimeWithSeconds;
 
     // Insert new chat data into database
     const newChatItem = await Chat.insertNewChat(userId, name, content, hasNewMessage, timestamp, timestampWithSeconds, recipientId, room);
