@@ -13,6 +13,20 @@ export default function ChatList({ setSelectedChat, setUsername, chatSearchInput
   const [hoverChatId, setHoverChatId] = useState(null);
   const navigate = useNavigate();
 
+  // Handles updating the read status of a message
+  const handleMessageReadStatusUpdate = (chat) => {
+    if (chat.has_new_message) {
+      socket.emit('update-message-read-status', { 
+        hasNewMessage: false,
+        room: chat.room,
+      });
+      // Update chat list state
+      chat.has_new_message = false;
+      const updatedChatList = [...chatList];
+      setChatList(updatedChatList);
+    }
+  }
+
   // Remove a conversation from the chat list
   const removeChat = async (id) => {
     await deleteChat(id);
@@ -21,20 +35,7 @@ export default function ChatList({ setSelectedChat, setUsername, chatSearchInput
     setChatList(updatedChatList);
   };
 
-  // Filter chat list based on search input
-  useEffect(() => {
-    if (chatSearchInputText) {
-      const filtered = chatList.filter((chat) =>
-        chat.name.toLowerCase().includes(chatSearchInputText.toLowerCase())
-      );
-      setFilteredChats(filtered);
-      console.log(filtered);
-    } else {
-      setFilteredChats(chatList);
-    }
-  }, [chatSearchInputText, chatList]);
-
-  // Display the user's chat list
+  // Retrieve the user's chat list for display
   useEffect(() => {
     const displayChatList = async () => {
       const result = await fetchChatList();
@@ -43,6 +44,27 @@ export default function ChatList({ setSelectedChat, setUsername, chatSearchInput
 
     displayChatList();
   }, [setChatList]);
+
+  // Filter chat list based on search input
+  useEffect(() => {
+    if (chatSearchInputText) {
+      const filtered = chatList.filter((chat) =>
+        chat.name.toLowerCase().includes(chatSearchInputText.toLowerCase())
+      );
+      setFilteredChats(filtered);
+    } else {
+      setFilteredChats(chatList);
+    }
+  }, [chatSearchInputText, chatList]);
+
+  // Automatically mark messages as read in the currently open chat
+  useEffect(() => {
+    filteredChats.forEach((chat) => {
+      if (activeChatId === chat.chat_id) {
+        handleMessageReadStatusUpdate(chat);
+      }
+    });
+  });
 
   return (
     <div className="chat-list">
@@ -60,16 +82,7 @@ export default function ChatList({ setSelectedChat, setUsername, chatSearchInput
               setUsername(chat.name);
 
               // When opening a chat, if it has a new message(s), send the updated hasNewMessage status to the server
-              if (chat.has_new_message) {
-                socket.emit('update-message-read-status', { 
-                  hasNewMessage: false,
-                  room: chat.room,
-                });
-                // Update chat list state
-                chat.has_new_message = false;
-                const updatedChatList = [...chatList];
-                setChatList(updatedChatList);
-              }
+              handleMessageReadStatusUpdate(chat);
 
               navigate(`/messages/${chat.room}`);
             }}
