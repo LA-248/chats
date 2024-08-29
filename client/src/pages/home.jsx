@@ -4,7 +4,7 @@ import { createContext, useEffect, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import Logout from '../components/UserLogout.jsx';
 import DisplayUsername from '../components/DisplayUsername.jsx';
-import fetchUsername from '../utils/FetchUsername.jsx';
+import fetchUserData from '../utils/FetchUserData.jsx';
 import Sidebar from '../components/Sidebar.jsx';
 import ChatWindowPlaceholder from '../components/ChatWindowPlaceholder.jsx';
 
@@ -20,8 +20,8 @@ export default function Home() {
     // Retrieve the username of the logged in user
     const fetchUser = async () => {
       try {
-        const userData = await fetchUsername();
-        setLoggedInUsername(userData);
+        const userData = await fetchUserData();
+        setLoggedInUsername(userData.username);
       } catch (error) {
         setErrorMessage(error.message);
       }

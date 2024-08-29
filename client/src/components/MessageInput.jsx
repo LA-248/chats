@@ -2,7 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { useContext, useEffect, useState } from 'react';
 import { MessageContext } from './MessageContext';
 import { SocketContext } from '../pages/home';
-import fetchUsername from '../utils/FetchUsername';
+import fetchUserData from '../utils/FetchUserData';
 import clearErrorMessage from '../utils/ErrorMessageTimeout';
 
 export default function MessageInput({ setMessages }) {
@@ -16,11 +16,11 @@ export default function MessageInput({ setMessages }) {
   }, [errorMessage]);
 
   useEffect(() => {
-    // Retrieve account username
+    // Retrieve user account data
     const fetchUser = async () => {
       try {
-        const userData = await fetchUsername();
-        setUsername(userData);
+        const userData = await fetchUserData();
+        setUsername(userData.username);
       } catch (error) {
         setErrorMessage(error.message);
       }

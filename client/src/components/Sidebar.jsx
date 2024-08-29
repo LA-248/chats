@@ -15,7 +15,7 @@ export default function Sidebar() {
   const [chatSearchInputText, setChatSearchInputText] = useState('');
   const [errorMessage, setErrorMessage] = useState(null);
   const { setUsername, selectedChat, setSelectedChat, setRecipientId, chatList, setChatList } = useContext(MessageContext);
-  const socket = useContext(SocketContext); 
+  const socket = useContext(SocketContext);
 
   useEffect(() => {
     retrieveUserId(setUserId, setErrorMessage);
@@ -34,7 +34,7 @@ export default function Sidebar() {
     try {
       const newChatItem = await addChat(inputUsername, chatList);
       let updatedChatList = chatList.concat(newChatItem);
-      // Get the most recent and sorted version of the user's chat list - ensures chat list is in correct order after a chat is deleted and re-added
+      // Get the most recent and sorted version of the user's chat list - ensures the chat list is in the correct order after a chat is deleted and re-added
       updatedChatList = await fetchChatList();
       setChatList(updatedChatList);
       setInputUsername('');

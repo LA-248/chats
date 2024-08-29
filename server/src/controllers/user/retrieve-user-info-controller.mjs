@@ -1,10 +1,10 @@
 import { User } from '../../models/user-model.mjs';
 
-const retrieveUsernameById = async (req, res) => {
+const retrieveUserById = async (req, res) => {
   try {
     const userId = req.session.passport.user;
-    const user = await User.getUsernameById(userId);
-    res.status(200).json({ username: user.username });
+    const user = await User.getUserById(userId);
+    res.status(200).json({ userId: user.id, username: user.username });
   } catch (error) {
     console.error('Error retrieving username:', error);
     res.status(500).json({ message: 'An unexpected error occurred.' });
@@ -36,4 +36,4 @@ const retrieveUserIdFromSession = async (req, res) => {
   }
 };
 
-export { retrieveUsernameById, retrieveIdByUsername, retrieveUserIdFromSession };
+export { retrieveUserById, retrieveIdByUsername, retrieveUserIdFromSession };

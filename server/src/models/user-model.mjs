@@ -26,10 +26,10 @@ const User = {
   },
 
   // READ OPERATIONS
-  
-  getUsernameById: function(userId) {
+
+  getUserById: function(userId) {
     return new Promise((resolve, reject) => {
-      pool.query('SELECT username FROM users WHERE id = $1', [userId], (err, result) => {
+      pool.query('SELECT * FROM users WHERE id = $1', [userId], (err, result) => {
         if (err) {
           return reject(`Database error: ${err.message}`);
         }
