@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from 'react';
 import { MessageContext } from './MessageContext';
-import { SocketContext } from '../pages/home';
+import { useSocket } from '../hooks/useSocket';
 import { useParams } from 'react-router-dom';
 import { retrieveUserId } from '../utils/FetchUserId';
 import ContactHeader from './ContactHeader';
@@ -10,7 +10,7 @@ import updateChat from '../utils/UpdateChat';
 
 function ChatView() {
   const { messages, setMessages, setChatList } = useContext(MessageContext);
-  const socket = useContext(SocketContext);
+  const socket = useSocket();
   const [userId, setUserId] = useState(null);
   const [errorMessage, setErrorMessage] = useState('');
   // Extract room from URL

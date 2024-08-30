@@ -1,12 +1,12 @@
 import { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { SocketContext } from '../pages/home';
+import { useSocket } from '../hooks/useSocket';
 import { MessageContext } from './MessageContext';
 import fetchChatList from '../utils/FetchChatList';
 import deleteChat from '../utils/DeleteChat';
 
 export default function ChatList({ setSelectedChat, setUsername, chatSearchInputText, setChatSearchInputText }) {
-  const socket = useContext(SocketContext);
+  const socket = useSocket();
   const { chatList, setChatList } = useContext(MessageContext);
   const [filteredChats, setFilteredChats] = useState([]);
   const [activeChatId, setActiveChatId] = useState(null);

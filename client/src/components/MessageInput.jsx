@@ -1,15 +1,15 @@
 import { v4 as uuidv4 } from 'uuid';
 import { useContext, useEffect, useState } from 'react';
 import { MessageContext } from './MessageContext';
-import { SocketContext } from '../pages/home';
+import { useSocket } from '../hooks/useSocket';
 import fetchUserData from '../utils/FetchUserData';
 import clearErrorMessage from '../utils/ErrorMessageTimeout';
 
 export default function MessageInput({ setMessages }) {
+  const socket = useSocket();
   const { message, setMessage, recipientId } = useContext(MessageContext);
   const [username, setUsername] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-  const socket = useContext(SocketContext);
 
   useEffect(() => {
     clearErrorMessage(errorMessage, setErrorMessage);

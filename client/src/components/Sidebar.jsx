@@ -1,7 +1,7 @@
 import { useCallback, useContext, useEffect, useState } from 'react';
+import { useSocket } from '../hooks/useSocket';
 import { MessageContext } from './MessageContext';
 import { retrieveUserId } from '../utils/FetchUserId';
-import { SocketContext } from '../pages/home';
 import { fetchRecipientUserId } from '../utils/FetchRecipientUserId';
 import { addChat } from '../utils/AddToChatList';
 import AddChatInput from './AddChatInput';
@@ -10,12 +10,12 @@ import ChatSearch from './ChatSearch';
 import fetchChatList from '../utils/FetchChatList';
 
 export default function Sidebar() {
+  const socket = useSocket();
   const [userId, setUserId] = useState(null);
   const [inputUsername, setInputUsername] = useState('');
   const [chatSearchInputText, setChatSearchInputText] = useState('');
   const [errorMessage, setErrorMessage] = useState(null);
   const { setUsername, selectedChat, setSelectedChat, setRecipientId, chatList, setChatList } = useContext(MessageContext);
-  const socket = useContext(SocketContext);
 
   useEffect(() => {
     retrieveUserId(setUserId, setErrorMessage);
