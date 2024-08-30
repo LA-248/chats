@@ -1,6 +1,7 @@
 import { Chat } from '../models/chat-model.mjs';
 import { Message } from '../models/message-model.mjs';
 import { retrieveCurrentTime, retrieveCurrentTimeWithSeconds } from '../utils/time-utils.mjs';
+import addChatForRecipientOnMessageReceive from '../utils/handle-recipient-chat-list.mjs';
 
 // TODO: Store user-socket associations in database
 // Store user-to-socket mappings
@@ -23,7 +24,11 @@ const manageSocketConnections = (socket) => {
 const handleChatMessages = (socket, io) => {
   socket.on('chat-message', async (data, clientOffset, callback) => {
     const { username, recipientId, message } = data;
+    
+    // Extract the recipient's socket id from the hash map by using their user id associated with it
+    // This allows us to add the recipient to the correct chat room when they receive a message
     const targetUserSocketId = userSockets.get(recipientId);
+
     const senderId = socket.handshake.session.passport.user;
     const currentTime = retrieveCurrentTime();
     const currentTimeWithSeconds = retrieveCurrentTimeWithSeconds();
@@ -46,6 +51,8 @@ const handleChatMessages = (socket, io) => {
 
       // Set the chat as unread for the recipient when a new message is received
       await Chat.updateMessageReadStatus(true, roomName, recipientId);
+
+      await addChatForRecipientOnMessageReceive(recipientId, username, message, true, currentTime, currentTimeWithSeconds, senderId, roomName);
 
       // Send the message to both room participants
       io.to(roomName).emit('chat-message', {
