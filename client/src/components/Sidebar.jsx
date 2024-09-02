@@ -1,13 +1,12 @@
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { useSocket } from '../hooks/useSocket';
-import { MessageContext } from './MessageContext';
-import { retrieveUserId } from '../utils/FetchUserId';
-import { fetchRecipientUserId } from '../utils/FetchRecipientUserId';
-import { addChat } from '../utils/AddToChatList';
+import { MessageContext } from '../contexts/MessageContext';
+import { ChatContext } from '../contexts/ChatContext';
+import { addChat, getChatListByUserId } from '../api/chat-api';
+import { getRecipientUserId, getUserId } from '../api/user-api';
 import AddChatInput from './AddChatInput';
 import ChatList from './ChatList';
 import ChatSearch from './ChatSearch';
-import fetchChatList from '../utils/FetchChatList';
 
 export default function Sidebar() {
   const socket = useSocket();
@@ -15,10 +14,28 @@ export default function Sidebar() {
   const [inputUsername, setInputUsername] = useState('');
   const [chatSearchInputText, setChatSearchInputText] = useState('');
   const [errorMessage, setErrorMessage] = useState(null);
-  const { setUsername, selectedChat, setSelectedChat, setRecipientId, chatList, setChatList } = useContext(MessageContext);
+  const { setRecipientId } = useContext(MessageContext);
+  const { setUsername, selectedChat, setSelectedChat, chatList, setChatList } = useContext(ChatContext);
 
+  // Adds a new chat to the sidebar
+  const handleAddChat = useCallback(async (event) => {
+    event.preventDefault();
+  
+    try {
+      const newChatItem = await addChat(inputUsername, chatList);
+      let updatedChatList = chatList.concat(newChatItem);
+      // Get the most recent and sorted version of the user's chat list - ensures the chat list is in the correct order after a chat is deleted and re-added
+      updatedChatList = await getChatListByUserId();
+      setChatList(updatedChatList);
+      setInputUsername('');
+    } catch (error) {
+      setErrorMessage(error.message);
+    }
+  }, [chatList, setChatList, inputUsername]);
+
+  // 
   useEffect(() => {
-    retrieveUserId(setUserId, setErrorMessage);
+    getUserId(setUserId, setErrorMessage);
   }, []);
 
   // Needed to store user-to-socket mappings on the server
@@ -28,21 +45,6 @@ export default function Sidebar() {
     }
   }, [socket, userId]);
 
-  const handleAddChat = useCallback(async (event) => {
-    event.preventDefault();
-  
-    try {
-      const newChatItem = await addChat(inputUsername, chatList);
-      let updatedChatList = chatList.concat(newChatItem);
-      // Get the most recent and sorted version of the user's chat list - ensures the chat list is in the correct order after a chat is deleted and re-added
-      updatedChatList = await fetchChatList();
-      setChatList(updatedChatList);
-      setInputUsername('');
-    } catch (error) {
-      setErrorMessage(error.message);
-    }
-  }, [chatList, setChatList, inputUsername]);
-
   // Retrieve the ID of the chat user selected
   // We can then get the socket ID associated with the recipient's user ID on the server
   // This is needed so private messages are sent to the correct user
@@ -50,7 +52,7 @@ export default function Sidebar() {
     if (selectedChat) {
       const getRecipientId = async () => {
         try {
-          const userId = await fetchRecipientUserId(selectedChat);
+          const userId = await getRecipientUserId(selectedChat);
           setRecipientId(userId);
         } catch (error) {
           setErrorMessage(error.message);

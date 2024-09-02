@@ -1,15 +1,16 @@
 import { useContext, useEffect, useState } from 'react';
-import { MessageContext } from './MessageContext';
-import { useSocket } from '../hooks/useSocket';
 import { useParams } from 'react-router-dom';
-import { retrieveUserId } from '../utils/FetchUserId';
+import { useSocket } from '../hooks/useSocket';
+import { MessageContext } from '../contexts/MessageContext';
+import { ChatContext } from '../contexts/ChatContext';
+import { getUserId } from '../api/user-api';
+import { getChatListByUserId, updateChat } from '../api/chat-api';
 import ContactHeader from './ContactHeader';
 import MessageInput from './MessageInput';
-import fetchChatList from '../utils/FetchChatList';
-import updateChat from '../utils/UpdateChat';
 
 function ChatView() {
-  const { messages, setMessages, setChatList } = useContext(MessageContext);
+  const { messages, setMessages } = useContext(MessageContext);
+  const { setChatList } = useContext(ChatContext);
   const socket = useSocket();
   const [userId, setUserId] = useState(null);
   const [errorMessage, setErrorMessage] = useState('');
@@ -30,7 +31,7 @@ function ChatView() {
       // Update chat in state and database with most recent message sent and time
       // Use the room to determine which chat in the list to update
       await updateChat(messageData.message, messageData.eventTime, messageData.eventTimeWithSeconds, messageData.room);
-      const storedChats = await fetchChatList();
+      const storedChats = await getChatListByUserId();
       setChatList(storedChats);
     };
 
@@ -55,7 +56,7 @@ function ChatView() {
   }, [setMessages, socket, room, setChatList]);
 
   useEffect(() => {
-    retrieveUserId(setUserId, setErrorMessage);
+    getUserId(setUserId, setErrorMessage);
   }, []);
 
   return (

@@ -5,10 +5,7 @@ const MessageContext = createContext();
 const MessageProvider = ({ children }) => {
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState([]);
-  const [username, setUsername] = useState('');
-  const [selectedChat, setSelectedChat] = useState(null);
   const [recipientId, setRecipientId] = useState(null);
-  const [chatList, setChatList] = useState([]);
 
   return (
     <MessageContext.Provider
@@ -17,14 +14,8 @@ const MessageProvider = ({ children }) => {
         setMessage,
         messages,
         setMessages,
-        username,
-        setUsername,
-        selectedChat,
-        setSelectedChat,
         recipientId,
         setRecipientId,
-        chatList,
-        setChatList,
       }}
     >
       {children}

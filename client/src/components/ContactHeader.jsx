@@ -1,8 +1,8 @@
 import { useContext } from 'react';
-import { MessageContext } from './MessageContext';
+import { ChatContext } from '../contexts/ChatContext';
 
 export default function ContactHeader() {
-  const { selectedChat } = useContext(MessageContext);
+  const { selectedChat } = useContext(ChatContext);
 
   return (
     <div className="contact-header-container">

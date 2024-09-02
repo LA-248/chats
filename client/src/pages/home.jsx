@@ -1,10 +1,11 @@
 import { io } from 'https://cdn.socket.io/4.7.5/socket.io.esm.min.js';
-import { MessageProvider } from '../components/MessageContext.jsx';
+import { MessageProvider } from '../contexts/MessageContext.jsx';
+import { ChatProvider } from '../contexts/ChatContext.jsx';
 import { createContext, useEffect, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
+import { getUserData } from '../api/user-api.jsx';
 import Logout from '../components/UserLogout.jsx';
 import DisplayUsername from '../components/DisplayUsername.jsx';
-import fetchUserData from '../utils/FetchUserData.jsx';
 import Sidebar from '../components/Sidebar.jsx';
 import ChatWindowPlaceholder from '../components/ChatWindowPlaceholder.jsx';
 
@@ -20,7 +21,7 @@ export default function Home() {
     // Retrieve the username of the logged in user
     const fetchUser = async () => {
       try {
-        const userData = await fetchUserData();
+        const userData = await getUserData();
         setLoggedInUsername(userData.username);
       } catch (error) {
         setErrorMessage(error.message);
@@ -49,40 +50,42 @@ export default function Home() {
     // Render child components only if the socket is initialised
     socket && (
       <SocketContext.Provider value={socket}>
-        <MessageProvider>
-          <div className="main-container">
-            <div className="sidebar-container">
-              <div className="user-controls">
-                <DisplayUsername username={loggedInUsername} />
-                {errorMessage ? (
-                  <div className="error-message" style={{ margin: '10px' }}>
-                    {errorMessage}
-                  </div>
-                ) : null}
-                <Logout />
-                <a
-                  href="/"
-                  style={{
-                    color: 'white',
-                    fontWeight: '600',
-                    fontSize: '24px',
-                    textDecoration: 'none',
-                  }}
-                >
-                  Chats
-                </a>
+        <ChatProvider>
+          <MessageProvider>
+            <div className="main-container">
+              <div className="sidebar-container">
+                <div className="user-controls">
+                  <DisplayUsername username={loggedInUsername} />
+                  {errorMessage ? (
+                    <div className="error-message" style={{ margin: '10px' }}>
+                      {errorMessage}
+                    </div>
+                  ) : null}
+                  <Logout />
+                  <a
+                    href="/"
+                    style={{
+                      color: 'white',
+                      fontWeight: '600',
+                      fontSize: '24px',
+                      textDecoration: 'none',
+                    }}
+                  >
+                    Chats
+                  </a>
+                </div>
+                <Sidebar />
               </div>
-              <Sidebar />
+              <div className="chat-window-container">
+                {location.pathname === '/' ? (
+                  <ChatWindowPlaceholder />
+                ) : (
+                  <Outlet />
+                )}
+              </div>
             </div>
-            <div className="chat-window-container">
-              {location.pathname === '/' ? (
-                <ChatWindowPlaceholder />
-              ) : (
-                <Outlet />
-              )}
-            </div>
-          </div>
-        </MessageProvider>
+          </MessageProvider>
+        </ChatProvider>
       </SocketContext.Provider>
     )
   );

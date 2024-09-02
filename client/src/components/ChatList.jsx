@@ -1,13 +1,12 @@
 import { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSocket } from '../hooks/useSocket';
-import { MessageContext } from './MessageContext';
-import fetchChatList from '../utils/FetchChatList';
-import deleteChat from '../utils/DeleteChat';
+import { ChatContext } from '../contexts/ChatContext';
+import { getChatListByUserId, deleteChat } from '../api/chat-api';
 
 export default function ChatList({ setSelectedChat, setUsername, chatSearchInputText, setChatSearchInputText }) {
   const socket = useSocket();
-  const { chatList, setChatList } = useContext(MessageContext);
+  const { chatList, setChatList } = useContext(ChatContext);
   const [filteredChats, setFilteredChats] = useState([]);
   const [activeChatId, setActiveChatId] = useState(null);
   const [hoverChatId, setHoverChatId] = useState(null);
@@ -16,7 +15,7 @@ export default function ChatList({ setSelectedChat, setUsername, chatSearchInput
   // Handles updating the read status of a message
   const handleMessageReadStatusUpdate = (chat) => {
     if (chat.has_new_message) {
-      socket.emit('update-message-read-status', { 
+      socket.emit('update-message-read-status', {
         hasNewMessage: false,
         room: chat.room,
       });
@@ -25,12 +24,12 @@ export default function ChatList({ setSelectedChat, setUsername, chatSearchInput
       const updatedChatList = [...chatList];
       setChatList(updatedChatList);
     }
-  }
+  };
 
   // Remove a conversation from the chat list
   const removeChat = async (id) => {
     await deleteChat(id);
-    const storedChatList = await fetchChatList();
+    const storedChatList = await getChatListByUserId();
     const updatedChatList = storedChatList.filter((chat) => chat.id !== id);
     setChatList(updatedChatList);
   };
@@ -38,9 +37,9 @@ export default function ChatList({ setSelectedChat, setUsername, chatSearchInput
   // Retrieve the user's chat list for display
   useEffect(() => {
     const displayChatList = async () => {
-      const result = await fetchChatList();
+      const result = await getChatListByUserId();
       setChatList(result);
-    }
+    };
 
     displayChatList();
   }, [setChatList]);
@@ -101,7 +100,11 @@ export default function ChatList({ setSelectedChat, setUsername, chatSearchInput
                 </div>
               </div>
               <div className="chat-metadata-container">
-                <p className="chat-last-message">{chat.last_message.content ? chat.last_message.content : chat.last_message}</p>
+                <p className="chat-last-message">
+                  {chat.last_message.content
+                    ? chat.last_message.content
+                    : chat.last_message}
+                </p>
                 <div className="chat-utilities">
                   {hoverChatId === chat.chat_id && (
                     <button
