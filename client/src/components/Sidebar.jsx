@@ -7,12 +7,14 @@ import { getRecipientUserId, getUserId } from '../api/user-api';
 import AddChatInput from './AddChatInput';
 import ChatList from './ChatList';
 import ChatSearch from './ChatSearch';
+import GroupChatModal from './GroupChatModal';
 
 export default function Sidebar() {
   const socket = useSocket();
   const [userId, setUserId] = useState(null);
   const [inputUsername, setInputUsername] = useState('');
   const [chatSearchInputText, setChatSearchInputText] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
   const { setRecipientId } = useContext(MessageContext);
   const { setUsername, selectedChat, setSelectedChat, chatList, setChatList } = useContext(ChatContext);
@@ -71,6 +73,16 @@ export default function Sidebar() {
         handleAddChat={handleAddChat}
         errorMessage={errorMessage}
         setErrorMessage={setErrorMessage}
+      />
+
+      <div className="create-group-button-container">
+        <button onClick={() => setIsModalOpen(true)} className="create-group-button">
+          Create group chat
+        </button>
+      </div>
+      <GroupChatModal
+        isModalOpen={isModalOpen}
+        setIsModalOpen={setIsModalOpen}
       />
 
       <ChatSearch
