@@ -11,15 +11,12 @@ import { Server } from 'socket.io';
 import { sessionMiddleware } from './middlewares/session-middleware.mjs';
 import { createTables, pool } from '../db/index.mjs';
 
+// Import routers
 import authRouter from './routes/auth.mjs';
 import usersRouter from './routes/users.mjs';
 import chatsRouter from './routes/chats.mjs';
 
-import {
-  displayChatMessages,
-  handleChatMessages,
-  manageSocketConnections,
-} from './handlers/socket-handlers.mjs';
+import { displayChatMessages, handleChatMessages, manageSocketConnections } from './handlers/socket-handlers.mjs';
 import { Chat } from './models/chat-model.mjs';
 
 const app = express();

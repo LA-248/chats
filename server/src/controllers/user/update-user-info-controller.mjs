@@ -1,0 +1,15 @@
+import { User } from '../../models/user-model.mjs';
+
+const updateBlockedUsers = async (req, res) => {
+  try {
+    const userId = req.session.passport.user;
+    const blockedUserId = req.body.userIdToBlock;
+    await User.updateBlockedUsersById(blockedUserId, userId);
+    res.status(200).json({ message: 'Block list successfully updated' });
+  } catch (error) {
+    console.error('Error blocking user:', error);
+    res.status(500).json({ message: 'Error blocking user. Please try again.' });
+  }
+};
+
+export { updateBlockedUsers };

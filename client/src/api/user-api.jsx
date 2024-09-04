@@ -37,7 +37,7 @@ async function getUserId(setUserId, setErrorMessage) {
 };
 
 // Retrieve the ID of a message recipient from the database using their username
-async function getRecipientUserId(username) {
+async function getRecipientUserIdByUsername(username) {
   try {
     const response = await fetch('http://localhost:8080/users/recipient_id', {
       method: 'POST',
@@ -60,4 +60,51 @@ async function getRecipientUserId(username) {
   }
 };
 
-export { getUserData, getUserId, getRecipientUserId };
+// Retrieve the block list of the logged in user
+async function getBlockList() {
+  try {
+    const response = await fetch('http://localhost:8080/users/block', {
+      method: 'GET',
+      credentials: 'include',
+    });
+
+    if (!response) {
+      const errorResponse = await response.json();
+      throw new Error(errorResponse.message);
+    }
+
+    const data = await response.json();
+    return data.blockList;
+  } catch (error) {
+    throw error;
+  }
+}
+
+// Update a user's block list with the ID of who they want blocked
+async function updateBlockList(userId) {
+  try {
+    const response = await fetch('http://localhost:8080/users/block', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ userIdToBlock: userId }),
+      credentials: 'include',
+    });
+
+    if (!response) {
+      const errorResponse = await response.json();
+      throw new Error(errorResponse.message);
+    }
+  } catch (error) {
+    throw error;
+  }
+}
+
+export {
+  getUserData,
+  getUserId,
+  getRecipientUserIdByUsername,
+  getBlockList,
+  updateBlockList,
+};

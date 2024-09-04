@@ -6,7 +6,7 @@ const retrieveUserById = async (req, res) => {
     const user = await User.getUserById(userId);
     res.status(200).json({ userId: user.id, username: user.username });
   } catch (error) {
-    console.error('Error retrieving username:', error);
+    console.error('Error retrieving user data:', error);
     res.status(500).json({ message: 'An unexpected error occurred.' });
   }
 };
@@ -36,4 +36,21 @@ const retrieveUserIdFromSession = async (req, res) => {
   }
 };
 
-export { retrieveUserById, retrieveIdByUsername, retrieveUserIdFromSession };
+const retrieveBlockList = async (req, res) => {
+  try {
+    const userId = req.session.passport.user;
+    const blockList = await User.getBlockListById(userId);
+    console.log(blockList);
+    res.status(200).json({ blockList: blockList });
+  } catch (error) {
+    console.error('Error retrieving block list:', error);
+    res.status(500).json({ message: 'An unexpected error occurred.' });
+  }
+};
+
+export {
+  retrieveUserById,
+  retrieveIdByUsername,
+  retrieveUserIdFromSession,
+  retrieveBlockList
+};
