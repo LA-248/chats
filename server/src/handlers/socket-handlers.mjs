@@ -2,6 +2,7 @@ import { Chat } from '../models/chat-model.mjs';
 import { Message } from '../models/message-model.mjs';
 import { retrieveCurrentTime, retrieveCurrentTimeWithSeconds } from '../utils/time-utils.mjs';
 import addChatForRecipientOnMessageReceive from '../utils/handle-recipient-chat-list.mjs';
+import isSenderBlocked from '../utils/check-sender-blocked.mjs';
 
 // TODO: Store user-socket associations in database
 // Store user-to-socket mappings
@@ -46,12 +47,16 @@ const handleChatMessages = (socket, io) => {
 
       console.log(`Message received: ${message} from ${username} in room: ${roomName}`);
 
+      // Check if the sender is blocked from messaging the recipient, throw an error if they are
+      await isSenderBlocked(recipientId, senderId);
+
       // Insert message into the database with relevant metadata
       await Message.insertNewMessage(message, username, senderId, recipientId, roomName, currentTime, currentTimeWithSeconds, clientOffset);
 
       // Set the chat as unread for the recipient when a new message is received
       await Chat.updateMessageReadStatus(true, roomName, recipientId);
 
+      // Add the chat to the recipient's chat list if they don't have it
       await addChatForRecipientOnMessageReceive(recipientId, username, message, true, currentTime, currentTimeWithSeconds, senderId, roomName);
 
       // Send the message to both room participants
@@ -65,10 +70,10 @@ const handleChatMessages = (socket, io) => {
     } catch (error) {
       // Check if the message was already inserted
       if (error.errno === 19) {
-        callback('Error sending message. Please try again.');
+        callback('Error sending message');
         console.error('Message with this client offset already exists:', clientOffset);
       } else {
-        callback('Error sending message. Please try again.');
+        callback('Error sending message');
         console.error(`Error inserting message: ${error}`);
       }
     }
