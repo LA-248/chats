@@ -3,7 +3,7 @@ import { useSocket } from '../hooks/useSocket';
 import { MessageContext } from '../contexts/MessageContext';
 import { ChatContext } from '../contexts/ChatContext';
 import { addChat, getChatListByUserId } from '../api/chat-api';
-import { getRecipientUserId, getUserId } from '../api/user-api';
+import { getRecipientUserIdByUsername, getUserId } from '../api/user-api';
 import AddChatInput from './AddChatInput';
 import ChatList from './ChatList';
 import ChatSearch from './ChatSearch';
@@ -54,7 +54,7 @@ export default function Sidebar() {
     if (selectedChat) {
       const getRecipientId = async () => {
         try {
-          const userId = await getRecipientUserId(selectedChat);
+          const userId = await getRecipientUserIdByUsername(selectedChat);
           setRecipientId(userId);
         } catch (error) {
           setErrorMessage(error.message);

@@ -6,7 +6,7 @@ import { retrieveCurrentTimeWithSeconds } from '../../utils/time-utils.mjs';
 // Handle adding a new chat to a user's chat list
 const addChat = async (req, res) => {
   try {
-    const username = req.body.username;
+    const username = req.body.chatName;
     const user = await User.getUserByUsername(username);
 
     // If there are no rows, the user does not exist
