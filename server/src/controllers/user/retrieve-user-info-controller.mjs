@@ -24,7 +24,7 @@ const retrieveIdByUsername = async (req, res) => {
       return res.status(404).json({ message: error.message });
     }
     console.error('Error retrieving user ID:', error);
-    res.status(500).json({ message: 'An unexpected error occurred.' });
+    res.status(500).json({ message: 'An unexpected error occurred' });
   }
 };
 
@@ -44,7 +44,7 @@ const retrieveBlockList = async (req, res) => {
     res.status(200).json({ blockList: blockList });
   } catch (error) {
     console.error('Error retrieving block list:', error);
-    res.status(500).json({ message: 'An unexpected error occurred.' });
+    res.status(500).json({ message: 'Error retrieving blocked status' });
   }
 };
 

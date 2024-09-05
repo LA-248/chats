@@ -2,12 +2,14 @@ import { v4 as uuidv4 } from 'uuid';
 import { useContext, useEffect, useState } from 'react';
 import { useSocket } from '../hooks/useSocket';
 import { MessageContext } from '../contexts/MessageContext';
+import { ChatContext } from '../contexts/ChatContext';
 import { getUserData } from '../api/user-api';
 import clearErrorMessage from '../utils/ErrorMessageTimeout';
 
 export default function MessageInput({ setMessages }) {
   const socket = useSocket();
   const { message, setMessage, recipientId } = useContext(MessageContext);
+  const { isBlocked } = useContext(ChatContext);
   const [username, setUsername] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -66,9 +68,10 @@ export default function MessageInput({ setMessages }) {
           <input
             id="message-input"
             type="text"
-            placeholder="Message"
+            placeholder={isBlocked ? "You have this user blocked" : "Message"}
             value={message}
             onChange={(event) => setMessage(event.target.value)}
+            disabled={isBlocked}
           />
           <button className="submit-message-button">Send</button>
         </div>

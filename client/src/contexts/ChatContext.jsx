@@ -6,6 +6,7 @@ const ChatProvider = ({ children }) => {
   const [chatList, setChatList] = useState([]);
   const [selectedChat, setSelectedChat] = useState(null);
   const [username, setUsername] = useState('');
+  const [isBlocked, setIsBlocked] = useState(null);
 
   return (
     <ChatContext.Provider
@@ -16,6 +17,8 @@ const ChatProvider = ({ children }) => {
         setSelectedChat,
         username,
         setUsername,
+        isBlocked,
+        setIsBlocked,
       }}
     >
       {children}

@@ -68,7 +68,7 @@ async function getBlockList() {
       credentials: 'include',
     });
 
-    if (!response) {
+    if (!response.ok) {
       const errorResponse = await response.json();
       throw new Error(errorResponse.message);
     }
@@ -81,18 +81,18 @@ async function getBlockList() {
 }
 
 // Update a user's block list with the ID of who they want blocked
-async function updateBlockList(userId) {
+async function updateBlockList(userIds) {
   try {
     const response = await fetch('http://localhost:8080/users/block', {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ userIdToBlock: userId }),
+      body: JSON.stringify({ blockedUserIds: userIds }),
       credentials: 'include',
     });
 
-    if (!response) {
+    if (!response.ok) {
       const errorResponse = await response.json();
       throw new Error(errorResponse.message);
     }

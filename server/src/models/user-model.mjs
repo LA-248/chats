@@ -29,27 +29,13 @@ const User = {
 
   // UPDATE OPERATIONS
 
-  updateBlockedUsersById: function(blockedUser, userId) {
+  updateBlockedUsersById: function(blockedUsers, userId) {
     return new Promise((resolve, reject) => {
-      // Check if the blocked user is already in the blocked_users array
-      pool.query('SELECT blocked_users FROM users WHERE id = $1', [userId], (err, result) => {
+      pool.query('UPDATE users SET blocked_users = $1 WHERE id = $2', [blockedUsers, userId], (err) => {
         if (err) {
           return reject(`Database error: ${err.message}`);
         }
-  
-        const blockedUsers = result.rows[0].blocked_users;
-        if (blockedUsers.includes(blockedUser)) {
-          // The blocked user is already in the array, return without updating
-          return resolve();
-        }
-  
-        // The blocked user is not in the array, update it
-        pool.query('UPDATE users SET blocked_users = ARRAY_APPEND(blocked_users, $1) WHERE id = $2', [blockedUser, userId], (err) => {
-          if (err) {
-            return reject(`Database error: ${err.message}`);
-          }
-          return resolve();
-        });
+        return resolve();
       });
     });
   },
