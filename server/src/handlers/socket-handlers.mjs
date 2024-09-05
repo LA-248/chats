@@ -2,7 +2,7 @@ import { Chat } from '../models/chat-model.mjs';
 import { Message } from '../models/message-model.mjs';
 import { retrieveCurrentTime, retrieveCurrentTimeWithSeconds } from '../utils/time-utils.mjs';
 import addChatForRecipientOnMessageReceive from '../utils/handle-recipient-chat-list.mjs';
-import isSenderBlocked from '../utils/check-sender-blocked.mjs';
+import isSenderBlocked from '../utils/check-blocked-status.mjs';
 
 // TODO: Store user-socket associations in database
 // Store user-to-socket mappings

@@ -10,6 +10,7 @@ export default function ChatList({ setSelectedChat, setUsername, chatSearchInput
   const [filteredChats, setFilteredChats] = useState([]);
   const [activeChatId, setActiveChatId] = useState(null);
   const [hoverChatId, setHoverChatId] = useState(null);
+  const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
 
   // Handles updating the read status of a message
@@ -28,17 +29,25 @@ export default function ChatList({ setSelectedChat, setUsername, chatSearchInput
 
   // Remove a conversation from the chat list
   const removeChat = async (id) => {
-    await deleteChat(id);
-    const storedChatList = await getChatListByUserId();
-    const updatedChatList = storedChatList.filter((chat) => chat.id !== id);
-    setChatList(updatedChatList);
+    try {
+      await deleteChat(id);
+      const storedChatList = await getChatListByUserId(); // Get updated chat list
+      const updatedChatList = storedChatList.filter((chat) => chat.id !== id);
+      setChatList(updatedChatList);
+    } catch (error) {
+      setErrorMessage(error.message);
+    }
   };
 
   // Retrieve the user's chat list for display
   useEffect(() => {
     const displayChatList = async () => {
-      const result = await getChatListByUserId();
-      setChatList(result);
+      try {
+        const result = await getChatListByUserId();
+        setChatList(result);
+      } catch (error) {
+        setErrorMessage(error.message);
+      }
     };
 
     displayChatList();
@@ -67,6 +76,9 @@ export default function ChatList({ setSelectedChat, setUsername, chatSearchInput
 
   return (
     <div className="chat-list">
+      {errorMessage ? (
+        <div className="error-message">{errorMessage}</div> 
+      ) : null}
       {filteredChats.map((chat) => (
         <div className="chat-item-container" key={chat.chat_id}>
           <div
