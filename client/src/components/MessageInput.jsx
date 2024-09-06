@@ -68,7 +68,7 @@ export default function MessageInput({ setMessages }) {
           <input
             id="message-input"
             type="text"
-            placeholder={isBlocked ? "You have this user blocked" : "Message"}
+            placeholder={isBlocked ? "You have this user blocked, unblock to message them" : "Message"}
             value={message}
             onChange={(event) => setMessage(event.target.value)}
             disabled={isBlocked}

@@ -342,21 +342,9 @@ body {
   font-weight: 600;
 }
 
-.block-user-button {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 5px;
-  width: 70px;
-  color: white;
-  border-radius: 25px;
-  background-color: red;
-  border: none;
-}
-
-.block-user-button:hover {
+.recipient-username:hover {
   cursor: pointer;
-  opacity: 0.9;
+  text-decoration: underline;
 }
 
 /* Messages List */
@@ -524,7 +512,7 @@ body {
 
 /* CREATE GROUP CHAT MODAL */
 
-.modal-overlay {
+.create-group-modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -536,7 +524,7 @@ body {
   justify-content: center;
 }
 
-.modal-content {
+.create-group-modal-content {
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -548,7 +536,7 @@ body {
   color: white;
 }
 
-.modal-heading {
+.create-group-modal-heading {
   font-size: 20px;
   font-weight: 600;
 }
@@ -662,7 +650,7 @@ body {
 }
 
 .submit-new-group-button,
-.close-modal-button {
+.close-create-group-modal-button {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -680,7 +668,7 @@ body {
   width: 300px;
 }
 
-.close-modal-button {
+.close-create-group-modal-button {
   background-color: #303030;
   color: white;
   border: solid 1px gray;
@@ -688,7 +676,90 @@ body {
 }
 
 .submit-new-group-button:hover,
-.close-modal-button:hover {
+.close-create-group-modal-button:hover {
   cursor: pointer;
   opacity: 0.9;
+}
+
+/* CONTACT INFO MODAL */
+
+.contact-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.contact-modal-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  background-color: #212121;
+  padding: 24px;
+  border-radius: 16px;
+  max-width: 500px;
+  width: 100%;
+  color: white;
+}
+
+.contact-modal-heading {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.blocked-status {
+  font-size: 14px;
+  font-weight: 500;
+  margin-top: -15px;
+  color: red;
+}
+
+.contact-info-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+.block-user-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 13px;
+  padding: 5px;
+  width: 40%;
+  height: 35px;
+  color: white;
+  border-radius: 25px;
+  background-color: red;
+  border: none;
+}
+
+.block-user-button:hover,
+.close-contact-info-modal-button:hover {
+  cursor: pointer;
+  opacity: 0.9;
+}
+
+.close-contact-info-modal-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+  font-size: 13px;
+  font-weight: 400;
+  border-radius: 25px;
+  height: 25px;
+  background-color: #303030;
+  color: white;
+  border: solid 1px gray;
+  width: 80px;
 }
