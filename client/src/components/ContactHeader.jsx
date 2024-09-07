@@ -1,8 +1,9 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { ChatContext } from '../contexts/ChatContext';
 import { MessageContext } from '../contexts/MessageContext';
 import { getBlockList, updateBlockList } from '../api/user-api';
 import clearErrorMessage from '../utils/ErrorMessageTimeout';
+import handleModalOutsideClick from '../utils/ModalOutsideClick';
 
 export default function ContactHeader() {
   const { isBlocked, setIsBlocked, selectedChat } = useContext(ChatContext);
@@ -10,6 +11,7 @@ export default function ContactHeader() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [blockList, setBlockList] = useState([]);
   const [errorMessage, setErrorMessage] = useState('');
+  const modalRef = useRef();
 
   useEffect(() => {
     // Gets the user's block list, updates the block state, and disables message input if the recipient is blocked
@@ -52,6 +54,10 @@ export default function ContactHeader() {
     }
   };
 
+  useEffect(() => {
+    handleModalOutsideClick(modalRef, setIsModalOpen, isModalOpen);
+  }, [isModalOpen]);
+
   // Clear error message after a certain amount of time
   useEffect(() => {
     clearErrorMessage(errorMessage, setErrorMessage);
@@ -80,7 +86,7 @@ export default function ContactHeader() {
 
       {isModalOpen ? (
         <div className="contact-modal-overlay">
-          <div className="contact-modal-content">
+          <div ref={modalRef} className="contact-modal-content">
             <div className="contact-modal-heading">Contact info</div>
             {isBlocked ? (
               <div className="blocked-status">You have this user blocked</div>
