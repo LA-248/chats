@@ -89,7 +89,7 @@ function ChatView() {
             </ul>
           </div>
           {errorMessage ? (
-            <div className="error-message" style={{ margin: '10px' }}>
+            <div className="error-message" style={{ margin: "20px", textAlign: "left" }}>
               {errorMessage}
             </div>
           ) : null}

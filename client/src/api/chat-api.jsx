@@ -1,4 +1,4 @@
-import { getRecipientUserId } from './user-api';
+import { getRecipientUserIdByUsername } from './user-api';
 
 // Fetch the chat list of a specific user
 async function getChatListByUserId() {
@@ -10,7 +10,7 @@ async function getChatListByUserId() {
 
     if (!response.ok) {
       const errorResponse = await response.json();
-      throw new Error(errorResponse.message);
+      throw new Error(errorResponse.error);
     }
 
     const data = await response.json();
@@ -33,7 +33,7 @@ async function addChat(inputUsername, chatList) {
       throw new Error('Please enter a username');
     }
 
-    const recipientId = await getRecipientUserId(inputUsername);
+    const recipientId = await getRecipientUserIdByUsername(inputUsername);
 
     if (inputUsername) {
       const response = await fetch('http://localhost:8080/chats', {
@@ -43,7 +43,7 @@ async function addChat(inputUsername, chatList) {
         },
         // Send the username entered to the backend to ensure that it exists in the database
         body: JSON.stringify({
-          username: inputUsername,
+          chatName: inputUsername,
           recipientId: recipientId,
         }),
         credentials: 'include',
@@ -51,7 +51,7 @@ async function addChat(inputUsername, chatList) {
 
       if (!response.ok) {
         const errorResponse = await response.json();
-        throw new Error(errorResponse.message);
+        throw new Error(errorResponse.error);
       }
 
       const data = await response.json();
@@ -60,10 +60,10 @@ async function addChat(inputUsername, chatList) {
   } catch (error) {
     throw error;
   }
-};
+}
 
 // Update a chat in the user's chat list
-async function updateChat(message, timestamp, timestampWithSeconds, room) {
+async function updateChatList(message, timestamp, timestampWithSeconds, room) {
   try {
     const response = await fetch('http://localhost:8080/chats/', {
       method: 'PUT',
@@ -81,7 +81,7 @@ async function updateChat(message, timestamp, timestampWithSeconds, room) {
 
     if (!response.ok) {
       const errorResponse = await response.json();
-      throw new Error(errorResponse.message);
+      throw new Error(errorResponse.error);
     }
 
     const data = await response.json();
@@ -105,7 +105,7 @@ async function deleteChat(chatId) {
 
     if (!response.ok) {
       const errorResponse = await response.json();
-      throw new Error(errorResponse.message);
+      throw new Error(errorResponse.error);
     }
 
     const data = await response.json();
@@ -115,4 +115,4 @@ async function deleteChat(chatId) {
   }
 }
 
-export { getChatListByUserId, addChat, updateChat, deleteChat };
+export { getChatListByUserId, addChat, updateChatList, deleteChat };

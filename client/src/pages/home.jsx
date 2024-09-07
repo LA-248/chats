@@ -4,7 +4,7 @@ import { MessageContext } from '../contexts/MessageContext.jsx';
 import { createContext, useEffect, useState, useContext } from 'react';
 import { Outlet, useLocation, useParams } from 'react-router-dom';
 import { getUserData } from '../api/user-api.jsx';
-import { getChatListByUserId, updateChat } from '../api/chat-api';
+import { getChatListByUserId, updateChatList } from '../api/chat-api';
 import Logout from '../components/UserLogout.jsx';
 import DisplayUsername from '../components/DisplayUsername.jsx';
 import Sidebar from '../components/Sidebar.jsx';
@@ -59,7 +59,7 @@ export default function Home() {
         }
 
         // Update chat in state and database with most recent message sent and time
-        await updateChat(messageData.message, messageData.eventTime, messageData.eventTimeWithSeconds, messageData.room);
+        await updateChatList(messageData.message, messageData.eventTime, messageData.eventTimeWithSeconds, messageData.room);
         const storedChats = await getChatListByUserId();
         setChatList(storedChats);
       };
