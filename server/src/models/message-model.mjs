@@ -34,7 +34,7 @@ const Message  = {
   
   retrieveMessages: function(serverOffset, room) {
     return new Promise((resolve, reject) => {
-      pool.query('SELECT content, sender_username, event_time, id FROM messages WHERE id > $1 AND room = $2', [serverOffset || 0, room], (err, result) => {
+      pool.query('SELECT content, sender_username, event_time, id, sender_id FROM messages WHERE id > $1 AND room = $2', [serverOffset || 0, room], (err, result) => {
         if (err) {
           return reject(`Database error: ${err.message}`);
         }
@@ -53,6 +53,19 @@ const Message  = {
       });
     });
   },
+
+  // DELETE OPERATIONS
+
+  deleteMessageById: function(id) {
+    return new Promise((resolve, reject) => {
+      pool.query('DELETE FROM messages WHERE id = $1 RETURNING *', [id], (err, result) => {
+        if (err) {
+          return reject (`Database error: ${err.message}`);
+        }
+        return resolve(result.rows[0]);
+      });
+    });
+  }
 };
 
 export { Message };

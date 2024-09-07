@@ -7,7 +7,7 @@ const retrieveUserById = async (req, res) => {
     res.status(200).json({ userId: user.id, username: user.username });
   } catch (error) {
     console.error('Error retrieving user data:', error);
-    res.status(500).json({ message: 'An unexpected error occurred.' });
+    res.status(500).json({ error: 'An unexpected error occurred.' });
   }
 };
 
@@ -21,10 +21,10 @@ const retrieveIdByUsername = async (req, res) => {
     res.status(200).json({ userId: user.id});
   } catch (error) {
     if (error.message === 'User does not exist. Make sure that the username is correct.') {
-      return res.status(404).json({ message: error.message });
+      return res.status(404).json({ error: error.message });
     }
     console.error('Error retrieving user ID:', error);
-    res.status(500).json({ message: 'An unexpected error occurred' });
+    res.status(500).json({ error: 'An unexpected error occurred' });
   }
 };
 
@@ -32,7 +32,7 @@ const retrieveUserIdFromSession = async (req, res) => {
   if (req.session.passport && req.session.passport.user) {
     res.json({ userId: req.session.passport.user });
   } else {
-    res.json({ message: 'User not authenticated.' });
+    res.json({ error: 'User not authenticated.' });
   }
 };
 
@@ -44,7 +44,7 @@ const retrieveBlockList = async (req, res) => {
     res.status(200).json({ blockList: blockList });
   } catch (error) {
     console.error('Error retrieving block list:', error);
-    res.status(500).json({ message: 'Error retrieving blocked status' });
+    res.status(500).json({ error: 'Error retrieving blocked status' });
   }
 };
 

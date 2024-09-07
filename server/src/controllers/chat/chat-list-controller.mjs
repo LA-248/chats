@@ -41,10 +41,10 @@ const addChat = async (req, res) => {
     return res.status(200).json({ newChatItem: newChatItem });
   } catch (error) {
     if (error.message === 'User does not exist. Make sure that the username is correct.') {
-      return res.status(404).json({ message: error.message });
+      return res.status(404).json({ error: error.message });
     }
     console.error('Error:', error);
-    return res.status(500).json({ message: 'Error adding chat. Please try again.' });
+    return res.status(500).json({ error: 'Error adding chat. Please try again.' });
   }
 };
 
@@ -57,7 +57,7 @@ const retrieveChatList = async (req, res) => {
     return res.status(200).json({ chatList: chatList });
   } catch (error) {
     console.error('Error retrieving chat list:', error);
-    return res.status(500).json({ message: 'Unable to retrieve chat list.' });
+    return res.status(500).json({ error: 'Unable to retrieve chat list.' });
   }
 }
 
@@ -72,7 +72,7 @@ const deleteChat = async (req, res) => {
     return res.status(200).json({ updatedChatList: updatedChatList });
   } catch (error) {
     console.error('Error deleting chat:', error);
-    return res.status(500).json({ message: 'Error deleting chat. Please try again.' });
+    return res.status(500).json({ error: 'Error deleting chat. Please try again.' });
   }
 }
 
@@ -88,7 +88,7 @@ const updateChatInChatList = async (req, res) => {
     return res.status(200).json({ updatedChatList: updatedChatList });
   } catch (error) {
     console.error('Error updating chat:', error);
-    return res.status(500).json({ message: 'An unexpected error occurred.' });
+    return res.status(500).json({ error: 'An unexpected error occurred.' });
   }
 }
 

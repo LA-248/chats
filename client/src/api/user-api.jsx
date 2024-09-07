@@ -7,7 +7,7 @@ async function getUserData() {
   
     if (!response.ok) {
       const errorResponse = await response.json();
-      throw new Error(errorResponse.message);
+      throw new Error(errorResponse.error);
     }
   
     const data = await response.json();
@@ -26,7 +26,7 @@ async function getUserId(setUserId, setErrorMessage) {
 
     if (!response.ok) {
       const errorResponse = await response.json();
-      throw new Error(errorResponse.message);
+      throw new Error(errorResponse.error);
     }
 
     const data = await response.json();
@@ -50,7 +50,7 @@ async function getRecipientUserIdByUsername(username) {
 
     if (!response.ok) {
       const errorResponse = await response.json();
-      throw new Error(errorResponse.message);
+      throw new Error(errorResponse.error);
     }
 
     const data = await response.json();
@@ -70,7 +70,7 @@ async function getBlockList() {
 
     if (!response.ok) {
       const errorResponse = await response.json();
-      throw new Error(errorResponse.message);
+      throw new Error(errorResponse.error);
     }
 
     const data = await response.json();
@@ -94,7 +94,7 @@ async function updateBlockList(userIds) {
 
     if (!response.ok) {
       const errorResponse = await response.json();
-      throw new Error(errorResponse.message);
+      throw new Error(errorResponse.error);
     }
   } catch (error) {
     throw error;

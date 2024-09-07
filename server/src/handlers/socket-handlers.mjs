@@ -86,11 +86,12 @@ const displayChatMessages = async (socket, room) => {
       // Get messages from database for display, filtered by room
       const messages = await Message.retrieveMessages(socket.handshake.auth.serverOffset, room);
 
-      socket.emit('initial-messages', messages.map(msg => ({
-        from: msg.sender_username,
-        message: msg.content,
-        eventTime: msg.event_time,
-        id: msg.id,
+      socket.emit('initial-messages', messages.map(message => ({
+        from: message.sender_username,
+        message: message.content,
+        eventTime: message.event_time,
+        id: message.id,
+        senderId: message.sender_id,
       })));
     } catch (error) {
       console.error('Unexpected error:', error.message);

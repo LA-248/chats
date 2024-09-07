@@ -4,6 +4,7 @@ import { useSocket } from '../hooks/useSocket';
 import { MessageContext } from '../contexts/MessageContext';
 import { ChatContext } from '../contexts/ChatContext';
 import { getUserId } from '../api/user-api';
+import { deleteMessageById } from '../api/message-api';
 import ContactHeader from './ContactHeader';
 import MessageInput from './MessageInput';
 
@@ -13,7 +14,20 @@ function ChatView() {
   const { room } = useParams(); // Extract room from URL
   const socket = useSocket();
   const [userId, setUserId] = useState(null);
+  const [hoveredIndex, setHoveredIndex] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+
+  // Deletes a message by id and updates the messages state
+  const handleMessageDelete = async (messageId, messageIndex) => {
+    try {
+      await deleteMessageById(messageId);
+      const messageList = [...messages];
+      messageList.splice(messageIndex, 1);
+      setMessages(messageList);
+    } catch (error) {
+      setErrorMessage(error.message);
+    }
+  };
 
   useEffect(() => {
     const handleInitialMessages = (initialMessages) => {
@@ -46,13 +60,27 @@ function ChatView() {
           <div className="messages-container">
             <ul id="messages">
               {messages.map((messageData, index) => (
-                <li className="individual-message" key={index}>
+                <li
+                  className="individual-message"
+                  key={index}
+                  onMouseEnter={() => setHoveredIndex(index)}
+                  onMouseLeave={() => setHoveredIndex(null)}
+                >
                   <div className="message-container">
                     <div className="message-metadata">
                       <div className="message-from">{messageData.from}</div>
                       <div className="message-time">
                         {messageData.eventTime}
                       </div>
+                      {hoveredIndex === index &&
+                      userId === messageData.senderId ? (
+                        <div
+                          className="message-delete-button"
+                          onClick={() => handleMessageDelete(messageData.id, index)}
+                        >
+                          Delete
+                        </div>
+                      ) : null}
                     </div>
                     <div className="message-content">{messageData.message}</div>
                   </div>
