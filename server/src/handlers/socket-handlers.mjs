@@ -51,7 +51,7 @@ const handleChatMessages = (socket, io) => {
       await isSenderBlocked(recipientId, senderId);
 
       // Insert message into the database with relevant metadata
-      await Message.insertNewMessage(message, username, senderId, recipientId, roomName, currentTime, currentTimeWithSeconds, clientOffset);
+      const newMessage = await Message.insertNewMessage(message, username, senderId, recipientId, roomName, currentTime, currentTimeWithSeconds, clientOffset);
 
       // Set the chat as unread for the recipient when a new message is received
       await Chat.updateMessageReadStatus(true, roomName, recipientId);
@@ -66,6 +66,8 @@ const handleChatMessages = (socket, io) => {
         room: roomName,
         eventTime: currentTime,
         eventTimeWithSeconds: currentTimeWithSeconds,
+        id: newMessage.id,
+        senderId: senderId,
       });
     } catch (error) {
       // Check if the message was already inserted
@@ -80,6 +82,7 @@ const handleChatMessages = (socket, io) => {
   });
 };
 
+// Load all messages of a chat when opened
 const displayChatMessages = async (socket, room) => {
   if (!socket.recovered) {
     try {

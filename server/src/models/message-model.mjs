@@ -25,7 +25,7 @@ const Message  = {
             return reject(`Database error: ${err.message}`);
           }
 
-          return resolve({ lastID: result.rows[0].id });
+          return resolve({ id: result.rows[0].id });
         });
     });
   },
