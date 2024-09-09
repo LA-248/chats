@@ -33,6 +33,16 @@ async function addChat(inputUsername, chatList) {
       throw new Error('Please enter a username');
     }
 
+    /*
+    // Get the ID for each user added to the group
+    let recipientIds = [];
+    for (let i = 0; i < addedMembers.length; i++) {
+      const addedMember = addedMembers[i];
+      const recipientId = await getRecipientUserIdByUsername(addedMember);
+      recipientIds.push(recipientId);
+    }
+    */
+
     const recipientId = await getRecipientUserIdByUsername(inputUsername);
 
     if (inputUsername) {

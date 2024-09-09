@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useSocket } from '../hooks/useSocket';
 import { MessageContext } from '../contexts/MessageContext';
@@ -7,6 +7,8 @@ import { getUserId } from '../api/user-api';
 import { deleteMessageById } from '../api/message-api';
 import ContactHeader from './ContactHeader';
 import MessageInput from './MessageInput';
+import Modal from './Modal';
+import handleModalOutsideClick from '../utils/ModalOutsideClick';
 
 function ChatView() {
   const { messages, setMessages } = useContext(MessageContext);
@@ -14,11 +16,15 @@ function ChatView() {
   const { room } = useParams(); // Extract room from URL
   const socket = useSocket();
   const [userId, setUserId] = useState(null);
+  const [messageId, setMessageId] = useState(null);
+  const [messageIndex, setMessageIndex] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [hoveredIndex, setHoveredIndex] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const modalRef = useRef();
 
-  // Deletes a message by id and updates the messages state
-  const handleMessageDelete = async (messageId, messageIndex) => {
+  // Deletes a message by id and updates the messages array state
+  const handleDeleteMessage = async (messageId, messageIndex) => {
     try {
       await deleteMessageById(messageId);
       const messageList = [...messages];
@@ -50,6 +56,10 @@ function ChatView() {
     getUserId(setUserId, setErrorMessage);
   }, []);
 
+  useEffect(() => {
+    handleModalOutsideClick(modalRef, setIsModalOpen, isModalOpen);
+  }, [isModalOpen]);
+
   return (
     <div className="chat-view-container">
       <ContactHeader />
@@ -76,7 +86,11 @@ function ChatView() {
                       userId === messageData.senderId ? (
                         <div
                           className="message-delete-button"
-                          onClick={() => handleMessageDelete(messageData.id, index)}
+                          onClick={() => {
+                            setIsModalOpen(true);
+                            setMessageId(messageData.id);
+                            setMessageIndex(index);
+                          }}
                         >
                           Delete
                         </div>
@@ -89,7 +103,10 @@ function ChatView() {
             </ul>
           </div>
           {errorMessage ? (
-            <div className="error-message" style={{ margin: "20px", textAlign: "left" }}>
+            <div
+              className="error-message"
+              style={{ margin: '20px', textAlign: 'left' }}
+            >
               {errorMessage}
             </div>
           ) : null}
@@ -98,6 +115,41 @@ function ChatView() {
           </div>
         </div>
       )}
+
+      <Modal
+        isModalOpen={isModalOpen}
+        setIsModalOpen={setIsModalOpen}
+        errorMessage={errorMessage}
+        setErrorMessage={setErrorMessage}
+      >
+        <div className="modal-heading">Delete message</div>
+        <div className="modal-subtext" style={{ fontSize: '14px' }}>
+          Are you sure you want to delete this message? It will be deleted for
+          everyone.
+        </div>
+
+        <div className="modal-action-buttons-container">
+          <button
+            className="confirm-action-button"
+            style={{ backgroundColor: "red" }}
+            onClick={() => {
+              handleDeleteMessage(messageId, messageIndex);
+              setIsModalOpen(false);
+            }}
+          >
+            Delete
+          </button>
+
+          <button
+            className="close-modal-button"
+            onClick={() => {
+              setIsModalOpen(false);
+            }}
+          >
+            Close
+          </button>
+        </div>
+      </Modal>
     </div>
   );
 }

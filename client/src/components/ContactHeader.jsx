@@ -4,6 +4,7 @@ import { MessageContext } from '../contexts/MessageContext';
 import { getBlockList, updateBlockList } from '../api/user-api';
 import clearErrorMessage from '../utils/ErrorMessageTimeout';
 import handleModalOutsideClick from '../utils/ModalOutsideClick';
+import Modal from './Modal';
 
 export default function ContactHeader() {
   const { isBlocked, setIsBlocked, selectedChat } = useContext(ChatContext);
@@ -84,42 +85,42 @@ export default function ContactHeader() {
         </div>
       </div>
 
-      {isModalOpen ? (
-        <div className="contact-modal-overlay">
-          <div ref={modalRef} className="contact-modal-content">
-            <div className="contact-modal-heading">Contact info</div>
-            {isBlocked ? (
-              <div className="blocked-status">You have this user blocked</div>
-            ) : null}
-
-            <div className="contact-info-container">
-              <div
-                className="chat-pic"
-                style={{ height: '70px', width: '70px' }}
-              ></div>
-              <div>{selectedChat}</div>
-            </div>
-
-            <button
-              className="block-user-button"
-              onClick={() => handleBlockAndUnblock()}
-            >
-              {isBlocked ? 'Unblock' : 'Block'}
-            </button>
-
-            <button
-              className="close-contact-info-modal-button"
-              onClick={() => setIsModalOpen(false)}
-            >
-              Close
-            </button>
-
-            {errorMessage ? (
-              <div className="error-message">{errorMessage}</div>
-            ) : null}
+      <Modal
+        isModalOpen={isModalOpen}
+        setIsModalOpen={setIsModalOpen}
+        errorMessage={errorMessage}
+        setErrorMessage={setErrorMessage}
+      >
+        <div className="modal-heading">Contact info</div>
+        {isBlocked ? (
+          <div className="blocked-status" style={{ marginTop: '-15px' }}>
+            You have this user blocked
           </div>
+        ) : null}
+
+        <div className="contact-info-container">
+          <div
+            className="chat-pic"
+            style={{ height: '70px', width: '70px' }}
+          ></div>
+          <div>{selectedChat}</div>
         </div>
-      ) : null}
+
+        <div className="modal-action-buttons-container">
+          <button
+            className="block-user-button"
+            onClick={() => handleBlockAndUnblock()}
+          >
+            {isBlocked ? 'Unblock' : 'Block'}
+          </button>
+          <button
+            className="close-modal-button"
+            onClick={() => setIsModalOpen(false)}
+          >
+            Close
+          </button>
+        </div>
+      </Modal>
     </div>
   );
 }
