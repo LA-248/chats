@@ -17,7 +17,12 @@ import usersRouter from './routes/users.mjs';
 import chatsRouter from './routes/chats.mjs';
 import messagesRouter from './routes/messages.mjs';
 
-import { displayChatMessages, handleChatMessages, manageSocketConnections } from './handlers/socket-handlers.mjs';
+import {
+  displayChatMessages,
+  handleChatMessages,
+  manageSocketConnections,
+  processDeleteMessageEvent
+} from './handlers/socket-handlers.mjs';
 import { Chat } from './models/chat-model.mjs';
 
 const app = express();
@@ -90,6 +95,8 @@ io.on('connection', (socket) => {
     socket.on('update-message-read-status', async ({ hasNewMessage, room }) => {
       await Chat.updateMessageReadStatus(hasNewMessage, room, userId);
     });
+
+    processDeleteMessageEvent(socket, io);
   } else {
     socket.disconnect();
   }

@@ -104,4 +104,26 @@ const displayChatMessages = async (socket, room) => {
   }
 };
 
-export { manageSocketConnections, handleChatMessages, displayChatMessages };
+// Listen for message delete events and emit updated message list to the room
+const processDeleteMessageEvent = (socket, io) => {
+  socket.on('message-delete-event', async (room) => {
+    try {
+      const messages = await Message.retrieveMessages(socket.handshake.auth.serverOffset, room);
+
+      io.to(room).emit('message-delete-event',
+        messages.map(message => ({
+          from: message.sender_username,
+          message: message.content,
+          eventTime: message.event_time,
+          eventTimeWithSeconds: message.event_time_seconds,
+          id: message.id,
+          senderId: message.sender_id,
+        }))
+      );
+    } catch (error) {
+      console.error('Unexpected error:', error.message);
+    }
+  });
+}
+
+export { manageSocketConnections, handleChatMessages, displayChatMessages, processDeleteMessageEvent };

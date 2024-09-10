@@ -25,11 +25,11 @@ function ChatView() {
   const modalRef = useRef();
 
   // Message deletion logic
-  const handleDeleteMessage = async (messageId, messageIndex) => {
+  const handleMessageDelete = async (messageId, messageIndex) => {
     try {
       const messageList = [...messages];
       const isLastMessage = messageIndex === messageList.length - 1;
-      const newLastMessage = messages.length - 2;
+      const newLastMessage = messageList.length - 2;
 
       // If the message being deleted is the last one in the list -
       // update the chat list with the new last message's details after deletion
@@ -51,7 +51,9 @@ function ChatView() {
       // Delete the message from the database and update the message list state
       await deleteMessageById(messageId);
       messageList.splice(messageIndex, 1);
-      setMessages(messageList);
+
+      // Emit event to notify the server of message deletion and update the message list for everyone in the room
+      socket.emit('message-delete-event', room);
     } catch (error) {
       setErrorMessage(error.message);
     }
@@ -62,11 +64,18 @@ function ChatView() {
       setMessages(initialMessages);
     };
 
+    const handleChatListUpdate = (updatedMessageList) => {
+      setMessages(updatedMessageList);
+    };
+
     // Join the room and request messages
     socket.emit('join-room', room);
 
     // Display all messages on load when opening a chat
     socket.on('initial-messages', handleInitialMessages);
+
+    // Update chat message list for everyone in a room after a message is deleted
+    socket.on('message-delete-event', handleChatListUpdate);
 
     return () => {
       socket.emit('leave-room', room);
@@ -155,7 +164,7 @@ function ChatView() {
             className="confirm-action-button"
             style={{ backgroundColor: 'red' }}
             onClick={() => {
-              handleDeleteMessage(messageId, messageIndex);
+              handleMessageDelete(messageId, messageIndex);
               setIsModalOpen(false);
             }}
           >
