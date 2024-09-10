@@ -7,7 +7,7 @@ import { getRecipientUserIdByUsername, getUserId } from '../api/user-api';
 import AddChatInput from './AddChatInput';
 import ChatList from './ChatList';
 import ChatSearch from './ChatSearch';
-import GroupChatModal from './GroupChatModal';
+import GroupChatModal from './CreateGroupChat';
 
 export default function Sidebar() {
   const socket = useSocket();
