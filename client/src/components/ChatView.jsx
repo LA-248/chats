@@ -5,6 +5,7 @@ import { MessageContext } from '../contexts/MessageContext';
 import { ChatContext } from '../contexts/ChatContext';
 import { getUserId } from '../api/user-api';
 import { deleteMessageById } from '../api/message-api';
+import { getChatListByUserId, updateChatList } from '../api/chat-api';
 import ContactHeader from './ContactHeader';
 import MessageInput from './MessageInput';
 import Modal from './Modal';
@@ -23,11 +24,32 @@ function ChatView() {
   const [errorMessage, setErrorMessage] = useState('');
   const modalRef = useRef();
 
-  // Deletes a message by id and updates the messages array state
+  // Message deletion logic
   const handleDeleteMessage = async (messageId, messageIndex) => {
     try {
-      await deleteMessageById(messageId);
       const messageList = [...messages];
+      const isLastMessage = messageIndex === messageList.length - 1;
+      const newLastMessage = messages.length - 2;
+
+      // If the message being deleted is the last one in the list -
+      // update the chat list with the new last message's details after deletion
+      if (isLastMessage && messageList.length > 1) {
+        await updateChatList(
+          messageList[newLastMessage].message,
+          messageList[newLastMessage].eventTime,
+          messageList[newLastMessage].eventTimeWithSeconds,
+          room
+        );
+        const storedChats = await getChatListByUserId();
+        setChatList(storedChats);
+      } else if (isLastMessage && messageList.length === 1) {
+        await updateChatList('', '', '', room);
+        const storedChats = await getChatListByUserId();
+        setChatList(storedChats);
+      }
+
+      // Delete the message from the database and update the message list state
+      await deleteMessageById(messageId);
       messageList.splice(messageIndex, 1);
       setMessages(messageList);
     } catch (error) {
@@ -50,7 +72,7 @@ function ChatView() {
       socket.emit('leave-room', room);
       socket.off('initial-messages', handleInitialMessages);
     };
-  }, [setChatList, setMessages, socket, room]);
+  }, [setMessages, socket, room]);
 
   useEffect(() => {
     getUserId(setUserId, setErrorMessage);
@@ -131,7 +153,7 @@ function ChatView() {
         <div className="modal-action-buttons-container">
           <button
             className="confirm-action-button"
-            style={{ backgroundColor: "red" }}
+            style={{ backgroundColor: 'red' }}
             onClick={() => {
               handleDeleteMessage(messageId, messageIndex);
               setIsModalOpen(false);

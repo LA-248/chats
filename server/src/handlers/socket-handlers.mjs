@@ -93,6 +93,7 @@ const displayChatMessages = async (socket, room) => {
         from: message.sender_username,
         message: message.content,
         eventTime: message.event_time,
+        eventTimeWithSeconds: message.event_time_seconds,
         id: message.id,
         senderId: message.sender_id,
       })));
