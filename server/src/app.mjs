@@ -91,9 +91,18 @@ io.on('connection', (socket) => {
       displayChatMessages(socket, room);
     });
 
+    socket.on('leave-room', (room) => {
+      socket.leave(room);
+    });
+
     // Update message read status in database
     socket.on('update-message-read-status', async ({ hasNewMessage, room }) => {
-      await Chat.updateMessageReadStatus(hasNewMessage, room, userId);
+      try {
+        await Chat.updateMessageReadStatus(hasNewMessage, room, userId);
+      } catch (error) {
+        console.error('Error updating read status:', error);
+        socket.emit('custom-error', { error: 'Unable to update message status' });
+      }
     });
 
     processDeleteMessageEvent(socket, io);

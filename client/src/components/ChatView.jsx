@@ -6,6 +6,7 @@ import { ChatContext } from '../contexts/ChatContext';
 import { getUserId } from '../api/user-api';
 import { deleteMessageById } from '../api/message-api';
 import { getChatListByUserId, updateChatList } from '../api/chat-api';
+import { useChatSocket } from '../hooks/useChatSocket';
 import ContactHeader from './ContactHeader';
 import MessageInput from './MessageInput';
 import Modal from './Modal';
@@ -59,29 +60,7 @@ function ChatView() {
     }
   };
 
-  useEffect(() => {
-    const handleInitialMessages = (initialMessages) => {
-      setMessages(initialMessages);
-    };
-
-    const handleChatListUpdate = (updatedMessageList) => {
-      setMessages(updatedMessageList);
-    };
-
-    // Join the room and request messages
-    socket.emit('join-room', room);
-
-    // Display all messages on load when opening a chat
-    socket.on('initial-messages', handleInitialMessages);
-
-    // Update chat message list for everyone in a room after a message is deleted
-    socket.on('message-delete-event', handleChatListUpdate);
-
-    return () => {
-      socket.emit('leave-room', room);
-      socket.off('initial-messages', handleInitialMessages);
-    };
-  }, [setMessages, socket, room]);
+  useChatSocket(socket, room, setMessages, setErrorMessage);
 
   useEffect(() => {
     getUserId(setUserId, setErrorMessage);

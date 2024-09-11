@@ -22,11 +22,20 @@ const manageSocketConnections = (socket) => {
   });
 };
 
+const formatMessage = (message) => ({
+  from: message.sender_username,
+  message: message.content,
+  eventTime: message.event_time,
+  eventTimeWithSeconds: message.event_time_seconds,
+  id: message.id,
+  senderId: message.sender_id,
+});
+
 const handleChatMessages = (socket, io) => {
   socket.on('chat-message', async (data, clientOffset, callback) => {
     const { username, recipientId, message } = data;
     
-    // Extract the recipient's socket id from the hash map by using their user id associated with it
+    // Extract the recipient's socket id from the userSockets hash map by using their user id
     // This allows us to add the recipient to the correct chat room when they receive a message
     const targetUserSocketId = userSockets.get(recipientId);
 
@@ -88,17 +97,10 @@ const displayChatMessages = async (socket, room) => {
     try {
       // Get messages from database for display, filtered by room
       const messages = await Message.retrieveMessages(socket.handshake.auth.serverOffset, room);
-
-      socket.emit('initial-messages', messages.map(message => ({
-        from: message.sender_username,
-        message: message.content,
-        eventTime: message.event_time,
-        eventTimeWithSeconds: message.event_time_seconds,
-        id: message.id,
-        senderId: message.sender_id,
-      })));
+      socket.emit('initial-messages', messages.map(formatMessage));
     } catch (error) {
-      console.error('Unexpected error:', error.message);
+      console.error('Unexpected error:', error);
+      socket.emit('custom-error', { error: 'Unable to retrieve chat messages' });
       return;
     }
   }
@@ -109,19 +111,11 @@ const processDeleteMessageEvent = (socket, io) => {
   socket.on('message-delete-event', async (room) => {
     try {
       const messages = await Message.retrieveMessages(socket.handshake.auth.serverOffset, room);
-
-      io.to(room).emit('message-delete-event',
-        messages.map(message => ({
-          from: message.sender_username,
-          message: message.content,
-          eventTime: message.event_time,
-          eventTimeWithSeconds: message.event_time_seconds,
-          id: message.id,
-          senderId: message.sender_id,
-        }))
-      );
+      io.to(room).emit('message-delete-event', messages.map(formatMessage));
     } catch (error) {
       console.error('Unexpected error:', error.message);
+      socket.emit('custom-error', { error: 'Error deleting message. Please try again.' });
+      return;
     }
   });
 }

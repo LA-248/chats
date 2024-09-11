@@ -74,6 +74,13 @@ export default function ChatList({ setSelectedChat, setUsername, chatSearchInput
     });
   });
 
+  // Handle socket errors
+  useEffect(() => {
+    socket.on('custom-error', (errorResponse) => {
+      setErrorMessage(errorResponse.error);
+    })
+  }, [socket]);
+
   return (
     <div className="chat-list">
       {errorMessage ? (
