@@ -6,9 +6,8 @@ import { getChatListByUserId, deleteChat } from '../api/chat-api';
 
 export default function ChatList({ setSelectedChat, setUsername, chatSearchInputText, setChatSearchInputText }) {
   const socket = useSocket();
-  const { chatList, setChatList } = useContext(ChatContext);
+  const { chatList, setChatList, activeChatId, setActiveChatId } = useContext(ChatContext);
   const [filteredChats, setFilteredChats] = useState([]);
-  const [activeChatId, setActiveChatId] = useState(null);
   const [hoverChatId, setHoverChatId] = useState(null);
   const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
@@ -98,6 +97,9 @@ export default function ChatList({ setSelectedChat, setUsername, chatSearchInput
               setActiveChatId(chat.chat_id);
               setSelectedChat(chat.name);
               setUsername(chat.name);
+              
+              // Persist chat info in local storage
+              localStorage.setItem('active-chat', JSON.stringify({ id: chat.chat_id, name: chat.name, recipient_id: chat.recipient_id }));
 
               // When opening a chat, if it has a new message(s), send the updated hasNewMessage status to the server
               handleMessageReadStatusUpdate(chat);
