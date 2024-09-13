@@ -55,7 +55,7 @@ export default function Home() {
         // Append message to UI only if the user is currently in the room where the message was sent
         if (room === messageData.room) {
           // Concatenate new message to existing messages
-          setMessages((prevMessage) => prevMessage.concat(messageData));
+          setMessages((prevMessages) => prevMessages.concat(messageData));
         }
 
         // Update chat in state and database with most recent message sent and time

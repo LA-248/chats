@@ -6,7 +6,7 @@ import { ChatContext } from '../contexts/ChatContext';
 import { getUserData } from '../api/user-api';
 import clearErrorMessage from '../utils/ErrorMessageTimeout';
 
-export default function MessageInput({ setMessages }) {
+export default function MessageInput() {
   const socket = useSocket();
   const { message, setMessage, recipientId } = useContext(MessageContext);
   const { isBlocked } = useContext(ChatContext);
@@ -45,20 +45,6 @@ export default function MessageInput({ setMessages }) {
       setMessage('');
     }
   };
-
-  // Clear message list on socket disconnection
-  useEffect(() => {
-    const handleDisconnect = () => {
-      if (socket.disconnected) {
-        setMessages([]);
-      }
-    };
-    socket.on('disconnect', handleDisconnect);
-
-    return () => {
-      socket.off('disconnect', handleDisconnect);
-    };
-  }, [setMessages, socket]);
 
   return (
     <div>

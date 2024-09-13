@@ -121,7 +121,7 @@ function ChatView() {
             </div>
           ) : null}
           <div className="message-form-container">
-            <MessageInput setMessages={setMessages} />
+            <MessageInput />
           </div>
         </div>
       )}
