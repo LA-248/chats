@@ -4,12 +4,12 @@ async function getUserData() {
       method: 'GET',
       credentials: 'include',
     });
-  
+
     if (!response.ok) {
       const errorResponse = await response.json();
       throw new Error(errorResponse.error);
     }
-  
+
     const data = await response.json();
     return data;
   } catch (error) {
@@ -34,7 +34,7 @@ async function getUserId(setUserId, setErrorMessage) {
   } catch (error) {
     setErrorMessage(error.message);
   }
-};
+}
 
 // Retrieve the ID of a message recipient from the database using their username
 async function getRecipientUserIdByUsername(username) {
@@ -58,7 +58,7 @@ async function getRecipientUserIdByUsername(username) {
   } catch (error) {
     throw error;
   }
-};
+}
 
 // Retrieve the block list of the logged in user
 async function getBlockList() {
@@ -75,6 +75,29 @@ async function getBlockList() {
 
     const data = await response.json();
     return data.blockList;
+  } catch (error) {
+    throw error;
+  }
+}
+
+async function updateUsernameById(username) {
+  try {
+    const response = await fetch('http://localhost:8080/users', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ username: username }),
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      const errorResponse = await response.json();
+      throw new Error(errorResponse.error);
+    }
+
+    const data = await response.json();
+    return data.success;
   } catch (error) {
     throw error;
   }
@@ -106,5 +129,6 @@ export {
   getUserId,
   getRecipientUserIdByUsername,
   getBlockList,
+  updateUsernameById,
   updateBlockList,
 };

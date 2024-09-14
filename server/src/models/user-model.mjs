@@ -29,6 +29,17 @@ const User = {
 
   // UPDATE OPERATIONS
 
+  updateUsernameById: function(username, userId) {
+    return new Promise((resolve, reject) => {
+      pool.query('UPDATE users SET username = $1 WHERE id = $2', [username, userId], (err) => {
+        if (err) {
+          return reject(`Database error: ${err.message}`);
+        }
+        return resolve();
+      });
+    });
+  },
+
   updateBlockedUsersById: function(blockedUsers, userId) {
     return new Promise((resolve, reject) => {
       pool.query('UPDATE users SET blocked_users = $1 WHERE id = $2', [blockedUsers, userId], (err) => {

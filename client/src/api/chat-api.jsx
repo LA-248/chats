@@ -101,6 +101,27 @@ async function updateChatList(message, timestamp, timestampWithSeconds, room) {
   }
 }
 
+// Update the name of a chat - used for when a recipient changes their username
+async function updateChatNameById(username) {
+  try {
+    const response = await fetch('http://localhost:8080/chats/username', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ newUsername: username }),
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      const errorResponse = await response.json();
+      throw new Error(errorResponse.error);
+    }
+  } catch (error) {
+    throw error;
+  }
+}
+
 // Delete a chat in the user's chat list
 async function deleteChat(chatId) {
   try {
@@ -125,4 +146,10 @@ async function deleteChat(chatId) {
   }
 }
 
-export { getChatListByUserId, addChat, updateChatList, deleteChat };
+export {
+  getChatListByUserId,
+  addChat,
+  updateChatList,
+  updateChatNameById,
+  deleteChat
+};

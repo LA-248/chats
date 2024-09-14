@@ -9,7 +9,7 @@ import { getChatListByUserId, updateChatList } from '../api/chat-api';
 import { useChatSocket } from '../hooks/useChatSocket';
 import ContactHeader from './ContactHeader';
 import MessageInput from './MessageInput';
-import Modal from './Modal';
+import Modal from './ModalTemplate';
 import handleModalOutsideClick from '../utils/ModalOutsideClick';
 
 function ChatView() {

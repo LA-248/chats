@@ -1,4 +1,5 @@
 import { useCallback, useContext, useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useSocket } from '../hooks/useSocket';
 import { MessageContext } from '../contexts/MessageContext';
 import { ChatContext } from '../contexts/ChatContext';
@@ -17,25 +18,27 @@ export default function Sidebar() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
   const { setRecipientId } = useContext(MessageContext);
-  const { setUsername, selectedChat, setSelectedChat, chatList, setChatList } = useContext(ChatContext);
+  const { setUsername, selectedChat, setSelectedChat, chatList, setChatList, setActiveChatId } = useContext(ChatContext);
 
   // Adds a new chat to the sidebar
-  const handleAddChat = useCallback(async (event) => {
-    event.preventDefault();
-  
-    try {
-      const newChatItem = await addChat(inputUsername, chatList);
-      let updatedChatList = chatList.concat(newChatItem);
-      // Get the most recent and sorted version of the user's chat list - ensures the chat list is in the correct order after a chat is deleted and re-added
-      updatedChatList = await getChatListByUserId();
-      setChatList(updatedChatList);
-      setInputUsername('');
-    } catch (error) {
-      setErrorMessage(error.message);
-    }
-  }, [chatList, setChatList, inputUsername]);
+  const handleAddChat = useCallback(
+    async (event) => {
+      event.preventDefault();
 
-  // 
+      try {
+        const newChatItem = await addChat(inputUsername, chatList);
+        let updatedChatList = chatList.concat(newChatItem);
+        // Get the most recent and sorted version of the user's chat list - ensures the chat list is in the correct order after a chat is deleted and re-added
+        updatedChatList = await getChatListByUserId();
+        setChatList(updatedChatList);
+        setInputUsername('');
+      } catch (error) {
+        setErrorMessage(error.message);
+      }
+    },
+    [chatList, setChatList, inputUsername]
+  );
+
   useEffect(() => {
     getUserId(setUserId, setErrorMessage);
   }, []);
@@ -76,7 +79,10 @@ export default function Sidebar() {
       />
 
       <div className="create-group-button-container">
-        <button onClick={() => setIsModalOpen(true)} className="create-group-button">
+        <button
+          onClick={() => setIsModalOpen(true)}
+          className="create-group-button"
+        >
           Create group chat
         </button>
       </div>
@@ -99,6 +105,17 @@ export default function Sidebar() {
         chatSearchInputText={chatSearchInputText}
         setChatSearchInputText={setChatSearchInputText}
       />
+
+      <div className="settings-button-container">
+        <Link to="/settings" style={{ textDecoration: 'none' }}>
+          <button
+            className="settings-button"
+            onClick={() => setActiveChatId(null)}
+          >
+            Settings
+          </button>
+        </Link>
+      </div>
 
       {/* 
       <div className="sidebar-items">

@@ -1,10 +1,10 @@
 import { useContext, useEffect, useRef, useState } from 'react';
 import { ChatContext } from '../contexts/ChatContext';
+import { MessageContext } from '../contexts/MessageContext';
 import { getBlockList, updateBlockList } from '../api/user-api';
 import clearErrorMessage from '../utils/ErrorMessageTimeout';
 import handleModalOutsideClick from '../utils/ModalOutsideClick';
-import Modal from './Modal';
-import { MessageContext } from '../contexts/MessageContext';
+import Modal from './ModalTemplate';
 
 export default function ContactHeader() {
   const { isBlocked, setIsBlocked, selectedChat, setActiveChatId } = useContext(ChatContext);
@@ -13,7 +13,7 @@ export default function ContactHeader() {
   const [blockList, setBlockList] = useState([]);
   const [errorMessage, setErrorMessage] = useState('');
   const modalRef = useRef();
-  const activeChat = JSON.parse(localStorage.getItem(('active-chat')));
+  const activeChat = JSON.parse(localStorage.getItem('active-chat'));
 
   // TODO: Clean up this code
   // Persist active chat data across page refreshes by syncing local storage with chat context values

@@ -114,6 +114,17 @@ const Chat = {
     });
   },
 
+  updateChatName: function(newUsername, userId) {
+    return new Promise((resolve, reject) => {
+      pool.query('UPDATE chats SET name = $1 WHERE recipient_id = $2', [newUsername, userId], (err) => {
+        if (err) {
+          return reject(`Database error: ${err.message}`);
+        }
+        return resolve();
+      });
+    });
+  },
+
   // DELETE OPERATIONS
 
   deleteChatByUserId: function(userId, chatId) {

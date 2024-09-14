@@ -14,10 +14,9 @@ export const SocketContext = createContext();
 
 export default function Home() {
   const { setMessages } = useContext(MessageContext);
-  const { setChatList } = useContext(ChatContext);
+  const { setChatList, loggedInUsername, setLoggedInUsername } = useContext(ChatContext);
   const { room } = useParams(); // Extract room from URL
   const [socket, setSocket] = useState(null);
-  const [loggedInUsername, setLoggedInUsername] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const location = useLocation();
 
@@ -32,7 +31,7 @@ export default function Home() {
       }
     };
     fetchUser();
-  }, []);
+  }, [setLoggedInUsername]);
 
   useEffect(() => {
     // Create a new socket connection
@@ -87,7 +86,7 @@ export default function Home() {
               <a
                 href="/"
                 style={{
-                  color: 'white',
+                  color: '#1db954',
                   fontWeight: '600',
                   fontSize: '24px',
                   textDecoration: 'none',

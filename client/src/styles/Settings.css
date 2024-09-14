@@ -1,0 +1,103 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Geist', sans-serif;
+}
+
+body {
+  margin: 0;
+  background-color: #212121;
+}
+
+.settings-main-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow-y: hidden;
+}
+
+.settings-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  width: 100%;
+  border-bottom: 1px solid rgb(75, 73, 73);
+}
+
+.settings-heading {
+  font-size: 22px;
+  font-weight: 600;
+  color: white;
+  padding: 20px;
+}
+
+.account-container {
+  display: flex;
+  flex-direction: column;
+  font-size: 14px;
+  padding: 20px;
+  color: white;
+  gap: 20px;
+}
+
+.account-heading {
+  font-size: 18px;
+  font-weight: 600;
+  color: white;
+}
+
+.username-container {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.username-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.username-display,
+.username-input {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+  font-size: 14px;
+  border-radius: 25px;
+  width: 300px;
+  height: 35px;
+  background-color: #303030;
+  color: white;
+  border: solid 1px gray;
+  font-weight: 400;
+}
+
+.username-input {
+  width: 100%;
+}
+
+.username-display::placeholder {
+  color: white;
+}
+
+.edit-username-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 5px 10px;
+  height: 35px;
+  width: 80px;
+  background-color: #1db954;
+  color: white;
+  border: none;
+  border-radius: 25px;
+}
+
+.edit-username-button:hover {
+  cursor: pointer;
+  opacity: 0.9;
+}

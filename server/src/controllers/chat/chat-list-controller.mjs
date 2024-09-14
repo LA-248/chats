@@ -76,6 +76,7 @@ const deleteChat = async (req, res) => {
   }
 }
 
+// Update a chat in the chat with the latest message data
 const updateChatInChatList = async (req, res) => {
   try {
     const lastMessage = req.body.lastMessage;
@@ -88,8 +89,21 @@ const updateChatInChatList = async (req, res) => {
     return res.status(200).json({ updatedChatList: updatedChatList });
   } catch (error) {
     console.error('Error updating chat:', error);
-    return res.status(500).json({ error: 'An unexpected error occurred.' });
+    return res.status(500).json({ error: 'An unexpected error occurred' });
   }
 }
 
-export { addChat, retrieveChatList, deleteChat, updateChatInChatList };
+// Update the name of a chat - used for when a recipient changes their username
+const updateChatName = async (req, res) => {
+  try {
+    const newUsername = req.body.newUsername;
+    const userId = req.session.passport.user;
+    await Chat.updateChatName(newUsername, userId);
+    res.status(200).json({ success: 'Chat list updated successfully'});
+  } catch (error) {
+    console.error('Error updating chat name:', error);
+    return res.status(500).json({ error: 'An unexpected error occurred'});
+  }
+}
+
+export { addChat, retrieveChatList, deleteChat, updateChatInChatList, updateChatName };

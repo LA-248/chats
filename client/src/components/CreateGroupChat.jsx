@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { getRecipientUserIdByUsername } from '../api/user-api';
-import Modal from './Modal';
+import Modal from './ModalTemplate';
 
 export default function GroupChatModal({ isModalOpen, setIsModalOpen }) {
   const [groupName, setGroupName] = useState('');

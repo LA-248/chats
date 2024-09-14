@@ -297,6 +297,32 @@ body {
   opacity: 0.9;
 }
 
+/* Settings button */
+
+.settings-button-container {
+  padding: 10px;
+}
+
+.settings-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+  font-size: 13px;
+  font-weight: 400;
+  border-radius: 25px;
+  height: 35px;
+  width: 100%;
+  background-color: #303030;
+  color: white;
+  border: solid 1px gray;
+}
+
+.settings-button:hover {
+  cursor: pointer;
+  opacity: 0.9;
+}
+
 /* CHAT WINDOW */
 
 .chat-window-container {
@@ -317,6 +343,7 @@ body {
   position: fixed;
   margin-bottom: 10px;
   width: 100%;
+  border-bottom: 1px solid rgb(75, 73, 73);
 }
 
 .contact-header {
@@ -328,7 +355,6 @@ body {
   gap: 10px;
   color: white;
   background-color: #212121;
-  border-bottom: 1px solid rgb(75, 73, 73);
 }
 
 .picture-and-name {
@@ -732,4 +758,25 @@ body {
   border-radius: 25px;
   background-color: red;
   border: none;
+}
+
+/* EDIT USERNAME MODAL */
+
+.confirm-username-edit-button {
+  display: flex;
+  justify-content: center;  
+  align-items: center;
+  font-size: 13px;
+  padding: 5px;
+  width: 100%;
+  height: 35px;
+  color: white;
+  border-radius: 25px;
+  background-color: #1db954;
+  border: none;
+}
+
+.confirm-username-edit-button:hover {
+  cursor: pointer;
+  opacity: 0.9;
 }
