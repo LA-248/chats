@@ -30,6 +30,19 @@ const Message  = {
     });
   },
 
+  // UPDATE OPERATIONS
+
+  updateUsernameInMessages: function(senderUsername, senderId) {
+    return new Promise((resolve, reject) => {
+      pool.query('UPDATE messages SET sender_username = $1 WHERE sender_id = $2', [senderUsername, senderId], (err) => {
+        if (err) {
+          return reject(`Database error: ${err.message}`);
+        }
+        return resolve();
+      });
+    });
+  },
+
   // READ OPERATIONS
   
   retrieveMessages: function(serverOffset, room) {

@@ -1,5 +1,17 @@
 import { Message } from '../../models/message-model.mjs';
 
+const updateUsernameInMessages = async (req, res) => {
+  try {
+    const senderUsername = req.body.username;
+    const senderId = req.session.passport.user;
+    await Message.updateUsernameInMessages(senderUsername, senderId);
+    res.status(200).json({ success: 'Operation successful' });
+  } catch (error) {
+    console.error('Error updating username in messages:', error);
+    res.status(500).json({ error: 'An unexpected error occurred' });
+  }
+}
+
 const deleteMessageById = async (req, res) => {
   try {
     const messageId = req.body.messageId;
@@ -11,4 +23,4 @@ const deleteMessageById = async (req, res) => {
   }
 };
 
-export { deleteMessageById };
+export { updateUsernameInMessages, deleteMessageById };

@@ -1,9 +1,10 @@
 import { useContext, useState } from 'react';
 import { ChatContext } from '../contexts/ChatContext';
-import '../styles/Settings.css';
-import Modal from '../components/ModalTemplate';
 import { updateUsernameById } from '../api/user-api';
 import { updateChatNameById } from '../api/chat-api';
+import { updateUsernameInMessages } from '../api/message-api';
+import '../styles/Settings.css';
+import Modal from '../components/ModalTemplate';
 export default function Settings() {
   const { loggedInUsername, setLoggedInUsername } = useContext(ChatContext);
   const [usernameInput, setUsernameInput] = useState('');
@@ -20,6 +21,7 @@ export default function Settings() {
         throw new Error('Username must contain at least 2 characters');
       }
 
+      await updateUsernameInMessages(usernameInput);
       await updateUsernameById(usernameInput);
       await updateChatNameById(usernameInput);
 
