@@ -15,10 +15,10 @@ export default function SignUp() {
     try {
       if (username === '' || password === '') {
         throw new Error('Please ensure both fields are filled');
-      } else if (username.length < 2) {
-        throw new Error('Username must contain at least 2 characters');
-      } else if (password.length < 4) {
-        throw new Error('Password must contain at least 4 characters');
+      } else if (username.length < 2 || username.length > 30) {
+        throw new Error('Username must be between 2 and 30 characters');
+      } else if (password.length < 4 || password.length > 100) {
+        throw new Error('Password must be between 4 and 100 characters');
       }
 
       const response = await fetch('http://localhost:8080/auth/register/password', {

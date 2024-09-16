@@ -1,7 +1,14 @@
 import bcrypt from 'bcrypt';
 import { User } from '../../models/user-model.mjs';
+import { validationResult } from 'express-validator';
 
 const handleSignUp = async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    // Send validation errors to the client
+    return res.status(400).json({ errors: errors.array() });
+  }
+
   const { username, password } = req.body;
 
   try {
