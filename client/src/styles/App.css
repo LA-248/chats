@@ -47,9 +47,6 @@ body {
   max-width: 350px;
   height: 100vh;
   overflow: hidden;
-}
-
-.sidebar-container:hover {
   overflow-y: auto;
 }
 
@@ -303,7 +300,8 @@ body {
   position: absolute;
   bottom: 0;
   padding: 10px;
-  width: 150px;
+  width: 340px;
+  background-color: #212121;
 }
 
 .settings-button {
@@ -315,7 +313,7 @@ body {
   font-weight: 400;
   border-radius: 25px;
   height: 35px;
-  width: 100%;
+  width: 150px;
   background-color: #303030;
   color: white;
   border: solid 1px gray;

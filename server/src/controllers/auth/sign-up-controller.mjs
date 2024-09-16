@@ -16,7 +16,7 @@ const handleSignUp = async (req, res) => {
     const existingUser = await User.getUserByUsername(username);
 
     if (existingUser) {
-      return res.status(409).json({ message: 'Username already taken' });
+      return res.status(409).json({ error: 'Username already taken' });
     }
 
     // Hash user password
@@ -32,7 +32,7 @@ const handleSignUp = async (req, res) => {
     req.login(newUser, (err) => {
       if (err) {
         console.error('Login error:', err);
-        return res.status(500).json({ message: 'Error logging in. Please try again.' });
+        return res.status(500).json({ error: 'Error logging in. Please try again.' });
       }
       return res.status(200).json({ redirectPath: '/' });
     });

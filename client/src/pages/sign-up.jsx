@@ -3,16 +3,16 @@ import { Link, useNavigate } from 'react-router-dom';
 import '../styles/SignUp.css';
 
 export default function SignUp() {
-  const navigate = useNavigate();
-
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const navigate = useNavigate();
 
   const handleFormSubmission = async (event) => {
     event.preventDefault();
 
     try {
+      // Validate username and password
       if (username === '' || password === '') {
         throw new Error('Please ensure both fields are filled');
       } else if (username.length < 2 || username.length > 30) {
