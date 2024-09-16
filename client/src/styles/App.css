@@ -300,7 +300,10 @@ body {
 /* Settings button */
 
 .settings-button-container {
+  position: absolute;
+  bottom: 0;
   padding: 10px;
+  width: 150px;
 }
 
 .settings-button {

@@ -3,8 +3,9 @@ import { ChatContext } from '../contexts/ChatContext';
 import { updateUsernameById } from '../api/user-api';
 import { updateChatNameById } from '../api/chat-api';
 import { updateUsernameInMessages } from '../api/message-api';
-import '../styles/Settings.css';
 import Modal from '../components/ModalTemplate';
+import '../styles/Settings.css';
+
 export default function Settings() {
   const { loggedInUsername, setLoggedInUsername } = useContext(ChatContext);
   const [usernameInput, setUsernameInput] = useState('');
@@ -67,7 +68,7 @@ export default function Settings() {
           <form id="username-edit-form" onSubmit={handleUsernameEdit}>
             <input
               className="username-input"
-              placeholder="Set a new username"
+              placeholder="Choose a new username"
               value={usernameInput}
               onChange={(event) => {
                 setUsernameInput(event.target.value);
