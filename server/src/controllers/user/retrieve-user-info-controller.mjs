@@ -1,4 +1,5 @@
 import { User } from '../../models/user-model.mjs';
+import { createPresignedUrl } from '../../services/s3-file-handler.mjs';
 
 const retrieveUserById = async (req, res) => {
   try {
@@ -36,6 +37,19 @@ const retrieveUserIdFromSession = async (req, res) => {
   }
 };
 
+const retrieveProfilePicture = async (req, res) => {
+  try {
+    const userId = req.session.passport.user;
+    const fileName = await User.getUserProfilePicture(userId);
+    // Generate a temporary URL for viewing the uploaded profile picture from S3
+    const presignedS3Url = await createPresignedUrl(process.env.BUCKET_NAME, fileName);
+    res.status(200).json({ fileUrl: presignedS3Url });
+  } catch (error) {
+    console.error('Error retrieving profile picture:', error);
+    res.status(500).json({ error: 'Error retrieving profile picture' });
+  }
+}
+
 const retrieveBlockList = async (req, res) => {
   try {
     const userId = req.session.passport.user;
@@ -52,5 +66,6 @@ export {
   retrieveUserById,
   retrieveIdByUsername,
   retrieveUserIdFromSession,
+  retrieveProfilePicture,
   retrieveBlockList
 };

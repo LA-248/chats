@@ -6,7 +6,7 @@ const handleSignUp = async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     // Send validation errors to the client
-    return res.status(400).json({ errors: errors.array() });
+    return res.status(400).send({ errors: errors.array() });
   }
 
   const { username, password } = req.body;

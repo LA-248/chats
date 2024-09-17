@@ -1,37 +1,11 @@
-import { useContext, useState } from 'react';
-import { ChatContext } from '../contexts/ChatContext';
-import { updateUsernameById } from '../api/user-api';
-import { updateChatNameById } from '../api/chat-api';
-import { updateUsernameInMessages } from '../api/message-api';
-import Modal from '../components/ModalTemplate';
+import { useState } from 'react';
+import ProfilePicture from '../components/ProfilePicture';
+import UsernameEdit from '../components/UsernameEdit';
 import '../styles/Settings.css';
 
 export default function Settings() {
-  const { loggedInUsername, setLoggedInUsername } = useContext(ChatContext);
-  const [usernameInput, setUsernameInput] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-
-  const handleUsernameEdit = async (event) => {
-    event.preventDefault();
-
-    try {
-      if (!usernameInput) {
-        throw new Error('Please enter a username');
-      } else if (usernameInput.length < 2) {
-        throw new Error('Username must contain at least 2 characters');
-      }
-
-      await updateUsernameInMessages(usernameInput);
-      await updateUsernameById(usernameInput);
-      await updateChatNameById(usernameInput);
-
-      setLoggedInUsername(usernameInput);
-      setIsModalOpen(false);
-    } catch (error) {
-      setErrorMessage(error.message);
-    }
-  };
 
   return (
     <div className="settings-main-container">
@@ -41,48 +15,17 @@ export default function Settings() {
 
       <div className="account-container">
         <div className="account-heading">Account</div>
-        <div className="username-container">
-          <div className="username-heading">Username</div>
-          <div className="username-input-wrapper">
-            <input
-              className="username-display"
-              placeholder={loggedInUsername}
-              disabled={true}
-            />
-            <button
-              className="edit-username-button"
-              onClick={() => setIsModalOpen(true)}
-            >
-              Edit
-            </button>
-          </div>
-        </div>
+        <ProfilePicture
+          errorMessage={errorMessage}
+          setErrorMessage={setErrorMessage}
+        />
 
-        <Modal
+        <UsernameEdit
           isModalOpen={isModalOpen}
           setIsModalOpen={setIsModalOpen}
           errorMessage={errorMessage}
           setErrorMessage={setErrorMessage}
-        >
-          <div className="modal-heading">Edit username</div>
-          <form id="username-edit-form" onSubmit={handleUsernameEdit}>
-            <input
-              className="username-input"
-              placeholder="Choose a new username"
-              value={usernameInput}
-              onChange={(event) => {
-                setUsernameInput(event.target.value);
-                setErrorMessage('');
-              }}
-            />
-            <button
-              className="confirm-username-edit-button"
-              style={{ marginTop: '20px' }}
-            >
-              Done
-            </button>
-          </form>
-        </Modal>
+        />
       </div>
     </div>
   );

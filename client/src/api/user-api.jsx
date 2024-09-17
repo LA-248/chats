@@ -60,6 +60,25 @@ async function getRecipientUserIdByUsername(username) {
   }
 }
 
+async function getUserProfilePicture() {
+  try {
+    const response = await fetch('http://localhost:8080/users/profile_pictures', {
+      method: 'GET',
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      const errorResponse = await response.json();
+      throw new Error(errorResponse.error);
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    throw error;
+  }
+}
+
 // Retrieve the block list of the logged in user
 async function getBlockList() {
   try {
@@ -80,7 +99,7 @@ async function getBlockList() {
   }
 }
 
-async function updateUsernameById(username) {
+async function updateUsername(username) {
   try {
     const response = await fetch('http://localhost:8080/users', {
       method: 'PUT',
@@ -129,6 +148,7 @@ export {
   getUserId,
   getRecipientUserIdByUsername,
   getBlockList,
-  updateUsernameById,
+  getUserProfilePicture,
+  updateUsername,
   updateBlockList,
 };

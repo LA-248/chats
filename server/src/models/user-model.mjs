@@ -5,7 +5,7 @@ const User = {
 
   createUsersTable: function() {
     return new Promise((resolve, reject) => {
-      pool.query(`CREATE TABLE IF NOT EXISTS users (id SERIAL PRIMARY KEY, username TEXT, hashed_password TEXT, blocked_users INTEGER[] DEFAULT '{}')`, (err) => {
+      pool.query(`CREATE TABLE IF NOT EXISTS users (id SERIAL PRIMARY KEY, username TEXT, hashed_password TEXT, profile_picture TEXT, blocked_users INTEGER[] DEFAULT '{}')`, (err) => {
         if (err) {
           return reject(`Database error: ${err.message}`);
         }
@@ -32,6 +32,17 @@ const User = {
   updateUsernameById: function(username, userId) {
     return new Promise((resolve, reject) => {
       pool.query('UPDATE users SET username = $1 WHERE id = $2', [username, userId], (err) => {
+        if (err) {
+          return reject(`Database error: ${err.message}`);
+        }
+        return resolve();
+      });
+    });
+  },
+
+  updateProfilePictureById: function(fileName, userId) {
+    return new Promise((resolve, reject) => {
+      pool.query('UPDATE users SET profile_picture = $1 WHERE id = $2', [fileName, userId], (err) => {
         if (err) {
           return reject(`Database error: ${err.message}`);
         }
@@ -93,6 +104,18 @@ const User = {
           return reject(`Database error: ${err.message}`);
         }
         return resolve(result.rows[0]);
+      });
+    });
+  },
+
+  getUserProfilePicture: function(userId) {
+    return new Promise((resolve, reject) => {
+      pool.query('SELECT profile_picture FROM users WHERE id = $1', [userId], (err, result) => {
+        if (err) {
+          return reject(`Database error: ${err.message}`);
+        }
+        console.log('Profile picture from database:', result.rows[0]);
+        return resolve(result.rows[0].profile_picture);
       });
     });
   },

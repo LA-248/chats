@@ -38,7 +38,7 @@ body {
   font-size: 14px;
   padding: 20px;
   color: white;
-  gap: 20px;
+  gap: 40px;
 }
 
 .account-heading {
@@ -46,6 +46,43 @@ body {
   font-weight: 600;
   color: white;
 }
+
+/* PROFILE PICTURE */
+
+.profile-picture-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: fit-content;
+  gap: 5px;
+  margin-top: -20px;
+}
+
+.profile-picture {
+  height: 100px;
+  width: 100px;
+  border-radius: 100%;
+}
+
+.upload-profile-picture-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 5px 10px;
+  height: 30px;
+  width: 100px;
+  background-color: #1db954;
+  color: white;
+  border: none;
+  border-radius: 25px;
+}
+
+.upload-profile-picture-button:hover {
+  cursor: pointer;
+  opacity: 0.9;
+}
+
+/* USERNAME EDIT */
 
 .username-container {
   display: flex;
