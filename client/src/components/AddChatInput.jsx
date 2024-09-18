@@ -7,7 +7,7 @@ export default function AddChatInput({ inputUsername, setInputUsername, handleAd
   useEffect(() => {
     clearErrorMessage(errorMessage, setErrorMessage);
   }, [errorMessage, setErrorMessage]);
-  
+
   return (
     <div className="username-form-container">
       <form id="username-form" action="" onSubmit={handleAddChat}>
@@ -26,8 +26,12 @@ export default function AddChatInput({ inputUsername, setInputUsername, handleAd
             Start chat
           </button>
         </div>
+        {errorMessage && (
+          <div className="error-message" style={{ marginTop: '10px' }}>
+            {errorMessage}
+          </div>
+        )}
       </form>
-      {errorMessage && <div className="error-message" style={{ marginTop: '10px' }}>{errorMessage}</div>}
     </div>
   );
 }
