@@ -114,7 +114,6 @@ const User = {
         if (err) {
           return reject(`Database error: ${err.message}`);
         }
-        console.log('Profile picture from database:', result.rows[0]);
         return resolve(result.rows[0].profile_picture);
       });
     });

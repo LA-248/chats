@@ -1,9 +1,14 @@
 import { User } from '../../models/user-model.mjs';
-import { createPresignedUrl } from '../../services/s3-file-handler.mjs';
+import { createPresignedUrl, deleteS3Object } from '../../services/s3-file-handler.mjs';
 
 const uploadProfilePicture = async (req, res) => {
   try {
     const userId = req.session.passport.user;
+
+    // Delete previous profile picture from S3 storage
+    const fileName = await User.getUserProfilePicture(userId);
+    deleteS3Object(process.env.BUCKET_NAME, fileName);
+
     await User.updateProfilePictureById(req.file.key, userId);
 
     // Generate a temporary URL for viewing the uploaded profile picture from S3
