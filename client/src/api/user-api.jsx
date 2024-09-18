@@ -67,13 +67,18 @@ async function getUserProfilePicture() {
       credentials: 'include',
     });
 
+    // User has no profile picture, return null, which allows
+    if (response.status === 204) {
+      return null;
+    }
+
     if (!response.ok) {
       const errorResponse = await response.json();
       throw new Error(errorResponse.error);
     }
 
     const data = await response.json();
-    return data;
+    return data.fileUrl;
   } catch (error) {
     throw error;
   }

@@ -1,17 +1,17 @@
-import { useEffect, useRef, useState } from 'react';
-import { getUserProfilePicture } from '../api/user-api';
+import { useContext, useRef } from 'react';
+import { ChatContext } from '../contexts/ChatContext';
 
 export default function ProfilePicture({ errorMessage, setErrorMessage }) {
-  const [profilePicture, setProfilePicture] = useState(null);
+  const { profilePicture, setProfilePicture } = useContext(ChatContext);
   const fileInputRef = useRef(null);
   const formRef = useRef(null);
 
-  // Use the reference to the file input to open it when clicking on the upload button
+  // Use the reference to the file picker input to open it when clicking on the upload button
   const handleFileInputClick = () => {
     fileInputRef.current.click();
   };
 
-  const handleFileSubmit = async (event) => {
+  const handleProfilePictureUpload = async (event) => {
     event.preventDefault();
     // Use formData to package the file to then be sent to the server
     const formData = new FormData(formRef.current);
@@ -35,20 +35,6 @@ export default function ProfilePicture({ errorMessage, setErrorMessage }) {
     }
   };
 
-  // Retrieve profile picture for display
-  useEffect(() => {
-    const fetchProfilePicture = async () => {
-      try {
-        const profilePicture = await getUserProfilePicture();
-        setProfilePicture(profilePicture.fileUrl);
-      } catch (error) {
-        setErrorMessage(error.message);
-      }
-    };
-
-    fetchProfilePicture();
-  }, [setErrorMessage]);
-
   return (
     <div className="profile-picture-container">
       <div className="profile-picture-heading">Profile picture</div>
@@ -64,7 +50,7 @@ export default function ProfilePicture({ errorMessage, setErrorMessage }) {
           name="profile-picture"
           accept="image/*"
           style={{ display: 'none' }}
-          onChange={handleFileSubmit}
+          onChange={handleProfilePictureUpload}
         />
       </form>
       <button

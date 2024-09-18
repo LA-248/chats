@@ -41,6 +41,12 @@ const retrieveProfilePicture = async (req, res) => {
   try {
     const userId = req.session.passport.user;
     const fileName = await User.getUserProfilePicture(userId);
+
+    // If the user has not uploaded a profile picture, send a 204 response
+    if (fileName === null) {
+      return res.status(204).send();
+    }
+
     // Generate a temporary URL for viewing the uploaded profile picture from S3
     const presignedS3Url = await createPresignedUrl(process.env.BUCKET_NAME, fileName);
     res.status(200).json({ fileUrl: presignedS3Url });

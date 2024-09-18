@@ -3,10 +3,8 @@ import { ChatContext } from '../contexts/ChatContext.jsx';
 import { MessageContext } from '../contexts/MessageContext.jsx';
 import { createContext, useEffect, useState, useContext } from 'react';
 import { Outlet, useLocation, useParams } from 'react-router-dom';
-import { getUserData } from '../api/user-api.jsx';
+import { getUserData, getUserProfilePicture } from '../api/user-api.jsx';
 import { getChatListByUserId, updateChatList } from '../api/chat-api';
-import Logout from '../components/UserLogout.jsx';
-import DisplayUsername from '../components/DisplayUsername.jsx';
 import Sidebar from '../components/Sidebar.jsx';
 import ChatWindowPlaceholder from '../components/ChatWindowPlaceholder.jsx';
 
@@ -14,7 +12,7 @@ export const SocketContext = createContext();
 
 export default function Home() {
   const { setMessages } = useContext(MessageContext);
-  const { setChatList, loggedInUsername, setLoggedInUsername } = useContext(ChatContext);
+  const { setChatList, setLoggedInUsername, profilePicture, setProfilePicture } = useContext(ChatContext);
   const { room } = useParams(); // Extract room from URL
   const [socket, setSocket] = useState(null);
   const [errorMessage, setErrorMessage] = useState('');
@@ -32,6 +30,24 @@ export default function Home() {
     };
     fetchUser();
   }, [setLoggedInUsername]);
+
+  // Retrieve profile picture for display
+  useEffect(() => {
+    const fetchProfilePicture = async () => {
+      try {
+        const fetchedProfilePicture = await getUserProfilePicture();
+        if (fetchedProfilePicture === null) {
+          setProfilePicture('/images/default-avatar.jpg');
+        } else {
+          setProfilePicture(fetchedProfilePicture);
+        }
+      } catch (error) {
+        setErrorMessage(error.message);
+      }
+    };
+  
+    fetchProfilePicture();
+  }, [profilePicture, setProfilePicture, setErrorMessage]);
 
   useEffect(() => {
     // Create a new socket connection
@@ -75,26 +91,20 @@ export default function Home() {
       <SocketContext.Provider value={socket}>
         <div className="main-container">
           <div className="sidebar-container">
-            <div className="user-controls">
-              <DisplayUsername username={loggedInUsername} />
-              {errorMessage ? (
-                <div className="error-message" style={{ margin: '10px' }}>
-                  {errorMessage}
-                </div>
-              ) : null}
-              <Logout />
-              <a
-                href="/"
-                style={{
-                  color: '#1db954',
-                  fontWeight: '600',
-                  fontSize: '24px',
-                  textDecoration: 'none',
-                }}
-              >
-                Chats
-              </a>
-            </div>
+            {errorMessage ? (
+              <div className="error-message">{errorMessage}</div>
+            ) : null}
+            <a
+              href="/"
+              style={{
+                color: '#1db954',
+                fontWeight: '600',
+                fontSize: '24px',
+                textDecoration: 'none',
+              }}
+            >
+              Chats
+            </a>
             <Sidebar />
           </div>
           <div className="chat-window-container">

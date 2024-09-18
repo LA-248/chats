@@ -9,6 +9,8 @@ import AddChatInput from './AddChatInput';
 import ChatList from './ChatList';
 import ChatSearch from './ChatSearch';
 import GroupChatModal from './CreateGroupChat';
+import DisplayUsername from './DisplayUsername';
+import Logout from './UserLogout';
 
 export default function Sidebar() {
   const socket = useSocket();
@@ -18,7 +20,7 @@ export default function Sidebar() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
   const { setRecipientId } = useContext(MessageContext);
-  const { setUsername, selectedChat, setSelectedChat, chatList, setChatList, setActiveChatId } = useContext(ChatContext);
+  const { profilePicture, setUsername, selectedChat, setSelectedChat, chatList, setChatList, setActiveChatId, loggedInUsername } = useContext(ChatContext);
 
   // Adds a new chat to the sidebar
   const handleAddChat = useCallback(
@@ -106,15 +108,26 @@ export default function Sidebar() {
         setChatSearchInputText={setChatSearchInputText}
       />
 
-      <div className="settings-button-container">
-        <Link to="/settings" style={{ textDecoration: 'none' }}>
-          <button
-            className="settings-button"
-            onClick={() => setActiveChatId(null)}
-          >
-            Settings
-          </button>
-        </Link>
+      <div className="profile-settings-container">
+        <div className="user-profile-info">
+          <img
+            src={profilePicture}
+            alt="Profile"
+            style={{ height: '40px', width: '40px', borderRadius: '100%' }}
+          ></img>
+          <DisplayUsername username={loggedInUsername} />
+        </div>
+        <div className="user-navigation-buttons">
+          <Logout />
+          <Link to="/settings" style={{ textDecoration: 'none', marginLeft: '10px'}}>
+            <button
+              className="settings-button"
+              onClick={() => setActiveChatId(null)}
+            >
+              Settings
+            </button>
+          </Link>
+        </div>
       </div>
 
       {/* 

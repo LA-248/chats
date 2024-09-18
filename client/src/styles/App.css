@@ -276,8 +276,7 @@ body {
   flex-grow: 1;
 }
 
-.start-chat-button,
-.logout-button {
+.start-chat-button {
   font-size: 13px;
   border-radius: 25px;
   background-color: transparent;
@@ -287,40 +286,56 @@ body {
   text-decoration: underline;
 }
 
-.start-chat-button:hover,
-.logout-button:hover {
+.start-chat-button:hover {
   cursor: pointer;
   opacity: 0.9;
 }
 
-/* Settings button */
+/* User profile section */
 
-.settings-button-container {
+.profile-settings-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   position: absolute;
   bottom: 0;
   padding: 10px;
   width: 350px;
   background-color: #212121;
+  gap: 10px;
 }
 
-.settings-button {
+.user-profile-info {
   display: flex;
-  justify-content: center;
   align-items: center;
-  padding: 10px;
-  font-size: 13px;
-  font-weight: 400;
-  border-radius: 25px;
-  height: 35px;
-  width: 150px;
-  background-color: #303030;
-  color: white;
-  border: solid 1px gray;
+  gap: 10px;
 }
 
-.settings-button:hover {
+.account-info-container {
+  display: flex;
+}
+
+.account-username {
+  font-size: 14px;
+  font-weight: 600;
+  color: white;
+}
+
+.settings-button,
+.logout-button {
+  font-size: 13px;
+  border-radius: 25px;
+  background-color: transparent;
+  color: white;
+  border: none;
+  font-weight: 400;
+}
+
+.settings-button:hover,
+.logout-button:hover {
   cursor: pointer;
   opacity: 0.9;
+  text-decoration: underline;
 }
 
 /* CHAT WINDOW */
@@ -503,27 +518,6 @@ body {
 .submit-message-button:hover {
   cursor: pointer;
   opacity: 0.9;
-}
-
-/* USER INFORMATION */
-
-.account-info-container {
-  display: flex;
-}
-
-.account-username {
-  font-size: 13px;
-  color: white;
-}
-
-.user-controls {
-  display: flex;
-  flex-direction: column;
-  justify-content: start;
-  align-items: start;
-  padding: 10px;
-  padding-bottom: 0px;
-  gap: 5px;
 }
 
 /* ERROR MESSAGE */

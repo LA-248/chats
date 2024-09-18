@@ -7,8 +7,11 @@ const uploadProfilePicture = async (req, res) => {
 
     // Delete previous profile picture from S3 storage
     const fileName = await User.getUserProfilePicture(userId);
-    deleteS3Object(process.env.BUCKET_NAME, fileName);
+    if (!(fileName === null)) { // Only run if a previous profile picture exists
+      await deleteS3Object(process.env.BUCKET_NAME, fileName);
+    }
 
+    // Upload new profile picture
     await User.updateProfilePictureById(req.file.key, userId);
 
     // Generate a temporary URL for viewing the uploaded profile picture from S3

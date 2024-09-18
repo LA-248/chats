@@ -114,6 +114,9 @@ const User = {
         if (err) {
           return reject(`Database error: ${err.message}`);
         }
+        if (result.rows.length === 0 || result.rows[0].profile_picture === null) {
+          return resolve(null);
+        }
         return resolve(result.rows[0].profile_picture);
       });
     });

@@ -6,6 +6,7 @@ import '../styles/Settings.css';
 export default function Settings() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [uploadError, setUploadError] = useState('');
 
   return (
     <div className="settings-main-container">
@@ -16,8 +17,8 @@ export default function Settings() {
       <div className="account-container">
         <div className="account-heading">Account</div>
         <ProfilePicture
-          errorMessage={errorMessage}
-          setErrorMessage={setErrorMessage}
+          errorMessage={uploadError}
+          setErrorMessage={setUploadError}
         />
 
         <UsernameEdit
