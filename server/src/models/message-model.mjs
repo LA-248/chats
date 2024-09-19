@@ -47,7 +47,7 @@ const Message  = {
   
   retrieveMessages: function(serverOffset, room) {
     return new Promise((resolve, reject) => {
-      pool.query('SELECT id, sender_id, content, sender_username, event_time, event_time_seconds FROM messages WHERE id > $1 AND room = $2', [serverOffset || 0, room], (err, result) => {
+      pool.query('SELECT id, sender_id, content, sender_username, event_time, event_time_seconds FROM messages WHERE id > $1 AND room = $2 ORDER BY event_time_seconds ASC', [serverOffset || 0, room], (err, result) => {
         if (err) {
           return reject(`Database error: ${err.message}`);
         }
