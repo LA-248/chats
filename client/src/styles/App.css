@@ -311,10 +311,6 @@ body {
   gap: 10px;
 }
 
-.account-info-container {
-  display: flex;
-}
-
 .account-username {
   font-size: 14px;
   font-weight: 600;

@@ -99,8 +99,9 @@ export default function Home() {
               style={{
                 color: '#1db954',
                 fontWeight: '600',
-                fontSize: '24px',
+                fontSize: '28px',
                 textDecoration: 'none',
+                padding: '10px 10px 0px 10px',
               }}
             >
               Chats

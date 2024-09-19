@@ -9,7 +9,6 @@ import AddChatInput from './AddChatInput';
 import ChatList from './ChatList';
 import ChatSearch from './ChatSearch';
 import GroupChatModal from './CreateGroupChat';
-import DisplayUsername from './DisplayUsername';
 import Logout from './UserLogout';
 
 export default function Sidebar() {
@@ -115,7 +114,7 @@ export default function Sidebar() {
             alt="Profile"
             style={{ height: '40px', width: '40px', borderRadius: '100%' }}
           ></img>
-          <DisplayUsername username={loggedInUsername} />
+          <div className="account-username">{loggedInUsername}</div>
         </div>
         <div className="user-navigation-buttons">
           <Logout />

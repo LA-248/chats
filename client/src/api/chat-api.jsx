@@ -102,7 +102,7 @@ async function updateChatList(message, timestamp, timestampWithSeconds, room) {
 }
 
 // Update the name of a chat - used for when a recipient changes their username
-async function updateChatNameById(username) {
+async function updateChatName(username) {
   try {
     const response = await fetch('http://localhost:8080/chats/username', {
       method: 'PUT',
@@ -150,6 +150,6 @@ export {
   getChatListByUserId,
   addChat,
   updateChatList,
-  updateChatNameById,
+  updateChatName,
   deleteChat
 };
