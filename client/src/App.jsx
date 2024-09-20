@@ -6,32 +6,35 @@ import Login from './pages/login.jsx';
 import Settings from './pages/settings.jsx';
 import ProtectedRoutes from './utils/ProtectedRoutes.jsx';
 import { ChatView } from './components/ChatView.jsx';
+import { UserProvider } from './contexts/UserContext.jsx';
 import { ChatProvider } from './contexts/ChatContext.jsx';
 import { MessageProvider } from './contexts/MessageContext.jsx';
 
 function App() {
   return (
-    <ChatProvider>
-      <MessageProvider>
-        <Router>
-          <div>
+    <UserProvider>
+      <ChatProvider>
+        <MessageProvider>
+          <Router>
             <div>
-              <Routes>
-                <Route path="/register" element={<SignUp />} />
-                <Route path="/login" element={<Login />} />
+              <div>
+                <Routes>
+                  <Route path="/register" element={<SignUp />} />
+                  <Route path="/login" element={<Login />} />
 
-                <Route element={<ProtectedRoutes />}>
-                  <Route path="/" element={<Home />}>
-                    <Route path="messages/:room" element={<ChatView />} />
-                    <Route path="/settings" element={<Settings />} />
+                  <Route element={<ProtectedRoutes />}>
+                    <Route path="/" element={<Home />}>
+                      <Route path="messages/:room" element={<ChatView />} />
+                      <Route path="/settings" element={<Settings />} />
+                    </Route>
                   </Route>
-                </Route>
-              </Routes>
+                </Routes>
+              </div>
             </div>
-          </div>
-        </Router>
-      </MessageProvider>
-    </ChatProvider>
+          </Router>
+        </MessageProvider>
+      </ChatProvider>
+    </UserProvider>
   );
 }
 

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useSocket } from '../hooks/useSocket';
 import { MessageContext } from '../contexts/MessageContext';
 import { ChatContext } from '../contexts/ChatContext';
+import { UserContext } from '../contexts/UserContext';
 import { addChat, getChatListByUserId } from '../api/chat-api';
 import { getRecipientUserIdByUsername, getUserId } from '../api/user-api';
 import AddChatInput from './AddChatInput';
@@ -19,7 +20,8 @@ export default function Sidebar() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
   const { setRecipientId } = useContext(MessageContext);
-  const { profilePicture, setUsername, selectedChat, setSelectedChat, chatList, setChatList, setActiveChatId, loggedInUsername } = useContext(ChatContext);
+  const { profilePicture, setUsername, loggedInUsername } = useContext(UserContext);
+  const { selectedChat, setSelectedChat, chatList, setChatList, setActiveChatId } = useContext(ChatContext);
 
   // Adds a new chat to the sidebar
   const handleAddChat = useCallback(

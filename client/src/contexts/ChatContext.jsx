@@ -5,11 +5,8 @@ const ChatContext = createContext();
 const ChatProvider = ({ children }) => {
   const [chatList, setChatList] = useState([]);
   const [selectedChat, setSelectedChat] = useState(null);
-  const [username, setUsername] = useState('');
   const [isBlocked, setIsBlocked] = useState(null);
   const [activeChatId, setActiveChatId] = useState(null);
-  const [loggedInUsername, setLoggedInUsername] = useState('');
-  const [profilePicture, setProfilePicture] = useState(null);
 
   return (
     <ChatContext.Provider
@@ -18,16 +15,10 @@ const ChatProvider = ({ children }) => {
         setChatList,
         selectedChat,
         setSelectedChat,
-        username,
-        setUsername,
         isBlocked,
         setIsBlocked,
         activeChatId,
         setActiveChatId,
-        loggedInUsername,
-        setLoggedInUsername,
-        profilePicture,
-        setProfilePicture,
       }}
     >
       {children}

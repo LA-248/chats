@@ -1,8 +1,9 @@
 import { io } from 'https://cdn.socket.io/4.7.5/socket.io.esm.min.js';
 import { ChatContext } from '../contexts/ChatContext.jsx';
 import { MessageContext } from '../contexts/MessageContext.jsx';
+import { UserContext } from '../contexts/UserContext.jsx';
 import { createContext, useEffect, useState, useContext } from 'react';
-import { Outlet, useLocation, useParams } from 'react-router-dom';
+import { Link, Outlet, useLocation, useParams } from 'react-router-dom';
 import { getUserData, getUserProfilePicture } from '../api/user-api.jsx';
 import { getChatListByUserId, updateChatList } from '../api/chat-api';
 import Sidebar from '../components/Sidebar.jsx';
@@ -12,7 +13,8 @@ export const SocketContext = createContext();
 
 export default function Home() {
   const { setMessages } = useContext(MessageContext);
-  const { setChatList, setLoggedInUsername, profilePicture, setProfilePicture } = useContext(ChatContext);
+  const { setChatList, setActiveChatId } = useContext(ChatContext);
+  const { setLoggedInUsername, profilePicture, setProfilePicture } = useContext(UserContext);
   const { room } = useParams(); // Extract room from URL
   const [socket, setSocket] = useState(null);
   const [errorMessage, setErrorMessage] = useState('');
@@ -94,8 +96,8 @@ export default function Home() {
             {errorMessage ? (
               <div className="error-message">{errorMessage}</div>
             ) : null}
-            <a
-              href="/"
+            <Link
+              to="/"
               style={{
                 color: '#1db954',
                 fontWeight: '600',
@@ -103,9 +105,10 @@ export default function Home() {
                 textDecoration: 'none',
                 padding: '10px 10px 0px 10px',
               }}
+              onClick={() => setActiveChatId(null)}
             >
               Chats
-            </a>
+            </Link>
             <Sidebar />
           </div>
           <div className="chat-window-container">

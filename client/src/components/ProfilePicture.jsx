@@ -1,8 +1,8 @@
 import { useContext, useRef } from 'react';
-import { ChatContext } from '../contexts/ChatContext';
+import { UserContext } from '../contexts/UserContext';
 
 export default function ProfilePicture({ errorMessage, setErrorMessage }) {
-  const { profilePicture, setProfilePicture } = useContext(ChatContext);
+  const { profilePicture, setProfilePicture } = useContext(UserContext);
   const fileInputRef = useRef(null);
   const formRef = useRef(null);
 

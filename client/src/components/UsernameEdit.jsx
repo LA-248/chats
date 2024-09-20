@@ -1,12 +1,12 @@
 import { useContext, useState } from 'react';
-import { ChatContext } from '../contexts/ChatContext';
+import { UserContext } from '../contexts/UserContext';
 import { updateChatName } from '../api/chat-api';
 import { updateUsernameInMessages } from '../api/message-api';
 import { updateUsername } from '../api/user-api';
 import Modal from './ModalTemplate';
 
 export default function UsernameEdit({ isModalOpen, setIsModalOpen, errorMessage, setErrorMessage }) {
-  const { loggedInUsername, setLoggedInUsername } = useContext(ChatContext);
+  const { loggedInUsername, setLoggedInUsername } = useContext(UserContext);
   const [usernameInput, setUsernameInput] = useState('');
   
   const handleFormSubmit = async (event) => {
