@@ -67,7 +67,7 @@ async function getUserProfilePicture() {
       credentials: 'include',
     });
 
-    // User has no profile picture, return null, which allows
+    // User has no profile picture, return null, allowing the default avatar to be set
     if (response.status === 204) {
       return null;
     }

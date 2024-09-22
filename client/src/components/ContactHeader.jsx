@@ -18,9 +18,11 @@ export default function ContactHeader() {
   // TODO: Clean up this code
   // Persist active chat data across page refreshes by syncing local storage with chat context values
   useEffect(() => {
-    setActiveChatId(activeChat.id);
-    setRecipientId(activeChat.recipient_id);
-  }, [setActiveChatId, activeChat.id, setRecipientId, activeChat.recipient_id]);
+    if (activeChat) {
+      setActiveChatId(activeChat.id);
+      setRecipientId(activeChat.recipient_id);
+    }
+  }, [activeChat, setActiveChatId, setRecipientId]);
 
   useEffect(() => {
     // Gets the user's block list, updates the block state, and disables message input if the recipient is blocked
@@ -33,7 +35,6 @@ export default function ContactHeader() {
         setErrorMessage(error.message);
       }
     };
-
     fetchAndSetBlockedStatus();
   }, [activeChat.recipient_id, setIsBlocked]);
 
@@ -78,10 +79,12 @@ export default function ContactHeader() {
         <div className="contact-header">
           <div className="picture-and-name">
             {(selectedChat || activeChat.name) && (
-              <div
+              <img
                 className="chat-pic"
+                src=""
+                alt="Profile"
                 style={{ height: '35px', width: '35px' }}
-              ></div>
+              ></img>
             )}
             <div
               className="recipient-username"
@@ -107,10 +110,12 @@ export default function ContactHeader() {
         ) : null}
 
         <div className="contact-info-container">
-          <div
+          <img
             className="chat-pic"
-            style={{ height: '70px', width: '70px' }}
-          ></div>
+            src=""
+            alt="Profile"
+            style={{ height: '100px', width: '100px' }}
+          ></img>
           <div>{selectedChat || activeChat.name}</div>
         </div>
 

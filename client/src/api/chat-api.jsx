@@ -151,5 +151,5 @@ export {
   addChat,
   updateChatList,
   updateChatName,
-  deleteChat
+  deleteChat,
 };

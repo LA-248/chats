@@ -60,7 +60,6 @@ const retrieveBlockList = async (req, res) => {
   try {
     const userId = req.session.passport.user;
     const blockList = await User.getBlockListById(userId);
-    console.log(blockList);
     res.status(200).json({ blockList: blockList });
   } catch (error) {
     console.error('Error retrieving block list:', error);
