@@ -107,7 +107,7 @@ export default function ChatList({ setSelectedChat, setUsername, chatSearchInput
               navigate(`/messages/${chat.room}`);
             }}
           >
-            <div className="chat-pic"></div>
+            <img className="chat-pic" alt="Profile" src={chat.recipient_profile_picture}></img>
             <div className="chat-info">
               <div className="chat-name-and-time">
                 <h4 className="chat-name">{chat.name}</h4>

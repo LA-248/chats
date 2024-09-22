@@ -2,7 +2,7 @@ import { pool } from '../../db/index.mjs';
 
 const Chat = {
   // CREATE OPERATIONS
-  
+
   createChatsTable: function () {
     return new Promise((resolve, reject) => {
       pool.query(
@@ -16,6 +16,7 @@ const Chat = {
           timestamp TEXT,
           timestamp_with_seconds TEXT,
           recipient_id INTEGER,
+          recipient_profile_picture TEXT,
           room TEXT
         )
       `,
@@ -40,14 +41,15 @@ const Chat = {
     timestamp,
     timestampWithSeconds,
     recipientId,
+    recipientProfilePicture,
     room
   ) {
     return new Promise((resolve, reject) => {
       pool.query(
         // Create a temporary table, allowing us to immediately retrieve the most recent state of the specified chat after insertion
         `WITH inserted AS (
-          INSERT INTO chats (user_id, name, last_message, has_new_message, timestamp, timestamp_with_seconds, recipient_id, room)
-          VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+          INSERT INTO chats (user_id, name, last_message, has_new_message, timestamp, timestamp_with_seconds, recipient_id, recipient_profile_picture, room)
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
           RETURNING *
         )
         SELECT *
@@ -61,6 +63,7 @@ const Chat = {
           timestamp,
           timestampWithSeconds,
           recipientId,
+          recipientProfilePicture,
           room,
         ],
         (err, result) => {
@@ -122,6 +125,31 @@ const Chat = {
         }
         return resolve();
       });
+    });
+  },
+
+  updateRecipientProfilePicture: function(userId) {
+    return new Promise((resolve, reject) => {
+      pool.query(`
+        UPDATE chats
+        SET recipient_profile_picture = (
+          SELECT profile_picture
+          FROM users
+          WHERE users.id = chats.recipient_id
+        )
+        WHERE EXISTS (
+          SELECT 1
+          FROM users
+          WHERE users.id = chats.recipient_id
+          AND users.id = $1
+        )`,
+        [userId],
+        (err) => {
+          if (err) {
+            return reject(`Database error: ${err.message}`);
+          }
+          return resolve();
+        });
     });
   },
 

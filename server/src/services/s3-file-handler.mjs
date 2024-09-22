@@ -23,8 +23,13 @@ const s3Upload = multer({
 
 // Create a presigned S3 URL for temporary access to the object
 const createPresignedUrl = (bucket, key) => {
-  const command = new GetObjectCommand({ Bucket: bucket, Key: key });
-  return getSignedUrl(s3Client, command, { expiresIn: 3600 });
+  try {
+    const command = new GetObjectCommand({ Bucket: bucket, Key: key });
+    return getSignedUrl(s3Client, command, { expiresIn: 3600 });
+  } catch (error) {
+    console.error('Error creating presigned S3 URL:', error);
+    throw new Error('Error retrieving profile pictures');
+  }
 };
 
 // Delete object from S3 bucket

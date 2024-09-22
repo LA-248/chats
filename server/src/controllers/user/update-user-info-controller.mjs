@@ -1,3 +1,4 @@
+import { Chat } from '../../models/chat-model.mjs';
 import { User } from '../../models/user-model.mjs';
 import { createPresignedUrl, deleteS3Object } from '../../services/s3-file-handler.mjs';
 
@@ -13,6 +14,10 @@ const uploadProfilePicture = async (req, res) => {
 
     // Upload new profile picture
     await User.updateProfilePictureById(req.file.key, userId);
+
+    // Update profile picture for all chats in which the user is a recipient
+    // This shows the new profile picture to other users  
+    await Chat.updateRecipientProfilePicture(userId);
 
     // Generate a temporary URL for viewing the uploaded profile picture from S3
     const presignedS3Url = await createPresignedUrl(process.env.BUCKET_NAME, req.file.key);

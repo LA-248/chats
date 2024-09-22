@@ -2,6 +2,7 @@ import { User } from '../../models/user-model.mjs';
 import { Message } from '../../models/message-model.mjs';
 import { Chat } from '../../models/chat-model.mjs';
 import { retrieveCurrentTimeWithSeconds } from '../../utils/time-utils.mjs';
+import { createPresignedUrl } from '../../services/s3-file-handler.mjs';
 
 // Handle adding a new chat to a user's chat list
 const addChat = async (req, res) => {
@@ -16,6 +17,7 @@ const addChat = async (req, res) => {
 
     const senderId = req.session.passport.user;
     const recipientId = req.body.recipientId;
+    const recipientProfilePicture = await User.getUserProfilePicture(recipientId);
     const currentTimeWithSeconds = retrieveCurrentTimeWithSeconds();
 
     // Ensure the room is the same for both users by sorting the user IDs
@@ -34,7 +36,7 @@ const addChat = async (req, res) => {
     const timestampWithSeconds = lastMessageData ? lastMessageData.event_time_seconds : currentTimeWithSeconds;
 
     // Insert new chat data into database
-    const newChatItem = await Chat.insertNewChat(userId, name, content, hasNewMessage, timestamp, timestampWithSeconds, recipientId, room);
+    const newChatItem = await Chat.insertNewChat(userId, name, content, hasNewMessage, timestamp, timestampWithSeconds, recipientId, recipientProfilePicture, room);
     console.log(newChatItem);
 
     // Send the new chat's data to the frontend so it can be added it to the UI
@@ -53,13 +55,24 @@ const retrieveChatList = async (req, res) => {
   try {
     const userId = req.session.passport.user;
     const chatList = await Chat.retrieveChatListByUserId(userId);
+
+    // For each chat in the chat list, generate a presigned S3 url using the recipient's profile picture file name
+    // This url is required to display the recipient's profile picture in the chat list UI
+    for (let i = 0; i < chatList.length; i++) {
+      const presignedS3Url = await createPresignedUrl(process.env.BUCKET_NAME, chatList[i].recipient_profile_picture);
+      chatList[i].recipient_profile_picture = presignedS3Url;
+    }
+
     // Send user's chat list data to the frontend so it can be displayed in the UI
     return res.status(200).json({ chatList: chatList });
   } catch (error) {
+    if (error.message === 'Error retrieving profile pictures') {
+      return res.status(500).json({ error: 'Unable to retrieve profile picture(s)' });
+    }
     console.error('Error retrieving chat list:', error);
     return res.status(500).json({ error: 'Unable to retrieve chat list.' });
   }
-}
+};
 
 // Delete a chat from a user's chat list
 const deleteChat = async (req, res) => {
@@ -74,7 +87,7 @@ const deleteChat = async (req, res) => {
     console.error('Error deleting chat:', error);
     return res.status(500).json({ error: 'Error deleting chat. Please try again.' });
   }
-}
+};
 
 // Update a chat in the chat with the latest message data
 const updateChatInChatList = async (req, res) => {
@@ -91,7 +104,7 @@ const updateChatInChatList = async (req, res) => {
     console.error('Error updating chat:', error);
     return res.status(500).json({ error: 'An unexpected error occurred' });
   }
-}
+};
 
 // Update the name of a chat - used for when a recipient changes their username
 const updateChatName = async (req, res) => {
@@ -104,6 +117,6 @@ const updateChatName = async (req, res) => {
     console.error('Error updating chat name:', error);
     return res.status(500).json({ error: 'An unexpected error occurred'});
   }
-}
+};
 
 export { addChat, retrieveChatList, deleteChat, updateChatInChatList, updateChatName };
