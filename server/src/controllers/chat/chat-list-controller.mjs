@@ -3,6 +3,8 @@ import { Message } from '../../models/message-model.mjs';
 import { Chat } from '../../models/chat-model.mjs';
 import { retrieveCurrentTimeWithSeconds } from '../../utils/time-utils.mjs';
 import { createPresignedUrl } from '../../services/s3-file-handler.mjs';
+import NodeCache from 'node-cache';
+const profilePictureUrlCache = new NodeCache({ stdTTL: 3600 });
 
 // Handle adding a new chat to a user's chat list
 const addChat = async (req, res) => {
@@ -59,7 +61,15 @@ const retrieveChatList = async (req, res) => {
     // For each chat in the chat list, generate a presigned S3 url using the recipient's profile picture file name
     // This url is required to display the recipient's profile picture in the chat list UI
     for (let i = 0; i < chatList.length; i++) {
-      const presignedS3Url = await createPresignedUrl(process.env.BUCKET_NAME, chatList[i].recipient_profile_picture);
+      const profilePictureFileName = chatList[i].recipient_profile_picture;
+      let presignedS3Url = profilePictureUrlCache.get(profilePictureFileName);
+
+      // If presigned url is not in cache, generate a new one
+      if (!presignedS3Url) {
+        presignedS3Url = await createPresignedUrl(process.env.BUCKET_NAME, profilePictureFileName);
+        profilePictureUrlCache.set(profilePictureFileName, presignedS3Url);
+      }
+
       chatList[i].recipient_profile_picture = presignedS3Url;
     }
 
