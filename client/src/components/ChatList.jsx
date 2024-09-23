@@ -77,19 +77,21 @@ export default function ChatList({ setSelectedChat, setUsername, chatSearchInput
   useEffect(() => {
     socket.on('custom-error', (errorResponse) => {
       setErrorMessage(errorResponse.error);
-    })
+    });
   }, [socket]);
 
   return (
     <div className="chat-list">
       {errorMessage ? (
-        <div className="error-message">{errorMessage}</div> 
+        <div className="error-message">{errorMessage}</div>
       ) : null}
       {filteredChats.map((chat) => (
         <div className="chat-item-container" key={chat.chat_id}>
           <div
             // Add the active class if the current chat's ID matches the activeChatId
-            className={`chat-item ${chat.chat_id === activeChatId ? 'active' : ''}`}
+            className={`chat-item ${
+              chat.chat_id === activeChatId ? 'active' : ''
+            }`}
             key={chat.chat_id}
             onMouseEnter={() => setHoverChatId(chat.chat_id)}
             onMouseLeave={() => setHoverChatId(null)}
@@ -97,9 +99,17 @@ export default function ChatList({ setSelectedChat, setUsername, chatSearchInput
               setActiveChatId(chat.chat_id);
               setSelectedChat(chat.name);
               setUsername(chat.name);
-              
+
               // Persist chat info in local storage
-              localStorage.setItem('active-chat', JSON.stringify({ id: chat.chat_id, name: chat.name, recipient_id: chat.recipient_id }));
+              localStorage.setItem(
+                'active-chat',
+                JSON.stringify({
+                  id: chat.chat_id,
+                  name: chat.name,
+                  recipient_id: chat.recipient_id,
+                  recipient_profile_picture: chat.recipient_profile_picture,
+                })
+              );
 
               // When opening a chat, if it has a new message(s), send the updated hasNewMessage status to the server
               handleMessageReadStatusUpdate(chat);
@@ -107,7 +117,15 @@ export default function ChatList({ setSelectedChat, setUsername, chatSearchInput
               navigate(`/messages/${chat.room}`);
             }}
           >
-            <img className="chat-pic" alt="Profile" src={chat.recipient_profile_picture}></img>
+            <img
+              className="chat-pic"
+              alt="Profile"
+              src={
+                chat.recipient_profile_picture
+                  ? chat.recipient_profile_picture
+                  : '/images/default-avatar.jpg'
+              }
+            ></img>
             <div className="chat-info">
               <div className="chat-name-and-time">
                 <h4 className="chat-name">{chat.name}</h4>

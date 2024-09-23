@@ -4,7 +4,7 @@ import { Chat } from '../../models/chat-model.mjs';
 import { retrieveCurrentTimeWithSeconds } from '../../utils/time-utils.mjs';
 import { createPresignedUrl } from '../../services/s3-file-handler.mjs';
 import NodeCache from 'node-cache';
-const profilePictureUrlCache = new NodeCache({ stdTTL: 3600 });
+const profilePictureUrlCache = new NodeCache({ stdTTL: 604800 });
 
 // Handle adding a new chat to a user's chat list
 const addChat = async (req, res) => {
@@ -61,16 +61,18 @@ const retrieveChatList = async (req, res) => {
     // For each chat in the chat list, generate a presigned S3 url using the recipient's profile picture file name
     // This url is required to display the recipient's profile picture in the chat list UI
     for (let i = 0; i < chatList.length; i++) {
-      const profilePictureFileName = chatList[i].recipient_profile_picture;
-      let presignedS3Url = profilePictureUrlCache.get(profilePictureFileName);
-
-      // If presigned url is not in cache, generate a new one
-      if (!presignedS3Url) {
-        presignedS3Url = await createPresignedUrl(process.env.BUCKET_NAME, profilePictureFileName);
-        profilePictureUrlCache.set(profilePictureFileName, presignedS3Url);
+      if (!(chatList[i].recipient_profile_picture === null)) {
+        const profilePictureFileName = chatList[i].recipient_profile_picture;
+        let presignedS3Url = profilePictureUrlCache.get(profilePictureFileName);
+  
+        // If presigned url is not in cache, generate a new one
+        if (!presignedS3Url) {
+          presignedS3Url = await createPresignedUrl(process.env.BUCKET_NAME, profilePictureFileName);
+          profilePictureUrlCache.set(profilePictureFileName, presignedS3Url);
+        }
+  
+        chatList[i].recipient_profile_picture = presignedS3Url;
       }
-
-      chatList[i].recipient_profile_picture = presignedS3Url;
     }
 
     // Send user's chat list data to the frontend so it can be displayed in the UI
@@ -89,7 +91,6 @@ const deleteChat = async (req, res) => {
   try {
     const userId = req.session.passport.user;
     const chatId = req.body.chatId;
-    console.log(chatId);
 
     const updatedChatList = await Chat.deleteChatByUserId(userId, chatId);
     return res.status(200).json({ updatedChatList: updatedChatList });
@@ -108,7 +109,6 @@ const updateChatInChatList = async (req, res) => {
     const room = req.body.room;
 
     const updatedChatList = await Chat.updateChatInChatList(lastMessage, timestamp, timestampWithSeconds, room);
-    console.log(updatedChatList);
     return res.status(200).json({ updatedChatList: updatedChatList });
   } catch (error) {
     console.error('Error updating chat:', error);

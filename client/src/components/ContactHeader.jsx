@@ -81,7 +81,11 @@ export default function ContactHeader() {
             {(selectedChat || activeChat.name) && (
               <img
                 className="chat-pic"
-                src=""
+                src={
+                  activeChat.recipient_profile_picture
+                    ? activeChat.recipient_profile_picture
+                    : '/images/default-avatar.jpg'
+                }
                 alt="Profile"
                 style={{ height: '35px', width: '35px' }}
               ></img>
@@ -112,7 +116,11 @@ export default function ContactHeader() {
         <div className="contact-info-container">
           <img
             className="chat-pic"
-            src=""
+            src={
+              activeChat.recipient_profile_picture
+                ? activeChat.recipient_profile_picture
+                : '/images/default-avatar.jpg'
+            }
             alt="Profile"
             style={{ height: '100px', width: '100px' }}
           ></img>
