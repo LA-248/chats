@@ -1,5 +1,6 @@
 import { Chat } from '../models/chat-model.mjs';
 import { Message } from '../models/message-model.mjs';
+import { User } from '../models/user-model.mjs';
 import { retrieveCurrentTime, retrieveCurrentTimeWithSeconds } from '../utils/time-utils.mjs';
 import addChatForRecipientOnMessageReceive from '../utils/handle-recipient-chat-list.mjs';
 import isSenderBlocked from '../utils/check-blocked-status.mjs';
@@ -40,6 +41,7 @@ const handleChatMessages = (socket, io) => {
     const targetUserSocketId = userSockets.get(recipientId);
 
     const senderId = socket.handshake.session.passport.user;
+    const senderProfilePicture = await User.getUserProfilePicture(senderId);
     const currentTime = retrieveCurrentTime();
     const currentTimeWithSeconds = retrieveCurrentTimeWithSeconds();
 
@@ -66,7 +68,7 @@ const handleChatMessages = (socket, io) => {
       await Chat.updateMessageReadStatus(true, roomName, recipientId);
 
       // Add the chat to the recipient's chat list if they don't have it
-      await addChatForRecipientOnMessageReceive(recipientId, username, message, true, currentTime, currentTimeWithSeconds, senderId, roomName);
+      await addChatForRecipientOnMessageReceive(recipientId, username, message, true, currentTime, currentTimeWithSeconds, senderId, senderProfilePicture, roomName);
 
       // Send the message to both room participants
       io.to(roomName).emit('chat-message', {
