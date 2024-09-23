@@ -25,7 +25,7 @@ const s3Upload = multer({
 const createPresignedUrl = (bucket, key) => {
   try {
     const command = new GetObjectCommand({ Bucket: bucket, Key: key });
-    return getSignedUrl(s3Client, command, { expiresIn: 3600 });
+    return getSignedUrl(s3Client, command, { expiresIn: 604800 });
   } catch (error) {
     console.error('Error creating presigned S3 URL:', error);
     throw new Error('Error retrieving profile pictures');

@@ -61,6 +61,7 @@ const retrieveChatList = async (req, res) => {
     // For each chat in the chat list, generate a presigned S3 url using the recipient's profile picture file name
     // This url is required to display the recipient's profile picture in the chat list UI
     for (let i = 0; i < chatList.length; i++) {
+      // Only run this code if the user has uploaded a profile picture
       if (!(chatList[i].recipient_profile_picture === null)) {
         const profilePictureFileName = chatList[i].recipient_profile_picture;
         let presignedS3Url = profilePictureUrlCache.get(profilePictureFileName);

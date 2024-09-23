@@ -1,6 +1,6 @@
 import { useContext, useState } from 'react';
 import { UserContext } from '../contexts/UserContext';
-import { updateChatName } from '../api/chat-api';
+import { updateUsernameInChatList } from '../api/chat-api';
 import { updateUsernameInMessages } from '../api/message-api';
 import { updateUsername } from '../api/user-api';
 import Modal from './ModalTemplate';
@@ -8,6 +8,7 @@ import Modal from './ModalTemplate';
 export default function UsernameEdit({ isModalOpen, setIsModalOpen, errorMessage, setErrorMessage }) {
   const { loggedInUsername, setLoggedInUsername } = useContext(UserContext);
   const [usernameInput, setUsernameInput] = useState('');
+  const [usernameEditStatus, setUsernameEditStatus] = useState('');
   
   const handleFormSubmit = async (event) => {
     event.preventDefault();
@@ -21,10 +22,14 @@ export default function UsernameEdit({ isModalOpen, setIsModalOpen, errorMessage
 
       await updateUsernameInMessages(usernameInput);
       await updateUsername(usernameInput);
-      await updateChatName(usernameInput);
+      await updateUsernameInChatList(usernameInput);
 
       setLoggedInUsername(usernameInput);
       setIsModalOpen(false);
+      setUsernameEditStatus('Username successfully changed');
+      setTimeout(() => {
+        setUsernameEditStatus('');
+      }, 5000);
     } catch (error) {
       setErrorMessage(error.message);
     }
@@ -47,6 +52,7 @@ export default function UsernameEdit({ isModalOpen, setIsModalOpen, errorMessage
             Edit
           </button>
         </div>
+        {usernameEditStatus ? <div className="status-text">{usernameEditStatus}</div> : null}
       </div>
 
       <Modal

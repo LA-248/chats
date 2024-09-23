@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { getRecipientUserIdByUsername } from '../api/user-api';
 import Modal from './ModalTemplate';
 
-export default function GroupChatModal({ isModalOpen, setIsModalOpen }) {
+export default function GroupChatModal({ isModalOpen, setIsModalOpen, loggedInUsername }) {
   const [groupName, setGroupName] = useState('');
   const [inputUsername, setInputUsername] = useState('');
   const [addedMembers, setAddedMembers] = useState([]);
@@ -17,6 +17,9 @@ export default function GroupChatModal({ isModalOpen, setIsModalOpen }) {
       }
       if (addedMembers.length >= 10) {
         throw new Error('You may only add up to 10 members');
+      }
+      if (inputUsername === loggedInUsername) {
+        throw new Error('You may not add yourself');
       }
       // Check if the user trying to be added exists in the database
       await getRecipientUserIdByUsername(inputUsername);

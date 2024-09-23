@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import clearErrorMessage from '../utils/ErrorMessageTimeout';
+import clearErrorMessage from '../utils/ClearErrorMessage';
 
 export default function AddChatInput({ inputUsername, setInputUsername, handleAddChat, errorMessage, setErrorMessage}) {
 

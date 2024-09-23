@@ -1,8 +1,9 @@
-import { useContext, useRef } from 'react';
+import { useContext, useRef, useState } from 'react';
 import { UserContext } from '../contexts/UserContext';
 
 export default function ProfilePicture({ errorMessage, setErrorMessage }) {
   const { profilePicture, setProfilePicture } = useContext(UserContext);
+  const [uploadStatus, setUploadStatus] = useState('');
   const fileInputRef = useRef(null);
   const formRef = useRef(null);
 
@@ -15,6 +16,7 @@ export default function ProfilePicture({ errorMessage, setErrorMessage }) {
     event.preventDefault();
     // Use formData to package the file to then be sent to the server
     const formData = new FormData(formRef.current);
+    setUploadStatus('Upload in progress...');
 
     try {
       const response = await fetch('http://localhost:8080/users/profile_pictures', {
@@ -30,6 +32,10 @@ export default function ProfilePicture({ errorMessage, setErrorMessage }) {
 
       const data = await response.json();
       setProfilePicture(data.fileUrl);
+      setUploadStatus('Upload successful');
+      setTimeout(() => {
+        setUploadStatus('');
+      }, 5000);
     } catch (error) {
       setErrorMessage(error.message);
     }
@@ -60,6 +66,9 @@ export default function ProfilePicture({ errorMessage, setErrorMessage }) {
       >
         Upload
       </button>
+      {uploadStatus ? (
+        <div className="status-text">{uploadStatus}</div> 
+      ) : null}
 
       {errorMessage ? (
         <div className="error-message">{errorMessage}</div>

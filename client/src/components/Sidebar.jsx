@@ -92,14 +92,17 @@ export default function Sidebar() {
       <GroupChatModal
         isModalOpen={isModalOpen}
         setIsModalOpen={setIsModalOpen}
+        loggedInUsername={loggedInUsername}
       />
 
-      <ChatSearch
-        chatSearchInputText={chatSearchInputText}
-        setChatSearchInputText={setChatSearchInputText}
-        chatList={chatList}
-        setChatList={setChatList}
-      />
+      {chatList.length > 0 ? (
+        <ChatSearch
+          chatSearchInputText={chatSearchInputText}
+          setChatSearchInputText={setChatSearchInputText}
+          chatList={chatList}
+          setChatList={setChatList}
+        />
+      ) : null}
 
       <ChatList
         userId={userId}
@@ -120,7 +123,10 @@ export default function Sidebar() {
         </div>
         <div className="user-navigation-buttons">
           <Logout />
-          <Link to="/settings" style={{ textDecoration: 'none', marginLeft: '10px'}}>
+          <Link
+            to="/settings"
+            style={{ textDecoration: 'none', marginLeft: '10px' }}
+          >
             <button
               className="settings-button"
               onClick={() => setActiveChatId(null)}

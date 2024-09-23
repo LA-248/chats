@@ -2,7 +2,7 @@ import { useContext, useEffect, useRef, useState } from 'react';
 import { ChatContext } from '../contexts/ChatContext';
 import { MessageContext } from '../contexts/MessageContext';
 import { getBlockList, updateBlockList } from '../api/user-api';
-import clearErrorMessage from '../utils/ErrorMessageTimeout';
+import clearErrorMessage from '../utils/ClearErrorMessage';
 import handleModalOutsideClick from '../utils/ModalOutsideClick';
 import Modal from './ModalTemplate';
 

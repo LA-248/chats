@@ -4,7 +4,7 @@ import { useSocket } from '../hooks/useSocket';
 import { MessageContext } from '../contexts/MessageContext';
 import { ChatContext } from '../contexts/ChatContext';
 import { getUserData } from '../api/user-api';
-import clearErrorMessage from '../utils/ErrorMessageTimeout';
+import clearErrorMessage from '../utils/ClearErrorMessage';
 
 export default function MessageInput() {
   const socket = useSocket();
@@ -54,7 +54,11 @@ export default function MessageInput() {
           <input
             id="message-input"
             type="text"
-            placeholder={isBlocked ? "You have this user blocked, unblock to message them" : "Message"}
+            placeholder={
+              isBlocked
+                ? 'You have this user blocked, unblock to message them'
+                : 'Message'
+            }
             value={message}
             onChange={(event) => setMessage(event.target.value)}
             disabled={isBlocked}
