@@ -29,7 +29,7 @@ export default function UsernameEdit({ isModalOpen, setIsModalOpen, errorMessage
       setUsernameEditStatus('Username successfully changed');
       setTimeout(() => {
         setUsernameEditStatus('');
-      }, 5000);
+      }, 3000);
     } catch (error) {
       setErrorMessage(error.message);
     }

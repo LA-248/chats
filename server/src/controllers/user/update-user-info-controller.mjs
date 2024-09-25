@@ -40,6 +40,7 @@ const updateUsernameById = async (req, res) => {
   }
 };
 
+// Update a user's list of blocked users
 const updateBlockedUsers = async (req, res) => {
   try {
     const userId = req.session.passport.user;

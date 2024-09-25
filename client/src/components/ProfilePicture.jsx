@@ -35,7 +35,7 @@ export default function ProfilePicture({ errorMessage, setErrorMessage }) {
       setUploadStatus('Upload successful');
       setTimeout(() => {
         setUploadStatus('');
-      }, 5000);
+      }, 3000);
     } catch (error) {
       setErrorMessage(error.message);
     }

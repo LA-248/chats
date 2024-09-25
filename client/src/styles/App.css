@@ -106,9 +106,9 @@ body {
 .chat-list {
   display: flex;
   flex-direction: column;
-  flex-grow: 1;
+  flex: 1 1;
   padding-bottom: 80px;
-  overflow-y: auto;
+  overflow: hidden;
 }
 
 .chat-item-container {
@@ -311,6 +311,12 @@ body {
   gap: 10px;
 }
 
+.user-profile-picture {
+  height: 40px;
+  width: 40px;
+  border-radius: 100%;
+}
+
 .account-username {
   font-size: 14px;
   font-weight: 600;
@@ -364,8 +370,6 @@ body {
   padding: 20px 20px 20px 20px;
   width: 100%;
   gap: 10px;
-  color: white;
-  background-color: #212121;
 }
 
 .picture-and-name {
@@ -377,6 +381,7 @@ body {
 
 .recipient-username {
   font-weight: 600;
+  color: white;
 }
 
 .recipient-username:hover {
@@ -397,6 +402,7 @@ body {
   flex-direction: column;
   flex: 1;
   overflow: hidden;
+  padding-top: 80px;
 }
 
 .messages-container {
@@ -415,7 +421,6 @@ body {
   gap: 5px;
   list-style-type: none;
   color: white;
-  padding-top: 70px;
   margin-top: auto;
 }
 

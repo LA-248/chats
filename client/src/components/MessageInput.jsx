@@ -2,33 +2,21 @@ import { v4 as uuidv4 } from 'uuid';
 import { useContext, useEffect, useState } from 'react';
 import { useSocket } from '../hooks/useSocket';
 import { MessageContext } from '../contexts/MessageContext';
+import { UserContext } from '../contexts/UserContext';
 import { ChatContext } from '../contexts/ChatContext';
-import { getUserData } from '../api/user-api';
 import clearErrorMessage from '../utils/ClearErrorMessage';
 
 export default function MessageInput() {
   const socket = useSocket();
   const { message, setMessage, recipientId } = useContext(MessageContext);
+  const { loggedInUsername } = useContext(UserContext);
   const { isBlocked } = useContext(ChatContext);
-  const [username, setUsername] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const username = loggedInUsername;
 
   useEffect(() => {
     clearErrorMessage(errorMessage, setErrorMessage);
   }, [errorMessage]);
-
-  useEffect(() => {
-    // Retrieve user account data
-    const fetchUser = async () => {
-      try {
-        const userData = await getUserData();
-        setUsername(userData.username);
-      } catch (error) {
-        setErrorMessage(error.message);
-      }
-    };
-    fetchUser();
-  }, []);
 
   const submitChatMessage = (event) => {
     event.preventDefault();
@@ -36,7 +24,7 @@ export default function MessageInput() {
     if (message) {
       // Compute a unique offset
       const clientOffset = uuidv4();
-      // Send the message to the server
+      // Send the message and its metadata to the server
       socket.emit('chat-message', { username, recipientId, message }, clientOffset, (response) => {
         if (response) {
           setErrorMessage(response);

@@ -5,7 +5,6 @@ import { retrieveCurrentTime, retrieveCurrentTimeWithSeconds } from '../utils/ti
 import addChatForRecipientOnMessageReceive from '../utils/handle-recipient-chat-list.mjs';
 import isSenderBlocked from '../utils/check-blocked-status.mjs';
 
-// TODO: Store user-socket associations in database
 // Store user-to-socket mappings
 // This allows for socket connections to be associated with the correct user
 const userSockets = new Map();
@@ -56,12 +55,9 @@ const handleChatMessages = (socket, io) => {
       // Make the sender join the room
       socket.join(roomName);
 
-      console.log(`Message received: ${message} from ${username} in room: ${roomName}`);
-
       // Check if the sender is blocked from messaging the recipient, throw an error if they are
       await isSenderBlocked(recipientId, senderId);
 
-      // Insert message into the database with relevant metadata
       const newMessage = await Message.insertNewMessage(message, username, senderId, recipientId, roomName, currentTime, currentTimeWithSeconds, clientOffset);
 
       // Set the chat as unread for the recipient when a new message is received
@@ -108,6 +104,18 @@ const displayChatMessages = async (socket, room) => {
   }
 };
 
+const updateMessageReadStatus = (socket, userId) => {
+  // Update message read status in database
+  socket.on('update-message-read-status', async ({ hasNewMessage, room }) => {
+    try {
+      await Chat.updateMessageReadStatus(hasNewMessage, room, userId);
+    } catch (error) {
+      console.error('Error updating read status:', error);
+      socket.emit('custom-error', { error: 'Unable to update message status' });
+    }
+  });
+}
+
 // Listen for message delete events and emit updated message list to the room
 const processDeleteMessageEvent = (socket, io) => {
   socket.on('message-delete-event', async (room) => {
@@ -122,4 +130,10 @@ const processDeleteMessageEvent = (socket, io) => {
   });
 }
 
-export { manageSocketConnections, handleChatMessages, displayChatMessages, processDeleteMessageEvent };
+export {
+  manageSocketConnections,
+  handleChatMessages,
+  displayChatMessages,
+  updateMessageReadStatus,
+  processDeleteMessageEvent
+};

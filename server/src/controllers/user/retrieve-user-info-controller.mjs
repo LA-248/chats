@@ -37,7 +37,7 @@ const retrieveUserIdFromSession = async (req, res) => {
   }
 };
 
-const retrieveProfilePicture = async (req, res) => {
+const retrieveProfilePictureById = async (req, res) => {
   try {
     const userId = req.session.passport.user;
     const fileName = await User.getUserProfilePicture(userId);
@@ -56,7 +56,7 @@ const retrieveProfilePicture = async (req, res) => {
   }
 }
 
-const retrieveBlockList = async (req, res) => {
+const retrieveBlockListById = async (req, res) => {
   try {
     const userId = req.session.passport.user;
     const blockList = await User.getBlockListById(userId);
@@ -71,6 +71,6 @@ export {
   retrieveUserById,
   retrieveIdByUsername,
   retrieveUserIdFromSession,
-  retrieveProfilePicture,
-  retrieveBlockList
+  retrieveProfilePictureById,
+  retrieveBlockListById
 };

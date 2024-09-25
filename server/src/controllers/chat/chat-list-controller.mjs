@@ -117,7 +117,7 @@ const updateChatInChatList = async (req, res) => {
   }
 };
 
-// Update the name of a chat - used for when a recipient changes their username
+// Update the name of a chat in the chat list - for when a user changes their username
 const updateChatName = async (req, res) => {
   try {
     const newUsername = req.body.newUsername;

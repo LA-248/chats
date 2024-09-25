@@ -10,7 +10,7 @@ const s3Upload = multer({
   storage: multerS3({
     s3: s3Client,
     bucket: process.env.BUCKET_NAME,
-    cacheControl: 'max-age=31536000', // Cache the uploaded image - reducing the need to re-fetch it from the server
+    cacheControl: 'max-age=31536000', // Cache the uploaded image - reducing the need to re-fetch it from the database
     metadata: function (req, file, cb) {
       cb(null, { fieldName: file.fieldname });
     },

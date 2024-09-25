@@ -3,15 +3,15 @@ import { createContext, useState } from 'react';
 const UserContext = createContext();
 
 const UserProvider = ({ children }) => {
-  const [username, setUsername] = useState('');
+  const [loggedInUserId, setLoggedInUserId] = useState(null);
   const [loggedInUsername, setLoggedInUsername] = useState('');
   const [profilePicture, setProfilePicture] = useState(null);
 
   return (
     <UserContext.Provider
       value={{
-        username,
-        setUsername,
+        loggedInUserId,
+        setLoggedInUserId,
         loggedInUsername,
         setLoggedInUsername,
         profilePicture,

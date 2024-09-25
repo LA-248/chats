@@ -14,7 +14,7 @@ export const SocketContext = createContext();
 export default function Home() {
   const { setMessages } = useContext(MessageContext);
   const { setChatList, setActiveChatId } = useContext(ChatContext);
-  const { setLoggedInUsername, profilePicture, setProfilePicture } = useContext(UserContext);
+  const { loggedInUserId, setLoggedInUserId, setLoggedInUsername, profilePicture, setProfilePicture } = useContext(UserContext);
   const { room } = useParams(); // Extract room from URL
   const [socket, setSocket] = useState(null);
   const [errorMessage, setErrorMessage] = useState('');
@@ -25,13 +25,14 @@ export default function Home() {
     const fetchUser = async () => {
       try {
         const userData = await getUserData();
+        setLoggedInUserId(userData.userId);
         setLoggedInUsername(userData.username);
       } catch (error) {
         setErrorMessage(error.message);
       }
     };
     fetchUser();
-  }, [setLoggedInUsername]);
+  }, [setLoggedInUserId, setLoggedInUsername]);
 
   // Retrieve profile picture for display
   useEffect(() => {
@@ -64,6 +65,13 @@ export default function Home() {
 
     return () => socketInstance.disconnect();
   }, []);
+
+  // Needed to store user-to-socket mappings on the server
+  useEffect(() => {
+    if (socket && loggedInUserId) {
+      socket.emit('authenticate', loggedInUserId);
+    }
+  }, [socket, loggedInUserId]);
 
   useEffect(() => {
     if (socket) {

@@ -4,7 +4,7 @@ import { useSocket } from '../hooks/useSocket';
 import { ChatContext } from '../contexts/ChatContext';
 import { getChatListByUserId, deleteChat } from '../api/chat-api';
 
-export default function ChatList({ setSelectedChat, setUsername, chatSearchInputText, setChatSearchInputText }) {
+export default function ChatList({ setSelectedChat, setRecipientUsername, chatSearchInputText, setChatSearchInputText }) {
   const socket = useSocket();
   const { chatList, setChatList, activeChatId, setActiveChatId } = useContext(ChatContext);
   const [filteredChats, setFilteredChats] = useState([]);
@@ -98,7 +98,7 @@ export default function ChatList({ setSelectedChat, setUsername, chatSearchInput
             onClick={async () => {
               setActiveChatId(chat.chat_id);
               setSelectedChat(chat.name);
-              setUsername(chat.name);
+              setRecipientUsername(chat.name);
 
               // Persist chat info in local storage
               localStorage.setItem(

@@ -21,12 +21,13 @@ import {
   displayChatMessages,
   handleChatMessages,
   manageSocketConnections,
-  processDeleteMessageEvent
-} from './handlers/socket-handlers.mjs';
-import { Chat } from './models/chat-model.mjs';
+  processDeleteMessageEvent,
+  updateMessageReadStatus
+} from './handlers/socket-handlers.mjs';;
 
 const app = express();
 const server = createServer(app);
+const port = process.env.PORT || 4000;
 
 app.set('view engine', 'ejs');
 app.use(express.static('../../client/src/styles'));
@@ -60,15 +61,6 @@ const io = new Server(server, {
   connectionStateRecovery: {},
 });
 
-app.get('/', (req, res) => {
-  if (req.session.passport && req.session.passport.user) {
-    console.log(req.session.passport.user);
-    res.send(`User ID: ${req.session.passport.user}`);
-  } else {
-    res.send('User not authenticated');
-  }
-});
-
 io.use(sharedSession(sessionMiddleware, { autoSave: true }));
 
 io.on('connection', (socket) => {
@@ -95,26 +87,13 @@ io.on('connection', (socket) => {
       socket.leave(room);
     });
 
-    // Update message read status in database
-    socket.on('update-message-read-status', async ({ hasNewMessage, room }) => {
-      try {
-        await Chat.updateMessageReadStatus(hasNewMessage, room, userId);
-      } catch (error) {
-        console.error('Error updating read status:', error);
-        socket.emit('custom-error', { error: 'Unable to update message status' });
-      }
-    });
-
+    updateMessageReadStatus(socket, userId);
     processDeleteMessageEvent(socket, io);
   } else {
     socket.disconnect();
   }
 });
 
-const port = process.env.PORT || 4000;
-
-const result = await pool.query('SELECT NOW()');
-console.log(result.rows[0]);
 createTables();
 
 server.listen(port, () => {
