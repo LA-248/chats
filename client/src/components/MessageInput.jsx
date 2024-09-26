@@ -5,18 +5,17 @@ import { MessageContext } from '../contexts/MessageContext';
 import { UserContext } from '../contexts/UserContext';
 import { ChatContext } from '../contexts/ChatContext';
 import clearErrorMessage from '../utils/ClearErrorMessage';
+import data from '@emoji-mart/data';
+import Picker from '@emoji-mart/react';
 
 export default function MessageInput() {
   const socket = useSocket();
   const { message, setMessage, recipientId } = useContext(MessageContext);
   const { loggedInUsername } = useContext(UserContext);
   const { isBlocked } = useContext(ChatContext);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const username = loggedInUsername;
-
-  useEffect(() => {
-    clearErrorMessage(errorMessage, setErrorMessage);
-  }, [errorMessage]);
 
   const submitChatMessage = (event) => {
     event.preventDefault();
@@ -34,10 +33,31 @@ export default function MessageInput() {
     }
   };
 
+  // Add the emoji(s) to the existing message
+  const handleAddEmoji = (emoji) => {
+    setMessage((prevMessage) => prevMessage + emoji.native);
+  };
+
+  useEffect(() => {
+    clearErrorMessage(errorMessage, setErrorMessage);
+  }, [errorMessage]);
+
   return (
     <div>
       <form id="message-form" action="" onSubmit={submitChatMessage}>
-        <div className="error-message" style={{marginBottom: '10px', textAlign: 'left'}}>{errorMessage}</div>
+        {showEmojiPicker ? (
+          <div className="emoji-picker-container">
+            <Picker data={data} onEmojiSelect={handleAddEmoji} />
+          </div>
+        ) : null}
+
+        <div
+          className="error-message"
+          style={{ marginBottom: '10px', textAlign: 'left' }}
+        >
+          {errorMessage}
+        </div>
+
         <div className="message-input-container">
           <input
             id="message-input"
@@ -51,7 +71,16 @@ export default function MessageInput() {
             onChange={(event) => setMessage(event.target.value)}
             disabled={isBlocked}
           />
-          <button className="submit-message-button">Send</button>
+          <button
+            type="button"
+            className="emoji-picker-button"
+            onClick={() => setShowEmojiPicker((value) => !value)}
+          >
+            Emojis
+          </button>
+          <button type="submit" className="submit-message-button">
+            Send
+          </button>
         </div>
       </form>
     </div>
