@@ -40,6 +40,7 @@ body {
 
 /* SIDEBAR */
 
+.sidebar,
 .sidebar-container {
   display: flex;
   flex-direction: column;
@@ -106,9 +107,15 @@ body {
 .chat-list {
   display: flex;
   flex-direction: column;
-  flex: 1 1;
-  padding-bottom: 80px;
+  overflow-y: auto;
+}
+
+.chat-list-and-profile-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
   overflow: hidden;
+  height: 100vh;
 }
 
 .chat-item-container {
@@ -304,8 +311,6 @@ body {
 .profile-settings-container {
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  position: absolute;
   bottom: 0;
   padding: 10px;
   width: 350px;

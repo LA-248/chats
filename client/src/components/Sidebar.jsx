@@ -99,18 +99,19 @@ export default function Sidebar() {
         </div>
       )}
 
-      <ChatList
-        setSelectedChat={setSelectedChat}
-        setRecipientUsername={setRecipientUsername}
-        chatSearchInputText={chatSearchInputText}
-        setChatSearchInputText={setChatSearchInputText}
-      />
-      
-      <UserProfile
-        profilePicture={profilePicture}
-        loggedInUsername={loggedInUsername}
-        setActiveChatId={setActiveChatId}
-      />
+      <div className="chat-list-and-profile-container">
+        <ChatList
+          setSelectedChat={setSelectedChat}
+          setRecipientUsername={setRecipientUsername}
+          chatSearchInputText={chatSearchInputText}
+          setChatSearchInputText={setChatSearchInputText}
+        />
+        <UserProfile
+          profilePicture={profilePicture}
+          loggedInUsername={loggedInUsername}
+          setActiveChatId={setActiveChatId}
+        />
+      </div>
     </div>
   );
 }
