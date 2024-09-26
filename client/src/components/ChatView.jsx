@@ -13,7 +13,7 @@ import handleModalOutsideClick from '../utils/ModalOutsideClick';
 import MessageList from './MessageList';
 
 function ChatView() {
-  const { messages, setMessages } = useContext(MessageContext);
+  const { filteredMessages, setMessages } = useContext(MessageContext);
   const { setChatList } = useContext(ChatContext);
   const { room } = useParams(); // Extract room from URL
   const socket = useSocket();
@@ -27,7 +27,7 @@ function ChatView() {
   // Message deletion logic
   const handleMessageDelete = async (messageId, messageIndex) => {
     try {
-      const messageList = [...messages];
+      const messageList = [...filteredMessages];
       const isLastMessage = messageIndex === messageList.length - 1;
       const newLastMessage = messageList.length - 2;
 
@@ -70,7 +70,8 @@ function ChatView() {
     <div className="chat-view-container">
       <ContactHeader />
 
-      <MessageList 
+      <MessageList
+        filteredMessages={filteredMessages}
         room={room}
         hoveredIndex={hoveredIndex}
         setHoveredIndex={setHoveredIndex}

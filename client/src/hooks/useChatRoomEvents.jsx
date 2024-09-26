@@ -7,7 +7,7 @@ export const useChatRoomEvents = (socket, room, setMessages, setErrorMessage) =>
       setMessages(initialMessages);
     };
 
-    const handleChatListUpdate = (updatedMessageList) => {
+    const handleMessageListUpdate = (updatedMessageList) => {
       setMessages(updatedMessageList);
     };
 
@@ -15,12 +15,12 @@ export const useChatRoomEvents = (socket, room, setMessages, setErrorMessage) =>
     // Display all messages on load when opening a chat
     socket.on('initial-messages', displayInitialMessages);
     // Update chat message list for everyone in a room after a message is deleted
-    socket.on('message-delete-event', handleChatListUpdate);
+    socket.on('message-delete-event', handleMessageListUpdate);
 
     return () => {
       socket.emit('leave-room', room);
       socket.off('initial-messages', displayInitialMessages);
-      socket.off('message-delete-event', handleChatListUpdate);
+      socket.off('message-delete-event', handleMessageListUpdate);
     };
   }, [socket, room, setMessages, setErrorMessage]);
 

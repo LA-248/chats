@@ -5,6 +5,7 @@ const MessageContext = createContext();
 const MessageProvider = ({ children }) => {
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState([]);
+  const [filteredMessages, setFilteredMessages] = useState([]);
   const [recipientId, setRecipientId] = useState(null);
   const [recipientUsername, setRecipientUsername] = useState('');
 
@@ -15,6 +16,8 @@ const MessageProvider = ({ children }) => {
         setMessage,
         messages,
         setMessages,
+        filteredMessages,
+        setFilteredMessages,
         recipientId,
         setRecipientId,
         recipientUsername,

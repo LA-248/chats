@@ -1,18 +1,17 @@
 import React, { useContext } from 'react';
 import { UserContext } from '../contexts/UserContext';
-import { MessageContext } from '../contexts/MessageContext';
 
 export default function MessageList({
+  filteredMessages,
   room,
   hoveredIndex,
   setHoveredIndex,
   setIsModalOpen,
   setMessageId,
   setMessageIndex,
-  errorMessage
+  errorMessage,
 }) {
   const { loggedInUserId } = useContext(UserContext);
-  const { messages } = useContext(MessageContext);
 
   return (
     <>
@@ -21,7 +20,7 @@ export default function MessageList({
         <div className="chat-content-container">
           <div className="messages-container">
             <ul id="messages">
-              {messages.map((messageData, index) => (
+              {filteredMessages.map((messageData, index) => (
                 <li
                   className="individual-message"
                   key={index}

@@ -5,12 +5,14 @@ import { getBlockList, updateBlockList } from '../api/user-api';
 import clearErrorMessage from '../utils/ClearErrorMessage';
 import handleModalOutsideClick from '../utils/ModalOutsideClick';
 import Modal from './ModalTemplate';
+import MessageSearch from './MessageSearch';
 
 export default function ContactHeader() {
   const { isBlocked, setIsBlocked, selectedChat, setActiveChatId } = useContext(ChatContext);
-  const { setRecipientId } = useContext(MessageContext);
+  const { messages, setRecipientId, setFilteredMessages } = useContext(MessageContext);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [blockList, setBlockList] = useState([]);
+  const [messageSearchInput, setMessageSearchInput] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const modalRef = useRef();
   const activeChat = JSON.parse(localStorage.getItem('active-chat'));
@@ -97,6 +99,13 @@ export default function ContactHeader() {
               {selectedChat || activeChat.name}
             </div>
           </div>
+
+          <MessageSearch 
+            messageSearchInput={messageSearchInput}
+            setMessageSearchInput={setMessageSearchInput}
+            messages={messages}
+            setFilteredMessages={setFilteredMessages}
+          />
         </div>
       </div>
 
