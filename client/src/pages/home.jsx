@@ -84,7 +84,7 @@ export default function Home() {
         }
 
         // Update chat in state and database with most recent message sent and time
-        await updateChatList(messageData.message, messageData.eventTime, messageData.eventTimeWithSeconds, messageData.room);
+        await updateChatList(messageData.content, messageData.eventTime, messageData.eventTimeWithSeconds, messageData.room);
         const storedChats = await getChatListByUserId();
         setChatList(storedChats);
       };

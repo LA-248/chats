@@ -24,7 +24,7 @@ const manageSocketConnections = (socket) => {
 
 const formatMessage = (message) => ({
   from: message.sender_username,
-  message: message.content,
+  content: message.content,
   eventTime: message.event_time,
   eventTimeWithSeconds: message.event_time_seconds,
   id: message.id,
@@ -69,7 +69,7 @@ const handleChatMessages = (socket, io) => {
       // Send the message to both room participants
       io.to(roomName).emit('chat-message', {
         from: username,
-        message: message,
+        content: message,
         room: roomName,
         eventTime: currentTime,
         eventTimeWithSeconds: currentTimeWithSeconds,

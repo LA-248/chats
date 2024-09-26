@@ -244,6 +244,14 @@ body {
   align-items: center;
 }
 
+#no-chats-state {
+  font-size: 14px;
+  font-weight: 600;
+  padding: 10px;
+  color: white;
+  text-align: center;
+}
+
 /* Add Chat Input */
 
 .username-form-container {
@@ -397,7 +405,7 @@ body {
   width: 150px;
 }
 
-/* Messages List */
+/* Message List */
 
 .chat-view-container {
   height: 100vh;
@@ -484,6 +492,12 @@ body {
 .message-delete-button:hover {
   cursor: pointer;
   text-decoration: underline;
+}
+
+#no-messages-state {
+  font-size: 14px;
+  font-weight: 600;
+  padding: 10px;
 }
 
 /* Message Input */

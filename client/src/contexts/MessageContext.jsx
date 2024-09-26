@@ -8,6 +8,7 @@ const MessageProvider = ({ children }) => {
   const [filteredMessages, setFilteredMessages] = useState([]);
   const [recipientId, setRecipientId] = useState(null);
   const [recipientUsername, setRecipientUsername] = useState('');
+  const [messageSearchValueText, setMessageSearchValueText] = useState('');
 
   return (
     <MessageContext.Provider
@@ -22,6 +23,8 @@ const MessageProvider = ({ children }) => {
         setRecipientId,
         recipientUsername,
         setRecipientUsername,
+        messageSearchValueText,
+        setMessageSearchValueText,
       }}
     >
       {children}

@@ -35,7 +35,7 @@ function ChatView() {
       // update the chat list with the new last message's details after deletion
       if (isLastMessage && messageList.length > 1) {
         await updateChatList(
-          messageList[newLastMessage].message,
+          messageList[newLastMessage].content,
           messageList[newLastMessage].eventTime,
           messageList[newLastMessage].eventTimeWithSeconds,
           room

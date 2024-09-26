@@ -1,21 +1,22 @@
-import { useEffect } from 'react';
+import { useContext, useEffect } from 'react';
+import { MessageContext } from '../contexts/MessageContext';
 
 export default function MessageSearch({
-  messageSearchInput,
-  setMessageSearchInput,
   messages,
   setFilteredMessages,
 }) {
+  const { messageSearchValueText, setMessageSearchValueText } = useContext(MessageContext);
+
   useEffect(() => {
-    if (messageSearchInput) {
+    if (messageSearchValueText) {
       const filtered = messages.filter((message) =>
-        message.message.toLowerCase().includes(messageSearchInput.toLowerCase())
+        message.content.toLowerCase().includes(messageSearchValueText.toLowerCase())
       );
       setFilteredMessages(filtered);
     } else {
       setFilteredMessages(messages);
     }
-  }, [setFilteredMessages, messageSearchInput, messages]);
+  }, [setFilteredMessages, messageSearchValueText, messages]);
 
   return (
     <div className="message-search-container">
@@ -23,8 +24,8 @@ export default function MessageSearch({
         id="message-search-input"
         type="text"
         placeholder="Search messages"
-        value={messageSearchInput}
-        onChange={(event) => setMessageSearchInput(event.target.value)}
+        value={messageSearchValueText}
+        onChange={(event) => setMessageSearchValueText(event.target.value)}
       />
     </div>
   );

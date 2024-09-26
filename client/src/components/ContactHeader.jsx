@@ -12,7 +12,6 @@ export default function ContactHeader() {
   const { messages, setRecipientId, setFilteredMessages } = useContext(MessageContext);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [blockList, setBlockList] = useState([]);
-  const [messageSearchInput, setMessageSearchInput] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const modalRef = useRef();
   const activeChat = JSON.parse(localStorage.getItem('active-chat'));
@@ -101,8 +100,6 @@ export default function ContactHeader() {
           </div>
 
           <MessageSearch 
-            messageSearchInput={messageSearchInput}
-            setMessageSearchInput={setMessageSearchInput}
             messages={messages}
             setFilteredMessages={setFilteredMessages}
           />
