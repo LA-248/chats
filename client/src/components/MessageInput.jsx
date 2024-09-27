@@ -47,7 +47,11 @@ export default function MessageInput() {
       <form id="message-form" action="" onSubmit={submitChatMessage}>
         {showEmojiPicker ? (
           <div className="emoji-picker-container">
-            <Picker data={data} onEmojiSelect={handleAddEmoji} />
+            <Picker
+              data={data}
+              onEmojiSelect={handleAddEmoji}
+              onClickOutside={() => setShowEmojiPicker(false)}
+            />
           </div>
         ) : null}
 
@@ -74,7 +78,10 @@ export default function MessageInput() {
           <button
             type="button"
             className="emoji-picker-button"
-            onClick={() => setShowEmojiPicker((value) => !value)}
+            onClick={(event) => {
+              event.stopPropagation();
+              setShowEmojiPicker((value) => !value);
+            }}
           >
             Emojis
           </button>

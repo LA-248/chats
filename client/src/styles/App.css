@@ -455,7 +455,6 @@ body {
 }
 
 .message-form-container {
-  position: relative;
   padding: 20px;
   background-color: #212121;
   border-top: 1px solid rgb(75, 73, 73);
@@ -550,7 +549,7 @@ body {
 
 .emoji-picker-container {
   position: absolute;
-  bottom: 100%;
+  bottom: 10%;
   right: 0;
   z-index: 1000;
   padding: 10px;
