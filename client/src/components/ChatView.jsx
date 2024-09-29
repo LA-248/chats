@@ -8,6 +8,7 @@ import MessageInput from './MessageInput';
 import handleModalOutsideClick from '../utils/ModalOutsideClick';
 import MessageList from './MessageList';
 import DeleteMessageModal from './DeleteMessageModal';
+import EditMessageModal from './EditMessageModal';
 
 function ChatView() {
   const { filteredMessages, setMessages } = useContext(MessageContext);
@@ -15,6 +16,7 @@ function ChatView() {
   const socket = useSocket();
   const [messageId, setMessageId] = useState(null);
   const [messageIndex, setMessageIndex] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [hoveredIndex, setHoveredIndex] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -35,6 +37,7 @@ function ChatView() {
         room={room}
         hoveredIndex={hoveredIndex}
         setHoveredIndex={setHoveredIndex}
+        setIsEditModalOpen={setIsEditModalOpen}
         setIsModalOpen={setIsModalOpen}
         setMessageId={setMessageId}
         setMessageIndex={setMessageIndex}
@@ -50,6 +53,15 @@ function ChatView() {
         messageIndex={messageIndex}
         isModalOpen={isModalOpen}
         setIsModalOpen={setIsModalOpen}
+        errorMessage={errorMessage}
+        setErrorMessage={setErrorMessage}
+      />
+
+      <EditMessageModal
+        messageId={messageId}
+        messageIndex={messageIndex}
+        isModalOpen={isEditModalOpen}
+        setIsModalOpen={setIsEditModalOpen}
         errorMessage={errorMessage}
         setErrorMessage={setErrorMessage}
       />

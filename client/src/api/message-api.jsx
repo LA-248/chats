@@ -1,6 +1,26 @@
-async function updateUsernameInMessages(username) {
+async function editMessageById(newMessage, messageId) {
   try {
     const response = await fetch('http://localhost:8080/messages', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ newMessage: newMessage, messageId: messageId }),
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      const errorResponse = await response.json();
+      throw new Error(errorResponse.error);
+    }
+  } catch (error) {
+    throw error;
+  }
+}
+
+async function updateUsernameInMessages(username) {
+  try {
+    const response = await fetch('http://localhost:8080/messages/usernames', {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -38,4 +58,4 @@ async function deleteMessageById(messageId) {
   }
 }
 
-export { updateUsernameInMessages, deleteMessageById };
+export { editMessageById, updateUsernameInMessages, deleteMessageById };

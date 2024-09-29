@@ -489,11 +489,22 @@ body {
   overflow-wrap: break-word;
 }
 
+.message-actions-button {
+  display: flex;
+  gap: 8px;
+}
+
+.message-edit-button {
+  font-size: 12px;
+  color: white;
+}
+
 .message-delete-button {
   font-size: 12px;
   color: red;
 }
 
+.message-edit-button:hover,
 .message-delete-button:hover {
   cursor: pointer;
   text-decoration: underline;
@@ -632,6 +643,10 @@ body {
 .modal-heading {
   font-size: 20px;
   font-weight: 600;
+}
+
+.modal-subtext {
+  font-size: 14px;
 }
 
 /* Modal action buttons */
@@ -826,4 +841,22 @@ body {
 .confirm-username-edit-button:hover {
   cursor: pointer;
   opacity: 0.9;
+}
+
+/* EDIT MESSAGE MODAL */
+
+#message-edit-textarea {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+  font-size: 13px;
+  border-radius: 10px;
+  background-color: #303030;
+  color: white;
+  border: solid 1px gray;
+  font-weight: 400;
+  flex-grow: 1;
+  resize: none;
+  min-height: 75px;
 }

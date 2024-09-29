@@ -7,13 +7,14 @@ export default function MessageList({
   room,
   hoveredIndex,
   setHoveredIndex,
+  setIsEditModalOpen,
   setIsModalOpen,
   setMessageId,
   setMessageIndex,
   errorMessage,
 }) {
   const { loggedInUserId } = useContext(UserContext);
-  const { messageSearchValueText } = useContext(MessageContext);
+  const { setCurrentMessage, messageSearchValueText } = useContext(MessageContext);
 
   return (
     <>
@@ -40,15 +41,28 @@ export default function MessageList({
                         </div>
                         {hoveredIndex === index &&
                         loggedInUserId === messageData.senderId ? (
-                          <div
-                            className="message-delete-button"
-                            onClick={() => {
-                              setIsModalOpen(true);
-                              setMessageId(messageData.id);
-                              setMessageIndex(index);
-                            }}
-                          >
-                            Delete
+                          <div className="message-actions-button">
+                            <div
+                              className="message-edit-button"
+                              onClick={() => {
+                                setIsEditModalOpen(true);
+                                setMessageId(messageData.id);
+                                setMessageIndex(index);
+                                setCurrentMessage(messageData.content);
+                              }}
+                            >
+                              Edit
+                            </div>
+                            <div
+                              className="message-delete-button"
+                              onClick={() => {
+                                setIsModalOpen(true);
+                                setMessageId(messageData.id);
+                                setMessageIndex(index);
+                              }}
+                            >
+                              Delete
+                            </div>
                           </div>
                         ) : null}
                       </div>

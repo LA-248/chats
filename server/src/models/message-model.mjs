@@ -32,6 +32,17 @@ const Message  = {
 
   // UPDATE OPERATIONS
 
+  editMessage: function(newMessage, messageId) {
+    return new Promise((resolve, reject) => {
+      pool.query('UPDATE messages SET content = $1 WHERE id = $2', [newMessage, messageId], (err) => {
+        if (err) {
+          return reject(`Database error: ${err.message}`);
+        }
+        return resolve();
+      });
+    });
+  },
+
   updateUsernameInMessages: function(senderUsername, senderId) {
     return new Promise((resolve, reject) => {
       pool.query('UPDATE messages SET sender_username = $1 WHERE sender_id = $2', [senderUsername, senderId], (err) => {

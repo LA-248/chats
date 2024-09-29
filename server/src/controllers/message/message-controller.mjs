@@ -1,5 +1,17 @@
 import { Message } from '../../models/message-model.mjs';
 
+const editMessageById = async (req, res) => {
+  try {
+    const newMessage = req.body.newMessage;
+    const messageId = req.body.messageId;
+    await Message.editMessage(newMessage, messageId);
+    res.status(200).json({ editedMessage: newMessage });
+  } catch (error) {
+    console.error('Error editing message:', error);
+    res.status(500).json({ error: 'Error editing message. Please try again.' });
+  }
+};
+
 const updateUsernameInMessages = async (req, res) => {
   try {
     const senderUsername = req.body.username;
@@ -10,7 +22,7 @@ const updateUsernameInMessages = async (req, res) => {
     console.error('Error updating username in messages:', error);
     res.status(500).json({ error: 'An unexpected error occurred' });
   }
-}
+};
 
 const deleteMessageById = async (req, res) => {
   try {
@@ -23,4 +35,4 @@ const deleteMessageById = async (req, res) => {
   }
 };
 
-export { updateUsernameInMessages, deleteMessageById };
+export { editMessageById, updateUsernameInMessages, deleteMessageById };
