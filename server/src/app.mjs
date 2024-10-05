@@ -21,7 +21,7 @@ import {
   displayChatMessages,
   handleChatMessages,
   manageSocketConnections,
-  processDeleteMessageEvent,
+  processUpdateMessageEvent,
   updateMessageReadStatus
 } from './handlers/socket-handlers.mjs';;
 
@@ -88,7 +88,7 @@ io.on('connection', (socket) => {
     });
 
     updateMessageReadStatus(socket, userId);
-    processDeleteMessageEvent(socket, io);
+    processUpdateMessageEvent(socket, io);
   } else {
     socket.disconnect();
   }

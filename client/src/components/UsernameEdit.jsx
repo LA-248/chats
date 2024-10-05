@@ -18,6 +18,9 @@ export default function UsernameEdit({ isModalOpen, setIsModalOpen, errorMessage
         throw new Error('Please enter a username');
       } else if (usernameInput.length < 2) {
         throw new Error('Username must contain at least 2 characters');
+      } else if (usernameInput === loggedInUsername) {
+        setIsModalOpen(false);
+        return;
       }
 
       await updateUsernameInMessages(usernameInput);

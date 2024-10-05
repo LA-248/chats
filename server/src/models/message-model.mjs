@@ -55,6 +55,17 @@ const Message  = {
   },
 
   // READ OPERATIONS
+
+  retrieveMessageById: function(messageId) {
+    return new Promise((resolve, reject) => {
+      pool.query('SELECT id, sender_id, content, sender_username, event_time, event_time_seconds FROM messages WHERE id = $1', [messageId], (err, result) => {
+        if (err) {
+          return reject(`Database error: ${err.message}`);
+        }
+        return resolve(result.rows[0]);
+      });
+    });
+  },
   
   retrieveMessages: function(serverOffset, room) {
     return new Promise((resolve, reject) => {

@@ -114,26 +114,27 @@ const updateMessageReadStatus = (socket, userId) => {
       socket.emit('custom-error', { error: 'Unable to update message status' });
     }
   });
-}
+};
 
-// Listen for message delete events and emit updated message list to the room
-const processDeleteMessageEvent = (socket, io) => {
-  socket.on('message-delete-event', async (room) => {
+// TODO: Instead of retrieving the whole message list for edits, only fetch the edited message 
+// Listen for message events such as deletes and edits, and emit the updated message list to the room
+const processUpdateMessageEvent = (socket, io) => {
+  socket.on('message-update-event', async (room, updateType) => {
     try {
       const messages = await Message.retrieveMessages(socket.handshake.auth.serverOffset, room);
-      io.to(room).emit('message-delete-event', messages.map(formatMessage));
+      io.to(room).emit('message-update-event', messages.map(formatMessage), updateType);
     } catch (error) {
       console.error('Unexpected error:', error.message);
-      socket.emit('custom-error', { error: 'Error deleting message. Please try again.' });
+      socket.emit('custom-error', { error: `Error ${updateType} message. Please try again.` });
       return;
     }
   });
-}
+};
 
 export {
   manageSocketConnections,
   handleChatMessages,
   displayChatMessages,
   updateMessageReadStatus,
-  processDeleteMessageEvent
+  processUpdateMessageEvent,
 };

@@ -50,7 +50,7 @@ export default function DeleteMessageModal({
       messageList.splice(messageIndex, 1);
 
       // Emit event to notify the server of message deletion and update the message list for everyone in the room
-      socket.emit('message-delete-event', room);
+      socket.emit('message-update-event', room, 'deleting');
     } catch (error) {
       setErrorMessage(error.message);
     }

@@ -858,5 +858,23 @@ body {
   font-weight: 400;
   flex-grow: 1;
   resize: none;
-  min-height: 75px;
+  min-height: 100px;
+}
+
+.emoji-picker-button-edit-modal {
+  font-size: 13px;
+  border-radius: 25px;
+  background-color: transparent;
+  color: white;
+  border: none;
+  font-weight: 400;
+  width: fit-content;
+  height: fit-content;
+  margin-top: 10px;
+}
+
+.emoji-picker-button-edit-modal:hover {
+  cursor: pointer;
+  opacity: 0.9;
+  text-decoration: underline;
 }
