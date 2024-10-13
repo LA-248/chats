@@ -5,11 +5,16 @@ import { updateUsernameInMessages } from '../api/message-api';
 import { updateUsername } from '../api/user-api';
 import Modal from './ModalTemplate';
 
-export default function UsernameEdit({ isModalOpen, setIsModalOpen, errorMessage, setErrorMessage }) {
+export default function UsernameEdit({
+  isModalOpen,
+  setIsModalOpen,
+  errorMessage,
+  setErrorMessage,
+}) {
   const { loggedInUsername, setLoggedInUsername } = useContext(UserContext);
   const [usernameInput, setUsernameInput] = useState('');
   const [usernameEditStatus, setUsernameEditStatus] = useState('');
-  
+
   const handleFormSubmit = async (event) => {
     event.preventDefault();
 
@@ -55,7 +60,9 @@ export default function UsernameEdit({ isModalOpen, setIsModalOpen, errorMessage
             Edit
           </button>
         </div>
-        {usernameEditStatus ? <div className="status-text">{usernameEditStatus}</div> : null}
+        {usernameEditStatus ? (
+          <div className="status-text">{usernameEditStatus}</div>
+        ) : null}
       </div>
 
       <Modal
@@ -67,6 +74,7 @@ export default function UsernameEdit({ isModalOpen, setIsModalOpen, errorMessage
         <div className="modal-heading">Edit username</div>
         <form id="username-edit-form" onSubmit={handleFormSubmit}>
           <input
+            autoFocus
             className="username-input"
             placeholder="Choose a new username"
             value={usernameInput}

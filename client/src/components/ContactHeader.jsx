@@ -1,9 +1,8 @@
-import { useContext, useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { ChatContext } from '../contexts/ChatContext';
 import { MessageContext } from '../contexts/MessageContext';
 import { getBlockList, updateBlockList } from '../api/user-api';
 import clearErrorMessage from '../utils/ClearErrorMessage';
-import handleModalOutsideClick from '../utils/ModalOutsideClick';
 import Modal from './ModalTemplate';
 import MessageSearch from './MessageSearch';
 
@@ -13,7 +12,6 @@ export default function ContactHeader() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [blockList, setBlockList] = useState([]);
   const [errorMessage, setErrorMessage] = useState('');
-  const modalRef = useRef();
   const activeChat = JSON.parse(localStorage.getItem('active-chat'));
 
   // TODO: Clean up this code
@@ -64,10 +62,6 @@ export default function ContactHeader() {
       setErrorMessage(error.message);
     }
   };
-
-  useEffect(() => {
-    handleModalOutsideClick(modalRef, setIsModalOpen, isModalOpen);
-  }, [isModalOpen]);
 
   // Clear error message after a certain amount of time
   useEffect(() => {
@@ -130,7 +124,7 @@ export default function ContactHeader() {
             alt="Profile"
             style={{ height: '100px', width: '100px' }}
           ></img>
-          <div>{selectedChat || activeChat.name}</div>
+          <div className="recipient-username">{selectedChat || activeChat.name}</div>
         </div>
 
         <div className="modal-action-buttons-container">

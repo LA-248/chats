@@ -41,7 +41,7 @@ export default function EditMessageModal({
       const messageList = [...filteredMessages];
       const isLastMessage = messageIndex === messageList.length - 1;
       const newLastMessage = messageList.length - 1;
-      if (isLastMessage && messageList.length >= 1) {
+      if (isLastMessage && messageList.length >= 1) { 
         await updateChatList(
           messageList[newLastMessage].content,
           room

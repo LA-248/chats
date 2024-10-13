@@ -54,7 +54,7 @@ const retrieveProfilePictureById = async (req, res) => {
     console.error('Error retrieving profile picture:', error);
     res.status(500).json({ error: 'Error retrieving profile picture' });
   }
-}
+};
 
 const retrieveBlockListById = async (req, res) => {
   try {
