@@ -82,6 +82,8 @@ export default function MessageInput() {
               event.stopPropagation();
               setShowEmojiPicker((value) => !value);
             }}
+            disabled={isBlocked}
+            style={{ opacity: isBlocked ? "0.5" : null }}
           >
             Emojis
           </button>
