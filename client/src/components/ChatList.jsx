@@ -111,7 +111,9 @@ export default function ChatList({ setSelectedChat, setRecipientUsername }) {
                     id: chat.chat_id,
                     name: chat.name,
                     recipient_id: chat.recipient_id,
-                    recipient_profile_picture: chat.recipient_profile_picture,
+                    recipient_profile_picture: chat.recipient_profile_picture
+                      ? chat.recipient_profile_picture
+                      : '/images/default-avatar.jpg',
                   })
                 );
 
