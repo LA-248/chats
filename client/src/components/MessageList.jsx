@@ -13,8 +13,9 @@ export default function MessageList({
   setMessageIndex,
   errorMessage,
 }) {
-  const { loggedInUserId } = useContext(UserContext);
+  const { loggedInUserId, profilePicture } = useContext(UserContext);
   const { setCurrentMessage, messageSearchValueText } = useContext(MessageContext);
+  const activeChat = JSON.parse(localStorage.getItem('active-chat'));
 
   return (
     <>
@@ -34,40 +35,51 @@ export default function MessageList({
                     onMouseLeave={() => setHoveredIndex(null)}
                   >
                     <div className="message-container">
+                      <img
+                        className="message-profile-picture"
+                        src={
+                          loggedInUserId === messageData.senderId
+                            ? profilePicture
+                            : activeChat.recipient_profile_picture
+                        }
+                        alt="Profile"
+                      ></img>
                       <div className="message-metadata">
-                        <div className="message-from">{messageData.from}</div>
-                        <div className="message-time">
-                          {messageData.eventTime}
-                        </div>
-                        {hoveredIndex === index &&
-                        loggedInUserId === messageData.senderId ? (
-                          <div className="message-actions-button">
-                            <div
-                              className="message-edit-button"
-                              onClick={() => {
-                                setIsEditModalOpen(true);
-                                setMessageId(messageData.id);
-                                setMessageIndex(index);
-                                setCurrentMessage(messageData.content);
-                              }}
-                            >
-                              Edit
-                            </div>
-                            <div
-                              className="message-delete-button"
-                              onClick={() => {
-                                setIsModalOpen(true);
-                                setMessageId(messageData.id);
-                                setMessageIndex(index);
-                              }}
-                            >
-                              Delete
-                            </div>
+                        <div className="message-details">
+                          <div className="message-from">{messageData.from}</div>
+                          <div className="message-time">
+                            {messageData.eventTime}
                           </div>
-                        ) : null}
-                      </div>
-                      <div className="message-content">
-                        {messageData.content}
+                          {hoveredIndex === index &&
+                          loggedInUserId === messageData.senderId ? (
+                            <div className="message-actions-button">
+                              <div
+                                className="message-edit-button"
+                                onClick={() => {
+                                  setIsEditModalOpen(true);
+                                  setMessageId(messageData.id);
+                                  setMessageIndex(index);
+                                  setCurrentMessage(messageData.content);
+                                }}
+                              >
+                                Edit
+                              </div>
+                              <div
+                                className="message-delete-button"
+                                onClick={() => {
+                                  setIsModalOpen(true);
+                                  setMessageId(messageData.id);
+                                  setMessageIndex(index);
+                                }}
+                              >
+                                Delete
+                              </div>
+                            </div>
+                          ) : null}
+                        </div>
+                        <div className="message-content">
+                          {messageData.content}
+                        </div>
                       </div>
                     </div>
                   </li>
@@ -78,7 +90,7 @@ export default function MessageList({
           {errorMessage ? (
             <div
               className="error-message"
-              style={{ margin: '20px', textAlign: 'left' }}
+              style={{ margin: "20px", textAlign: "left" }}
             >
               {errorMessage}
             </div>

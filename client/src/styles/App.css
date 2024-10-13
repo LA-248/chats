@@ -2,7 +2,7 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  font-family: 'Geist', sans-serif;
+  font-family: "Geist", sans-serif;
 }
 
 body {
@@ -438,7 +438,7 @@ body {
   flex-direction: column;
   justify-content: flex-end;
   flex-grow: 1;
-  gap: 5px;
+  gap: 10px;
   list-style-type: none;
   color: white;
   margin-top: auto;
@@ -462,13 +462,29 @@ body {
 
 .message-container {
   display: flex;
-  flex-direction: column;
+  align-items: center;
 }
 
 .message-metadata {
   display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.message-details {
+  display: flex;
+  justify-content: center;
   align-items: center;
   gap: 5px;
+}
+
+.message-profile-picture {
+  height: 40px;
+  width: 40px;
+  border-radius: 50%;
+  background-color: #ccc;
+  flex-shrink: 0;
+  margin-right: 10px;
 }
 
 .message-from {
@@ -491,7 +507,7 @@ body {
 
 .message-actions-button {
   display: flex;
-  gap: 8px;
+  gap: 5px;
 }
 
 .message-edit-button {
@@ -810,7 +826,7 @@ body {
 
 .block-user-button {
   display: flex;
-  justify-content: center;  
+  justify-content: center;
   align-items: center;
   font-size: 13px;
   padding: 5px;
@@ -826,7 +842,7 @@ body {
 
 .confirm-username-edit-button {
   display: flex;
-  justify-content: center;  
+  justify-content: center;
   align-items: center;
   font-size: 13px;
   padding: 5px;
