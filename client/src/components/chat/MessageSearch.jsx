@@ -1,5 +1,5 @@
 import { useContext, useEffect } from 'react';
-import { MessageContext } from '../contexts/MessageContext';
+import { MessageContext } from '../../contexts/MessageContext';
 
 export default function MessageSearch({
   messages,

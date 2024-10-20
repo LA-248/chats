@@ -1,13 +1,13 @@
 import { useContext, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { useSocket } from '../hooks/useSocket';
-import { MessageContext } from '../contexts/MessageContext';
-import { useChatRoomEvents } from '../hooks/useChatRoomEvents';
+import { useSocket } from '../../hooks/useSocket';
+import { MessageContext } from '../../contexts/MessageContext';
+import { useChatRoomEvents } from '../../hooks/useChatRoomEvents';
 import ContactHeader from './ContactHeader';
 import MessageInput from './MessageInput';
 import MessageList from './MessageList';
-import DeleteMessageModal from './DeleteMessageModal';
-import EditMessageModal from './EditMessageModal';
+import DeleteMessageModal from '../common/DeleteMessageModal';
+import EditMessageModal from '../common/EditMessageModal';
 
 function ChatView() {
   const { filteredMessages, setMessages } = useContext(MessageContext);

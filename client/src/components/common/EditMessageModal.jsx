@@ -1,10 +1,10 @@
 import { useContext, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { MessageContext } from '../contexts/MessageContext';
-import { editMessageById } from '../api/message-api';
-import { useSocket } from '../hooks/useSocket';
-import { getChatListByUserId, updateChatList } from '../api/chat-api';
-import { ChatContext } from '../contexts/ChatContext';
+import { MessageContext } from '../../contexts/MessageContext';
+import { editMessageById } from '../../api/message-api';
+import { useSocket } from '../../hooks/useSocket';
+import { getChatListByUserId, updateChatList } from '../../api/chat-api';
+import { ChatContext } from '../../contexts/ChatContext';
 import Modal from './ModalTemplate';
 import data from '@emoji-mart/data';
 import Picker from '@emoji-mart/react';
@@ -20,7 +20,8 @@ export default function EditMessageModal({
   const socket = useSocket();
   const { room } = useParams();
   const { setChatList } = useContext(ChatContext);
-  const { currentMessage, filteredMessages, newMessage, setNewMessage } = useContext(MessageContext);
+  const { currentMessage, filteredMessages, newMessage, setNewMessage } =
+    useContext(MessageContext);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
   const handleMessageEdit = async (messageId, messageIndex) => {
@@ -41,14 +42,11 @@ export default function EditMessageModal({
       const messageList = [...filteredMessages];
       const isLastMessage = messageIndex === messageList.length - 1;
       const newLastMessage = messageList.length - 1;
-      if (isLastMessage && messageList.length >= 1) { 
-        await updateChatList(
-          messageList[newLastMessage].content,
-          room
-        );
+      if (isLastMessage && messageList.length >= 1) {
+        await updateChatList(messageList[newLastMessage].content, room);
         const storedChats = await getChatListByUserId();
         setChatList(storedChats);
-      } 
+      }
     } catch (error) {
       setErrorMessage(error.message);
     }

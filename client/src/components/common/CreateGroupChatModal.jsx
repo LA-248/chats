@@ -1,8 +1,12 @@
 import { useState } from 'react';
-import { getRecipientUserIdByUsername } from '../api/user-api';
+import { getRecipientUserIdByUsername } from '../../api/user-api';
 import Modal from './ModalTemplate';
 
-export default function CreateGroupChatModal({ isModalOpen, setIsModalOpen, loggedInUsername }) {
+export default function CreateGroupChatModal({
+  isModalOpen,
+  setIsModalOpen,
+  loggedInUsername,
+}) {
   const [groupName, setGroupName] = useState('');
   const [inputUsername, setInputUsername] = useState('');
   const [addedMembers, setAddedMembers] = useState([]);

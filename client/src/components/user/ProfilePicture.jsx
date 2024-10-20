@@ -1,5 +1,5 @@
 import { useContext, useRef, useState } from 'react';
-import { UserContext } from '../contexts/UserContext';
+import { UserContext } from '../../contexts/UserContext';
 
 export default function ProfilePicture({ errorMessage, setErrorMessage }) {
   const { profilePicture, setProfilePicture } = useContext(UserContext);
@@ -19,11 +19,14 @@ export default function ProfilePicture({ errorMessage, setErrorMessage }) {
     setUploadStatus('Upload in progress...');
 
     try {
-      const response = await fetch('http://localhost:8080/users/profile_pictures', {
-        method: 'POST',
-        body: formData,
-        credentials: 'include',
-      });
+      const response = await fetch(
+        'http://localhost:8080/users/profile_pictures',
+        {
+          method: 'POST',
+          body: formData,
+          credentials: 'include',
+        }
+      );
 
       if (!response.ok) {
         const errorResponse = await response.json();
@@ -66,9 +69,7 @@ export default function ProfilePicture({ errorMessage, setErrorMessage }) {
       >
         Upload
       </button>
-      {uploadStatus ? (
-        <div className="status-text">{uploadStatus}</div> 
-      ) : null}
+      {uploadStatus ? <div className="status-text">{uploadStatus}</div> : null}
 
       {errorMessage ? (
         <div className="error-message">{errorMessage}</div>

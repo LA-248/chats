@@ -1,14 +1,14 @@
 import { useCallback, useContext, useEffect, useState } from 'react';
-import { MessageContext } from '../contexts/MessageContext';
-import { ChatContext } from '../contexts/ChatContext';
-import { UserContext } from '../contexts/UserContext';
-import { addChat, getChatListByUserId } from '../api/chat-api';
-import { getRecipientUserIdByUsername } from '../api/user-api';
-import AddChatInput from './AddChatInput';
-import ChatList from './ChatList';
-import ChatSearch from './ChatSearch';
+import { MessageContext } from '../../contexts/MessageContext';
+import { ChatContext } from '../../contexts/ChatContext';
+import { UserContext } from '../../contexts/UserContext';
+import { addChat, getChatListByUserId } from '../../api/chat-api';
+import { getRecipientUserIdByUsername } from '../../api/user-api';
+import AddChatInput from '../chat/AddChatInput';
+import ChatList from '../chat/ChatList';
+import ChatSearch from '../chat/ChatSearch';
 import CreateGroupChatModal from './CreateGroupChatModal';
-import UserProfile from './UserProfile';
+import UserProfile from '../user/UserProfile';
 
 export default function Sidebar() {
   const [inputUsername, setInputUsername] = useState('');
@@ -17,7 +17,13 @@ export default function Sidebar() {
   const [errorMessage, setErrorMessage] = useState(null);
   const { setRecipientId, setRecipientUsername } = useContext(MessageContext);
   const { profilePicture, loggedInUsername } = useContext(UserContext);
-  const { selectedChat, setSelectedChat, chatList, setChatList, setActiveChatId } = useContext(ChatContext);
+  const {
+    selectedChat,
+    setSelectedChat,
+    chatList,
+    setChatList,
+    setActiveChatId,
+  } = useContext(ChatContext);
 
   // Adds a new chat to the sidebar
   const handleAddChat = useCallback(

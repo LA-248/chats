@@ -1,10 +1,10 @@
 import { useParams } from 'react-router-dom';
-import { getChatListByUserId, updateChatList } from '../api/chat-api';
-import { deleteMessageById } from '../api/message-api';
-import { useSocket } from '../hooks/useSocket';
+import { getChatListByUserId, updateChatList } from '../../api/chat-api';
+import { deleteMessageById } from '../../api/message-api';
+import { useSocket } from '../../hooks/useSocket';
 import { useContext } from 'react';
-import { MessageContext } from '../contexts/MessageContext';
-import { ChatContext } from '../contexts/ChatContext';
+import { MessageContext } from '../../contexts/MessageContext';
+import { ChatContext } from '../../contexts/ChatContext';
 import Modal from './ModalTemplate';
 
 export default function DeleteMessageModal({

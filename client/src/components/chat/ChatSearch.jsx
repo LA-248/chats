@@ -1,8 +1,9 @@
 import { useContext } from 'react';
-import { ChatContext } from '../contexts/ChatContext';
+import { ChatContext } from '../../contexts/ChatContext';
 
 export default function ChatSearch() {
-  const { chatSearchInputText, setChatSearchInputText } = useContext(ChatContext);
+  const { chatSearchInputText, setChatSearchInputText } =
+    useContext(ChatContext);
 
   return (
     <div className="chat-search-input-container">

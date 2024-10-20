@@ -1,9 +1,9 @@
 import React, { useContext, useState } from 'react';
-import { UserContext } from '../contexts/UserContext';
-import { MessageContext } from '../contexts/MessageContext';
-import { ChatContext } from '../contexts/ChatContext';
-import { updateBlockList } from '../api/user-api';
-import ContactInfoModal from './ContactInfoModal';
+import { UserContext } from '../../contexts/UserContext';
+import { MessageContext } from '../../contexts/MessageContext';
+import { ChatContext } from '../../contexts/ChatContext';
+import { updateBlockList } from '../../api/user-api';
+import ContactInfoModal from '../common/ContactInfoModal';
 
 export default function MessageList({
   filteredMessages,

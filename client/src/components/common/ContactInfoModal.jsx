@@ -1,5 +1,6 @@
-import useBlockAndUnblock from '../hooks/useBlockAndUnblock';
+import useBlockAndUnblock from '../../hooks/useBlockAndUnblock';
 import Modal from './ModalTemplate';
+
 
 export default function ContactInfoModal({
   isBlocked,

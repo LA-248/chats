@@ -1,11 +1,11 @@
 import { useContext, useEffect, useState } from 'react';
-import { ChatContext } from '../contexts/ChatContext';
-import { MessageContext } from '../contexts/MessageContext';
-import { UserContext } from '../contexts/UserContext';
-import { getBlockList, updateBlockList } from '../api/user-api';
-import clearErrorMessage from '../utils/ClearErrorMessage';
+import { ChatContext } from '../../contexts/ChatContext';
+import { MessageContext } from '../../contexts/MessageContext';
+import { UserContext } from '../../contexts/UserContext';
+import { getBlockList, updateBlockList } from '../../api/user-api';
+import clearErrorMessage from '../../utils/ClearErrorMessage';
 import MessageSearch from './MessageSearch';
-import ContactInfoModal from './ContactInfoModal';
+import ContactInfoModal from '../common/ContactInfoModal';
 
 export default function ContactHeader() {
   const { isBlocked, setIsBlocked, selectedChat, setActiveChatId } = useContext(ChatContext);

@@ -5,7 +5,7 @@ import SignUp from './pages/sign-up.jsx';
 import Login from './pages/login.jsx';
 import Settings from './pages/settings.jsx';
 import ProtectedRoutes from './utils/ProtectedRoutes.jsx';
-import { ChatView } from './components/ChatView.jsx';
+import { ChatView } from './components/chat/ChatView.jsx';
 import { UserProvider } from './contexts/UserContext.jsx';
 import { ChatProvider } from './contexts/ChatContext.jsx';
 import { MessageProvider } from './contexts/MessageContext.jsx';

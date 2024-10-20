@@ -6,15 +6,21 @@ import { createContext, useEffect, useState, useContext } from 'react';
 import { Link, Outlet, useLocation, useParams } from 'react-router-dom';
 import { getUserData, getUserProfilePicture } from '../api/user-api.jsx';
 import { getChatListByUserId, updateChatList } from '../api/chat-api';
-import Sidebar from '../components/Sidebar.jsx';
-import ChatWindowPlaceholder from '../components/ChatWindowPlaceholder.jsx';
+import Sidebar from '../components/common/Sidebar.jsx';
+import ChatWindowPlaceholder from '../components/chat/ChatWindowPlaceholder.jsx';
 
 export const SocketContext = createContext();
 
 export default function Home() {
   const { setMessages } = useContext(MessageContext);
   const { setChatList, setActiveChatId } = useContext(ChatContext);
-  const { loggedInUserId, setLoggedInUserId, setLoggedInUsername, profilePicture, setProfilePicture } = useContext(UserContext);
+  const {
+    loggedInUserId,
+    setLoggedInUserId,
+    setLoggedInUsername,
+    profilePicture,
+    setProfilePicture,
+  } = useContext(UserContext);
   const { room } = useParams(); // Extract room from URL
   const [socket, setSocket] = useState(null);
   const [errorMessage, setErrorMessage] = useState('');
@@ -48,7 +54,7 @@ export default function Home() {
         setErrorMessage(error.message);
       }
     };
-  
+
     fetchProfilePicture();
   }, [profilePicture, setProfilePicture, setErrorMessage]);
 
@@ -84,7 +90,12 @@ export default function Home() {
         }
 
         // Update chat in state and database with most recent message sent and time
-        await updateChatList(messageData.content, messageData.eventTime, messageData.eventTimeWithSeconds, messageData.room);
+        await updateChatList(
+          messageData.content,
+          messageData.eventTime,
+          messageData.eventTimeWithSeconds,
+          messageData.room
+        );
         const storedChats = await getChatListByUserId();
         setChatList(storedChats);
       };

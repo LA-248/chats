@@ -1,6 +1,6 @@
 import { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChatContext } from '../contexts/ChatContext';
+import { ChatContext } from '../../contexts/ChatContext';
 
 export default function Logout() {
   const { setActiveChatId } = useContext(ChatContext);
