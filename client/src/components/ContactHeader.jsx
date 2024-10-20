@@ -1,20 +1,20 @@
 import { useContext, useEffect, useState } from 'react';
 import { ChatContext } from '../contexts/ChatContext';
 import { MessageContext } from '../contexts/MessageContext';
+import { UserContext } from '../contexts/UserContext';
 import { getBlockList, updateBlockList } from '../api/user-api';
 import clearErrorMessage from '../utils/ClearErrorMessage';
-import Modal from './ModalTemplate';
 import MessageSearch from './MessageSearch';
+import ContactInfoModal from './ContactInfoModal';
 
 export default function ContactHeader() {
   const { isBlocked, setIsBlocked, selectedChat, setActiveChatId } = useContext(ChatContext);
   const { messages, setRecipientId, setFilteredMessages } = useContext(MessageContext);
+  const { blockList, setBlockList } = useContext(UserContext);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [blockList, setBlockList] = useState([]);
   const [errorMessage, setErrorMessage] = useState('');
   const activeChat = JSON.parse(localStorage.getItem('active-chat'));
 
-  // TODO: Clean up this code
   // Persist active chat data across page refreshes by syncing local storage with chat context values
   useEffect(() => {
     if (activeChat) {
@@ -35,33 +35,7 @@ export default function ContactHeader() {
       }
     };
     fetchAndSetBlockedStatus();
-  }, [activeChat.recipient_id, setIsBlocked]);
-
-  const handleBlockAndUnblock = async () => {
-    try {
-      // Handle blocking a user
-      if (!blockList.includes(activeChat.recipient_id)) {
-        // Add recipient id to block list array
-        const updatedBlockList = [...blockList, activeChat.recipient_id];
-        setBlockList(updatedBlockList);
-        await updateBlockList(updatedBlockList);
-        setIsBlocked(true);
-      } else {
-        // Handle unblocking a user - remove the recipient id from the block list array
-        for (let i = 0; i < blockList.length; i++) {
-          if (blockList[i] === activeChat.recipient_id) {
-            blockList.splice(i, 1);
-            setBlockList(blockList);
-            await updateBlockList(blockList);
-            setIsBlocked(false);
-            return;
-          }
-        }
-      }
-    } catch (error) {
-      setErrorMessage(error.message);
-    }
-  };
+  }, [activeChat.recipient_id, setIsBlocked, setBlockList]);
 
   // Clear error message after a certain amount of time
   useEffect(() => {
@@ -93,55 +67,26 @@ export default function ContactHeader() {
             </div>
           </div>
 
-          <MessageSearch 
+          <MessageSearch
             messages={messages}
             setFilteredMessages={setFilteredMessages}
           />
         </div>
       </div>
 
-      <Modal
+      <ContactInfoModal
+        isBlocked={isBlocked}
+        activeChat={activeChat}
+        selectedChat={selectedChat}
         isModalOpen={isModalOpen}
         setIsModalOpen={setIsModalOpen}
+        blockList={blockList}
+        setBlockList={setBlockList}
+        updateBlockList={updateBlockList}
+        setIsBlocked={setIsBlocked}
         errorMessage={errorMessage}
         setErrorMessage={setErrorMessage}
-      >
-        <div className="modal-heading">Contact info</div>
-        {isBlocked ? (
-          <div className="blocked-status" style={{ marginTop: '-15px' }}>
-            You have this user blocked
-          </div>
-        ) : null}
-
-        <div className="contact-info-container">
-          <img
-            className="chat-pic"
-            src={
-              activeChat.recipient_profile_picture
-                ? activeChat.recipient_profile_picture
-                : '/images/default-avatar.jpg'
-            }
-            alt="Profile"
-            style={{ height: '100px', width: '100px' }}
-          ></img>
-          <div className="recipient-username">{selectedChat || activeChat.name}</div>
-        </div>
-
-        <div className="modal-action-buttons-container">
-          <button
-            className="block-user-button"
-            onClick={() => handleBlockAndUnblock()}
-          >
-            {isBlocked ? 'Unblock' : 'Block'}
-          </button>
-          <button
-            className="close-modal-button"
-            onClick={() => setIsModalOpen(false)}
-          >
-            Close
-          </button>
-        </div>
-      </Modal>
+      />
     </div>
   );
 }

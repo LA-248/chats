@@ -1,11 +1,10 @@
-import { useContext, useEffect, useRef, useState } from 'react';
+import { useContext, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useSocket } from '../hooks/useSocket';
 import { MessageContext } from '../contexts/MessageContext';
 import { useChatRoomEvents } from '../hooks/useChatRoomEvents';
 import ContactHeader from './ContactHeader';
 import MessageInput from './MessageInput';
-import handleModalOutsideClick from '../utils/ModalOutsideClick';
 import MessageList from './MessageList';
 import DeleteMessageModal from './DeleteMessageModal';
 import EditMessageModal from './EditMessageModal';
@@ -17,16 +16,11 @@ function ChatView() {
   const [messageId, setMessageId] = useState(null);
   const [messageIndex, setMessageIndex] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [hoveredIndex, setHoveredIndex] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-  const modalRef = useRef();
 
   useChatRoomEvents(socket, room, setMessages, setErrorMessage);
-
-  useEffect(() => {
-    handleModalOutsideClick(modalRef, setIsModalOpen, isModalOpen);
-  }, [isModalOpen]);
 
   return (
     <div className="chat-view-container">
@@ -38,10 +32,9 @@ function ChatView() {
         hoveredIndex={hoveredIndex}
         setHoveredIndex={setHoveredIndex}
         setIsEditModalOpen={setIsEditModalOpen}
-        setIsModalOpen={setIsModalOpen}
+        setIsDeleteModalOpen={setIsDeleteModalOpen}
         setMessageId={setMessageId}
         setMessageIndex={setMessageIndex}
-        errorMessage={errorMessage}
       />
 
       <div className="message-form-container">
@@ -51,8 +44,8 @@ function ChatView() {
       <DeleteMessageModal
         messageId={messageId}
         messageIndex={messageIndex}
-        isModalOpen={isModalOpen}
-        setIsModalOpen={setIsModalOpen}
+        isModalOpen={isDeleteModalOpen}
+        setIsModalOpen={setIsDeleteModalOpen}
         errorMessage={errorMessage}
         setErrorMessage={setErrorMessage}
       />

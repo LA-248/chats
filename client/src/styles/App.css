@@ -492,6 +492,11 @@ body {
   font-weight: 600;
 }
 
+.message-from.clickable:hover {
+  cursor: pointer;
+  text-decoration: underline;
+}
+
 .message-time {
   font-size: 12px;
   color: #888;
@@ -507,7 +512,7 @@ body {
 
 .message-actions-button {
   display: flex;
-  gap: 5px;
+  gap: 8px;
 }
 
 .message-edit-button {
@@ -598,36 +603,6 @@ body {
 .submit-message-button:hover {
   cursor: pointer;
   opacity: 0.9;
-}
-
-/* ERROR MESSAGE */
-
-.error-message {
-  font-size: 14px;
-  color: red;
-  text-decoration: underline;
-  text-align: center;
-}
-
-/* SCROLL BAR */
-
-/* For WebKit browsers */
-::-webkit-scrollbar {
-  width: 7px;
-  background: transparent;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  background-color: #888;
-  border-radius: 10px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background-color: #555;
 }
 
 /* SHARED MODAL STYLING */
@@ -838,6 +813,12 @@ body {
   border: none;
 }
 
+/* SETTINGS */
+
+.username-heading {
+  font-size: 14px;
+}
+
 /* EDIT USERNAME MODAL */
 
 .confirm-username-edit-button {
@@ -893,4 +874,34 @@ body {
   cursor: pointer;
   opacity: 0.9;
   text-decoration: underline;
+}
+
+/* ERROR MESSAGE */
+
+.error-message {
+  font-size: 14px;
+  color: red;
+  text-decoration: underline;
+  text-align: center;
+}
+
+/* SCROLL BAR */
+
+/* For WebKit browsers */
+::-webkit-scrollbar {
+  width: 7px;
+  background: transparent;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #888;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #555;
 }

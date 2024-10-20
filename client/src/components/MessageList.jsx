@@ -1,6 +1,9 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { UserContext } from '../contexts/UserContext';
 import { MessageContext } from '../contexts/MessageContext';
+import { ChatContext } from '../contexts/ChatContext';
+import { updateBlockList } from '../api/user-api';
+import ContactInfoModal from './ContactInfoModal';
 
 export default function MessageList({
   filteredMessages,
@@ -8,17 +11,35 @@ export default function MessageList({
   hoveredIndex,
   setHoveredIndex,
   setIsEditModalOpen,
-  setIsModalOpen,
+  setIsDeleteModalOpen,
   setMessageId,
   setMessageIndex,
-  errorMessage,
 }) {
-  const { loggedInUserId, profilePicture } = useContext(UserContext);
+  const { loggedInUserId, profilePicture, blockList, setBlockList } = useContext(UserContext);
   const { setCurrentMessage, messageSearchValueText } = useContext(MessageContext);
+  const { isBlocked, setIsBlocked, selectedChat } = useContext(ChatContext);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const activeChat = JSON.parse(localStorage.getItem('active-chat'));
 
   return (
     <>
+      {isModalOpen && (
+        <ContactInfoModal
+          isBlocked={isBlocked}
+          activeChat={activeChat}
+          selectedChat={selectedChat}
+          isModalOpen={isModalOpen}
+          setIsModalOpen={setIsModalOpen}
+          blockList={blockList}
+          setBlockList={setBlockList}
+          updateBlockList={updateBlockList}
+          setIsBlocked={setIsBlocked}
+          errorMessage={errorMessage}
+          setErrorMessage={setErrorMessage}
+        />
+      )}
+
       {/* Only render the messages if the user is a part of the private chat */}
       {room.includes(loggedInUserId) && (
         <div className="chat-content-container">
@@ -46,7 +67,19 @@ export default function MessageList({
                       ></img>
                       <div className="message-metadata">
                         <div className="message-details">
-                          <div className="message-from">{messageData.from}</div>
+                          <div
+                            className={`message-from ${
+                              loggedInUserId !== messageData.senderId
+                                ? 'clickable'
+                                : ''
+                            }`}
+                            onClick={() =>
+                              loggedInUserId !== messageData.senderId &&
+                              setIsModalOpen(true)
+                            }
+                          >
+                            {messageData.from}
+                          </div>
                           <div className="message-time">
                             {messageData.eventTime}
                           </div>
@@ -67,7 +100,7 @@ export default function MessageList({
                               <div
                                 className="message-delete-button"
                                 onClick={() => {
-                                  setIsModalOpen(true);
+                                  setIsDeleteModalOpen(true);
                                   setMessageId(messageData.id);
                                   setMessageIndex(index);
                                 }}
@@ -90,7 +123,7 @@ export default function MessageList({
           {errorMessage ? (
             <div
               className="error-message"
-              style={{ margin: "20px", textAlign: "left" }}
+              style={{ margin: '20px', textAlign: 'left' }}
             >
               {errorMessage}
             </div>

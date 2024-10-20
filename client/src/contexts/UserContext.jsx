@@ -6,6 +6,7 @@ const UserProvider = ({ children }) => {
   const [loggedInUserId, setLoggedInUserId] = useState(null);
   const [loggedInUsername, setLoggedInUsername] = useState('');
   const [profilePicture, setProfilePicture] = useState(null);
+  const [blockList, setBlockList] = useState([]);
 
   return (
     <UserContext.Provider
@@ -16,11 +17,13 @@ const UserProvider = ({ children }) => {
         setLoggedInUsername,
         profilePicture,
         setProfilePicture,
+        blockList,
+        setBlockList,
       }}
     >
       {children}
     </UserContext.Provider>
   );
-}
+};
 
 export { UserContext, UserProvider };

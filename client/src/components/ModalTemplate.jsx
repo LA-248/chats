@@ -2,7 +2,13 @@ import { useEffect, useRef } from 'react';
 import handleModalOutsideClick from '../utils/ModalOutsideClick';
 import clearErrorMessage from '../utils/ClearErrorMessage';
 
-export default function Modal({isModalOpen, setIsModalOpen, errorMessage, setErrorMessage, children }) {
+export default function Modal({
+  isModalOpen,
+  setIsModalOpen,
+  errorMessage,
+  setErrorMessage,
+  children,
+}) {
   const modalRef = useRef();
 
   useEffect(() => {
