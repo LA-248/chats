@@ -1,4 +1,8 @@
-export default function handleModalOutsideClick(modalRef, setIsModalOpen, isModalOpen ) {
+export default function handleModalOutsideClick(
+  modalRef,
+  setIsModalOpen,
+  isModalOpen
+) {
   const handleOutsideClick = (event) => {
     if (modalRef.current && !modalRef.current.contains(event.target)) {
       setIsModalOpen(false);

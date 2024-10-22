@@ -23,7 +23,7 @@ function ChatView() {
   useChatRoomEvents(socket, room, setMessages, setErrorMessage);
 
   return (
-    <div className="chat-view-container">
+    <div className='chat-view-container'>
       <ContactHeader />
 
       <MessageList
@@ -37,7 +37,7 @@ function ChatView() {
         setMessageIndex={setMessageIndex}
       />
 
-      <div className="message-form-container">
+      <div className='message-form-container'>
         <MessageInput />
       </div>
 

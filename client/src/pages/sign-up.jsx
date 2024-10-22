@@ -21,7 +21,9 @@ export default function SignUp() {
         throw new Error('Password must be between 4 and 100 characters');
       }
 
-      const response = await fetch('http://localhost:8080/auth/register/password', {
+      const response = await fetch(
+        'http://localhost:8080/auth/register/password',
+        {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -44,14 +46,14 @@ export default function SignUp() {
   };
 
   return (
-    <div className="sign-up-container">
-      <div className="sign-up-box">
-        <div className="sign-up-header">Sign Up</div>
-        <div className="sign-up-subtext">Create an account to get started.</div>
-        <form className="sign-up-form" onSubmit={handleFormSubmission}>
+    <div className='sign-up-container'>
+      <div className='sign-up-box'>
+        <div className='sign-up-header'>Sign Up</div>
+        <div className='sign-up-subtext'>Create an account to get started.</div>
+        <form className='sign-up-form' onSubmit={handleFormSubmission}>
           <input
-            type="text"
-            placeholder="Username"
+            type='text'
+            placeholder='Username'
             value={username}
             onChange={(event) => {
               setUsername(event.target.value);
@@ -59,24 +61,28 @@ export default function SignUp() {
             }}
           />
           <input
-            type="password"
-            placeholder="Password"
+            type='password'
+            placeholder='Password'
             value={password}
             onChange={(event) => {
               setPassword(event.target.value);
               setErrorMessage('');
             }}
           />
-          <button className="sign-up-button" type="submit">
+          <button className='sign-up-button' type='submit'>
             Sign Up
           </button>
         </form>
-        {errorMessage && <div className="error-message" style={{ marginTop: "10px" }}>{errorMessage}</div>}
-        <div className="login-redirect">
-          Already have an account? <Link to="/login">Log in</Link>
+        {errorMessage && (
+          <div className='error-message' style={{ marginTop: '10px' }}>
+            {errorMessage}
+          </div>
+        )}
+        <div className='login-redirect'>
+          Already have an account? <Link to='/login'>Log in</Link>
         </div>
       </div>
-      <div className="logotype">Chats</div>
+      <div className='logotype'>Chats</div>
     </div>
   );
 }

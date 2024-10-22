@@ -63,7 +63,7 @@ export default function Sidebar() {
   }, [selectedChat, setRecipientId]);
 
   return (
-    <div className="sidebar">
+    <div className='sidebar'>
       <AddChatInput
         inputUsername={inputUsername}
         setInputUsername={setInputUsername}
@@ -72,10 +72,10 @@ export default function Sidebar() {
         setErrorMessage={setErrorMessage}
       />
 
-      <div className="create-group-button-container">
+      <div className='create-group-button-container'>
         <button
           onClick={() => setIsModalOpen(true)}
-          className="create-group-button"
+          className='create-group-button'
         >
           Create group chat
         </button>
@@ -94,18 +94,18 @@ export default function Sidebar() {
           setChatList={setChatList}
         />
       ) : (
-        <div className="chat-list-empty-container">
-          <div className="chat-list-empty-message">
+        <div className='chat-list-empty-container'>
+          <div className='chat-list-empty-message'>
             You have no active chats
           </div>
-          <div className="chat-list-empty-subtext">
+          <div className='chat-list-empty-subtext'>
             To get started, enter the username of the user you would like to
             chat with above
           </div>
         </div>
       )}
 
-      <div className="chat-list-and-profile-container">
+      <div className='chat-list-and-profile-container'>
         <ChatList
           setSelectedChat={setSelectedChat}
           setRecipientUsername={setRecipientUsername}

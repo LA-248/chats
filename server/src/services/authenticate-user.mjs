@@ -7,7 +7,7 @@ export default async function authenticateUser(username, password, cb) {
     if (!user) {
       return cb(null, false, { message: 'Incorrect username or password' });
     }
-    
+
     verifyPassword(password, user, cb);
   } catch (err) {
     return cb(err);

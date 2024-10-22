@@ -45,34 +45,34 @@ export default function ProfilePicture({ errorMessage, setErrorMessage }) {
   };
 
   return (
-    <div className="profile-picture-container">
-      <div className="profile-picture-heading">Profile picture</div>
-      <img className="profile-picture" alt="Profile" src={profilePicture}></img>
+    <div className='profile-picture-container'>
+      <div className='profile-picture-heading'>Profile picture</div>
+      <img className='profile-picture' alt='Profile' src={profilePicture}></img>
       <form
         ref={formRef}
-        id="profile-picture-upload-form"
-        encType="multipart/form-data"
+        id='profile-picture-upload-form'
+        encType='multipart/form-data'
       >
         <input
           ref={fileInputRef}
-          type="file"
-          name="profile-picture"
-          accept="image/*"
+          type='file'
+          name='profile-picture'
+          accept='image/*'
           style={{ display: 'none' }}
           onChange={handleProfilePictureUpload}
         />
       </form>
       <button
-        type="file"
-        className="upload-profile-picture-button"
+        type='file'
+        className='upload-profile-picture-button'
         onClick={handleFileInputClick}
       >
         Upload
       </button>
-      {uploadStatus ? <div className="status-text">{uploadStatus}</div> : null}
+      {uploadStatus ? <div className='status-text'>{uploadStatus}</div> : null}
 
       {errorMessage ? (
-        <div className="error-message">{errorMessage}</div>
+        <div className='error-message'>{errorMessage}</div>
       ) : null}
     </div>
   );

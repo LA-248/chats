@@ -9,13 +9,13 @@ export default function Settings() {
   const [uploadError, setUploadError] = useState('');
 
   return (
-    <div className="settings-main-container">
-      <div className="settings-header">
-        <div className="settings-heading">Settings</div>
+    <div className='settings-main-container'>
+      <div className='settings-header'>
+        <div className='settings-heading'>Settings</div>
       </div>
 
-      <div className="account-container">
-        <div className="account-heading">Account</div>
+      <div className='account-container'>
+        <div className='account-heading'>Account</div>
         <ProfilePicture
           errorMessage={uploadError}
           setErrorMessage={setUploadError}

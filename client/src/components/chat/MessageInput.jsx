@@ -24,11 +24,16 @@ export default function MessageInput() {
       // Compute a unique offset
       const clientOffset = uuidv4();
       // Send the message and its metadata to the server
-      socket.emit('chat-message', { username, recipientId, message }, clientOffset, (response) => {
-        if (response) {
-          setErrorMessage(response);
+      socket.emit(
+        'chat-message',
+        { username, recipientId, message },
+        clientOffset,
+        (response) => {
+          if (response) {
+            setErrorMessage(response);
+          }
         }
-      });
+      );
       setMessage('');
     }
   };
@@ -44,9 +49,9 @@ export default function MessageInput() {
 
   return (
     <div>
-      <form id="message-form" action="" onSubmit={submitChatMessage}>
+      <form id='message-form' action='' onSubmit={submitChatMessage}>
         {showEmojiPicker ? (
-          <div className="emoji-picker-container">
+          <div className='emoji-picker-container'>
             <Picker
               data={data}
               onEmojiSelect={handleAddEmoji}
@@ -56,16 +61,16 @@ export default function MessageInput() {
         ) : null}
 
         <div
-          className="error-message"
+          className='error-message'
           style={{ marginBottom: '10px', textAlign: 'left' }}
         >
           {errorMessage}
         </div>
 
-        <div className="message-input-container">
+        <div className='message-input-container'>
           <input
-            id="message-input"
-            type="text"
+            id='message-input'
+            type='text'
             placeholder={
               isBlocked
                 ? 'You have this user blocked, unblock to message them'
@@ -76,18 +81,18 @@ export default function MessageInput() {
             disabled={isBlocked}
           />
           <button
-            type="button"
-            className="emoji-picker-button"
+            type='button'
+            className='emoji-picker-button'
             onClick={(event) => {
               event.stopPropagation();
               setShowEmojiPicker((value) => !value);
             }}
             disabled={isBlocked}
-            style={{ opacity: isBlocked ? "0.5" : null }}
+            style={{ opacity: isBlocked ? '0.5' : null }}
           >
             Emojis
           </button>
-          <button type="submit" className="submit-message-button">
+          <button type='submit' className='submit-message-button'>
             Send
           </button>
         </div>

@@ -1,5 +1,9 @@
 import express from 'express';
-import { deleteMessageById, editMessageById, updateUsernameInMessages } from '../controllers/message/message-controller.mjs';
+import {
+  deleteMessageById,
+  editMessageById,
+  updateUsernameInMessages,
+} from '../controllers/message/message-controller.mjs';
 
 const messagesRouter = express.Router();
 

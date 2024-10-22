@@ -1,20 +1,19 @@
+import { useContext } from 'react';
+import { ChatContext } from '../../contexts/ChatContext';
+import { UserContext } from '../../contexts/UserContext';
 import useBlockAndUnblock from '../../hooks/useBlockAndUnblock';
 import Modal from './ModalTemplate';
 
-
 export default function ContactInfoModal({
-  isBlocked,
   activeChat,
-  selectedChat,
   isModalOpen,
   setIsModalOpen,
-  blockList,
-  setBlockList,
   updateBlockList,
-  setIsBlocked,
   errorMessage,
   setErrorMessage,
 }) {
+  const { isBlocked, setIsBlocked, selectedChat } = useContext(ChatContext);
+  const { blockList, setBlockList } = useContext(UserContext);
   const { handleBlockAndUnblock } = useBlockAndUnblock({
     blockList: blockList,
     activeChat: activeChat,
@@ -31,38 +30,38 @@ export default function ContactInfoModal({
       errorMessage={errorMessage}
       setErrorMessage={setErrorMessage}
     >
-      <div className="modal-heading">Contact info</div>
+      <div className='modal-heading'>Contact info</div>
       {isBlocked ? (
-        <div className="blocked-status" style={{ marginTop: '-15px' }}>
+        <div className='blocked-status' style={{ marginTop: '-15px' }}>
           You have this user blocked
         </div>
       ) : null}
 
-      <div className="contact-info-container">
+      <div className='contact-info-container'>
         <img
-          className="chat-pic"
+          className='chat-pic'
           src={
             activeChat.recipient_profile_picture
               ? activeChat.recipient_profile_picture
               : '/images/default-avatar.jpg'
           }
-          alt="Profile"
+          alt='Profile'
           style={{ height: '100px', width: '100px' }}
         ></img>
-        <div className="recipient-username">
+        <div className='recipient-username'>
           {selectedChat || activeChat.name}
         </div>
       </div>
 
-      <div className="modal-action-buttons-container">
+      <div className='modal-action-buttons-container'>
         <button
-          className="block-user-button"
+          className='block-user-button'
           onClick={() => handleBlockAndUnblock()}
         >
           {isBlocked ? 'Unblock' : 'Block'}
         </button>
         <button
-          className="close-modal-button"
+          className='close-modal-button'
           onClick={() => setIsModalOpen(false)}
         >
           Close

@@ -1,7 +1,12 @@
 import { useEffect } from 'react';
 import { useSocketErrorHandling } from './useSocketErrorHandling';
 
-export const useChatRoomEvents = (socket, room, setMessages, setErrorMessage) => {
+export const useChatRoomEvents = (
+  socket,
+  room,
+  setMessages,
+  setErrorMessage
+) => {
   useEffect(() => {
     const displayInitialMessages = (initialMessages) => {
       setMessages(initialMessages);

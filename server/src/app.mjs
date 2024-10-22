@@ -22,8 +22,8 @@ import {
   handleChatMessages,
   manageSocketConnections,
   processUpdateMessageEvent,
-  updateMessageReadStatus
-} from './handlers/socket-handlers.mjs';;
+  updateMessageReadStatus,
+} from './handlers/socket-handlers.mjs';
 
 const app = express();
 const server = createServer(app);
@@ -35,10 +35,12 @@ app.use(express.static('../../client/src/styles'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use(cors({
-  origin: 'http://localhost:3000',
-  credentials: true,
-}));
+app.use(
+  cors({
+    origin: 'http://localhost:3000',
+    credentials: true,
+  })
+);
 
 configurePassport();
 app.use(sessionMiddleware);
@@ -66,9 +68,12 @@ io.use(sharedSession(sessionMiddleware, { autoSave: true }));
 io.on('connection', (socket) => {
   // Access the session
   console.log(socket.handshake.session);
-  
+
   // Check if user is authenticated
-  if (socket.handshake.session.passport && socket.handshake.session.passport.user) {
+  if (
+    socket.handshake.session.passport &&
+    socket.handshake.session.passport.user
+  ) {
     const userId = socket.handshake.session.passport.user;
     console.log(`User connected`);
     console.log(`User ID: ${userId}`);

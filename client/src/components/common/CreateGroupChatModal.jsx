@@ -71,11 +71,11 @@ export default function CreateGroupChatModal({
       errorMessage={errorMessage}
       setErrorMessage={setErrorMessage}
     >
-      <div className="modal-heading">Create a new group chat</div>
-      <div className="set-group-name-container">
+      <div className='modal-heading'>Create a new group chat</div>
+      <div className='set-group-name-container'>
         <input
-          className="set-group-name-input"
-          placeholder="Group name"
+          className='set-group-name-input'
+          placeholder='Group name'
           value={groupName}
           onChange={(event) => {
             setGroupName(event.target.value);
@@ -83,32 +83,32 @@ export default function CreateGroupChatModal({
           }}
         />
       </div>
-      <div className="add-group-members-container">
-        <div className="add-group-members-heading">Add members</div>
-        <form id="add-group-members-form" onSubmit={handleAddMember}>
-          <div className="input-button-wrapper">
+      <div className='add-group-members-container'>
+        <div className='add-group-members-heading'>Add members</div>
+        <form id='add-group-members-form' onSubmit={handleAddMember}>
+          <div className='input-button-wrapper'>
             <input
-              className="add-group-members-input"
-              placeholder="Username"
+              className='add-group-members-input'
+              placeholder='Username'
               value={inputUsername}
               onChange={(event) => {
                 setInputUsername(event.target.value);
                 setErrorMessage('');
               }}
             />
-            <button type="submit" className="add-member-button">
+            <button type='submit' className='add-member-button'>
               Add user
             </button>
           </div>
           {addedMembers.length > 0 ? (
-            <div className="added-group-members-heading">Added:</div>
+            <div className='added-group-members-heading'>Added:</div>
           ) : null}
-          <div className="added-group-members-container">
+          <div className='added-group-members-container'>
             {addedMembers.map((addedMember, index) => (
-              <div className="added-group-member" key={index}>
+              <div className='added-group-member' key={index}>
                 <div>{addedMember}</div>
                 <div
-                  className="remove-group-member-button"
+                  className='remove-group-member-button'
                   onClick={() => removeMember(addedMember)}
                 >
                   Remove
@@ -119,13 +119,13 @@ export default function CreateGroupChatModal({
         </form>
       </div>
 
-      <div className="modal-action-buttons-container">
+      <div className='modal-action-buttons-container'>
         <form onSubmit={handleCreateGroup}>
-          <button className="confirm-action-button">Create group</button>
+          <button className='confirm-action-button'>Create group</button>
         </form>
 
         <button
-          className="close-modal-button"
+          className='close-modal-button'
           onClick={() => {
             setIsModalOpen(false);
           }}

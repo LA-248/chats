@@ -17,11 +17,16 @@ const retrieveIdByUsername = async (req, res) => {
     const username = req.body.username;
     const user = await User.getIdByUsername(username);
     if (!user) {
-      throw new Error('User does not exist. Make sure that the username is correct.');
+      throw new Error(
+        'User does not exist. Make sure that the username is correct.'
+      );
     }
-    res.status(200).json({ userId: user.id});
+    res.status(200).json({ userId: user.id });
   } catch (error) {
-    if (error.message === 'User does not exist. Make sure that the username is correct.') {
+    if (
+      error.message ===
+      'User does not exist. Make sure that the username is correct.'
+    ) {
       return res.status(404).json({ error: error.message });
     }
     console.error('Error retrieving user ID:', error);
@@ -48,7 +53,10 @@ const retrieveProfilePictureById = async (req, res) => {
     }
 
     // Generate a temporary URL for viewing the uploaded profile picture from S3
-    const presignedS3Url = await createPresignedUrl(process.env.BUCKET_NAME, fileName);
+    const presignedS3Url = await createPresignedUrl(
+      process.env.BUCKET_NAME,
+      fileName
+    );
     res.status(200).json({ fileUrl: presignedS3Url });
   } catch (error) {
     console.error('Error retrieving profile picture:', error);
@@ -72,5 +80,5 @@ export {
   retrieveIdByUsername,
   retrieveUserIdFromSession,
   retrieveProfilePictureById,
-  retrieveBlockListById
+  retrieveBlockListById,
 };

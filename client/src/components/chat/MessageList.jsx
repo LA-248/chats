@@ -15,8 +15,10 @@ export default function MessageList({
   setMessageId,
   setMessageIndex,
 }) {
-  const { loggedInUserId, profilePicture, blockList, setBlockList } = useContext(UserContext);
-  const { setCurrentMessage, messageSearchValueText } = useContext(MessageContext);
+  const { loggedInUserId, profilePicture, blockList, setBlockList } =
+    useContext(UserContext);
+  const { setCurrentMessage, messageSearchValueText } =
+    useContext(MessageContext);
   const { isBlocked, setIsBlocked, selectedChat } = useContext(ChatContext);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -42,31 +44,31 @@ export default function MessageList({
 
       {/* Only render the messages if the user is a part of the private chat */}
       {room.includes(loggedInUserId) && (
-        <div className="chat-content-container">
-          <div className="messages-container">
-            <ul id="messages">
+        <div className='chat-content-container'>
+          <div className='messages-container'>
+            <ul id='messages'>
               {messageSearchValueText && filteredMessages.length === 0 ? (
-                <div id="no-messages-state">No messages found</div>
+                <div id='no-messages-state'>No messages found</div>
               ) : (
                 filteredMessages.map((messageData, index) => (
                   <li
-                    className="individual-message"
+                    className='individual-message'
                     key={index}
                     onMouseEnter={() => setHoveredIndex(index)}
                     onMouseLeave={() => setHoveredIndex(null)}
                   >
-                    <div className="message-container">
+                    <div className='message-container'>
                       <img
-                        className="message-profile-picture"
+                        className='message-profile-picture'
                         src={
                           loggedInUserId === messageData.senderId
                             ? profilePicture
                             : activeChat.recipient_profile_picture
                         }
-                        alt="Profile"
+                        alt='Profile'
                       ></img>
-                      <div className="message-metadata">
-                        <div className="message-details">
+                      <div className='message-metadata'>
+                        <div className='message-details'>
                           <div
                             className={`message-from ${
                               loggedInUserId !== messageData.senderId
@@ -80,14 +82,14 @@ export default function MessageList({
                           >
                             {messageData.from}
                           </div>
-                          <div className="message-time">
+                          <div className='message-time'>
                             {messageData.eventTime}
                           </div>
                           {hoveredIndex === index &&
                           loggedInUserId === messageData.senderId ? (
-                            <div className="message-actions-button">
+                            <div className='message-actions-button'>
                               <div
-                                className="message-edit-button"
+                                className='message-edit-button'
                                 onClick={() => {
                                   setIsEditModalOpen(true);
                                   setMessageId(messageData.id);
@@ -98,7 +100,7 @@ export default function MessageList({
                                 Edit
                               </div>
                               <div
-                                className="message-delete-button"
+                                className='message-delete-button'
                                 onClick={() => {
                                   setIsDeleteModalOpen(true);
                                   setMessageId(messageData.id);
@@ -110,7 +112,7 @@ export default function MessageList({
                             </div>
                           ) : null}
                         </div>
-                        <div className="message-content">
+                        <div className='message-content'>
                           {messageData.content}
                         </div>
                       </div>
@@ -122,7 +124,7 @@ export default function MessageList({
           </div>
           {errorMessage ? (
             <div
-              className="error-message"
+              className='error-message'
               style={{ margin: '20px', textAlign: 'left' }}
             >
               {errorMessage}

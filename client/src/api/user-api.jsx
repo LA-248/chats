@@ -62,10 +62,13 @@ async function getRecipientUserIdByUsername(username) {
 
 async function getUserProfilePicture() {
   try {
-    const response = await fetch('http://localhost:8080/users/profile_pictures', {
-      method: 'GET',
-      credentials: 'include',
-    });
+    const response = await fetch(
+      'http://localhost:8080/users/profile_pictures',
+      {
+        method: 'GET',
+        credentials: 'include',
+      }
+    );
 
     // User has no profile picture, return null, allowing the default avatar to be set
     if (response.status === 204) {

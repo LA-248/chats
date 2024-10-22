@@ -19,13 +19,13 @@ function App() {
             <div>
               <div>
                 <Routes>
-                  <Route path="/register" element={<SignUp />} />
-                  <Route path="/login" element={<Login />} />
+                  <Route path='/register' element={<SignUp />} />
+                  <Route path='/login' element={<Login />} />
 
                   <Route element={<ProtectedRoutes />}>
-                    <Route path="/" element={<Home />}>
-                      <Route path="messages/:room" element={<ChatView />} />
-                      <Route path="/settings" element={<Settings />} />
+                    <Route path='/' element={<Home />}>
+                      <Route path='messages/:room' element={<ChatView />} />
+                      <Route path='/settings' element={<Settings />} />
                     </Route>
                   </Route>
                 </Routes>

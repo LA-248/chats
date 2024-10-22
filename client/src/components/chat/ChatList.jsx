@@ -84,15 +84,15 @@ export default function ChatList({ setSelectedChat, setRecipientUsername }) {
   }, [socket]);
 
   return (
-    <div className="chat-list">
+    <div className='chat-list'>
       {errorMessage ? (
-        <div className="error-message">{errorMessage}</div>
+        <div className='error-message'>{errorMessage}</div>
       ) : null}
       {chatSearchInputText && filteredChats.length === 0 ? (
-        <div id="no-chats-state">No chats found</div>
+        <div id='no-chats-state'>No chats found</div>
       ) : (
         filteredChats.map((chat) => (
-          <div className="chat-item-container" key={chat.chat_id}>
+          <div className='chat-item-container' key={chat.chat_id}>
             <div
               // Add the active class if the current chat's ID matches the activeChatId
               className={`chat-item ${
@@ -126,33 +126,33 @@ export default function ChatList({ setSelectedChat, setRecipientUsername }) {
               }}
             >
               <img
-                className="chat-pic"
-                alt="Profile"
+                className='chat-pic'
+                alt='Profile'
                 src={
                   chat.recipient_profile_picture
                     ? chat.recipient_profile_picture
                     : '/images/default-avatar.jpg'
                 }
               ></img>
-              <div className="chat-info">
-                <div className="chat-name-and-time">
-                  <h4 className="chat-name">{chat.name}</h4>
-                  <div className="time-and-notification-container">
-                    <div className="chat-time">{chat.timestamp}</div>
+              <div className='chat-info'>
+                <div className='chat-name-and-time'>
+                  <h4 className='chat-name'>{chat.name}</h4>
+                  <div className='time-and-notification-container'>
+                    <div className='chat-time'>{chat.timestamp}</div>
                     {activeChatId !== chat.chat_id && chat.has_new_message ? (
-                      <span className="unread-message-alert"></span>
+                      <span className='unread-message-alert'></span>
                     ) : (
                       (chat.hasNewMessage = false)
                     )}
                   </div>
                 </div>
-                <div className="chat-metadata-container">
-                  <p className="chat-last-message">
+                <div className='chat-metadata-container'>
+                  <p className='chat-last-message'>
                     {chat.last_message.content
                       ? chat.last_message.content
                       : chat.last_message}
                   </p>
-                  <div className="chat-utilities">
+                  <div className='chat-utilities'>
                     {hoverChatId === chat.chat_id && (
                       <button
                         onClick={(event) => {
@@ -163,7 +163,7 @@ export default function ChatList({ setSelectedChat, setRecipientUsername }) {
                             navigate('/');
                           }
                         }}
-                        className="chat-delete-button"
+                        className='chat-delete-button'
                       >
                         Delete
                       </button>

@@ -1,25 +1,29 @@
 import { Link } from 'react-router-dom';
 import Logout from './UserLogout';
 
-export default function UserProfile({ profilePicture, loggedInUsername, setActiveChatId }) {
+export default function UserProfile({
+  profilePicture,
+  loggedInUsername,
+  setActiveChatId,
+}) {
   return (
-    <div className="profile-settings-container">
-      <div className="user-profile-info">
+    <div className='profile-settings-container'>
+      <div className='user-profile-info'>
         <img
           src={profilePicture}
-          alt="Profile"
-          className="user-profile-picture"
+          alt='Profile'
+          className='user-profile-picture'
         ></img>
-        <div className="account-username">{loggedInUsername}</div>
+        <div className='account-username'>{loggedInUsername}</div>
       </div>
-      <div className="user-navigation-buttons">
+      <div className='user-navigation-buttons'>
         <Logout />
         <Link
-          to="/settings"
+          to='/settings'
           style={{ textDecoration: 'none', marginLeft: '10px' }}
         >
           <button
-            className="settings-button"
+            className='settings-button'
             onClick={() => setActiveChatId(null)}
           >
             Settings

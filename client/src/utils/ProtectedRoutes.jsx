@@ -15,13 +15,15 @@ export default function ProtectedRoutes() {
         });
 
         if (!response.ok) {
-          throw new Error('There was an error retrieving the authentication status.');
+          throw new Error(
+            'There was an error retrieving the authentication status.'
+          );
         }
 
         const data = await response.json();
         setAuthenticationStatus(data.authenticated);
       };
-  
+
       checkAuthStatus();
     } catch (error) {
       console.error(error);
@@ -40,6 +42,6 @@ export default function ProtectedRoutes() {
   if (authenticationStatus === true) {
     return <Outlet />;
   } else {
-    return <Navigate to="/login" />;
+    return <Navigate to='/login' />;
   }
 }

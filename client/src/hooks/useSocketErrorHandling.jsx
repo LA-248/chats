@@ -14,7 +14,9 @@ export const useSocketErrorHandling = (socket, setErrorMessage) => {
     });
 
     socket.on('disconnect', () => {
-      setErrorMessage('Disconnected from chat server. Attempting to reconnect...');
+      setErrorMessage(
+        'Disconnected from chat server. Attempting to reconnect...'
+      );
     });
 
     return () => {

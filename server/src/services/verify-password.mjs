@@ -9,7 +9,7 @@ export default function verifyPassword(password, user, cb) {
     if (!isMatch) {
       return cb(null, false, { message: 'Incorrect username or password' });
     }
-    
+
     return cb(null, user);
   });
 }

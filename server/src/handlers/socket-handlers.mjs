@@ -1,7 +1,10 @@
 import { Chat } from '../models/chat-model.mjs';
 import { Message } from '../models/message-model.mjs';
 import { User } from '../models/user-model.mjs';
-import { retrieveCurrentTime, retrieveCurrentTimeWithSeconds } from '../utils/time-utils.mjs';
+import {
+  retrieveCurrentTime,
+  retrieveCurrentTimeWithSeconds,
+} from '../utils/time-utils.mjs';
 import addChatForRecipientOnMessageReceive from '../utils/handle-recipient-chat-list.mjs';
 import isSenderBlocked from '../utils/check-blocked-status.mjs';
 
@@ -34,7 +37,7 @@ const formatMessage = (message) => ({
 const handleChatMessages = (socket, io) => {
   socket.on('chat-message', async (data, clientOffset, callback) => {
     const { username, recipientId, message } = data;
-    
+
     // Extract the recipient's socket id from the userSockets hash map by using their user id
     // This allows us to add the recipient to the correct chat room when they receive a message
     const targetUserSocketId = userSockets.get(recipientId);
@@ -58,13 +61,32 @@ const handleChatMessages = (socket, io) => {
       // Check if the sender is blocked from messaging the recipient, throw an error if they are
       await isSenderBlocked(recipientId, senderId);
 
-      const newMessage = await Message.insertNewMessage(message, username, senderId, recipientId, roomName, currentTime, currentTimeWithSeconds, clientOffset);
+      const newMessage = await Message.insertNewMessage(
+        message,
+        username,
+        senderId,
+        recipientId,
+        roomName,
+        currentTime,
+        currentTimeWithSeconds,
+        clientOffset
+      );
 
       // Set the chat as unread for the recipient when a new message is received
       await Chat.updateMessageReadStatus(true, roomName, recipientId);
 
       // Add the chat to the recipient's chat list if they don't have it
-      await addChatForRecipientOnMessageReceive(recipientId, username, message, true, currentTime, currentTimeWithSeconds, senderId, senderProfilePicture, roomName);
+      await addChatForRecipientOnMessageReceive(
+        recipientId,
+        username,
+        message,
+        true,
+        currentTime,
+        currentTimeWithSeconds,
+        senderId,
+        senderProfilePicture,
+        roomName
+      );
 
       // Send the message to both room participants
       io.to(roomName).emit('chat-message', {
@@ -80,7 +102,10 @@ const handleChatMessages = (socket, io) => {
       // Check if the message was already inserted
       if (error.errno === 19) {
         callback('Error sending message');
-        console.error('Message with this client offset already exists:', clientOffset);
+        console.error(
+          'Message with this client offset already exists:',
+          clientOffset
+        );
       } else {
         callback('Error sending message');
         console.error(`Error inserting message: ${error}`);
@@ -94,11 +119,16 @@ const displayChatMessages = async (socket, room) => {
   if (!socket.recovered) {
     try {
       // Get messages from database for display, filtered by room
-      const messages = await Message.retrieveMessages(socket.handshake.auth.serverOffset, room);
+      const messages = await Message.retrieveMessages(
+        socket.handshake.auth.serverOffset,
+        room
+      );
       socket.emit('initial-messages', messages.map(formatMessage));
     } catch (error) {
       console.error('Unexpected error:', error);
-      socket.emit('custom-error', { error: 'Unable to retrieve chat messages' });
+      socket.emit('custom-error', {
+        error: 'Unable to retrieve chat messages',
+      });
       return;
     }
   }
@@ -116,16 +146,25 @@ const updateMessageReadStatus = (socket, userId) => {
   });
 };
 
-// TODO: Instead of retrieving the whole message list for edits, only fetch the edited message 
+// TODO: Instead of retrieving the whole message list for edits, only fetch the edited message
 // Listen for message events such as deletes and edits, and emit the updated message list to the room
 const processUpdateMessageEvent = (socket, io) => {
   socket.on('message-update-event', async (room, updateType) => {
     try {
-      const messages = await Message.retrieveMessages(socket.handshake.auth.serverOffset, room);
-      io.to(room).emit('message-update-event', messages.map(formatMessage), updateType);
+      const messages = await Message.retrieveMessages(
+        socket.handshake.auth.serverOffset,
+        room
+      );
+      io.to(room).emit(
+        'message-update-event',
+        messages.map(formatMessage),
+        updateType
+      );
     } catch (error) {
       console.error('Unexpected error:', error.message);
-      socket.emit('custom-error', { error: `Error ${updateType} message. Please try again.` });
+      socket.emit('custom-error', {
+        error: `Error ${updateType} message. Please try again.`,
+      });
       return;
     }
   });

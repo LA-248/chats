@@ -65,20 +65,20 @@ export default function EditMessageModal({
         errorMessage={errorMessage}
         setErrorMessage={setErrorMessage}
       >
-        <div className="modal-heading">Edit message</div>
+        <div className='modal-heading'>Edit message</div>
         <div>
           <textarea
             autoFocus
-            type="text"
-            id="message-edit-textarea"
+            type='text'
+            id='message-edit-textarea'
             placeholder={currentMessage}
             value={newMessage}
             onChange={(event) => setNewMessage(event.target.value)}
             style={{ width: '100%' }}
           />
           <button
-            type="button"
-            className="emoji-picker-button-edit-modal"
+            type='button'
+            className='emoji-picker-button-edit-modal'
             onClick={(event) => {
               event.stopPropagation();
               setShowEmojiPicker((value) => !value);
@@ -90,7 +90,7 @@ export default function EditMessageModal({
         </div>
 
         {showEmojiPicker ? (
-          <div className="emoji-picker-container">
+          <div className='emoji-picker-container'>
             <Picker
               data={data}
               onEmojiSelect={handleAddEmoji}
@@ -99,9 +99,9 @@ export default function EditMessageModal({
           </div>
         ) : null}
 
-        <div className="modal-action-buttons-container">
+        <div className='modal-action-buttons-container'>
           <button
-            className="confirm-action-button"
+            className='confirm-action-button'
             style={{ backgroundColor: '#1db954' }}
             onClick={() => {
               handleMessageEdit(messageId, messageIndex);
@@ -113,7 +113,7 @@ export default function EditMessageModal({
           </button>
 
           <button
-            className="close-modal-button"
+            className='close-modal-button'
             onClick={() => {
               setNewMessage('');
               setIsModalOpen(false);

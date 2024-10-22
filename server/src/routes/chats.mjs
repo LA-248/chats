@@ -1,5 +1,11 @@
 import express from 'express';
-import { addChat, retrieveChatList, deleteChat, updateChatInChatList, updateChatName } from '../controllers/chat/chat-list-controller.mjs';
+import {
+  addChat,
+  retrieveChatList,
+  deleteChat,
+  updateChatInChatList,
+  updateChatName,
+} from '../controllers/chat/chat-list-controller.mjs';
 
 const chatsRouter = express.Router();
 

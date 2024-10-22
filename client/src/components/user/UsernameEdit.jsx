@@ -5,7 +5,6 @@ import { updateUsernameInMessages } from '../../api/message-api';
 import { updateUsername } from '../../api/user-api';
 import Modal from '../common/ModalTemplate';
 
-
 export default function UsernameEdit({
   isModalOpen,
   setIsModalOpen,
@@ -46,55 +45,55 @@ export default function UsernameEdit({
 
   return (
     <>
-      <div className="username-container">
-        <div className="username-heading">Username</div>
-        <div className="username-input-wrapper">
+      <div className='username-container'>
+        <div className='username-heading'>Username</div>
+        <div className='username-input-wrapper'>
           <input
-            className="username-display"
+            className='username-display'
             placeholder={loggedInUsername}
             disabled={true}
           />
           <button
-            className="edit-username-button"
+            className='edit-username-button'
             onClick={() => setIsModalOpen(true)}
           >
             Edit
           </button>
         </div>
         {usernameEditStatus ? (
-          <div className="status-text">{usernameEditStatus}</div>
+          <div className='status-text'>{usernameEditStatus}</div>
         ) : null}
       </div>
 
-      <Modal  
+      <Modal
         isModalOpen={isModalOpen}
         setIsModalOpen={setIsModalOpen}
         errorMessage={errorMessage}
         setErrorMessage={setErrorMessage}
       >
-        <div className="modal-heading">Edit username</div>
-        <form id="username-edit-form" onSubmit={handleFormSubmit}>
+        <div className='modal-heading'>Edit username</div>
+        <form id='username-edit-form' onSubmit={handleFormSubmit}>
           <input
             autoFocus
-            className="username-input"
-            placeholder="Choose a new username"
+            className='username-input'
+            placeholder='Choose a new username'
             value={usernameInput}
             onChange={(event) => {
               setUsernameInput(event.target.value);
               setErrorMessage('');
             }}
           />
-          <div className="modal-action-buttons-container">
+          <div className='modal-action-buttons-container'>
             <button
-              type="submit"
-              className="confirm-username-edit-button"
+              type='submit'
+              className='confirm-username-edit-button'
               style={{ marginTop: '20px' }}
             >
               Done
             </button>
             <button
-              type="button"
-              className="close-modal-button"
+              type='button'
+              className='close-modal-button'
               style={{ marginTop: '20px' }}
               onClick={() => setIsModalOpen(false)}
             >

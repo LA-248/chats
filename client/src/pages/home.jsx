@@ -110,13 +110,13 @@ export default function Home() {
     // Render child components only if the socket is initialised
     socket && (
       <SocketContext.Provider value={socket}>
-        <div className="main-container">
-          <div className="sidebar-container">
+        <div className='main-container'>
+          <div className='sidebar-container'>
             {errorMessage ? (
-              <div className="error-message">{errorMessage}</div>
+              <div className='error-message'>{errorMessage}</div>
             ) : null}
             <Link
-              to="/"
+              to='/'
               style={{
                 color: '#1db954',
                 fontWeight: '600',
@@ -130,7 +130,7 @@ export default function Home() {
             </Link>
             <Sidebar />
           </div>
-          <div className="chat-window-container">
+          <div className='chat-window-container'>
             {location.pathname === '/' ? <ChatWindowPlaceholder /> : <Outlet />}
           </div>
         </div>

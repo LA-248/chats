@@ -79,58 +79,80 @@ const Chat = {
   // READ OPERATIONS
 
   // Retrieve a user's chat list and sort it by timestamp
-  retrieveChatListByUserId: function(userId) {
+  retrieveChatListByUserId: function (userId) {
     return new Promise((resolve, reject) => {
-      pool.query('SELECT * FROM chats WHERE user_id = $1 ORDER BY timestamp_with_seconds DESC', [userId], (err, result) => {
-        if (err) {
-          return reject(`Database error: ${err.message}`);
+      pool.query(
+        'SELECT * FROM chats WHERE user_id = $1 ORDER BY timestamp_with_seconds DESC',
+        [userId],
+        (err, result) => {
+          if (err) {
+            return reject(`Database error: ${err.message}`);
+          }
+          return resolve(result.rows);
         }
-        return resolve(result.rows);
-      });
+      );
     });
   },
 
   // UPDATE OPERATIONS
 
-  updateChatInChatList: function(lastMessage, timestamp, timestampWithSeconds, room) {
+  updateChatInChatList: function (
+    lastMessage,
+    timestamp,
+    timestampWithSeconds,
+    room
+  ) {
     return new Promise((resolve, reject) => {
-      pool.query(`
+      pool.query(
+        `
         UPDATE chats 
         SET last_message = $1, timestamp = $2, timestamp_with_seconds = $3 
-        WHERE room = $4 RETURNING *`, [lastMessage, timestamp, timestampWithSeconds, room], (err, result) => {
-        if (err) {
-          return reject(`Database error: ${err.message}`);
+        WHERE room = $4 RETURNING *`,
+        [lastMessage, timestamp, timestampWithSeconds, room],
+        (err, result) => {
+          if (err) {
+            return reject(`Database error: ${err.message}`);
+          }
+          return resolve(result.rows[0]);
         }
-        return resolve(result.rows[0]);
-      });
+      );
     });
   },
 
-  updateMessageReadStatus: function(hasNewMessage, room, userId) {
+  updateMessageReadStatus: function (hasNewMessage, room, userId) {
     return new Promise((resolve, reject) => {
-      pool.query(`UPDATE chats SET has_new_message = $1 WHERE room = $2 AND user_id = $3 RETURNING *`, [hasNewMessage, room, userId], (err, result) => {
-        if (err) {
-          return reject(`Database error: ${err.message}`);
+      pool.query(
+        `UPDATE chats SET has_new_message = $1 WHERE room = $2 AND user_id = $3 RETURNING *`,
+        [hasNewMessage, room, userId],
+        (err, result) => {
+          if (err) {
+            return reject(`Database error: ${err.message}`);
+          }
+          return resolve(result.rows[0]);
         }
-        return resolve(result.rows[0]);
-      });
+      );
     });
   },
 
-  updateChatName: function(newUsername, userId) {
+  updateChatName: function (newUsername, userId) {
     return new Promise((resolve, reject) => {
-      pool.query('UPDATE chats SET name = $1 WHERE recipient_id = $2', [newUsername, userId], (err) => {
-        if (err) {
-          return reject(`Database error: ${err.message}`);
+      pool.query(
+        'UPDATE chats SET name = $1 WHERE recipient_id = $2',
+        [newUsername, userId],
+        (err) => {
+          if (err) {
+            return reject(`Database error: ${err.message}`);
+          }
+          return resolve();
         }
-        return resolve();
-      });
+      );
     });
   },
 
-  updateRecipientProfilePicture: function(userId) {
+  updateRecipientProfilePicture: function (userId) {
     return new Promise((resolve, reject) => {
-      pool.query(`
+      pool.query(
+        `
         UPDATE chats
         SET recipient_profile_picture = (
           SELECT profile_picture
@@ -149,20 +171,25 @@ const Chat = {
             return reject(`Database error: ${err.message}`);
           }
           return resolve();
-        });
+        }
+      );
     });
   },
 
   // DELETE OPERATIONS
 
-  deleteChatByUserId: function(userId, chatId) {
+  deleteChatByUserId: function (userId, chatId) {
     return new Promise((resolve, reject) => {
-      pool.query('DELETE FROM chats WHERE user_id = $1 AND chat_id = $2', [userId, chatId], (err, result) => {
-        if (err) {
-          return reject(`Database error: ${err.message}`);
+      pool.query(
+        'DELETE FROM chats WHERE user_id = $1 AND chat_id = $2',
+        [userId, chatId],
+        (err, result) => {
+          if (err) {
+            return reject(`Database error: ${err.message}`);
+          }
+          return resolve(result.rows[0]);
         }
-        return resolve(result.rows[0]);
-      });
+      );
     });
   },
 };

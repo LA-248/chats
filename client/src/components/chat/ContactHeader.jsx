@@ -8,8 +8,10 @@ import MessageSearch from './MessageSearch';
 import ContactInfoModal from '../common/ContactInfoModal';
 
 export default function ContactHeader() {
-  const { isBlocked, setIsBlocked, selectedChat, setActiveChatId } = useContext(ChatContext);
-  const { messages, setRecipientId, setFilteredMessages } = useContext(MessageContext);
+  const { isBlocked, setIsBlocked, selectedChat, setActiveChatId } =
+    useContext(ChatContext);
+  const { messages, setRecipientId, setFilteredMessages } =
+    useContext(MessageContext);
   const { blockList, setBlockList } = useContext(UserContext);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -44,23 +46,23 @@ export default function ContactHeader() {
 
   return (
     <div>
-      <div className="contact-header-container">
-        <div className="contact-header">
-          <div className="picture-and-name">
+      <div className='contact-header-container'>
+        <div className='contact-header'>
+          <div className='picture-and-name'>
             {(selectedChat || activeChat.name) && (
               <img
-                className="chat-pic"
+                className='chat-pic'
                 src={
                   activeChat.recipient_profile_picture
                     ? activeChat.recipient_profile_picture
                     : '/images/default-avatar.jpg'
                 }
-                alt="Profile"
+                alt='Profile'
                 style={{ height: '35px', width: '35px' }}
               ></img>
             )}
             <div
-              className="recipient-username"
+              className='recipient-username'
               onClick={() => setIsModalOpen(true)}
             >
               {selectedChat || activeChat.name}
