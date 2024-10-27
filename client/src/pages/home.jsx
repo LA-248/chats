@@ -89,11 +89,9 @@ export default function Home() {
           setMessages((prevMessages) => prevMessages.concat(messageData));
         }
 
-        // Update chat in state and database with most recent message sent and time
+        // Update chat in state and database with the most recent message sent
         await updateChatList(
           messageData.content,
-          messageData.eventTime,
-          messageData.eventTimeWithSeconds,
           messageData.room
         );
         const storedChats = await getChatListByUserId();

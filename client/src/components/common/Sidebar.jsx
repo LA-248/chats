@@ -90,8 +90,6 @@ export default function Sidebar() {
         <ChatSearch
           chatSearchInputText={chatSearchInputText}
           setChatSearchInputText={setChatSearchInputText}
-          chatList={chatList}
-          setChatList={setChatList}
         />
       ) : (
         <div className='chat-list-empty-container'>

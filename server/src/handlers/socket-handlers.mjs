@@ -1,10 +1,6 @@
 import { Chat } from '../models/chat-model.mjs';
 import { Message } from '../models/message-model.mjs';
 import { User } from '../models/user-model.mjs';
-import {
-  retrieveCurrentTime,
-  retrieveCurrentTimeWithSeconds,
-} from '../utils/time-utils.mjs';
 import addChatForRecipientOnMessageReceive from '../utils/handle-recipient-chat-list.mjs';
 import isSenderBlocked from '../utils/check-blocked-status.mjs';
 
@@ -29,7 +25,6 @@ const formatMessage = (message) => ({
   from: message.sender_username,
   content: message.content,
   eventTime: message.event_time,
-  eventTimeWithSeconds: message.event_time_seconds,
   id: message.id,
   senderId: message.sender_id,
 });
@@ -44,8 +39,6 @@ const handleChatMessages = (socket, io) => {
 
     const senderId = socket.handshake.session.passport.user;
     const senderProfilePicture = await User.getUserProfilePicture(senderId);
-    const currentTime = retrieveCurrentTime();
-    const currentTimeWithSeconds = retrieveCurrentTimeWithSeconds();
 
     try {
       // Create a consistent room name using user IDs
@@ -67,8 +60,6 @@ const handleChatMessages = (socket, io) => {
         senderId,
         recipientId,
         roomName,
-        currentTime,
-        currentTimeWithSeconds,
         clientOffset
       );
 
@@ -81,8 +72,6 @@ const handleChatMessages = (socket, io) => {
         username,
         message,
         true,
-        currentTime,
-        currentTimeWithSeconds,
         senderId,
         senderProfilePicture,
         roomName
@@ -93,8 +82,7 @@ const handleChatMessages = (socket, io) => {
         from: username,
         content: message,
         room: roomName,
-        eventTime: currentTime,
-        eventTimeWithSeconds: currentTimeWithSeconds,
+        eventTime: newMessage.event_time,
         id: newMessage.id,
         senderId: senderId,
       });

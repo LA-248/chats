@@ -13,8 +13,7 @@ const Chat = {
           name TEXT,
           last_message TEXT,
           has_new_message BOOLEAN,
-          timestamp TEXT,
-          timestamp_with_seconds TEXT,
+          event_time TIMESTAMPTZ DEFAULT NOW(),
           recipient_id INTEGER,
           recipient_profile_picture TEXT,
           room TEXT
@@ -38,8 +37,6 @@ const Chat = {
     name,
     lastMessage,
     hasNewMessage,
-    timestamp,
-    timestampWithSeconds,
     recipientId,
     recipientProfilePicture,
     room
@@ -48,20 +45,18 @@ const Chat = {
       pool.query(
         // Create a temporary table, allowing us to immediately retrieve the most recent state of the specified chat after insertion
         `WITH inserted AS (
-          INSERT INTO chats (user_id, name, last_message, has_new_message, timestamp, timestamp_with_seconds, recipient_id, recipient_profile_picture, room)
-          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+          INSERT INTO chats (user_id, name, last_message, has_new_message, recipient_id, recipient_profile_picture, room)
+          VALUES ($1, $2, $3, $4, $5, $6, $7)
           RETURNING *
         )
         SELECT *
         FROM inserted
-        ORDER BY timestamp_with_seconds DESC`,
+        ORDER BY event_time DESC`,
         [
           userId,
           name,
           lastMessage,
           hasNewMessage,
-          timestamp,
-          timestampWithSeconds,
           recipientId,
           recipientProfilePicture,
           room,
@@ -82,7 +77,7 @@ const Chat = {
   retrieveChatListByUserId: function (userId) {
     return new Promise((resolve, reject) => {
       pool.query(
-        'SELECT * FROM chats WHERE user_id = $1 ORDER BY timestamp_with_seconds DESC',
+        'SELECT * FROM chats WHERE user_id = $1 ORDER BY event_time DESC',
         [userId],
         (err, result) => {
           if (err) {
@@ -96,19 +91,14 @@ const Chat = {
 
   // UPDATE OPERATIONS
 
-  updateChatInChatList: function (
-    lastMessage,
-    timestamp,
-    timestampWithSeconds,
-    room
-  ) {
+  updateChatInChatList: function (lastMessage, room) {
     return new Promise((resolve, reject) => {
       pool.query(
-        `
-        UPDATE chats 
-        SET last_message = $1, timestamp = $2, timestamp_with_seconds = $3 
-        WHERE room = $4 RETURNING *`,
-        [lastMessage, timestamp, timestampWithSeconds, room],
+        `UPDATE chats 
+         SET last_message = $1, event_time = NOW() 
+         WHERE room = $2 
+         RETURNING *`,
+        [lastMessage, room],
         (err, result) => {
           if (err) {
             return reject(`Database error: ${err.message}`);

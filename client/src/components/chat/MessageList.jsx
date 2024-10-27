@@ -4,6 +4,7 @@ import { MessageContext } from '../../contexts/MessageContext';
 import { ChatContext } from '../../contexts/ChatContext';
 import { updateBlockList } from '../../api/user-api';
 import ContactInfoModal from '../common/ContactInfoModal';
+import formatDate from '../../utils/DateTimeFormat';
 
 export default function MessageList({
   filteredMessages,
@@ -83,7 +84,7 @@ export default function MessageList({
                             {messageData.from}
                           </div>
                           <div className='message-time'>
-                            {messageData.eventTime}
+                            {formatDate(messageData.eventTime)}
                           </div>
                           {hoveredIndex === index &&
                           loggedInUserId === messageData.senderId ? (

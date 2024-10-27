@@ -1,7 +1,6 @@
 import { User } from '../../models/user-model.mjs';
 import { Message } from '../../models/message-model.mjs';
 import { Chat } from '../../models/chat-model.mjs';
-import { retrieveCurrentTimeWithSeconds } from '../../utils/time-utils.mjs';
 import { createPresignedUrl } from '../../services/s3-file-handler.mjs';
 import NodeCache from 'node-cache';
 const profilePictureUrlCache = new NodeCache({ stdTTL: 604800 });
@@ -24,7 +23,6 @@ const addChat = async (req, res) => {
     const recipientProfilePicture = await User.getUserProfilePicture(
       recipientId
     );
-    const currentTimeWithSeconds = retrieveCurrentTimeWithSeconds();
 
     // Ensure the room is the same for both users by sorting the user IDs
     const room = [senderId, recipientId].sort().join('-');
@@ -37,17 +35,12 @@ const addChat = async (req, res) => {
     const name = username;
     const content = lastMessageData ? lastMessageData.content : '';
     const hasNewMessage = false;
-    const timestamp = lastMessageData ? lastMessageData.event_time : '';
-    // Use the timestamp with seconds to set a newly added chat to the top of the chat list
-    const timestampWithSeconds = lastMessageData ? lastMessageData.event_time_seconds : currentTimeWithSeconds;
 
     const newChatItem = await Chat.insertNewChat(
       userId,
       name,
       content,
       hasNewMessage,
-      timestamp,
-      timestampWithSeconds,
       recipientId,
       recipientProfilePicture,
       room
@@ -130,16 +123,9 @@ const deleteChat = async (req, res) => {
 const updateChatInChatList = async (req, res) => {
   try {
     const lastMessage = req.body.lastMessage;
-    const timestamp = req.body.timestamp;
-    const timestampWithSeconds = req.body.timestampWithSeconds;
     const room = req.body.room;
 
-    const updatedChatList = await Chat.updateChatInChatList(
-      lastMessage,
-      timestamp,
-      timestampWithSeconds,
-      room
-    );
+    const updatedChatList = await Chat.updateChatInChatList(lastMessage, room);
     return res.status(200).json({ updatedChatList: updatedChatList });
   } catch (error) {
     console.error('Error updating chat:', error);

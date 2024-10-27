@@ -3,14 +3,19 @@ import { useNavigate } from 'react-router-dom';
 import { useSocket } from '../../hooks/useSocket';
 import { ChatContext } from '../../contexts/ChatContext';
 import { getChatListByUserId, deleteChat } from '../../api/chat-api';
+import formatDate from '../../utils/DateTimeFormat';
 
 export default function ChatList({ setSelectedChat, setRecipientUsername }) {
   const socket = useSocket();
-  const { chatList, setChatList, activeChatId, setActiveChatId } =
-    useContext(ChatContext);
-  const { chatSearchInputText, setChatSearchInputText } =
-    useContext(ChatContext);
-  const [filteredChats, setFilteredChats] = useState([]);
+  const {
+    chatSearchInputText,
+    setChatSearchInputText,
+    chatList,
+    setChatList,
+    filteredChats,
+    activeChatId,
+    setActiveChatId,
+  } = useContext(ChatContext);
   const [hoverChatId, setHoverChatId] = useState(null);
   const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
@@ -47,6 +52,7 @@ export default function ChatList({ setSelectedChat, setRecipientUsername }) {
       try {
         const result = await getChatListByUserId();
         setChatList(result);
+        console.log(result);
       } catch (error) {
         setErrorMessage(error.message);
       }
@@ -54,18 +60,6 @@ export default function ChatList({ setSelectedChat, setRecipientUsername }) {
 
     displayChatList();
   }, [setChatList]);
-
-  // Filter chat list based on search input
-  useEffect(() => {
-    if (chatSearchInputText) {
-      const filtered = chatList.filter((chat) =>
-        chat.name.toLowerCase().includes(chatSearchInputText.toLowerCase())
-      );
-      setFilteredChats(filtered);
-    } else {
-      setFilteredChats(chatList);
-    }
-  }, [chatSearchInputText, chatList]);
 
   // Automatically mark messages as read in the currently open chat
   useEffect(() => {
@@ -138,7 +132,7 @@ export default function ChatList({ setSelectedChat, setRecipientUsername }) {
                 <div className='chat-name-and-time'>
                   <h4 className='chat-name'>{chat.name}</h4>
                   <div className='time-and-notification-container'>
-                    <div className='chat-time'>{chat.timestamp}</div>
+                    <div className='chat-time'>{formatDate(chat.event_time)}</div>
                     {activeChatId !== chat.chat_id && chat.has_new_message ? (
                       <span className='unread-message-alert'></span>
                     ) : (

@@ -6,8 +6,6 @@ export default async function addChatForRecipientOnMessageReceive(
   username,
   message,
   hasNewMessage,
-  currentTime,
-  currentTimeWithSeconds,
   senderId,
   senderProfilePicture,
   roomName
@@ -29,8 +27,6 @@ export default async function addChatForRecipientOnMessageReceive(
       username,
       message,
       hasNewMessage,
-      currentTime,
-      currentTimeWithSeconds,
       senderId,
       senderProfilePicture,
       roomName
