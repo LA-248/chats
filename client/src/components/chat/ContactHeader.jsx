@@ -8,11 +8,11 @@ import MessageSearch from './MessageSearch';
 import ContactInfoModal from '../common/ContactInfoModal';
 
 export default function ContactHeader() {
-  const { isBlocked, setIsBlocked, selectedChat, setActiveChatId } =
+  const { setIsBlocked, selectedChat, setActiveChatId } =
     useContext(ChatContext);
   const { messages, setRecipientId, setFilteredMessages } =
     useContext(MessageContext);
-  const { blockList, setBlockList } = useContext(UserContext);
+  const { setBlockList } = useContext(UserContext);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const activeChat = JSON.parse(localStorage.getItem('active-chat'));
@@ -77,15 +77,10 @@ export default function ContactHeader() {
       </div>
 
       <ContactInfoModal
-        isBlocked={isBlocked}
         activeChat={activeChat}
-        selectedChat={selectedChat}
         isModalOpen={isModalOpen}
         setIsModalOpen={setIsModalOpen}
-        blockList={blockList}
-        setBlockList={setBlockList}
         updateBlockList={updateBlockList}
-        setIsBlocked={setIsBlocked}
         errorMessage={errorMessage}
         setErrorMessage={setErrorMessage}
       />

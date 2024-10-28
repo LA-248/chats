@@ -1,8 +1,8 @@
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useSocket } from '../../hooks/useSocket';
 import { MessageContext } from '../../contexts/MessageContext';
-import { useChatRoomEvents } from '../../hooks/useChatRoomEvents';
+import { useSocketErrorHandling } from '../../hooks/useSocketErrorHandling';
 import ContactHeader from './ContactHeader';
 import MessageInput from './MessageInput';
 import MessageList from './MessageList';
@@ -20,7 +20,29 @@ function ChatView() {
   const [hoveredIndex, setHoveredIndex] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
-  useChatRoomEvents(socket, room, setMessages, setErrorMessage);
+  useSocketErrorHandling(socket, setErrorMessage);
+
+  useEffect(() => {
+    const displayInitialMessages = (initialMessages) => {
+      setMessages(initialMessages);
+    };
+
+    const handleMessageListUpdate = (updatedMessageList) => {
+      setMessages(updatedMessageList);
+    };
+
+    socket.emit('join-room', room);
+    // Display all messages on load when opening a chat
+    socket.on('initial-messages', displayInitialMessages);
+    // Update chat message list for everyone in a room after a message is deleted or edited
+    socket.on('message-update-event', handleMessageListUpdate);
+
+    return () => {
+      socket.emit('leave-room', room);
+      socket.off('initial-messages', displayInitialMessages);
+      socket.off('message-update-event', handleMessageListUpdate);
+    };
+  }, [socket, room, setMessages, setErrorMessage]);
 
   return (
     <div className='chat-view-container'>

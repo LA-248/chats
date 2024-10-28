@@ -52,7 +52,6 @@ export default function ChatList({ setSelectedChat, setRecipientUsername }) {
       try {
         const result = await getChatListByUserId();
         setChatList(result);
-        console.log(result);
       } catch (error) {
         setErrorMessage(error.message);
       }

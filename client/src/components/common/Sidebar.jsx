@@ -1,8 +1,7 @@
-import { useCallback, useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { MessageContext } from '../../contexts/MessageContext';
 import { ChatContext } from '../../contexts/ChatContext';
 import { UserContext } from '../../contexts/UserContext';
-import { addChat, getChatListByUserId } from '../../api/chat-api';
 import { getRecipientUserIdByUsername } from '../../api/user-api';
 import AddChatInput from '../chat/AddChatInput';
 import ChatList from '../chat/ChatList';
@@ -11,7 +10,6 @@ import CreateGroupChatModal from './CreateGroupChatModal';
 import UserProfile from '../user/UserProfile';
 
 export default function Sidebar() {
-  const [inputUsername, setInputUsername] = useState('');
   const [chatSearchInputText, setChatSearchInputText] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
@@ -24,25 +22,6 @@ export default function Sidebar() {
     setChatList,
     setActiveChatId,
   } = useContext(ChatContext);
-
-  // Adds a new chat to the sidebar
-  const handleAddChat = useCallback(
-    async (event) => {
-      event.preventDefault();
-
-      try {
-        const newChatItem = await addChat(inputUsername, chatList);
-        let updatedChatList = chatList.concat(newChatItem);
-        // Get the most recent and sorted version of the user's chat list - ensures the chat list is in the correct order after a chat is deleted and re-added
-        updatedChatList = await getChatListByUserId();
-        setChatList(updatedChatList);
-        setInputUsername('');
-      } catch (error) {
-        setErrorMessage(error.message);
-      }
-    },
-    [chatList, setChatList, inputUsername]
-  );
 
   // Retrieve the ID of the chat user selected
   // We can then get the socket ID associated with the recipient's user ID on the server
@@ -65,9 +44,8 @@ export default function Sidebar() {
   return (
     <div className='sidebar'>
       <AddChatInput
-        inputUsername={inputUsername}
-        setInputUsername={setInputUsername}
-        handleAddChat={handleAddChat}
+        chatList={chatList}
+        setChatList={setChatList}
         errorMessage={errorMessage}
         setErrorMessage={setErrorMessage}
       />
