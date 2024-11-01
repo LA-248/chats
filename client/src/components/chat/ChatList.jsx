@@ -12,10 +12,10 @@ export default function ChatList({ setSelectedChat, setRecipientUsername }) {
     setChatSearchInputText,
     chatList,
     setChatList,
-    filteredChats,
     activeChatId,
     setActiveChatId,
   } = useContext(ChatContext);
+  const [filteredChats, setFilteredChats] = useState([]);
   const [hoverChatId, setHoverChatId] = useState(null);
   const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
@@ -39,7 +39,7 @@ export default function ChatList({ setSelectedChat, setRecipientUsername }) {
     try {
       await deleteChat(id);
       const storedChatList = await getChatListByUserId(); // Get updated chat list
-      const updatedChatList = storedChatList.filter((chat) => chat.id !== id);
+      const updatedChatList = storedChatList;
       setChatList(updatedChatList);
     } catch (error) {
       setErrorMessage(error.message);
@@ -59,6 +59,18 @@ export default function ChatList({ setSelectedChat, setRecipientUsername }) {
 
     displayChatList();
   }, [setChatList]);
+
+  // Filter chat list based on search input
+  useEffect(() => {
+    if (chatSearchInputText) {
+      const filtered = chatList.filter((chat) =>
+        chat.name.toLowerCase().includes(chatSearchInputText.toLowerCase())
+      );
+      setFilteredChats(filtered);
+    } else {
+      setFilteredChats(chatList);
+    }
+  }, [chatSearchInputText, chatList, setFilteredChats]);
 
   // Automatically mark messages as read in the currently open chat
   useEffect(() => {
@@ -131,7 +143,9 @@ export default function ChatList({ setSelectedChat, setRecipientUsername }) {
                 <div className='chat-name-and-time'>
                   <h4 className='chat-name'>{chat.name}</h4>
                   <div className='time-and-notification-container'>
-                    <div className='chat-time'>{formatDate(chat.event_time)}</div>
+                    <div className='chat-time'>
+                      {formatDate(chat.event_time)}
+                    </div>
                     {activeChatId !== chat.chat_id && chat.has_new_message ? (
                       <span className='unread-message-alert'></span>
                     ) : (
