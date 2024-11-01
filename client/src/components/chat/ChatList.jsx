@@ -70,7 +70,7 @@ export default function ChatList({ setSelectedChat, setRecipientUsername }) {
     } else {
       setFilteredChats(chatList);
     }
-  }, [chatSearchInputText, chatList, setFilteredChats]);
+  }, [chatSearchInputText, chatList]);
 
   // Automatically mark messages as read in the currently open chat
   useEffect(() => {

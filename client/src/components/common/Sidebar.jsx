@@ -10,7 +10,6 @@ import CreateGroupChatModal from './CreateGroupChatModal';
 import UserProfile from '../user/UserProfile';
 
 export default function Sidebar() {
-  const [chatSearchInputText, setChatSearchInputText] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
   const { setRecipientId, setRecipientUsername } = useContext(MessageContext);
@@ -65,10 +64,7 @@ export default function Sidebar() {
       />
 
       {chatList.length > 0 ? (
-        <ChatSearch
-          chatSearchInputText={chatSearchInputText}
-          setChatSearchInputText={setChatSearchInputText}
-        />
+        <ChatSearch />
       ) : (
         <div className='chat-list-empty-container'>
           <div className='chat-list-empty-message'>
@@ -85,8 +81,6 @@ export default function Sidebar() {
         <ChatList
           setSelectedChat={setSelectedChat}
           setRecipientUsername={setRecipientUsername}
-          chatSearchInputText={chatSearchInputText}
-          setChatSearchInputText={setChatSearchInputText}
         />
         <UserProfile
           profilePicture={profilePicture}
