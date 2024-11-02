@@ -30,17 +30,12 @@ export default function DeleteMessageModal({
       // If the message being deleted is the last one in the list (most recent message) -
       // update the chat list with the new last message's details after deletion
       if (isLastMessage && messageList.length > 1) {
-        await updateChatList(
-          messageList[newLastMessage].content,
-          messageList[newLastMessage].eventTime,
-          messageList[newLastMessage].eventTimeWithSeconds,
-          room
-        );
+        await updateChatList(messageList[newLastMessage].content, room);
         const storedChats = await getChatListByUserId();
         setChatList(storedChats);
         // If the message being deleted is the only message in the chat, clear the chat preview's content in the chat list
       } else if (isLastMessage && messageList.length === 1) {
-        await updateChatList('', '', '', room);
+        await updateChatList('', room);
         const storedChats = await getChatListByUserId();
         setChatList(storedChats);
       }
@@ -51,7 +46,10 @@ export default function DeleteMessageModal({
 
       // Emit event to notify the server of message deletion and update the message list for everyone in the room
       socket.emit('message-update-event', room, 'deleting');
+
+      setIsModalOpen(false);
     } catch (error) {
+      setIsModalOpen(true);
       setErrorMessage(error.message);
     }
   };
@@ -74,10 +72,7 @@ export default function DeleteMessageModal({
           <button
             className='confirm-action-button'
             style={{ backgroundColor: 'red' }}
-            onClick={() => {
-              handleMessageDelete(messageId, messageIndex);
-              setIsModalOpen(false);
-            }}
+            onClick={() => handleMessageDelete(messageId, messageIndex)}
           >
             Delete
           </button>

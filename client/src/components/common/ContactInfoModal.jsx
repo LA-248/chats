@@ -56,7 +56,7 @@ export default function ContactInfoModal({
       <div className='modal-action-buttons-container'>
         <button
           className='block-user-button'
-          onClick={() => handleBlockAndUnblock()}
+          onClick={handleBlockAndUnblock}
         >
           {isBlocked ? 'Unblock' : 'Block'}
         </button>

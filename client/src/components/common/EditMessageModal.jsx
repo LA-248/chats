@@ -47,7 +47,11 @@ export default function EditMessageModal({
         const storedChats = await getChatListByUserId();
         setChatList(storedChats);
       }
+
+      setNewMessage('');
+      setIsModalOpen(false);
     } catch (error) {
+      setIsModalOpen(true);
       setErrorMessage(error.message);
     }
   };
@@ -103,11 +107,7 @@ export default function EditMessageModal({
           <button
             className='confirm-action-button'
             style={{ backgroundColor: '#1db954' }}
-            onClick={() => {
-              handleMessageEdit(messageId, messageIndex);
-              setNewMessage('');
-              setIsModalOpen(false);
-            }}
+            onClick={() => handleMessageEdit(messageId, messageIndex)}
           >
             Save
           </button>

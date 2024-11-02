@@ -55,6 +55,7 @@ export default function CreateGroupChatModal({
       // await addGroupChat(groupName, addedMembers);
       setIsModalOpen(false);
     } catch (error) {
+      setIsModalOpen(true);
       setErrorMessage(error.message);
     }
   };
