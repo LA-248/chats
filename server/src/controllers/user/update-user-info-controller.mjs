@@ -1,4 +1,4 @@
-import { Chat } from '../../models/chat-model.mjs';
+import { PrivateChat } from '../../models/private-chat-model.mjs';
 import { User } from '../../models/user-model.mjs';
 import {
   createPresignedUrl,
@@ -21,7 +21,7 @@ const uploadProfilePicture = async (req, res) => {
 
     // Update profile picture for all chats in which the user is a recipient
     // This shows the new profile picture to other users
-    await Chat.updateRecipientProfilePicture(userId);
+    await PrivateChat.updateRecipientProfilePicture(userId);
 
     // Generate a temporary URL for viewing the uploaded profile picture from S3
     const presignedS3Url = await createPresignedUrl(

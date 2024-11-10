@@ -6,10 +6,20 @@ const User = {
   createUsersTable: function () {
     return new Promise((resolve, reject) => {
       pool.query(
-        `CREATE TABLE IF NOT EXISTS users (id SERIAL PRIMARY KEY, username TEXT, hashed_password TEXT, profile_picture TEXT, blocked_users INTEGER[] DEFAULT '{}')`,
+        `
+          CREATE TABLE IF NOT EXISTS users (
+            id SERIAL PRIMARY KEY,
+            username VARCHAR(30) NOT NULL UNIQUE,
+            hashed_password TEXT NOT NULL,
+            profile_picture TEXT,
+            blocked_users INTEGER[] DEFAULT '{}'
+          )
+        `,
         (err) => {
           if (err) {
-            return reject(`Database error: ${err.message}`);
+            return reject(
+              new Error(`Database error in users table: ${err.message}`)
+            );
           }
           return resolve();
         }
@@ -26,7 +36,7 @@ const User = {
         [username, hashedPassword],
         (err) => {
           if (err) {
-            return reject(`Database error: ${err.message}`);
+            return reject(`Database error in users table: ${err.message}`);
           }
           return resolve();
         }
@@ -43,7 +53,7 @@ const User = {
         [username, userId],
         (err) => {
           if (err) {
-            return reject(`Database error: ${err.message}`);
+            return reject(`Database error in users table: ${err.message}`);
           }
           return resolve();
         }
@@ -58,7 +68,7 @@ const User = {
         [fileName, userId],
         (err) => {
           if (err) {
-            return reject(`Database error: ${err.message}`);
+            return reject(`Database error in users table: ${err.message}`);
           }
           return resolve();
         }
@@ -73,7 +83,7 @@ const User = {
         [blockedUsers, userId],
         (err) => {
           if (err) {
-            return reject(`Database error: ${err.message}`);
+            return reject(`Database error in users table: ${err.message}`);
           }
           return resolve();
         }
@@ -90,7 +100,7 @@ const User = {
         [userId],
         (err, result) => {
           if (err) {
-            return reject(`Database error: ${err.message}`);
+            return reject(`Database error in users table: ${err.message}`);
           }
           return resolve(result.rows[0]);
         }
@@ -105,7 +115,7 @@ const User = {
         [username],
         (err, result) => {
           if (err) {
-            return reject(`Database error: ${err.message}`);
+            return reject(`Database error in users table: ${err.message}`);
           }
           return resolve(result.rows[0]);
         }
@@ -120,7 +130,7 @@ const User = {
         [username],
         (err, result) => {
           if (err) {
-            return reject(`Database error: ${err.message}`);
+            return reject(`Database error in users table: ${err.message}`);
           }
           return resolve(result.rows[0]);
         }
@@ -135,7 +145,7 @@ const User = {
         [userId],
         (err, result) => {
           if (err) {
-            return reject(`Database error: ${err.message}`);
+            return reject(`Database error in users table: ${err.message}`);
           }
           return resolve(result.rows[0]);
         }
@@ -150,7 +160,7 @@ const User = {
         [userId],
         (err, result) => {
           if (err) {
-            return reject(`Database error: ${err.message}`);
+            return reject(`Database error in users table: ${err.message}`);
           }
           if (
             result.rows.length === 0 ||
@@ -171,7 +181,7 @@ const User = {
         [userId],
         (err, result) => {
           if (err) {
-            return reject(`Database error: ${err.message}`);
+            return reject(`Database error in users table: ${err.message}`);
           }
           return resolve(result.rows[0].blocked_users);
         }

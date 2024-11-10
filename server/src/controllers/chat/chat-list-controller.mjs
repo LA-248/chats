@@ -1,6 +1,6 @@
 import { User } from '../../models/user-model.mjs';
 import { Message } from '../../models/message-model.mjs';
-import { Chat } from '../../models/chat-model.mjs';
+import { PrivateChat } from '../../models/private-chat-model.mjs';
 import { createPresignedUrl } from '../../services/s3-file-handler.mjs';
 import NodeCache from 'node-cache';
 const profilePictureUrlCache = new NodeCache({ stdTTL: 604800 });
@@ -67,7 +67,7 @@ const addChat = async (req, res) => {
 const retrieveChatList = async (req, res) => {
   try {
     const userId = req.session.passport.user;
-    const chatList = await Chat.retrieveChatListByUserId(userId);
+    const chatList = await PrivateChat.retrieveChatListByUserId(userId);
 
     // For each chat in the chat list, generate a presigned S3 url using the recipient's profile picture file name
     // This url is required to display the recipient's profile picture in the chat list UI

@@ -1,4 +1,4 @@
-import { Chat } from '../models/chat-model.mjs';
+import { PrivateChat } from '../models/private-chat-model.mjs';
 import { Message } from '../models/message-model.mjs';
 import { User } from '../models/user-model.mjs';
 import addChatForRecipientOnMessageReceive from '../utils/handle-recipient-chat-list.mjs';
@@ -126,7 +126,7 @@ const updateMessageReadStatus = (socket, userId) => {
   // Update message read status in database
   socket.on('update-message-read-status', async ({ hasNewMessage, room }) => {
     try {
-      await Chat.updateMessageReadStatus(hasNewMessage, room, userId);
+      await PrivateChat.updateMessageReadStatus(hasNewMessage, room, userId);
     } catch (error) {
       console.error('Error updating read status:', error);
       socket.emit('custom-error', { error: 'Unable to update message status' });

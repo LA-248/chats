@@ -6,10 +6,19 @@ const Message = {
   createMessagesTable: function () {
     return new Promise((resolve, reject) => {
       pool.query(
-        `CREATE TABLE IF NOT EXISTS messages (id SERIAL PRIMARY KEY, sender_username TEXT, sender_id INTEGER, recipient_id INTEGER, client_offset TEXT UNIQUE, content TEXT DEFAULT NULL, room TEXT, event_time TIMESTAMPTZ DEFAULT NOW())`,
+        `
+          CREATE TABLE IF NOT EXISTS messages (
+            id SERIAL PRIMARY KEY,
+            sender_id INTEGER REFERENCES users(id),
+            room TEXT REFERENCES private_chats(room),
+            content TEXT DEFAULT NULL,
+            event_time TIMESTAMPTZ DEFAULT NOW(),
+            UNIQUE (room, event_time)
+          )
+        `,
         (err) => {
           if (err) {
-            return reject(`Database error: ${err.message}`);
+            return reject(`Database error in messages table: ${err.message}`);
           }
           return resolve();
         }
@@ -33,7 +42,7 @@ const Message = {
         [message, sender_username, sender_id, recipient_id, room, clientOffset],
         (err, result) => {
           if (err) {
-            return reject(`Database error: ${err.message}`);
+            return reject(`Database error in messages table: ${err.message}`);
           }
 
           return resolve({
@@ -54,7 +63,7 @@ const Message = {
         [newMessage, messageId],
         (err) => {
           if (err) {
-            return reject(`Database error: ${err.message}`);
+            return reject(`Database error in messages table: ${err.message}`);
           }
           return resolve();
         }
@@ -69,7 +78,7 @@ const Message = {
         [senderUsername, senderId],
         (err) => {
           if (err) {
-            return reject(`Database error: ${err.message}`);
+            return reject(`Database error in messages table: ${err.message}`);
           }
           return resolve();
         }
@@ -86,7 +95,7 @@ const Message = {
         [messageId],
         (err, result) => {
           if (err) {
-            return reject(`Database error: ${err.message}`);
+            return reject(`Database error in messages table: ${err.message}`);
           }
           return resolve(result.rows[0]);
         }
@@ -101,7 +110,7 @@ const Message = {
         [serverOffset || 0, room],
         (err, result) => {
           if (err) {
-            return reject(`Database error: ${err.message}`);
+            return reject(`Database error in messages table: ${err.message}`);
           }
           return resolve(result.rows);
         }
@@ -116,7 +125,7 @@ const Message = {
         [room],
         (err, result) => {
           if (err) {
-            return reject(`Database error: ${err.message}`);
+            return reject(`Database error in messages table: ${err.message}`);
           }
           return resolve(result.rows[0]);
         }
@@ -133,7 +142,7 @@ const Message = {
         [id],
         (err, result) => {
           if (err) {
-            return reject(`Database error: ${err.message}`);
+            return reject(`Database error in messages table: ${err.message}`);
           }
           return resolve(result.rows[0]);
         }

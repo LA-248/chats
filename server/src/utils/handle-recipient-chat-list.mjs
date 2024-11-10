@@ -1,4 +1,4 @@
-import { Chat } from '../models/chat-model.mjs';
+import { PrivateChat } from '../models/private-chat-model.mjs';
 
 // Automatically add a chat to the recipient's chat list when a message is received if the chat does not already exist
 export default async function addChatForRecipientOnMessageReceive(
@@ -22,7 +22,7 @@ export default async function addChatForRecipientOnMessageReceive(
 
   // If the array length is 0, the chat does not exist, add it to the recipient's list
   if (existingChatsWithSender.length === 0) {
-    await Chat.insertNewChat(
+    await PrivateChat.insertNewChat(
       recipientId,
       username,
       message,

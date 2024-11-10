@@ -6,7 +6,7 @@ const { Pool } = pg;
 import { User } from '../src/models/user-model.mjs';
 import { Message } from '../src/models/message-model.mjs';
 import { Session } from '../src/models/session-model.mjs';
-import { Chat } from '../src/models/chat-model.mjs';
+import { PrivateChat } from '../src/models/private-chat-model.mjs';
 
 // Initialize a connection pool
 const pool = new Pool({
@@ -19,10 +19,10 @@ const pool = new Pool({
 
 async function createTables() {
   try {
-    await Message.createMessagesTable();
     await User.createUsersTable();
+    await PrivateChat.createPrivateChatsTable();
+    await Message.createMessagesTable();
     await Session.createSessionsTable();
-    await Chat.createChatsTable();
   } catch (error) {
     console.error('Error creating tables:', error);
   }

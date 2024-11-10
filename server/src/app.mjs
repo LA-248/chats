@@ -99,6 +99,8 @@ io.on('connection', (socket) => {
   }
 });
 
+const result = await pool.query('SELECT NOW()');
+console.log(result.rows[0]);
 createTables();
 
 server.listen(port, () => {
