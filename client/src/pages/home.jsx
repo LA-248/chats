@@ -18,7 +18,6 @@ export default function Home() {
     loggedInUserId,
     setLoggedInUserId,
     setLoggedInUsername,
-    profilePicture,
     setProfilePicture,
   } = useContext(UserContext);
   const { room } = useParams(); // Extract room from URL
@@ -27,23 +26,13 @@ export default function Home() {
   const location = useLocation();
 
   useEffect(() => {
-    // Retrieve the username of the logged in user
-    const fetchUser = async () => {
+    // Retrieve user data
+    const fetchUserData = async () => {
       try {
         const userData = await getUserData();
         setLoggedInUserId(userData.userId);
         setLoggedInUsername(userData.username);
-      } catch (error) {
-        setErrorMessage(error.message);
-      }
-    };
-    fetchUser();
-  }, [setLoggedInUserId, setLoggedInUsername]);
 
-  // Retrieve profile picture for display
-  useEffect(() => {
-    const fetchProfilePicture = async () => {
-      try {
         const fetchedProfilePicture = await getUserProfilePicture();
         if (fetchedProfilePicture === null) {
           setProfilePicture('/images/default-avatar.jpg');
@@ -54,30 +43,25 @@ export default function Home() {
         setErrorMessage(error.message);
       }
     };
-
-    fetchProfilePicture();
-  }, [profilePicture, setProfilePicture, setErrorMessage]);
+    fetchUserData();
+  }, [setLoggedInUserId, setLoggedInUsername, setProfilePicture]);
 
   useEffect(() => {
-    // Create a new socket connection
-    const socketInstance = io('http://localhost:8080', {
-      auth: {
-        serverOffset: 0,
-      },
-      // Need to send cookies with the request
-      withCredentials: true,
-    });
-    setSocket(socketInstance);
+    if (loggedInUserId) {
+      // Create a new socket connection
+      const socketInstance = io('http://localhost:8080', {
+        auth: {
+          serverOffset: 0,
+        },
+        // Need to send cookies with the request
+        withCredentials: true,
+      });
+      socketInstance.emit('authenticate', loggedInUserId);
+      setSocket(socketInstance);
 
-    return () => socketInstance.disconnect();
-  }, []);
-
-  // Needed to store user-to-socket mappings on the server
-  useEffect(() => {
-    if (socket && loggedInUserId) {
-      socket.emit('authenticate', loggedInUserId);
+      return () => socketInstance.disconnect();
     }
-  }, [socket, loggedInUserId]);
+  }, [loggedInUserId]);
 
   useEffect(() => {
     if (socket) {
@@ -85,15 +69,11 @@ export default function Home() {
       const handleMessage = async (messageData) => {
         // Append message to UI only if the user is currently in the room where the message was sent
         if (room === messageData.room) {
-          // Concatenate new message to existing messages
           setMessages((prevMessages) => prevMessages.concat(messageData));
         }
 
         // Update chat in state and database with the most recent message sent
-        await updateChatList(
-          messageData.content,
-          messageData.room
-        );
+        await updateChatList(messageData.content, messageData.room);
         const storedChats = await getChatListByUserId();
         setChatList(storedChats);
       };

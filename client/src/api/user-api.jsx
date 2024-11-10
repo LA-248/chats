@@ -70,7 +70,7 @@ async function getUserProfilePicture() {
       }
     );
 
-    // User has no profile picture, return null, allowing the default avatar to be set
+    // If user has no profile picture, return null, allowing the default avatar to be set
     if (response.status === 204) {
       return null;
     }

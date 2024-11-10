@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useSocket } from '../../hooks/useSocket';
 import { ChatContext } from '../../contexts/ChatContext';
 import { getChatListByUserId, deleteChat } from '../../api/chat-api';
-import formatDate from '../../utils/DateTimeFormat';
+import ChatItem from './ChatItem';
 
 export default function ChatList({ setSelectedChat, setRecipientUsername }) {
   const socket = useSocket();
@@ -46,6 +46,35 @@ export default function ChatList({ setSelectedChat, setRecipientUsername }) {
     }
   };
 
+  const handleChatClick = (chat) => {
+    setActiveChatId(chat.chat_id);
+    setSelectedChat(chat.name);
+    setRecipientUsername(chat.name);
+
+    localStorage.setItem(
+      'active-chat',
+      JSON.stringify({
+        id: chat.chat_id,
+        name: chat.name,
+        recipient_id: chat.recipient_id,
+        recipient_profile_picture:
+          chat.recipient_profile_picture || '/images/default-avatar.jpg',
+      })
+    );
+
+    handleMessageReadStatusUpdate(chat);
+    navigate(`/messages/${chat.room}`);
+  };
+
+  const handleDeleteClick = (event, chat) => {
+    event.stopPropagation();
+    removeChat(chat.chat_id);
+    setChatSearchInputText('');
+    if (activeChatId === chat.chat_id) {
+      navigate('/');
+    }
+  };
+
   // Retrieve the user's chat list for display
   useEffect(() => {
     const displayChatList = async () => {
@@ -83,9 +112,14 @@ export default function ChatList({ setSelectedChat, setRecipientUsername }) {
 
   // Handle socket errors
   useEffect(() => {
-    socket.on('custom-error', (errorResponse) => {
+    const handleError = (errorResponse) => {
       setErrorMessage(errorResponse.error);
-    });
+    };
+    socket.on('custom-error', handleError);
+
+    return () => {
+      socket.off('custom-error', handleError);
+    };
   }, [socket]);
 
   return (
@@ -97,89 +131,16 @@ export default function ChatList({ setSelectedChat, setRecipientUsername }) {
         <div id='no-chats-state'>No chats found</div>
       ) : (
         filteredChats.map((chat) => (
-          <div className='chat-item-container' key={chat.chat_id}>
-            <div
-              // Add the active class if the current chat's ID matches the activeChatId
-              className={`chat-item ${
-                chat.chat_id === activeChatId ? 'active' : ''
-              }`}
-              key={chat.chat_id}
-              onMouseEnter={() => setHoverChatId(chat.chat_id)}
-              onMouseLeave={() => setHoverChatId(null)}
-              onClick={async () => {
-                setActiveChatId(chat.chat_id);
-                setSelectedChat(chat.name);
-                setRecipientUsername(chat.name);
-
-                // Persist chat info in local storage
-                localStorage.setItem(
-                  'active-chat',
-                  JSON.stringify({
-                    id: chat.chat_id,
-                    name: chat.name,
-                    recipient_id: chat.recipient_id,
-                    recipient_profile_picture: chat.recipient_profile_picture
-                      ? chat.recipient_profile_picture
-                      : '/images/default-avatar.jpg',
-                  })
-                );
-
-                // When opening a chat, if it has a new message(s), send the updated hasNewMessage status to the server
-                handleMessageReadStatusUpdate(chat);
-
-                navigate(`/messages/${chat.room}`);
-              }}
-            >
-              <img
-                className='chat-pic'
-                alt='Profile'
-                src={
-                  chat.recipient_profile_picture
-                    ? chat.recipient_profile_picture
-                    : '/images/default-avatar.jpg'
-                }
-              ></img>
-              <div className='chat-info'>
-                <div className='chat-name-and-time'>
-                  <h4 className='chat-name'>{chat.name}</h4>
-                  <div className='time-and-notification-container'>
-                    <div className='chat-time'>
-                      {formatDate(chat.event_time)}
-                    </div>
-                    {activeChatId !== chat.chat_id && chat.has_new_message ? (
-                      <span className='unread-message-alert'></span>
-                    ) : (
-                      (chat.hasNewMessage = false)
-                    )}
-                  </div>
-                </div>
-                <div className='chat-metadata-container'>
-                  <p className='chat-last-message'>
-                    {chat.last_message.content
-                      ? chat.last_message.content
-                      : chat.last_message}
-                  </p>
-                  <div className='chat-utilities'>
-                    {hoverChatId === chat.chat_id && (
-                      <button
-                        onClick={(event) => {
-                          event.stopPropagation();
-                          removeChat(chat.chat_id);
-                          setChatSearchInputText('');
-                          if (activeChatId === chat.chat_id) {
-                            navigate('/');
-                          }
-                        }}
-                        className='chat-delete-button'
-                      >
-                        Delete
-                      </button>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <ChatItem
+            key={chat.chat_id}
+            chat={chat}
+            isActive={chat.chat_id === activeChatId}
+            isHovered={hoverChatId === chat.chat_id}
+            onMouseEnter={() => setHoverChatId(chat.chat_id)}
+            onMouseLeave={() => setHoverChatId(null)}
+            onClick={() => handleChatClick(chat)}
+            onDeleteClick={(event) => handleDeleteClick(event, chat)}
+          />
         ))
       )}
     </div>

@@ -1,7 +1,7 @@
 export default function formatDate(timestamp) {
   const date = new Date(timestamp);
 
-  const formattedDate = new Intl.DateTimeFormat('en-US', {
+  const formattedDate = new Intl.DateTimeFormat('en-GB', {
     year: 'numeric',
     month: '2-digit',
     day: '2-digit',

@@ -17,7 +17,7 @@ export default function MessageInput() {
   const [errorMessage, setErrorMessage] = useState('');
   const username = loggedInUsername;
 
-  const submitChatMessage = (event) => {
+  const handleChatMessageSubmission = (event) => {
     event.preventDefault();
 
     if (message) {
@@ -49,7 +49,7 @@ export default function MessageInput() {
 
   return (
     <div>
-      <form id='message-form' action='' onSubmit={submitChatMessage}>
+      <form id='message-form' action='' onSubmit={handleChatMessageSubmission}>
         {showEmojiPicker ? (
           <div className='emoji-picker-container'>
             <Picker

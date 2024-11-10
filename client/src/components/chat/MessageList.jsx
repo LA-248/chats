@@ -1,7 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { UserContext } from '../../contexts/UserContext';
 import { MessageContext } from '../../contexts/MessageContext';
-import { ChatContext } from '../../contexts/ChatContext';
 import { updateBlockList } from '../../api/user-api';
 import ContactInfoModal from '../common/ContactInfoModal';
 import formatDate from '../../utils/DateTimeFormat';
@@ -16,11 +15,9 @@ export default function MessageList({
   setMessageId,
   setMessageIndex,
 }) {
-  const { loggedInUserId, profilePicture, blockList, setBlockList } =
-    useContext(UserContext);
+  const { loggedInUserId, profilePicture } = useContext(UserContext);
   const { setCurrentMessage, messageSearchValueText } =
     useContext(MessageContext);
-  const { isBlocked, setIsBlocked, selectedChat } = useContext(ChatContext);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const activeChat = JSON.parse(localStorage.getItem('active-chat'));
@@ -29,15 +26,10 @@ export default function MessageList({
     <>
       {isModalOpen && (
         <ContactInfoModal
-          isBlocked={isBlocked}
           activeChat={activeChat}
-          selectedChat={selectedChat}
           isModalOpen={isModalOpen}
           setIsModalOpen={setIsModalOpen}
-          blockList={blockList}
-          setBlockList={setBlockList}
           updateBlockList={updateBlockList}
-          setIsBlocked={setIsBlocked}
           errorMessage={errorMessage}
           setErrorMessage={setErrorMessage}
         />
