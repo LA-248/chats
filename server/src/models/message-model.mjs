@@ -8,12 +8,14 @@ const Message = {
       pool.query(
         `
           CREATE TABLE IF NOT EXISTS messages (
-            id SERIAL PRIMARY KEY,
-            sender_id INTEGER REFERENCES users(id),
+            message_id SERIAL PRIMARY KEY,
+            sender_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+            recipient_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+            client_offset TEXT UNIQUE,
             room TEXT REFERENCES private_chats(room),
             content TEXT DEFAULT NULL,
             event_time TIMESTAMPTZ DEFAULT NOW(),
-            UNIQUE (room, event_time)
+            UNIQUE (room, event_time, message_id)
           )
         `,
         (err) => {
@@ -27,26 +29,33 @@ const Message = {
   },
 
   insertNewMessage: function (
-    message,
-    sender_username,
-    sender_id,
-    recipient_id,
+    content,
+    senderId,
+    recipientId,
     room,
     clientOffset
   ) {
     return new Promise((resolve, reject) => {
       pool.query(
         `
-        INSERT INTO messages (content, sender_username, sender_id, recipient_id, room, client_offset) 
-        VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, event_time`,
-        [message, sender_username, sender_id, recipient_id, room, clientOffset],
+          INSERT INTO messages (
+            content,
+            sender_id,
+            recipient_id,
+            room,
+            client_offset
+          ) 
+          VALUES ($1, $2, $3, $4, $5)
+          RETURNING message_id, event_time
+        `,
+        [content, senderId, recipientId, room, clientOffset],
         (err, result) => {
           if (err) {
             return reject(`Database error in messages table: ${err.message}`);
           }
 
           return resolve({
-            id: result.rows[0].id,
+            id: result.rows[0].message_id,
             event_time: result.rows[0].event_time,
           });
         }
@@ -59,23 +68,8 @@ const Message = {
   editMessage: function (newMessage, messageId) {
     return new Promise((resolve, reject) => {
       pool.query(
-        'UPDATE messages SET content = $1 WHERE id = $2',
+        `UPDATE messages SET content = $1 WHERE message_id = $2`,
         [newMessage, messageId],
-        (err) => {
-          if (err) {
-            return reject(`Database error in messages table: ${err.message}`);
-          }
-          return resolve();
-        }
-      );
-    });
-  },
-
-  updateUsernameInMessages: function (senderUsername, senderId) {
-    return new Promise((resolve, reject) => {
-      pool.query(
-        'UPDATE messages SET sender_username = $1 WHERE sender_id = $2',
-        [senderUsername, senderId],
         (err) => {
           if (err) {
             return reject(`Database error in messages table: ${err.message}`);
@@ -91,7 +85,7 @@ const Message = {
   retrieveMessageById: function (messageId) {
     return new Promise((resolve, reject) => {
       pool.query(
-        'SELECT id, sender_id, content, sender_username, event_time FROM messages WHERE id = $1',
+        `SELECT message_id, sender_id, content, event_time FROM messages WHERE message_id = $1`,
         [messageId],
         (err, result) => {
           if (err) {
@@ -106,7 +100,7 @@ const Message = {
   retrieveMessages: function (serverOffset, room) {
     return new Promise((resolve, reject) => {
       pool.query(
-        'SELECT id, sender_id, content, sender_username, event_time FROM messages WHERE id > $1 AND room = $2 ORDER BY event_time ASC',
+        `SELECT message_id, sender_id, content, event_time FROM messages WHERE message_id > $1 AND room = $2 ORDER BY event_time ASC`,
         [serverOffset || 0, room],
         (err, result) => {
           if (err) {
@@ -121,7 +115,7 @@ const Message = {
   retrieveLastMessageInfo: function (room) {
     return new Promise((resolve, reject) => {
       pool.query(
-        'SELECT content, event_time FROM messages WHERE room = $1 ORDER BY id DESC LIMIT 1',
+        `SELECT content, event_time FROM messages WHERE room = $1 ORDER BY message_id DESC LIMIT 1`,
         [room],
         (err, result) => {
           if (err) {
@@ -135,11 +129,11 @@ const Message = {
 
   // DELETE OPERATIONS
 
-  deleteMessageById: function (id) {
+  deleteMessageById: function (messageId) {
     return new Promise((resolve, reject) => {
       pool.query(
-        'DELETE FROM messages WHERE id = $1 RETURNING *',
-        [id],
+        `DELETE FROM messages WHERE message_id = $1 RETURNING *`,
+        [messageId],
         (err, result) => {
           if (err) {
             return reject(`Database error in messages table: ${err.message}`);

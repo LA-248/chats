@@ -16,7 +16,7 @@ const Group = {
         `,
         (err) => {
           if (err) {
-            reject(`Database error in groups table: ${err.message}`);
+            return reject(`Database error in groups table: ${err.message}`);
           }
           return resolve();
         }

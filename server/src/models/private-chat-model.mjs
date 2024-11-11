@@ -9,12 +9,14 @@ const PrivateChat = {
         `
           CREATE TABLE IF NOT EXISTS private_chats (
             chat_id SERIAL PRIMARY KEY,
-            user1_id INTEGER REFERENCES users(id),
-            user2_id INTEGER REFERENCES users(id),
-            last_message_id INTEGER REFERENCES messages(id) ON DELETE SET NULL,
+            user1_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+            user2_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+            last_message_id INTEGER REFERENCES messages(message_id) ON DELETE SET NULL,
             room TEXT UNIQUE NOT NULL,
             created_at TIMESTAMPTZ DEFAULT NOW(),
             updated_at TIMESTAMPTZ DEFAULT NOW(),
+            user1_deleted BOOLEAN DEFAULT FALSE,
+            user2_deleted BOOLEAN DEFAULT FALSE,
             UNIQUE (user1_id, user2_id)
           )
         `,
@@ -32,31 +34,15 @@ const PrivateChat = {
 
   // INSERT OPERATIONS
 
-  insertNewChat: function (
-    userId,
-    name,
-    lastMessage,
-    hasNewMessage,
-    recipientId,
-    recipientProfilePicture,
-    room
-  ) {
+  insertNewChat: function (user1Id, user2Id, lastMessageId, createdAt, room) {
     return new Promise((resolve, reject) => {
       pool.query(
         `
-          INSERT INTO private_chats (user_id, name, last_message, has_new_message, recipient_id, recipient_profile_picture, room)
-          VALUES ($1, $2, $3, $4, $5, $6, $7)
+          INSERT INTO private_chats (user1_id, user2_id, last_message_id, created_at, room)
+          VALUES ($1, $2, $3, $4, $5)
           RETURNING *
         `,
-        [
-          userId,
-          name,
-          lastMessage,
-          hasNewMessage,
-          recipientId,
-          recipientProfilePicture,
-          room,
-        ],
+        [user1Id, user2Id, lastMessageId, createdAt, room],
         (err, result) => {
           if (err) {
             return reject(
@@ -72,10 +58,23 @@ const PrivateChat = {
   // READ OPERATIONS
 
   // Retrieve a user's chat list and sort it by timestamp
+  // Use a CASE expression to dynamically identify the other user involved in the chat for any given user
   retrieveChatListByUserId: function (userId) {
     return new Promise((resolve, reject) => {
       pool.query(
-        'SELECT * FROM private_chats WHERE user_id = $1 ORDER BY event_time DESC',
+        `SELECT
+          chat_id,
+          CASE
+            WHEN user1_id = $1 THEN user2_id
+            ELSE user1_id
+          END AS recipient_user_id
+          last_message_id,
+          room,
+          created_at,
+          updated_at
+        FROM private_chats 
+        WHERE user1_id = $1 OR user2_id = $1 
+        ORDER BY updated_at DESC`,
         [userId],
         (err, result) => {
           if (err) {
@@ -111,75 +110,17 @@ const PrivateChat = {
     });
   },
 
-  updateMessageReadStatus: function (hasNewMessage, room, userId) {
-    return new Promise((resolve, reject) => {
-      pool.query(
-        `UPDATE private_chats SET has_new_message = $1 WHERE room = $2 AND user_id = $3 RETURNING *`,
-        [hasNewMessage, room, userId],
-        (err, result) => {
-          if (err) {
-            return reject(
-              `Database error in private_chats table: ${err.message}`
-            );
-          }
-          return resolve(result.rows[0]);
-        }
-      );
-    });
-  },
-
-  updateChatName: function (newUsername, userId) {
-    return new Promise((resolve, reject) => {
-      pool.query(
-        'UPDATE private_chats SET name = $1 WHERE recipient_id = $2',
-        [newUsername, userId],
-        (err) => {
-          if (err) {
-            return reject(
-              `Database error in private_chats table: ${err.message}`
-            );
-          }
-          return resolve();
-        }
-      );
-    });
-  },
-
-  updateRecipientProfilePicture: function (userId) {
+  deleteChatByUserId: function (userId, chatId) {
     return new Promise((resolve, reject) => {
       pool.query(
         `
         UPDATE private_chats
-        SET recipient_profile_picture = (
-          SELECT profile_picture
-          FROM users
-          WHERE users.id = chats.recipient_id
-        )
-        WHERE EXISTS (
-          SELECT 1
-          FROM users
-          WHERE users.id = chats.recipient_id
-          AND users.id = $1
-        )`,
-        [userId],
-        (err) => {
-          if (err) {
-            return reject(
-              `Database error in private_chats table: ${err.message}`
-            );
-          }
-          return resolve();
-        }
-      );
-    });
-  },
-
-  // DELETE OPERATIONS
-
-  deleteChatByUserId: function (userId, chatId) {
-    return new Promise((resolve, reject) => {
-      pool.query(
-        'DELETE FROM private_chats WHERE user_id = $1 AND chat_id = $2',
+        SET
+          user1_deleted = CASE WHEN user1_id = $1 THEN TRUE ELSE user1_deleted END,
+          user2_deleted = CASE WHEN user2_id = $1 THEN TRUE ELSE user2_deleted END
+        WHERE chat_id = $2
+        RETURNING *
+        `,
         [userId, chatId],
         (err, result) => {
           if (err) {

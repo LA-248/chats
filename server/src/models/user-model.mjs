@@ -8,10 +8,10 @@ const User = {
       pool.query(
         `
           CREATE TABLE IF NOT EXISTS users (
-            id SERIAL PRIMARY KEY,
+            user_id SERIAL PRIMARY KEY,
             username VARCHAR(30) NOT NULL UNIQUE,
             hashed_password TEXT NOT NULL,
-            profile_picture TEXT,
+            profile_picture_url TEXT,
             blocked_users INTEGER[] DEFAULT '{}'
           )
         `,
@@ -32,7 +32,7 @@ const User = {
   insertNewUser: function (username, hashedPassword) {
     return new Promise((resolve, reject) => {
       pool.query(
-        'INSERT INTO users (username, hashed_password) VALUES ($1, $2)',
+        `INSERT INTO users (username, hashed_password) VALUES ($1, $2)`,
         [username, hashedPassword],
         (err) => {
           if (err) {
@@ -49,7 +49,7 @@ const User = {
   updateUsernameById: function (username, userId) {
     return new Promise((resolve, reject) => {
       pool.query(
-        'UPDATE users SET username = $1 WHERE id = $2',
+        `UPDATE users SET username = $1 WHERE user_id = $2`,
         [username, userId],
         (err) => {
           if (err) {
@@ -64,7 +64,7 @@ const User = {
   updateProfilePictureById: function (fileName, userId) {
     return new Promise((resolve, reject) => {
       pool.query(
-        'UPDATE users SET profile_picture = $1 WHERE id = $2',
+        `UPDATE users SET profile_picture_url = $1 WHERE user_id = $2`,
         [fileName, userId],
         (err) => {
           if (err) {
@@ -79,7 +79,7 @@ const User = {
   updateBlockedUsersById: function (blockedUsers, userId) {
     return new Promise((resolve, reject) => {
       pool.query(
-        'UPDATE users SET blocked_users = $1 WHERE id = $2',
+        `UPDATE users SET blocked_users = $1 WHERE user_id = $2`,
         [blockedUsers, userId],
         (err) => {
           if (err) {
@@ -96,7 +96,7 @@ const User = {
   getUserById: function (userId) {
     return new Promise((resolve, reject) => {
       pool.query(
-        'SELECT * FROM users WHERE id = $1',
+        `SELECT * FROM users WHERE user_id = $1`,
         [userId],
         (err, result) => {
           if (err) {
@@ -111,7 +111,7 @@ const User = {
   getUserByUsername: function (username) {
     return new Promise((resolve, reject) => {
       pool.query(
-        'SELECT * FROM users WHERE username = $1',
+        `SELECT * FROM users WHERE username = $1`,
         [username],
         (err, result) => {
           if (err) {
@@ -126,7 +126,7 @@ const User = {
   getIdByUsername: function (username) {
     return new Promise((resolve, reject) => {
       pool.query(
-        'SELECT id FROM users WHERE username = $1',
+        `SELECT user_id FROM users WHERE username = $1`,
         [username],
         (err, result) => {
           if (err) {
@@ -138,25 +138,10 @@ const User = {
     });
   },
 
-  getChatListByUserId: function (userId) {
+  getUserProfilePictureUrl: function (userId) {
     return new Promise((resolve, reject) => {
       pool.query(
-        'SELECT chat_list FROM users WHERE id = $1',
-        [userId],
-        (err, result) => {
-          if (err) {
-            return reject(`Database error in users table: ${err.message}`);
-          }
-          return resolve(result.rows[0]);
-        }
-      );
-    });
-  },
-
-  getUserProfilePicture: function (userId) {
-    return new Promise((resolve, reject) => {
-      pool.query(
-        'SELECT profile_picture FROM users WHERE id = $1',
+        `SELECT profile_picture_url FROM users WHERE user_id = $1`,
         [userId],
         (err, result) => {
           if (err) {
@@ -164,11 +149,11 @@ const User = {
           }
           if (
             result.rows.length === 0 ||
-            result.rows[0].profile_picture === null
+            result.rows[0].profile_picture_url === null
           ) {
             return resolve(null);
           }
-          return resolve(result.rows[0].profile_picture);
+          return resolve(result.rows[0].profile_picture_url);
         }
       );
     });
@@ -177,7 +162,7 @@ const User = {
   getBlockListById: function (userId) {
     return new Promise((resolve, reject) => {
       pool.query(
-        'SELECT blocked_users FROM users WHERE id = $1',
+        `SELECT blocked_users FROM users WHERE user_id = $1`,
         [userId],
         (err, result) => {
           if (err) {
