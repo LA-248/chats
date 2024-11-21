@@ -8,12 +8,12 @@ export default function configurePassport() {
 
   // Store user data in the session
   passport.serializeUser(function (user, cb) {
-    cb(null, user.id);
+    cb(null, user.user_id);
   });
 
   // Retrieves the user data from the session and makes it available in the request object
   passport.deserializeUser(function (id, cb) {
-    pool.query('SELECT * FROM users WHERE id = $1', [id], (err, result) => {
+    pool.query('SELECT * FROM users WHERE user_id = $1', [id], (err, result) => {
       cb(err, result.rows[0]);
     });
   });

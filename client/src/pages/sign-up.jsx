@@ -74,7 +74,10 @@ export default function SignUp() {
           </button>
         </form>
         {errorMessage && (
-          <div className='error-message' style={{ marginTop: '10px' }}>
+          <div
+            className='error-message'
+            style={{ marginTop: '10px', maxWidth: '300px' }}
+          >
             {errorMessage}
           </div>
         )}

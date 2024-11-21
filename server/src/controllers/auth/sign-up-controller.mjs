@@ -32,9 +32,10 @@ const handleSignUp = async (req, res) => {
     req.login(newUser, (err) => {
       if (err) {
         console.error('Login error:', err);
-        return res
-          .status(500)
-          .json({ error: 'Error logging in. Please try again.' });
+        return res.status(500).json({
+          error:
+            'Account created successfully, but there was an error logging you in. Please try signing in manually.',
+        });
       }
       return res.status(200).json({ redirectPath: '/' });
     });
