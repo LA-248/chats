@@ -1,5 +1,5 @@
 import { useParams } from 'react-router-dom';
-import { getChatListByUserId, updateChatList } from '../../api/chat-api';
+import { getChatListByUserId } from '../../api/chat-api';
 import { deleteMessageById } from '../../api/message-api';
 import { useSocket } from '../../hooks/useSocket';
 import { useContext } from 'react';
@@ -30,12 +30,15 @@ export default function DeleteMessageModal({
       // If the message being deleted is the last one in the list (most recent message) -
       // update the chat list with the new last message's details after deletion
       if (isLastMessage && messageList.length > 1) {
-        await updateChatList(messageList[newLastMessage].content, room);
+        // await updateChatList(messageList[newLastMessage].content, room);
         const storedChats = await getChatListByUserId();
+        
+        // TODO: Maybe the chat object inside the chatList array can be modified in state?
+        
         setChatList(storedChats);
         // If the message being deleted is the only message in the chat, clear the chat preview's content in the chat list
       } else if (isLastMessage && messageList.length === 1) {
-        await updateChatList('', room);
+        // await updateChatList('', room);
         const storedChats = await getChatListByUserId();
         setChatList(storedChats);
       }

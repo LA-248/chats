@@ -38,50 +38,47 @@ const handleChatMessages = (socket, io) => {
     const targetUserSocketId = userSockets.get(recipientId);
 
     const senderId = socket.handshake.session.passport.user;
-    const senderProfilePicture = await User.getUserProfilePicture(senderId);
+    // const senderProfilePicture = await User.getUserProfilePicture(senderId);
 
     try {
       // Create a consistent room name using user IDs
       // Ensure the room is the same for both users by sorting the user IDs
-      const roomName = [senderId, recipientId].sort().join('-');
+      const room = [senderId, recipientId].sort().join('-');
+      console.log(recipientId);
 
       // Make the recipient join the private chat room
-      io.in(targetUserSocketId).socketsJoin(roomName);
+      io.in(targetUserSocketId).socketsJoin(room);
 
       // Make the sender join the room
-      socket.join(roomName);
+      socket.join(room);
 
       // Check if the sender is blocked from messaging the recipient, throw an error if they are
       await isSenderBlocked(recipientId, senderId);
 
       const newMessage = await Message.insertNewMessage(
         message,
-        username,
         senderId,
         recipientId,
-        roomName,
+        room,
         clientOffset
       );
 
       // Set the chat as unread for the recipient when a new message is received
-      await Chat.updateMessageReadStatus(true, roomName, recipientId);
+      // await PrivateChat.updateMessageReadStatus(true, roomName, recipientId);
 
       // Add the chat to the recipient's chat list if they don't have it
       await addChatForRecipientOnMessageReceive(
-        recipientId,
-        username,
-        message,
-        true,
         senderId,
-        senderProfilePicture,
-        roomName
+        recipientId,
+        null,
+        room
       );
 
       // Send the message to both room participants
-      io.to(roomName).emit('chat-message', {
+      io.to(room).emit('chat-message', {
         from: username,
         content: message,
-        room: roomName,
+        room: room,
         eventTime: newMessage.event_time,
         id: newMessage.id,
         senderId: senderId,
@@ -96,7 +93,7 @@ const handleChatMessages = (socket, io) => {
         );
       } else {
         callback('Error sending message');
-        console.error(`Error inserting message: ${error}`);
+        console.error(`Error sending message: ${error}`);
       }
     }
   });

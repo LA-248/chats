@@ -4,8 +4,8 @@ import { MessageContext } from '../contexts/MessageContext.jsx';
 import { UserContext } from '../contexts/UserContext.jsx';
 import { createContext, useEffect, useState, useContext } from 'react';
 import { Link, Outlet, useLocation, useParams } from 'react-router-dom';
-import { getUserData, getUserProfilePicture } from '../api/user-api.jsx';
-import { getChatListByUserId, updateChatList } from '../api/chat-api';
+import { getUserData } from '../api/user-api.jsx';
+import { getChatListByUserId } from '../api/chat-api';
 import Sidebar from '../components/common/Sidebar.jsx';
 import ChatWindowPlaceholder from '../components/chat/ChatWindowPlaceholder.jsx';
 
@@ -33,11 +33,10 @@ export default function Home() {
         setLoggedInUserId(userData.userId);
         setLoggedInUsername(userData.username);
 
-        const fetchedProfilePicture = await getUserProfilePicture();
-        if (fetchedProfilePicture === null) {
+        if (userData.profilePicture === null) {
           setProfilePicture('/images/default-avatar.jpg');
         } else {
-          setProfilePicture(fetchedProfilePicture);
+          setProfilePicture(userData.profilePicture);
         }
       } catch (error) {
         setErrorMessage(error.message);
@@ -73,7 +72,7 @@ export default function Home() {
         }
 
         // Update chat in state and database with the most recent message sent
-        await updateChatList(messageData.content, messageData.room);
+        // await updateChatList(messageData.content, messageData.room);
         const storedChats = await getChatListByUserId();
         setChatList(storedChats);
       };

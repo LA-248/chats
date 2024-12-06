@@ -25,7 +25,7 @@ export default function ChatItem({
         ></img>
         <div className='chat-info'>
           <div className='chat-name-and-time'>
-            <h4 className='chat-name'>{chat.name}</h4>
+            <h4 className='chat-name'>{chat.recipient_username}</h4>
             <div className='time-and-notification-container'>
               <div className='chat-time'>
                 {chat.last_message && formatDate(chat.event_time)}
@@ -38,11 +38,7 @@ export default function ChatItem({
             </div>
           </div>
           <div className='chat-metadata-container'>
-            <p className='chat-last-message'>
-              {chat.last_message.content
-                ? chat.last_message.content
-                : chat.last_message}
-            </p>
+            <p className='chat-last-message'>placeholder</p>
             <div className='chat-utilities'>
               {isHovered && (
                 <button onClick={onDeleteClick} className='chat-delete-button'>

@@ -9,8 +9,8 @@ const Message = {
         `
           CREATE TABLE IF NOT EXISTS messages (
             message_id SERIAL PRIMARY KEY,
-            sender_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-            recipient_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+            sender_id INTEGER REFERENCES users(user_id) ON DELETE CASCADE,
+            recipient_id INTEGER REFERENCES users(user_id) ON DELETE CASCADE,
             client_offset TEXT UNIQUE,
             room TEXT REFERENCES private_chats(room),
             content TEXT DEFAULT NULL,
@@ -100,12 +100,27 @@ const Message = {
   retrieveMessages: function (serverOffset, room) {
     return new Promise((resolve, reject) => {
       pool.query(
-        `SELECT message_id, sender_id, content, event_time FROM messages WHERE message_id > $1 AND room = $2 ORDER BY event_time ASC`,
+        `
+        SELECT
+          m.message_id,
+          m.sender_id,
+          m.content,
+          m.event_time,
+          u.username as sender_username,
+          u.profile_picture as profile_picture
+        FROM messages m
+        JOIN users u
+        ON m.sender_id = u.user_id
+        WHERE m.message_id > $1
+          AND m.room = $2
+        ORDER BY m.event_time ASC;
+        `,
         [serverOffset || 0, room],
         (err, result) => {
           if (err) {
             return reject(`Database error in messages table: ${err.message}`);
           }
+          console.log(result.rows);
           return resolve(result.rows);
         }
       );
@@ -115,13 +130,17 @@ const Message = {
   retrieveLastMessageInfo: function (room) {
     return new Promise((resolve, reject) => {
       pool.query(
-        `SELECT content, event_time FROM messages WHERE room = $1 ORDER BY message_id DESC LIMIT 1`,
+        `SELECT message_id FROM messages WHERE room = $1 ORDER BY message_id DESC LIMIT 1`,
         [room],
         (err, result) => {
           if (err) {
             return reject(`Database error in messages table: ${err.message}`);
           }
-          return resolve(result.rows[0]);
+          if (result.rows.length > 0) {
+            return resolve(result.rows[0]);
+          } else {
+            resolve(null);
+          }
         }
       );
     });

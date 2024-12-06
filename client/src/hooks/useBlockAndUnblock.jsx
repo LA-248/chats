@@ -9,16 +9,16 @@ export default function useBlockAndUnblock({
   const handleBlockAndUnblock = async () => {
     try {
       // Handle blocking a user
-      if (!blockList.includes(activeChat.recipient_id)) {
+      if (!blockList.includes(activeChat.recipient_user_id)) {
         // Add recipient id to block list array
-        const updatedBlockList = [...blockList, activeChat.recipient_id];
+        const updatedBlockList = [...blockList, activeChat.recipient_user_id];
         setBlockList(updatedBlockList);
         await updateBlockList(updatedBlockList);
         setIsBlocked(true);
       } else {
         // Handle unblocking a user
         const updatedBlockList = blockList.filter(
-          (id) => id !== activeChat.recipient_id
+          (id) => id !== activeChat.recipient_user_id
         );
         setBlockList(updatedBlockList);
         await updateBlockList(updatedBlockList);

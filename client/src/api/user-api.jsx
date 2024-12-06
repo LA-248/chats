@@ -17,25 +17,6 @@ async function getUserData() {
   }
 }
 
-async function getUserId(setUserId, setErrorMessage) {
-  try {
-    const response = await fetch('http://localhost:8080/users/id', {
-      method: 'GET',
-      credentials: 'include',
-    });
-
-    if (!response.ok) {
-      const errorResponse = await response.json();
-      throw new Error(errorResponse.error);
-    }
-
-    const data = await response.json();
-    setUserId(data.userId);
-  } catch (error) {
-    setErrorMessage(error.message);
-  }
-}
-
 // Retrieve the ID of a message recipient from the database using their username
 async function getRecipientUserIdByUsername(username) {
   try {
@@ -55,33 +36,6 @@ async function getRecipientUserIdByUsername(username) {
 
     const data = await response.json();
     return data.userId;
-  } catch (error) {
-    throw error;
-  }
-}
-
-async function getUserProfilePicture() {
-  try {
-    const response = await fetch(
-      'http://localhost:8080/users/profile_pictures',
-      {
-        method: 'GET',
-        credentials: 'include',
-      }
-    );
-
-    // If user has no profile picture, return null, allowing the default avatar to be set
-    if (response.status === 204) {
-      return null;
-    }
-
-    if (!response.ok) {
-      const errorResponse = await response.json();
-      throw new Error(errorResponse.error);
-    }
-
-    const data = await response.json();
-    return data.fileUrl;
   } catch (error) {
     throw error;
   }
@@ -153,10 +107,8 @@ async function updateBlockList(userIds) {
 
 export {
   getUserData,
-  getUserId,
   getRecipientUserIdByUsername,
   getBlockList,
-  getUserProfilePicture,
   updateUsername,
   updateBlockList,
 };

@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import { MessageContext } from '../../contexts/MessageContext';
 import { editMessageById } from '../../api/message-api';
 import { useSocket } from '../../hooks/useSocket';
-import { getChatListByUserId, updateChatList } from '../../api/chat-api';
+import { getChatListByUserId } from '../../api/chat-api';
 import { ChatContext } from '../../contexts/ChatContext';
 import Modal from './ModalTemplate';
 import data from '@emoji-mart/data';
@@ -43,7 +43,7 @@ export default function EditMessageModal({
       const isLastMessage = messageIndex === messageList.length - 1;
       const newLastMessage = messageList.length - 1;
       if (isLastMessage && messageList.length >= 1) {
-        await updateChatList(messageList[newLastMessage].content, room);
+        // await updateChatList(messageList[newLastMessage].content, room);
         const storedChats = await getChatListByUserId();
         setChatList(storedChats);
       }

@@ -1,10 +1,9 @@
 import express from 'express';
 import handleMulterError from '../middlewares/multer-error-handler.mjs';
 import {
-  retrieveUserById,
+  retrieveLoggedInUserDataById,
   retrieveIdByUsername,
   retrieveUserIdFromSession,
-  retrieveProfilePictureById,
   retrieveBlockListById,
 } from '../controllers/user/retrieve-user-info-controller.mjs';
 import {
@@ -16,12 +15,10 @@ import { s3Upload } from '../services/s3-file-handler.mjs';
 
 const usersRouter = express.Router();
 
+usersRouter.get('/', retrieveLoggedInUserDataById);
 usersRouter.put('/', updateUsernameById);
-usersRouter.get('/', retrieveUserById);
 usersRouter.get('/id', retrieveUserIdFromSession);
 usersRouter.post('/recipient_id', retrieveIdByUsername);
-
-usersRouter.get('/profile_pictures', retrieveProfilePictureById);
 usersRouter.post(
   '/profile_pictures',
   (req, res, next) => {
@@ -34,7 +31,6 @@ usersRouter.post(
   },
   uploadProfilePicture
 );
-
 usersRouter.get('/block', retrieveBlockListById);
 usersRouter.put('/block', updateBlockedUsers);
 

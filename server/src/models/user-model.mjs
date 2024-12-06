@@ -11,7 +11,7 @@ const User = {
             user_id SERIAL PRIMARY KEY,
             username VARCHAR(30) NOT NULL UNIQUE,
             hashed_password TEXT NOT NULL,
-            profile_picture_url TEXT,
+            profile_picture TEXT,
             blocked_users INTEGER[] DEFAULT '{}'
           )
         `,
@@ -64,7 +64,7 @@ const User = {
   updateProfilePictureById: function (fileName, userId) {
     return new Promise((resolve, reject) => {
       pool.query(
-        `UPDATE users SET profile_picture_url = $1 WHERE user_id = $2`,
+        `UPDATE users SET profile_picture = $1 WHERE user_id = $2`,
         [fileName, userId],
         (err) => {
           if (err) {
@@ -138,10 +138,10 @@ const User = {
     });
   },
 
-  getUserProfilePictureUrl: function (userId) {
+  getUserProfilePicture: function (userId) {
     return new Promise((resolve, reject) => {
       pool.query(
-        `SELECT profile_picture_url FROM users WHERE user_id = $1`,
+        `SELECT profile_picture FROM users WHERE user_id = $1`,
         [userId],
         (err, result) => {
           if (err) {
@@ -149,11 +149,11 @@ const User = {
           }
           if (
             result.rows.length === 0 ||
-            result.rows[0].profile_picture_url === null
+            result.rows[0].profile_picture === null
           ) {
             return resolve(null);
           }
-          return resolve(result.rows[0].profile_picture_url);
+          return resolve(result.rows[0].profile_picture);
         }
       );
     });
@@ -167,6 +167,9 @@ const User = {
         (err, result) => {
           if (err) {
             return reject(`Database error in users table: ${err.message}`);
+          }
+          if (result.rows.length === 0) {
+            return resolve(null);
           }
           return resolve(result.rows[0].blocked_users);
         }

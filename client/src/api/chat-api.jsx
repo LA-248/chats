@@ -43,7 +43,7 @@ async function addChat(inputUsername, chatList) {
         },
         // Send the username entered to the backend to ensure that it exists in the database
         body: JSON.stringify({
-          chatName: inputUsername,
+          recipientName: inputUsername,
           recipientId: recipientId,
         }),
         credentials: 'include',
@@ -55,55 +55,7 @@ async function addChat(inputUsername, chatList) {
       }
 
       const data = await response.json();
-      return data.newChatItem;
-    }
-  } catch (error) {
-    throw error;
-  }
-}
-
-// Update a chat in the user's chat list
-async function updateChatList(message, room) {
-  try {
-    const response = await fetch('http://localhost:8080/chats/', {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        lastMessage: message,
-        room: room,
-      }),
-      credentials: 'include',
-    });
-
-    if (!response.ok) {
-      const errorResponse = await response.json();
-      throw new Error(errorResponse.error);
-    }
-
-    const data = await response.json();
-    return data.updatedChatList;
-  } catch (error) {
-    throw error;
-  }
-}
-
-// Update the name of a chat - used for when a recipient changes their username
-async function updateUsernameInChatList(username) {
-  try {
-    const response = await fetch('http://localhost:8080/chats/username', {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ newUsername: username }),
-      credentials: 'include',
-    });
-
-    if (!response.ok) {
-      const errorResponse = await response.json();
-      throw new Error(errorResponse.error);
+      return data;
     }
   } catch (error) {
     throw error;
@@ -128,16 +80,10 @@ async function deleteChat(chatId) {
     }
 
     const data = await response.json();
-    return data.updatedChatList;
+    return data.deleteChatStatus;
   } catch (error) {
     throw error;
   }
 }
 
-export {
-  getChatListByUserId,
-  addChat,
-  updateChatList,
-  updateUsernameInChatList,
-  deleteChat,
-};
+export { getChatListByUserId, addChat, deleteChat };

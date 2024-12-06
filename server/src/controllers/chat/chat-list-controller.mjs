@@ -8,7 +8,7 @@ const profilePictureUrlCache = new NodeCache({ stdTTL: 604800 });
 // Handle adding a new chat to a user's chat list
 const addChat = async (req, res) => {
   try {
-    const username = req.body.chatName;
+    const username = req.body.recipientName;
     const user = await User.getUserByUsername(username);
 
     // If there are no rows, the user does not exist
@@ -20,9 +20,9 @@ const addChat = async (req, res) => {
 
     const senderId = req.session.passport.user;
     const recipientId = req.body.recipientId;
-    const recipientProfilePicture = await User.getUserProfilePicture(
-      recipientId
-    );
+    // const recipientProfilePicture = await User.getUserProfilePicture(
+    //   recipientId
+    // );
 
     // Ensure the room is the same for both users by sorting the user IDs
     const room = [senderId, recipientId].sort().join('-');
@@ -30,19 +30,14 @@ const addChat = async (req, res) => {
     // Retrieve info related to the last chat message sent in a specific room
     // This is done to keep info related to the most recent message visible in the chat preview when a user deletes and re-adds a chat
     const lastMessageData = await Message.retrieveLastMessageInfo(room);
+    console.log(lastMessageData);
 
     const userId = senderId;
-    const name = username;
-    const content = lastMessageData ? lastMessageData.content : '';
-    const hasNewMessage = false;
 
-    const newChatItem = await Chat.insertNewChat(
+    const newChatItem = await PrivateChat.insertNewChat(
       userId,
-      name,
-      content,
-      hasNewMessage,
       recipientId,
-      recipientProfilePicture,
+      lastMessageData,
       room
     );
     console.log(newChatItem);
@@ -68,27 +63,7 @@ const retrieveChatList = async (req, res) => {
   try {
     const userId = req.session.passport.user;
     const chatList = await PrivateChat.retrieveChatListByUserId(userId);
-
-    // For each chat in the chat list, generate a presigned S3 url using the recipient's profile picture file name
-    // This url is required to display the recipient's profile picture in the chat list UI
-    for (let i = 0; i < chatList.length; i++) {
-      // Only run this code if the user has uploaded a profile picture
-      if (!(chatList[i].recipient_profile_picture === null)) {
-        const profilePictureFileName = chatList[i].recipient_profile_picture;
-        let presignedS3Url = profilePictureUrlCache.get(profilePictureFileName);
-
-        // If presigned url is not in cache, generate a new one
-        if (!presignedS3Url) {
-          presignedS3Url = await createPresignedUrl(
-            process.env.BUCKET_NAME,
-            profilePictureFileName
-          );
-          profilePictureUrlCache.set(profilePictureFileName, presignedS3Url);
-        }
-
-        chatList[i].recipient_profile_picture = presignedS3Url;
-      }
-    }
+    generatePresignedUrlsForChatList(chatList);
 
     // Send user's chat list data to the frontend so it can be displayed in the UI
     return res.status(200).json({ chatList: chatList });
@@ -103,14 +78,40 @@ const retrieveChatList = async (req, res) => {
   }
 };
 
+const generatePresignedUrlsForChatList = async (chatList) => {
+  // For each chat in the chat list, generate a presigned S3 url using the recipient's profile picture file name
+  // This url is required to display the recipient's profile picture in the chat list UI
+  for (let i = 0; i < chatList.length; i++) {
+    // Only run this code if the user has uploaded a profile picture
+    if (chatList[i].recipient_profile_picture !== null) {
+      const profilePictureFileName = chatList[i].recipient_profile_picture;
+      let presignedS3Url = profilePictureUrlCache.get(profilePictureFileName);
+
+      // If presigned url is not in cache, generate a new one
+      if (!presignedS3Url) {
+        presignedS3Url = await createPresignedUrl(
+          process.env.BUCKET_NAME,
+          profilePictureFileName
+        );
+        profilePictureUrlCache.set(profilePictureFileName, presignedS3Url);
+      }
+
+      chatList[i].recipient_profile_picture = presignedS3Url;
+    }
+  }
+};
+
 // Delete a chat from a user's chat list
 const deleteChat = async (req, res) => {
   try {
     const userId = req.session.passport.user;
     const chatId = req.body.chatId;
 
-    const updatedChatList = await Chat.deleteChatByUserId(userId, chatId);
-    return res.status(200).json({ updatedChatList: updatedChatList });
+    const deleteChatStatus = await PrivateChat.deleteChatByUserId(
+      userId,
+      chatId
+    );
+    return res.status(200).json({ deleteChatStatus: deleteChatStatus });
   } catch (error) {
     console.error('Error deleting chat:', error);
     return res
@@ -119,37 +120,4 @@ const deleteChat = async (req, res) => {
   }
 };
 
-// Update a chat in the chat with the latest message data
-const updateChatInChatList = async (req, res) => {
-  try {
-    const lastMessage = req.body.lastMessage;
-    const room = req.body.room;
-
-    const updatedChatList = await Chat.updateChatInChatList(lastMessage, room);
-    return res.status(200).json({ updatedChatList: updatedChatList });
-  } catch (error) {
-    console.error('Error updating chat:', error);
-    return res.status(500).json({ error: 'An unexpected error occurred' });
-  }
-};
-
-// Update the name of a chat in the chat list - for when a user changes their username
-const updateChatName = async (req, res) => {
-  try {
-    const newUsername = req.body.newUsername;
-    const userId = req.session.passport.user;
-    await Chat.updateChatName(newUsername, userId);
-    res.status(200).json({ success: 'Chat list updated successfully' });
-  } catch (error) {
-    console.error('Error updating chat name:', error);
-    return res.status(500).json({ error: 'An unexpected error occurred' });
-  }
-};
-
-export {
-  addChat,
-  retrieveChatList,
-  deleteChat,
-  updateChatInChatList,
-  updateChatName,
-};
+export { addChat, retrieveChatList, deleteChat };

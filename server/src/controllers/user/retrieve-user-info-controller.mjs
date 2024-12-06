@@ -1,11 +1,18 @@
 import { User } from '../../models/user-model.mjs';
 import { createPresignedUrl } from '../../services/s3-file-handler.mjs';
 
-const retrieveUserById = async (req, res) => {
+const retrieveLoggedInUserDataById = async (req, res) => {
   try {
     const userId = req.session.passport.user;
     const user = await User.getUserById(userId);
-    res.status(200).json({ userId: user.user_id, username: user.username });
+    const profilePicture = await retrieveProfilePictureById(userId);
+    res
+      .status(200)
+      .json({
+        userId: user.user_id,
+        username: user.username,
+        profilePicture: profilePicture,
+      });
   } catch (error) {
     console.error('Error retrieving user data:', error);
     res.status(500).json({ error: 'An unexpected error occurred.' });
@@ -42,27 +49,26 @@ const retrieveUserIdFromSession = async (req, res) => {
   }
 };
 
-// const retrieveProfilePictureById = async (req, res) => {
-//   try {
-//     const userId = req.session.passport.user;
-//     const fileName = await User.getUserProfilePicture(userId);
+const retrieveProfilePictureById = async (userId) => {
+  try {
+    const fileName = await User.getUserProfilePicture(userId);
 
-//     // If the user has not uploaded a profile picture, send a 204 response
-//     if (fileName === null) {
-//       return res.status(204).send();
-//     }
+    // If the user has not uploaded a profile picture, send a 204 response
+    if (fileName === null) {
+      return null;
+    }
 
-//     // Generate a temporary URL for viewing the uploaded profile picture from S3
-//     const presignedS3Url = await createPresignedUrl(
-//       process.env.BUCKET_NAME,
-//       fileName
-//     );
-//     res.status(200).json({ fileUrl: presignedS3Url });
-//   } catch (error) {
-//     console.error('Error retrieving profile picture:', error);
-//     res.status(500).json({ error: 'Error retrieving profile picture' });
-//   }
-// };
+    // Generate a temporary URL for viewing the uploaded profile picture from S3
+    const presignedS3Url = await createPresignedUrl(
+      process.env.BUCKET_NAME,
+      fileName
+    );
+    return presignedS3Url;
+  } catch (error) {
+    console.error('Error retrieving profile picture:', error);
+    throw error;
+  }
+};
 
 const retrieveBlockListById = async (req, res) => {
   try {
@@ -76,9 +82,8 @@ const retrieveBlockListById = async (req, res) => {
 };
 
 export {
-  retrieveUserById,
+  retrieveLoggedInUserDataById,
   retrieveIdByUsername,
   retrieveUserIdFromSession,
-  // retrieveProfilePictureById,
   retrieveBlockListById,
 };

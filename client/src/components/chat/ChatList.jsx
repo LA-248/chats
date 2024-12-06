@@ -2,6 +2,7 @@ import { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSocket } from '../../hooks/useSocket';
 import { ChatContext } from '../../contexts/ChatContext';
+import { UserContext } from '../../contexts/UserContext';
 import { getChatListByUserId, deleteChat } from '../../api/chat-api';
 import ChatItem from './ChatItem';
 
@@ -15,6 +16,7 @@ export default function ChatList({ setSelectedChat, setRecipientUsername }) {
     activeChatId,
     setActiveChatId,
   } = useContext(ChatContext);
+  const { loggedInUserId } = useContext(UserContext);
   const [filteredChats, setFilteredChats] = useState([]);
   const [hoverChatId, setHoverChatId] = useState(null);
   const [errorMessage, setErrorMessage] = useState('');
@@ -35,9 +37,9 @@ export default function ChatList({ setSelectedChat, setRecipientUsername }) {
   };
 
   // Remove a conversation from the chat list
-  const removeChat = async (id) => {
+  const removeChat = async (userId, chatId) => {
     try {
-      await deleteChat(id);
+      await deleteChat(userId, chatId);
       const storedChatList = await getChatListByUserId(); // Get updated chat list
       const updatedChatList = storedChatList;
       setChatList(updatedChatList);
@@ -48,15 +50,15 @@ export default function ChatList({ setSelectedChat, setRecipientUsername }) {
 
   const handleChatClick = (chat) => {
     setActiveChatId(chat.chat_id);
-    setSelectedChat(chat.name);
-    setRecipientUsername(chat.name);
+    setSelectedChat(chat.recipient_username);
+    setRecipientUsername(chat.recipient_username);
 
     localStorage.setItem(
       'active-chat',
       JSON.stringify({
         id: chat.chat_id,
-        name: chat.name,
-        recipient_id: chat.recipient_id,
+        recipient_username: chat.recipient_username,
+        recipient_user_id: chat.recipient_user_id,
         recipient_profile_picture:
           chat.recipient_profile_picture || '/images/default-avatar.jpg',
       })
@@ -68,7 +70,7 @@ export default function ChatList({ setSelectedChat, setRecipientUsername }) {
 
   const handleDeleteClick = (event, chat) => {
     event.stopPropagation();
-    removeChat(chat.chat_id);
+    removeChat(loggedInUserId, chat.chat_id);
     setChatSearchInputText('');
     if (activeChatId === chat.chat_id) {
       navigate('/');
@@ -125,23 +127,27 @@ export default function ChatList({ setSelectedChat, setRecipientUsername }) {
   return (
     <div className='chat-list'>
       {errorMessage ? (
-        <div className='error-message'>{errorMessage}</div>
+        <div className='error-message' style={{ marginTop: '10px' }}>
+          {errorMessage}
+        </div>
       ) : null}
       {chatSearchInputText && filteredChats.length === 0 ? (
         <div id='no-chats-state'>No chats found</div>
       ) : (
-        filteredChats.map((chat) => (
-          <ChatItem
-            key={chat.chat_id}
-            chat={chat}
-            isActive={chat.chat_id === activeChatId}
-            isHovered={hoverChatId === chat.chat_id}
-            onMouseEnter={() => setHoverChatId(chat.chat_id)}
-            onMouseLeave={() => setHoverChatId(null)}
-            onClick={() => handleChatClick(chat)}
-            onDeleteClick={(event) => handleDeleteClick(event, chat)}
-          />
-        ))
+        filteredChats
+          .filter((chat) => chat.user_deleted === false)
+          .map((chat) => (
+            <ChatItem
+              key={chat.chat_id}
+              chat={chat}
+              isActive={chat.chat_id === activeChatId}
+              isHovered={hoverChatId === chat.chat_id}
+              onMouseEnter={() => setHoverChatId(chat.chat_id)}
+              onMouseLeave={() => setHoverChatId(null)}
+              onClick={() => handleChatClick(chat)}
+              onDeleteClick={(event) => handleDeleteClick(event, chat)}
+            />
+          ))
       )}
     </div>
   );

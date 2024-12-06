@@ -21,7 +21,7 @@ export default function ContactHeader() {
   useEffect(() => {
     if (activeChat) {
       setActiveChatId(activeChat.id);
-      setRecipientId(activeChat.recipient_id);
+      setRecipientId(activeChat.recipient_user_id);
     }
   }, [activeChat, setActiveChatId, setRecipientId]);
 
@@ -31,13 +31,13 @@ export default function ContactHeader() {
       try {
         const blockListArray = await getBlockList();
         setBlockList(blockListArray);
-        setIsBlocked(blockListArray.includes(activeChat.recipient_id));
+        setIsBlocked(blockListArray.includes(activeChat.recipient_user_id));
       } catch (error) {
         setErrorMessage(error.message);
       }
     };
     fetchAndSetBlockedStatus();
-  }, [activeChat.recipient_id, setIsBlocked, setBlockList]);
+  }, [activeChat.recipient_user_id, setIsBlocked, setBlockList]);
 
   // Clear error message after a certain amount of time
   useEffect(() => {
