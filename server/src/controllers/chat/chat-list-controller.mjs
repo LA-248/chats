@@ -10,19 +10,14 @@ const addChat = async (req, res) => {
   try {
     const username = req.body.recipientName;
     const user = await User.getUserByUsername(username);
-
     // If there are no rows, the user does not exist
     if (!user) {
       throw new Error(
         'User does not exist. Make sure that the username is correct.'
       );
     }
-
     const senderId = req.session.passport.user;
     const recipientId = req.body.recipientId;
-    // const recipientProfilePicture = await User.getUserProfilePicture(
-    //   recipientId
-    // );
 
     // Ensure the room is the same for both users by sorting the user IDs
     const room = [senderId, recipientId].sort().join('-');
@@ -32,18 +27,11 @@ const addChat = async (req, res) => {
     const lastMessageData = await Message.retrieveLastMessageInfo(room);
     console.log(lastMessageData);
 
-    const userId = senderId;
+    await PrivateChat.insertNewChat(senderId, recipientId, lastMessageData, room);
+    const updatedChatList = await getChatListByUserId(senderId);
 
-    const newChatItem = await PrivateChat.insertNewChat(
-      userId,
-      recipientId,
-      lastMessageData,
-      room
-    );
-    console.log(newChatItem);
-
-    // Send the new chat's data to the frontend so it can be added it to the UI
-    return res.status(200).json({ newChatItem: newChatItem });
+    // Send the updated chat list to the frontend
+    return res.status(200).json({ updatedChatList: updatedChatList });
   } catch (error) {
     if (
       error.message ===
@@ -62,8 +50,7 @@ const addChat = async (req, res) => {
 const retrieveChatList = async (req, res) => {
   try {
     const userId = req.session.passport.user;
-    const chatList = await PrivateChat.retrieveChatListByUserId(userId);
-    generatePresignedUrlsForChatList(chatList);
+    const chatList = await getChatListByUserId(userId);
 
     // Send user's chat list data to the frontend so it can be displayed in the UI
     return res.status(200).json({ chatList: chatList });
@@ -76,6 +63,12 @@ const retrieveChatList = async (req, res) => {
     console.error('Error retrieving chat list:', error);
     return res.status(500).json({ error: 'Unable to retrieve chat list.' });
   }
+};
+
+const getChatListByUserId = async (userId) => {
+  const chatList = await PrivateChat.retrieveChatListByUserId(userId);
+  await generatePresignedUrlsForChatList(chatList);
+  return chatList;
 };
 
 const generatePresignedUrlsForChatList = async (chatList) => {
