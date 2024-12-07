@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { addChat, getChatListByUserId } from '../../api/chat-api';
+import { addChat } from '../../api/chat-api';
 import clearErrorMessage from '../../utils/ClearErrorMessage';
 
 export default function AddChatInput({
@@ -16,12 +16,8 @@ export default function AddChatInput({
       event.preventDefault();
 
       try {
-        const newChatItem = await addChat(inputUsername, chatList);
-        let updatedChatList = chatList.concat(newChatItem);
-        // Get the most recent and sorted version of the user's chat list
-        // - ensures the chat list is in the correct order after a chat is deleted and re-added
-        updatedChatList = await getChatListByUserId();
-        setChatList(updatedChatList);
+        const response = await addChat(inputUsername, chatList);
+        setChatList(response.updatedChatList);
         setInputUsername('');
       } catch (error) {
         setErrorMessage(error.message);
