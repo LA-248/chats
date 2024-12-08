@@ -5,14 +5,15 @@ const retrieveLoggedInUserDataById = async (req, res) => {
   try {
     const userId = req.session.passport.user;
     const user = await User.getUserById(userId);
-    const profilePicture = await retrieveProfilePictureById(userId);
-    res
-      .status(200)
-      .json({
-        userId: user.user_id,
-        username: user.username,
-        profilePicture: profilePicture,
-      });
+    const profilePictureUrl = await createPresignedUrl(
+      process.env.BUCKET_NAME,
+      user.profile_picture
+    );
+    res.status(200).json({
+      userId: user.user_id,
+      username: user.username,
+      profilePicture: profilePictureUrl,
+    });
   } catch (error) {
     console.error('Error retrieving user data:', error);
     res.status(500).json({ error: 'An unexpected error occurred.' });
@@ -46,27 +47,6 @@ const retrieveUserIdFromSession = async (req, res) => {
     res.json({ userId: req.session.passport.user });
   } else {
     res.json({ error: 'User not authenticated.' });
-  }
-};
-
-const retrieveProfilePictureById = async (userId) => {
-  try {
-    const fileName = await User.getUserProfilePicture(userId);
-
-    // If the user has not uploaded a profile picture, send a 204 response
-    if (fileName === null) {
-      return null;
-    }
-
-    // Generate a temporary URL for viewing the uploaded profile picture from S3
-    const presignedS3Url = await createPresignedUrl(
-      process.env.BUCKET_NAME,
-      fileName
-    );
-    return presignedS3Url;
-  } catch (error) {
-    console.error('Error retrieving profile picture:', error);
-    throw error;
   }
 };
 

@@ -36,10 +36,8 @@ const handleChatMessages = (socket, io) => {
     // Extract the recipient's socket id from the userSockets hash map by using their user id
     // This allows us to add the recipient to the correct chat room when they receive a message
     const targetUserSocketId = userSockets.get(recipientId);
-
     const senderId = socket.handshake.session.passport.user;
-    // const senderProfilePicture = await User.getUserProfilePicture(senderId);
-
+    
     try {
       // Create a consistent room name using user IDs
       // Ensure the room is the same for both users by sorting the user IDs
