@@ -1,4 +1,4 @@
-async function getUserData() {
+async function getLoggedInUserData() {
   try {
     const response = await fetch('http://localhost:8080/users/', {
       method: 'GET',
@@ -106,7 +106,7 @@ async function updateBlockList(userIds) {
 }
 
 export {
-  getUserData,
+  getLoggedInUserData,
   getRecipientUserIdByUsername,
   getBlockList,
   updateUsername,

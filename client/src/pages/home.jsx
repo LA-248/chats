@@ -4,7 +4,7 @@ import { MessageContext } from '../contexts/MessageContext.jsx';
 import { UserContext } from '../contexts/UserContext.jsx';
 import { createContext, useEffect, useState, useContext } from 'react';
 import { Link, Outlet, useLocation, useParams } from 'react-router-dom';
-import { getUserData } from '../api/user-api.jsx';
+import { getLoggedInUserData } from '../api/user-api.jsx';
 import { getChatListByUserId } from '../api/chat-api';
 import Sidebar from '../components/common/Sidebar.jsx';
 import ChatWindowPlaceholder from '../components/chat/ChatWindowPlaceholder.jsx';
@@ -29,15 +29,13 @@ export default function Home() {
     // Retrieve user data
     const fetchUserData = async () => {
       try {
-        const userData = await getUserData();
+        const userData = await getLoggedInUserData();
         setLoggedInUserId(userData.userId);
         setLoggedInUsername(userData.username);
 
-        if (userData.profilePicture === null) {
-          setProfilePicture('/images/default-avatar.jpg');
-        } else {
-          setProfilePicture(userData.profilePicture);
-        }
+        setProfilePicture(
+          userData.profilePicture || '/images/default-avatar.jpg'
+        );
       } catch (error) {
         setErrorMessage(error.message);
       }

@@ -11,7 +11,7 @@ const User = {
             user_id SERIAL PRIMARY KEY,
             username VARCHAR(30) NOT NULL UNIQUE,
             hashed_password TEXT NOT NULL,
-            profile_picture TEXT,
+            profile_picture TEXT DEFAULT NULL,
             blocked_users INTEGER[] DEFAULT '{}'
           )
         `,
@@ -96,7 +96,7 @@ const User = {
   getUserById: function (userId) {
     return new Promise((resolve, reject) => {
       pool.query(
-        `SELECT * FROM users WHERE user_id = $1`,
+        `SELECT user_id, username, profile_picture, blocked_users FROM users WHERE user_id = $1`,
         [userId],
         (err, result) => {
           if (err) {

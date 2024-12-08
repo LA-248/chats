@@ -5,10 +5,11 @@ const retrieveLoggedInUserDataById = async (req, res) => {
   try {
     const userId = req.session.passport.user;
     const user = await User.getUserById(userId);
-    const profilePictureUrl = await createPresignedUrl(
-      process.env.BUCKET_NAME,
-      user.profile_picture
-    );
+
+    const profilePictureUrl = user.profile_picture
+      ? await createPresignedUrl(process.env.BUCKET_NAME, user.profile_picture)
+      : null;
+
     res.status(200).json({
       userId: user.user_id,
       username: user.username,
