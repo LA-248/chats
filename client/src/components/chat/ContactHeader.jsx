@@ -3,9 +3,9 @@ import { ChatContext } from '../../contexts/ChatContext';
 import { MessageContext } from '../../contexts/MessageContext';
 import { UserContext } from '../../contexts/UserContext';
 import { getBlockList, updateBlockList } from '../../api/user-api';
-import clearErrorMessage from '../../utils/ClearErrorMessage';
 import MessageSearch from './MessageSearch';
 import ContactInfoModal from '../common/ContactInfoModal';
+import useClearErrorMessage from '../../hooks/useClearErrorMessage';
 
 export default function ContactHeader() {
   const { setIsBlocked, selectedChat, setActiveChatId } =
@@ -38,9 +38,7 @@ export default function ContactHeader() {
     syncChatDataAndBlockStatus();
   }, [activeChat, setActiveChatId, setRecipientId, setBlockList, setIsBlocked]);
 
-  useEffect(() => {
-    clearErrorMessage(errorMessage, setErrorMessage);
-  }, [errorMessage, setErrorMessage]);
+  useClearErrorMessage(errorMessage, setErrorMessage);
 
   const recipientProfilePicture =
     activeChat?.recipient_profile_picture || '/images/default-avatar.jpg';

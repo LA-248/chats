@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import handleModalOutsideClick from '../../utils/ModalOutsideClick';
-import clearErrorMessage from '../../utils/ClearErrorMessage';
+import useClearErrorMessage from '../../hooks/useClearErrorMessage';
 
 export default function Modal({
   isModalOpen,
@@ -15,10 +15,7 @@ export default function Modal({
     handleModalOutsideClick(modalRef, setIsModalOpen, isModalOpen);
   }, [setIsModalOpen, isModalOpen]);
 
-  // Clear error message after a certain amount of time
-  useEffect(() => {
-    clearErrorMessage(errorMessage, setErrorMessage);
-  }, [errorMessage, setErrorMessage]);
+  useClearErrorMessage(errorMessage, setErrorMessage);
 
   if (!isModalOpen) {
     return null;

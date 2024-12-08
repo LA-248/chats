@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { addChat } from '../../api/chat-api';
-import clearErrorMessage from '../../utils/ClearErrorMessage';
+import useClearErrorMessage from '../../hooks/useClearErrorMessage';
 
 export default function AddChatInput({
   chatList,
@@ -26,10 +26,7 @@ export default function AddChatInput({
     [chatList, setChatList, inputUsername, setErrorMessage]
   );
 
-  // Clear error message after a certain amount of time
-  useEffect(() => {
-    clearErrorMessage(errorMessage, setErrorMessage);
-  }, [errorMessage, setErrorMessage]);
+    useClearErrorMessage(errorMessage, setErrorMessage);
 
   return (
     <div className='username-form-container'>

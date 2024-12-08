@@ -1,10 +1,10 @@
 import { v4 as uuidv4 } from 'uuid';
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useState } from 'react';
 import { useSocket } from '../../hooks/useSocket';
 import { MessageContext } from '../../contexts/MessageContext';
 import { UserContext } from '../../contexts/UserContext';
 import { ChatContext } from '../../contexts/ChatContext';
-import clearErrorMessage from '../../utils/ClearErrorMessage';
+import useClearErrorMessage from '../../hooks/useClearErrorMessage';
 import data from '@emoji-mart/data';
 import Picker from '@emoji-mart/react';
 
@@ -43,9 +43,7 @@ export default function MessageInput() {
     setMessage((prevMessage) => prevMessage + emoji.native);
   };
 
-  useEffect(() => {
-    clearErrorMessage(errorMessage, setErrorMessage);
-  }, [errorMessage]);
+  useClearErrorMessage(errorMessage, setErrorMessage);
 
   return (
     <div>
