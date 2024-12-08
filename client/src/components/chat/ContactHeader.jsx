@@ -18,16 +18,14 @@ export default function ContactHeader() {
   const activeChat = JSON.parse(localStorage.getItem('active-chat'));
 
   // Persist active chat data across page refreshes by syncing local storage with chat context values
+  // Plus, fetch and set the block list, update block status
   useEffect(() => {
-    if (activeChat) {
-      setActiveChatId(activeChat.id);
-      setRecipientId(activeChat.recipient_user_id);
-    }
-  }, [activeChat, setActiveChatId, setRecipientId]);
+    const syncChatDataAndBlockStatus = async () => {
+      if (activeChat) {
+        setActiveChatId(activeChat.id);
+        setRecipientId(activeChat.recipient_user_id);
+      }
 
-  useEffect(() => {
-    // Gets the user's block list, updates the block state, and disables message input if the recipient is blocked
-    const fetchAndSetBlockedStatus = async () => {
       try {
         const blockListArray = await getBlockList();
         setBlockList(blockListArray);
@@ -36,27 +34,27 @@ export default function ContactHeader() {
         setErrorMessage(error.message);
       }
     };
-    fetchAndSetBlockedStatus();
-  }, [activeChat.recipient_user_id, setIsBlocked, setBlockList]);
 
-  // Clear error message after a certain amount of time
+    syncChatDataAndBlockStatus();
+  }, [activeChat, setActiveChatId, setRecipientId, setBlockList, setIsBlocked]);
+
   useEffect(() => {
     clearErrorMessage(errorMessage, setErrorMessage);
   }, [errorMessage, setErrorMessage]);
+
+  const recipientProfilePicture =
+    activeChat?.recipient_profile_picture || '/images/default-avatar.jpg';
+  const recipientUsername = selectedChat || activeChat?.recipient_username;
 
   return (
     <div>
       <div className='contact-header-container'>
         <div className='contact-header'>
           <div className='picture-and-name'>
-            {(selectedChat || activeChat.name) && (
+            {(selectedChat || activeChat.recipient_username) && (
               <img
                 className='chat-pic'
-                src={
-                  activeChat.recipient_profile_picture
-                    ? activeChat.recipient_profile_picture
-                    : '/images/default-avatar.jpg'
-                }
+                src={recipientProfilePicture}
                 alt='Profile'
                 style={{ height: '35px', width: '35px' }}
               ></img>
@@ -65,7 +63,7 @@ export default function ContactHeader() {
               className='recipient-username'
               onClick={() => setIsModalOpen(true)}
             >
-              {selectedChat || activeChat.name}
+              {recipientUsername}
             </div>
           </div>
 
