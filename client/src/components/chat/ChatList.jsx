@@ -95,7 +95,9 @@ export default function ChatList({ setSelectedChat, setRecipientUsername }) {
   useEffect(() => {
     if (chatSearchInputText) {
       const filtered = chatList.filter((chat) =>
-        chat.name.toLowerCase().includes(chatSearchInputText.toLowerCase())
+        chat.recipient_username
+          .toLowerCase()
+          .includes(chatSearchInputText.toLowerCase())
       );
       setFilteredChats(filtered);
     } else {
