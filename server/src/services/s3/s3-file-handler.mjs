@@ -34,4 +34,4 @@ const deleteS3Object = async (bucket, key) => {
   }
 };
 
-export { s3Upload, createPresignedUrl, deleteS3Object };
+export { s3Upload, deleteS3Object };

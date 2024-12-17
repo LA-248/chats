@@ -1,6 +1,5 @@
 import { PrivateChat } from '../models/private-chat-model.mjs';
 import { Message } from '../models/message-model.mjs';
-import { User } from '../models/user-model.mjs';
 import addChatForRecipientOnMessageReceive from '../utils/handle-recipient-chat-list.mjs';
 import isSenderBlocked from '../utils/check-blocked-status.mjs';
 
@@ -37,7 +36,7 @@ const handleChatMessages = (socket, io) => {
     // This allows us to add the recipient to the correct chat room when they receive a message
     const targetUserSocketId = userSockets.get(recipientId);
     const senderId = socket.handshake.session.passport.user;
-    
+
     try {
       // Create a consistent room name using user IDs
       // Ensure the room is the same for both users by sorting the user IDs

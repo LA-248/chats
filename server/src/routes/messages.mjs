@@ -3,7 +3,7 @@ import {
   deleteMessageById,
   editMessageById,
   updateUsernameInMessages,
-} from '../controllers/message/message-controller.mjs';
+} from '../controllers/message/update-message-controller.mjs';
 
 const messagesRouter = express.Router();
 

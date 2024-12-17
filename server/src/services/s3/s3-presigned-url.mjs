@@ -1,4 +1,6 @@
 import { s3Client } from './s3-client.mjs';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import { GetObjectCommand } from '@aws-sdk/client-s3';
 import NodeCache from 'node-cache';
 const profilePictureUrlCache = new NodeCache({ stdTTL: 604800 });
 
@@ -36,4 +38,4 @@ const generatePresignedUrlsForChatList = async (chatList) => {
   }
 };
 
-export { generatePresignedUrlsForChatList };
+export { createPresignedUrl, generatePresignedUrlsForChatList };

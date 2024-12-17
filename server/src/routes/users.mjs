@@ -1,17 +1,17 @@
 import express from 'express';
 import handleMulterError from '../middlewares/multer-error-handler.mjs';
 import {
-  retrieveLoggedInUserDataById,
-  retrieveIdByUsername,
-  retrieveUserIdFromSession,
   retrieveBlockListById,
-} from '../controllers/user/retrieve-user-info-controller.mjs';
+  retrieveIdByUsername,
+  retrieveLoggedInUserDataById,
+  retrieveUserIdFromSession,
+} from '../controllers/user/get-user-controller.mjs';
 import {
   updateBlockedUsers,
   updateUsernameById,
   uploadProfilePicture,
-} from '../controllers/user/update-user-info-controller.mjs';
-import { s3Upload } from '../services/s3-file-handler.mjs';
+} from '../controllers/user/update-user-controller.mjs';
+import { s3Upload } from '../services/s3/s3-file-handler.mjs';
 
 const usersRouter = express.Router();
 

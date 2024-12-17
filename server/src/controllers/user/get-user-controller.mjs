@@ -1,5 +1,5 @@
 import { User } from '../../models/user-model.mjs';
-import { createPresignedUrl } from '../../services/s3/s3-file-handler.mjs';
+import { createPresignedUrl } from '../../services/s3/s3-presigned-url.mjs';
 
 const retrieveLoggedInUserDataById = async (req, res) => {
   try {
