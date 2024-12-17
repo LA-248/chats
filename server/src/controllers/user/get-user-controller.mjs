@@ -1,5 +1,5 @@
 import { User } from '../../models/user-model.mjs';
-import { createPresignedUrl } from '../../services/s3-file-handler.mjs';
+import { createPresignedUrl } from '../../services/s3/s3-file-handler.mjs';
 
 const retrieveLoggedInUserDataById = async (req, res) => {
   try {
@@ -13,6 +13,32 @@ const retrieveLoggedInUserDataById = async (req, res) => {
     res.status(200).json({
       userId: user.user_id,
       username: user.username,
+      profilePicture: profilePictureUrl,
+    });
+  } catch (error) {
+    console.error('Error retrieving user data:', error);
+    res.status(500).json({ error: 'An unexpected error occurred.' });
+  }
+};
+
+const retrieveUserByUsername = async (req, res) => {
+  try {
+    const username = req.params.username;
+    const user = await User.getUserByUsername(username);
+
+    const profilePictureUrl = user.profile_picture
+      ? await createPresignedUrl(process.env.BUCKET_NAME, user.profile_picture)
+      : null;
+
+    if (!user) {
+      console.error('User does not exist.');
+      return res.redirect('/');
+    }
+
+    res.status(200).json({
+      userId: user.user_id,
+      username: user.username,
+      blockedUsers: user.blocked_users,
       profilePicture: profilePictureUrl,
     });
   } catch (error) {
@@ -64,6 +90,7 @@ const retrieveBlockListById = async (req, res) => {
 
 export {
   retrieveLoggedInUserDataById,
+  retrieveUserByUsername,
   retrieveIdByUsername,
   retrieveUserIdFromSession,
   retrieveBlockListById,

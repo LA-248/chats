@@ -1,8 +1,6 @@
 import multer from 'multer';
 import multerS3 from 'multer-s3';
 import { s3Client } from './s3-client.mjs';
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { GetObjectCommand } from '@aws-sdk/client-s3';
 import { DeleteObjectCommand } from '@aws-sdk/client-s3';
 
 // Stream file directly to S3 using multer-s3
@@ -20,17 +18,6 @@ const s3Upload = multer({
   }),
   limits: { fileSize: 10 * 1024 * 1024 },
 });
-
-// Create a presigned S3 URL for temporary access to the object
-const createPresignedUrl = (bucket, key) => {
-  try {
-    const command = new GetObjectCommand({ Bucket: bucket, Key: key });
-    return getSignedUrl(s3Client, command, { expiresIn: 604800 });
-  } catch (error) {
-    console.error('Error creating presigned S3 URL:', error);
-    throw new Error('Error retrieving profile pictures');
-  }
-};
 
 // Delete object from S3 bucket
 const deleteS3Object = async (bucket, key) => {

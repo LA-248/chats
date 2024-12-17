@@ -3,7 +3,7 @@ import { User } from '../../models/user-model.mjs';
 import {
   createPresignedUrl,
   deleteS3Object,
-} from '../../services/s3-file-handler.mjs';
+} from '../../services/s3/s3-file-handler.mjs';
 
 const uploadProfilePicture = async (req, res) => {
   try {

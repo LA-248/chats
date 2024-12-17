@@ -1,14 +1,14 @@
 import express from 'express';
-import {
-  addChat,
-  retrieveChatList,
-  deleteChat,
-} from '../controllers/chat/chat-list-controller.mjs';
+import { retrieveUserByUsername } from '../controllers/user/get-user-controller.mjs';
+import { getChatList } from '../controllers/chat/get-chat-controller.mjs';
+import { addChat } from '../controllers/chat/create-chat-controller.mjs';
+import { deleteChat } from '../controllers/chat/update-chat-controller.mjs';
 
 const chatsRouter = express.Router();
 
 chatsRouter.post('/', addChat);
-chatsRouter.get('/', retrieveChatList);
+chatsRouter.get('/', getChatList);
+chatsRouter.get('/:room/:username', retrieveUserByUsername);
 chatsRouter.delete('/', deleteChat);
 
 export default chatsRouter;
