@@ -4,7 +4,7 @@ import Logout from './UserLogout';
 export default function UserProfile({
   profilePicture,
   loggedInUsername,
-  setActiveChatId,
+  setActiveChatRoom,
 }) {
   return (
     <div className='profile-settings-container'>
@@ -24,7 +24,7 @@ export default function UserProfile({
         >
           <button
             className='settings-button'
-            onClick={() => setActiveChatId(null)}
+            onClick={() => setActiveChatRoom(null)}
           >
             Settings
           </button>

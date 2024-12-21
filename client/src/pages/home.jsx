@@ -13,7 +13,7 @@ export const SocketContext = createContext();
 
 export default function Home() {
   const { setMessages } = useContext(MessageContext);
-  const { setChatList, setActiveChatId } = useContext(ChatContext);
+  const { setChatList, setActiveChatRoom } = useContext(ChatContext);
   const {
     loggedInUserId,
     setLoggedInUserId,
@@ -99,7 +99,7 @@ export default function Home() {
                 textDecoration: 'none',
                 padding: '10px 10px 0px 10px',
               }}
-              onClick={() => setActiveChatId(null)}
+              onClick={() => setActiveChatRoom(null)}
             >
               Chats
             </Link>

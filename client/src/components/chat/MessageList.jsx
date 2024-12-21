@@ -1,6 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { UserContext } from '../../contexts/UserContext';
 import { MessageContext } from '../../contexts/MessageContext';
+import { ChatContext } from '../../contexts/ChatContext';
 import { updateBlockList } from '../../api/user-api';
 import ContactInfoModal from '../common/ContactInfoModal';
 import formatDate from '../../utils/DateTimeFormat';
@@ -15,18 +16,18 @@ export default function MessageList({
   setMessageId,
   setMessageIndex,
 }) {
+  const { activeChatInfo } = useContext(ChatContext);
   const { loggedInUserId, profilePicture } = useContext(UserContext);
   const { setCurrentMessage, messageSearchValueText } =
     useContext(MessageContext);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-  const activeChat = JSON.parse(localStorage.getItem('active-chat'));
 
   return (
     <>
-      {isModalOpen && (
+      {activeChatInfo && isModalOpen && (
         <ContactInfoModal
-          activeChat={activeChat}
+          activeChat={activeChatInfo}
           isModalOpen={isModalOpen}
           setIsModalOpen={setIsModalOpen}
           updateBlockList={updateBlockList}
@@ -51,15 +52,17 @@ export default function MessageList({
                     onMouseLeave={() => setHoveredIndex(null)}
                   >
                     <div className='message-container'>
-                      <img
-                        className='message-profile-picture'
-                        src={
-                          loggedInUserId === messageData.senderId
-                            ? profilePicture
-                            : activeChat.recipient_profile_picture
-                        }
-                        alt='Profile'
-                      ></img>
+                      {activeChatInfo && (
+                        <img
+                          className='message-profile-picture'
+                          src={
+                            loggedInUserId === messageData.senderId
+                              ? profilePicture
+                              : activeChatInfo.profilePicture
+                          }
+                          alt='Profile'
+                        />
+                      )}
                       <div className='message-metadata'>
                         <div className='message-details'>
                           <div

@@ -41,8 +41,8 @@ export default function ContactInfoModal({
         <img
           className='chat-pic'
           src={
-            activeChat.recipient_profile_picture
-              ? activeChat.recipient_profile_picture
+            activeChat.profilePicture
+              ? activeChat.profilePicture
               : '/images/default-avatar.jpg'
           }
           alt='Profile'

@@ -13,8 +13,8 @@ export default function ChatList({ setSelectedChat, setRecipientUsername }) {
     setChatSearchInputText,
     chatList,
     setChatList,
-    activeChatId,
-    setActiveChatId,
+    activeChatRoom,
+    setActiveChatRoom,
   } = useContext(ChatContext);
   const { loggedInUserId } = useContext(UserContext);
   const [filteredChats, setFilteredChats] = useState([]);
@@ -49,30 +49,18 @@ export default function ChatList({ setSelectedChat, setRecipientUsername }) {
   };
 
   const handleChatClick = (chat) => {
-    setActiveChatId(chat.chat_id);
+    setActiveChatRoom(chat.room);
     setSelectedChat(chat.recipient_username);
     setRecipientUsername(chat.recipient_username);
-
-    localStorage.setItem(
-      'active-chat',
-      JSON.stringify({
-        id: chat.chat_id,
-        recipient_username: chat.recipient_username,
-        recipient_user_id: chat.recipient_user_id,
-        recipient_profile_picture:
-          chat.recipient_profile_picture || '/images/default-avatar.jpg',
-      })
-    );
-
     handleMessageReadStatusUpdate(chat);
-    navigate(`/messages/${chat.room}`);
+    navigate(`/chats/${chat.room}/${chat.recipient_username}`);
   };
 
   const handleDeleteClick = (event, chat) => {
     event.stopPropagation();
     removeChat(loggedInUserId, chat.chat_id);
     setChatSearchInputText('');
-    if (activeChatId === chat.chat_id) {
+    if (activeChatRoom === chat.room) {
       navigate('/');
     }
   };
@@ -108,7 +96,7 @@ export default function ChatList({ setSelectedChat, setRecipientUsername }) {
   // Automatically mark messages as read in the currently open chat
   useEffect(() => {
     filteredChats.forEach((chat) => {
-      if (activeChatId === chat.chat_id) {
+      if (activeChatRoom === chat.room) {
         handleMessageReadStatusUpdate(chat);
       }
     });
@@ -142,7 +130,7 @@ export default function ChatList({ setSelectedChat, setRecipientUsername }) {
             <ChatItem
               key={chat.chat_id}
               chat={chat}
-              isActive={chat.chat_id === activeChatId}
+              isActive={chat.room === activeChatRoom}
               isHovered={hoverChatId === chat.chat_id}
               onMouseEnter={() => setHoverChatId(chat.chat_id)}
               onMouseLeave={() => setHoverChatId(null)}

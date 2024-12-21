@@ -6,7 +6,8 @@ const ChatProvider = ({ children }) => {
   const [chatList, setChatList] = useState([]);
   const [selectedChat, setSelectedChat] = useState(null);
   const [isBlocked, setIsBlocked] = useState(null);
-  const [activeChatId, setActiveChatId] = useState(null);
+  const [activeChatInfo, setActiveChatInfo] = useState(null);
+  const [activeChatRoom, setActiveChatRoom] = useState(null);
   const [chatSearchInputText, setChatSearchInputText] = useState('');
 
   return (
@@ -18,8 +19,10 @@ const ChatProvider = ({ children }) => {
         setSelectedChat,
         isBlocked,
         setIsBlocked,
-        activeChatId,
-        setActiveChatId,
+        activeChatInfo,
+        setActiveChatInfo,
+        activeChatRoom,
+        setActiveChatRoom,
         chatSearchInputText,
         setChatSearchInputText,
       }}

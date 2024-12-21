@@ -12,7 +12,6 @@ export default function ChatItem({
   return (
     <div className='chat-item-container'>
       <div
-        // Add the active class if the current chat's ID matches the activeChatId
         className={`chat-item ${isActive ? 'active' : ''}`}
         onMouseEnter={onMouseEnter}
         onMouseLeave={onMouseLeave}

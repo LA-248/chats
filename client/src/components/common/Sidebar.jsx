@@ -19,7 +19,7 @@ export default function Sidebar() {
     setSelectedChat,
     chatList,
     setChatList,
-    setActiveChatId,
+    setActiveChatRoom,
   } = useContext(ChatContext);
 
   // Retrieve the ID of the chat user selected
@@ -85,7 +85,7 @@ export default function Sidebar() {
         <UserProfile
           profilePicture={profilePicture}
           loggedInUsername={loggedInUsername}
-          setActiveChatId={setActiveChatId}
+          setActiveChatRoom={setActiveChatRoom}
         />
       </div>
     </div>

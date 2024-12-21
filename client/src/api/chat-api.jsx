@@ -20,6 +20,28 @@ async function getChatListByUserId() {
   }
 }
 
+async function getRecipientInfo(room, username) {
+  try {
+    const response = await fetch(
+      `http://localhost:8080/chats/${room}/${username}`,
+      {
+        method: 'GET',
+        credentials: 'include',
+      }
+    );
+
+    if (!response.ok) {
+      const errorResponse = await response.json();
+      throw new Error(errorResponse.error);
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    throw error;
+  }
+}
+
 // Add a chat to the user's chat list
 async function addChat(inputUsername, chatList) {
   try {
@@ -86,4 +108,4 @@ async function deleteChat(chatId) {
   }
 }
 
-export { getChatListByUserId, addChat, deleteChat };
+export { getChatListByUserId, getRecipientInfo, addChat, deleteChat };
