@@ -41,7 +41,6 @@ const handleChatMessages = (socket, io) => {
       // Create a consistent room name using user IDs
       // Ensure the room is the same for both users by sorting the user IDs
       const room = [senderId, recipientId].sort().join('-');
-      console.log(recipientId);
 
       // Make the recipient join the private chat room
       io.in(targetUserSocketId).socketsJoin(room);
@@ -59,6 +58,7 @@ const handleChatMessages = (socket, io) => {
         room,
         clientOffset
       );
+      await PrivateChat.updateLastMessage(newMessage.id, room);
 
       // Set the chat as unread for the recipient when a new message is received
       // await PrivateChat.updateMessageReadStatus(true, roomName, recipientId);

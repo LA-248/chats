@@ -26,4 +26,4 @@ const getChatListByUserId = async (userId) => {
   return chatList;
 };
 
-export { getChatList };
+export { getChatList, getChatListByUserId };

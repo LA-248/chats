@@ -58,9 +58,10 @@ export default function MessageList({
                           src={
                             loggedInUserId === messageData.senderId
                               ? profilePicture
-                              : activeChatInfo.profilePicture
+                              : activeChatInfo.profilePicture ||
+                                '/images/default-avatar.jpg'
                           }
-                          alt='Profile'
+                          alt='Profile avatar'
                         />
                       )}
                       <div className='message-metadata'>

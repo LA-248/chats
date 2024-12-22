@@ -47,7 +47,11 @@ export default function ProfilePicture({ errorMessage, setErrorMessage }) {
   return (
     <div className='profile-picture-container'>
       <div className='profile-picture-heading'>Profile picture</div>
-      <img className='profile-picture' alt='Profile' src={profilePicture}></img>
+      <img
+        className='profile-picture'
+        alt='Profile avatar'
+        src={profilePicture}
+      ></img>
       <form
         ref={formRef}
         id='profile-picture-upload-form'

@@ -45,7 +45,7 @@ export default function ContactInfoModal({
               ? activeChat.profilePicture
               : '/images/default-avatar.jpg'
           }
-          alt='Profile'
+          alt='Profile avatar'
           style={{ height: '100px', width: '100px' }}
         ></img>
         <div className='recipient-username'>

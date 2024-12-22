@@ -31,6 +31,7 @@ export default function ContactHeader() {
   const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
+    // Fetch info of a chat recipient to display in the contact header
     const retrieveRecipientContactInfo = async () => {
       try {
         const recipientInfo = await getRecipientInfo(room, username);
@@ -73,7 +74,7 @@ export default function ContactHeader() {
             <img
               className='chat-pic'
               src={recipientProfilePicture || '/images/default-avatar.jpg'}
-              alt='Profile'
+              alt='Profile avatar'
               style={{ height: '35px', width: '35px' }}
             ></img>
             <div

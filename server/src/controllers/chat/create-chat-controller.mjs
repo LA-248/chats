@@ -1,5 +1,7 @@
 import { Message } from '../../models/message-model.mjs';
+import { PrivateChat } from '../../models/private-chat-model.mjs';
 import { User } from '../../models/user-model.mjs';
+import { getChatListByUserId } from './get-chat-controller.mjs';
 
 // Handle adding a new chat to a user's chat list
 const addChat = async (req, res) => {
@@ -14,6 +16,7 @@ const addChat = async (req, res) => {
       room
     );
     const updatedChatList = await getChatListByUserId(senderId);
+    console.log(updatedChatList);
 
     // Send the updated chat list to the frontend
     return res.status(200).json({ updatedChatList: updatedChatList });

@@ -19,7 +19,7 @@ export default function ChatItem({
       >
         <img
           className='chat-pic'
-          alt='Profile'
+          alt='Profile avatar'
           src={chat.recipient_profile_picture || '/images/default-avatar.jpg'}
         ></img>
         <div className='chat-info'>
@@ -27,7 +27,8 @@ export default function ChatItem({
             <h4 className='chat-name'>{chat.recipient_username}</h4>
             <div className='time-and-notification-container'>
               <div className='chat-time'>
-                {chat.last_message && formatDate(chat.event_time)}
+                {chat.last_message_content &&
+                  formatDate(chat.last_message_time)}
               </div>
               {!isActive && chat.has_new_message ? (
                 <span className='unread-message-alert'></span>
@@ -37,7 +38,7 @@ export default function ChatItem({
             </div>
           </div>
           <div className='chat-metadata-container'>
-            <p className='chat-last-message'>placeholder</p>
+            <p className='chat-last-message'>{chat.last_message_content}</p>
             <div className='chat-utilities'>
               {isHovered && (
                 <button onClick={onDeleteClick} className='chat-delete-button'>

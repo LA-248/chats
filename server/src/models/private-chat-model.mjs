@@ -72,6 +72,8 @@ const PrivateChat = {
           u.username AS recipient_username,
           u.profile_picture AS recipient_profile_picture,
           pc.last_message_id,
+          m.content AS last_message_content,
+          m.event_time AS last_message_time,
           pc.room,
           pc.created_at,
           pc.updated_at,
@@ -84,6 +86,7 @@ const PrivateChat = {
           WHEN pc.user1_id = $1 THEN pc.user2_id
           ELSE pc.user1_id
         END
+        LEFT JOIN messages m ON pc.last_message_id = m.message_id
         WHERE (pc.user1_id = $1 OR pc.user2_id = $1)
         ORDER BY pc.updated_at DESC
         `,
@@ -102,22 +105,45 @@ const PrivateChat = {
 
   // UPDATE OPERATIONS
 
-  deleteChatByUserId: function (userId, chatId) {
+  updateLastMessage: function (messageId, room) {
     return new Promise((resolve, reject) => {
       pool.query(
         `
         UPDATE private_chats
         SET
-          user1_deleted = CASE WHEN user1_id = $1 THEN TRUE ELSE user1_deleted END,
-          user2_deleted = CASE WHEN user2_id = $1 THEN TRUE ELSE user2_deleted END
-        WHERE chat_id = $2
+          last_message_id = $1,
+          updated_at = NOW()
+        WHERE room = $2
+        `,
+        [messageId, room],
+        (err) => {
+          if (err) {
+            return reject(
+              `Database error in private_chats table: ${err.message}`
+            );
+          }
+          return resolve();
+        }
+      );
+    });
+  },
+
+  updateChatDeletionStatus: function (userId, isDeleted, chatId) {
+    return new Promise((resolve, reject) => {
+      pool.query(
+        `
+        UPDATE private_chats
+        SET
+          user1_deleted = CASE WHEN user1_id = $1 THEN $2 ELSE user1_deleted END,
+          user2_deleted = CASE WHEN user2_id = $1 THEN $2 ELSE user2_deleted END
+        WHERE chat_id = $3
         RETURNING
           CASE
             WHEN user1_id = $1 THEN user1_deleted
             WHEN user2_id = $1 THEN user2_deleted
           END AS user_deleted
         `,
-        [userId, chatId],
+        [userId, isDeleted, chatId],
         (err, result) => {
           if (err) {
             return reject(
