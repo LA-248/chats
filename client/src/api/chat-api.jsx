@@ -85,14 +85,14 @@ async function addChat(inputUsername, chatList) {
 }
 
 // Delete a chat in the user's chat list
-async function deleteChat(chatId) {
+async function deleteChat(room) {
   try {
     const response = await fetch('http://localhost:8080/chats/', {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ chatId: chatId }),
+      body: JSON.stringify({ room: room }),
       credentials: 'include',
     });
 

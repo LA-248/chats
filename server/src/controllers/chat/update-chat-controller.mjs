@@ -4,11 +4,12 @@ import { PrivateChat } from '../../models/private-chat-model.mjs';
 const deleteChat = async (req, res) => {
   try {
     const userId = req.session.passport.user;
-    const chatId = req.body.chatId;
+    const room = req.body.room;
 
-    const deleteChatStatus = await PrivateChat.deleteChatByUserId(
+    const deleteChatStatus = await PrivateChat.updateChatDeletionStatus(
       userId,
-      chatId
+      true,
+      room
     );
     return res.status(200).json({ deleteChatStatus: deleteChatStatus });
   } catch (error) {

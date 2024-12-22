@@ -2,9 +2,10 @@ import { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSocket } from '../../hooks/useSocket';
 import { ChatContext } from '../../contexts/ChatContext';
-import { UserContext } from '../../contexts/UserContext';
 import { getChatListByUserId, deleteChat } from '../../api/chat-api';
 import ChatItem from './ChatItem';
+import useClearErrorMessage from '../../hooks/useClearErrorMessage';
+import { useSocketErrorHandling } from '../../hooks/useSocketErrorHandling';
 
 export default function ChatList({ setSelectedChat, setRecipientUsername }) {
   const socket = useSocket();
@@ -16,30 +17,15 @@ export default function ChatList({ setSelectedChat, setRecipientUsername }) {
     activeChatRoom,
     setActiveChatRoom,
   } = useContext(ChatContext);
-  const { loggedInUserId } = useContext(UserContext);
   const [filteredChats, setFilteredChats] = useState([]);
   const [hoverChatId, setHoverChatId] = useState(null);
   const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
 
-  // Handles updating the read status of a message
-  const handleMessageReadStatusUpdate = (chat) => {
-    if (chat.has_new_message) {
-      socket.emit('update-message-read-status', {
-        hasNewMessage: false,
-        room: chat.room,
-      });
-      // Update chat list state
-      chat.has_new_message = false;
-      const updatedChatList = [...chatList];
-      setChatList(updatedChatList);
-    }
-  };
-
   // Remove a conversation from the chat list
-  const removeChat = async (userId, chatId) => {
+  const removeChat = async (room) => {
     try {
-      await deleteChat(userId, chatId);
+      await deleteChat(room);
       const storedChatList = await getChatListByUserId(); // Get updated chat list
       const updatedChatList = storedChatList;
       setChatList(updatedChatList);
@@ -48,21 +34,20 @@ export default function ChatList({ setSelectedChat, setRecipientUsername }) {
     }
   };
 
-  const handleChatClick = (chat) => {
-    setActiveChatRoom(chat.room);
-    setSelectedChat(chat.recipient_username);
-    setRecipientUsername(chat.recipient_username);
-    handleMessageReadStatusUpdate(chat);
-    navigate(`/chats/${chat.room}/${chat.recipient_username}`);
-  };
-
   const handleDeleteClick = (event, chat) => {
     event.stopPropagation();
-    removeChat(loggedInUserId, chat.chat_id);
+    removeChat(chat.room);
     setChatSearchInputText('');
     if (activeChatRoom === chat.room) {
       navigate('/');
     }
+  };
+
+  const handleChatClick = (chat) => {
+    setActiveChatRoom(chat.room);
+    setSelectedChat(chat.recipient_username);
+    setRecipientUsername(chat.recipient_username);
+    navigate(`/chats/${chat.room}/${chat.recipient_username}`);
   };
 
   // Retrieve the user's chat list for display
@@ -70,6 +55,7 @@ export default function ChatList({ setSelectedChat, setRecipientUsername }) {
     const displayChatList = async () => {
       try {
         const result = await getChatListByUserId();
+        console.log(result);
         setChatList(result);
       } catch (error) {
         setErrorMessage(error.message);
@@ -93,26 +79,9 @@ export default function ChatList({ setSelectedChat, setRecipientUsername }) {
     }
   }, [chatSearchInputText, chatList]);
 
-  // Automatically mark messages as read in the currently open chat
-  useEffect(() => {
-    filteredChats.forEach((chat) => {
-      if (activeChatRoom === chat.room) {
-        handleMessageReadStatusUpdate(chat);
-      }
-    });
-  });
 
-  // Handle socket errors
-  useEffect(() => {
-    const handleError = (errorResponse) => {
-      setErrorMessage(errorResponse.error);
-    };
-    socket.on('custom-error', handleError);
-
-    return () => {
-      socket.off('custom-error', handleError);
-    };
-  }, [socket]);
+  useSocketErrorHandling(socket, setErrorMessage);
+  useClearErrorMessage(errorMessage, setErrorMessage);
 
   return (
     <div className='chat-list'>

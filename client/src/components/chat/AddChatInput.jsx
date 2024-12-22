@@ -47,7 +47,7 @@ export default function AddChatInput({
           </button>
         </div>
         {errorMessage && (
-          <div className='error-message' style={{ marginTop: '10px' }}>
+          <div className='error-message' style={{ marginTop: '20px' }}>
             {errorMessage}
           </div>
         )}

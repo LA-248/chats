@@ -34,15 +34,15 @@ const PrivateChat = {
 
   // INSERT OPERATIONS
 
-  insertNewChat: function (user1Id, user2Id, lastMessageId, room) {
+  insertNewChat: function (user1Id, user2Id, room) {
     return new Promise((resolve, reject) => {
       pool.query(
         `
-          INSERT INTO private_chats (user1_id, user2_id, last_message_id, room)
+          INSERT INTO private_chats (user1_id, user2_id, room)
           VALUES ($1, $2, $3, $4)
           RETURNING *
         `,
-        [user1Id, user2Id, lastMessageId, room],
+        [user1Id, user2Id, room],
         (err, result) => {
           if (err) {
             return reject(
@@ -103,6 +103,34 @@ const PrivateChat = {
     });
   },
 
+  retrieveChatDeletionStatus: function (userId, room) {
+    return new Promise((resolve, reject) => {
+      pool.query(
+        `
+        SELECT
+          CASE
+            WHEN user1_id = $1 THEN user1_deleted
+            ELSE user2_deleted
+          END AS user_deleted
+        FROM private_chats
+        WHERE room = $2
+        `,
+        [userId, room],
+        (err, result) => {
+          if (err) {
+            return reject(
+              `Database error in private_chats table: ${err.message}`
+            );
+          }
+          if (result.rowCount === 0) {
+            return resolve(null);
+          }
+          return resolve(result.rows[0]);
+        }
+      );
+    });
+  },
+
   // UPDATE OPERATIONS
 
   updateLastMessage: function (messageId, room) {
@@ -128,7 +156,7 @@ const PrivateChat = {
     });
   },
 
-  updateChatDeletionStatus: function (userId, isDeleted, chatId) {
+  updateChatDeletionStatus: function (userId, isDeleted, room) {
     return new Promise((resolve, reject) => {
       pool.query(
         `
@@ -136,14 +164,14 @@ const PrivateChat = {
         SET
           user1_deleted = CASE WHEN user1_id = $1 THEN $2 ELSE user1_deleted END,
           user2_deleted = CASE WHEN user2_id = $1 THEN $2 ELSE user2_deleted END
-        WHERE chat_id = $3
+        WHERE room = $3
         RETURNING
           CASE
             WHEN user1_id = $1 THEN user1_deleted
             WHEN user2_id = $1 THEN user2_deleted
           END AS user_deleted
         `,
-        [userId, isDeleted, chatId],
+        [userId, isDeleted, room],
         (err, result) => {
           if (err) {
             return reject(

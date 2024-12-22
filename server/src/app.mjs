@@ -22,7 +22,6 @@ import {
   handleChatMessages,
   manageSocketConnections,
   processUpdateMessageEvent,
-  updateMessageReadStatus,
 } from './handlers/socket-handlers.mjs';
 
 const app = express();
@@ -92,7 +91,6 @@ io.on('connection', (socket) => {
       socket.leave(room);
     });
 
-    updateMessageReadStatus(socket, userId);
     processUpdateMessageEvent(socket, io);
   } else {
     socket.disconnect();

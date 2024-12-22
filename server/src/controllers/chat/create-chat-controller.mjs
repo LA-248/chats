@@ -7,16 +7,22 @@ import { getChatListByUserId } from './get-chat-controller.mjs';
 const addChat = async (req, res) => {
   try {
     const { senderId, recipientId, room } = await getChatRoomData(req);
-    const lastMessageData = await Message.retrieveLastMessageInfo(room);
-
-    await PrivateChat.insertNewChat(
+    const chatDeletionStatus = await PrivateChat.retrieveChatDeletionStatus(
       senderId,
-      recipientId,
-      lastMessageData,
       room
     );
+
+    if (chatDeletionStatus.user_deleted === false) {
+      await PrivateChat.insertNewChat(
+        senderId,
+        recipientId,
+        room
+      );
+    } else {
+      await PrivateChat.updateChatDeletionStatus(senderId, false, room);
+    }
+
     const updatedChatList = await getChatListByUserId(senderId);
-    console.log(updatedChatList);
 
     // Send the updated chat list to the frontend
     return res.status(200).json({ updatedChatList: updatedChatList });

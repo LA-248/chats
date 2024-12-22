@@ -60,9 +60,6 @@ const handleChatMessages = (socket, io) => {
       );
       await PrivateChat.updateLastMessage(newMessage.id, room);
 
-      // Set the chat as unread for the recipient when a new message is received
-      // await PrivateChat.updateMessageReadStatus(true, roomName, recipientId);
-
       // Add the chat to the recipient's chat list if they don't have it
       await addChatForRecipientOnMessageReceive(
         senderId,
@@ -116,18 +113,6 @@ const displayChatMessages = async (socket, room) => {
   }
 };
 
-const updateMessageReadStatus = (socket, userId) => {
-  // Update message read status in database
-  socket.on('update-message-read-status', async ({ hasNewMessage, room }) => {
-    try {
-      await PrivateChat.updateMessageReadStatus(hasNewMessage, room, userId);
-    } catch (error) {
-      console.error('Error updating read status:', error);
-      socket.emit('custom-error', { error: 'Unable to update message status' });
-    }
-  });
-};
-
 // TODO: Instead of retrieving the whole message list for edits, only fetch the edited message
 // Listen for message events such as deletes and edits, and emit the updated message list to the room
 const processUpdateMessageEvent = (socket, io) => {
@@ -156,6 +141,5 @@ export {
   manageSocketConnections,
   handleChatMessages,
   displayChatMessages,
-  updateMessageReadStatus,
   processUpdateMessageEvent,
 };
