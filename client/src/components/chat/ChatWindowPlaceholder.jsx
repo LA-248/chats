@@ -6,7 +6,7 @@ export default function ChatWindowPlaceholder() {
         src='/images/chat-icon.png'
         alt='chat-icon'
       ></img>
-      <div className='hero-text'>Select or start a chat</div>
+      <div className='hero-text'>Select or start a new chat</div>
     </div>
   );
 }

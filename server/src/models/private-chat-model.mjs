@@ -39,7 +39,7 @@ const PrivateChat = {
       pool.query(
         `
           INSERT INTO private_chats (user1_id, user2_id, room)
-          VALUES ($1, $2, $3, $4)
+          VALUES ($1, $2, $3)
           RETURNING *
         `,
         [user1Id, user2Id, room],

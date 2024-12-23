@@ -45,8 +45,10 @@ async function getRecipientInfo(room, username) {
 // Add a chat to the user's chat list
 async function addChat(inputUsername, chatList) {
   try {
-    // If there is already an active chat with the user, throw an error
-    const exists = chatList.some((chat) => chat.name === inputUsername);
+    const exists = chatList.some(
+      (chat) =>
+        chat.recipient_username === inputUsername && chat.user_deleted === false
+    );
     if (exists) {
       throw new Error('You already have an active chat with this user');
     }
