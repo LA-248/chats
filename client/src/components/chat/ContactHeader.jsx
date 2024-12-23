@@ -3,21 +3,18 @@ import { useParams } from 'react-router-dom';
 import { ChatContext } from '../../contexts/ChatContext';
 import { MessageContext } from '../../contexts/MessageContext';
 import { UserContext } from '../../contexts/UserContext';
+
 import { getRecipientInfo } from '../../api/chat-api';
-import { updateBlockList } from '../../api/user-api';
+import { getBlockList, updateBlockList } from '../../api/user-api';
 import MessageSearch from './MessageSearch';
 import ContactInfoModal from '../common/ContactInfoModal';
 import useClearErrorMessage from '../../hooks/useClearErrorMessage';
 
 export default function ContactHeader() {
   const { room, username } = useParams();
-  const {
-    activeChatInfo,
-    setActiveChatInfo,
-    setIsBlocked,
-    selectedChat,
-    setActiveChatRoom,
-  } = useContext(ChatContext);
+  const { setIsBlocked } = useContext(UserContext);
+  const { activeChatInfo, setActiveChatInfo, selectedChat, setActiveChatRoom } =
+    useContext(ChatContext);
   const {
     messages,
     recipientUsername,
@@ -25,26 +22,29 @@ export default function ContactHeader() {
     setRecipientId,
     setFilteredMessages,
   } = useContext(MessageContext);
-  const { setBlockList } = useContext(UserContext);
   const [recipientProfilePicture, setRecipientProfilePicture] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
     // Fetch info of a chat recipient to display in the contact header
+    // Plus, get the block list of the logged in user to determine if the recipient is blocked
     const retrieveRecipientContactInfo = async () => {
       try {
         const recipientInfo = await getRecipientInfo(room, username);
-        handleRecipientInfoSuccess(recipientInfo);
+        const loggedInUserBlockList = await getBlockList();
+        handleRecipientInfoSuccess(recipientInfo, loggedInUserBlockList);
       } catch (error) {
         setErrorMessage(error.message);
       }
     };
 
-    const handleRecipientInfoSuccess = (recipientInfo) => {
+    const handleRecipientInfoSuccess = (
+      recipientInfo,
+      loggedInUserBlockList
+    ) => {
       setActiveChatInfo(recipientInfo);
-      setBlockList(recipientInfo.blockedUsers);
-      setIsBlocked(recipientInfo.blockedUsers.includes(recipientInfo.userId));
+      setIsBlocked(loggedInUserBlockList.includes(recipientInfo.userId));
       setRecipientProfilePicture(recipientInfo.profilePicture);
       setRecipientUsername(recipientInfo.username);
       setRecipientId(recipientInfo.userId);
@@ -57,7 +57,6 @@ export default function ContactHeader() {
     username,
     selectedChat,
     setActiveChatInfo,
-    setBlockList,
     setIsBlocked,
     setRecipientUsername,
     setRecipientId,

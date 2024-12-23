@@ -3,7 +3,6 @@ import { useContext, useState } from 'react';
 import { useSocket } from '../../hooks/useSocket';
 import { MessageContext } from '../../contexts/MessageContext';
 import { UserContext } from '../../contexts/UserContext';
-import { ChatContext } from '../../contexts/ChatContext';
 import useClearErrorMessage from '../../hooks/useClearErrorMessage';
 import data from '@emoji-mart/data';
 import Picker from '@emoji-mart/react';
@@ -11,8 +10,7 @@ import Picker from '@emoji-mart/react';
 export default function MessageInput() {
   const socket = useSocket();
   const { message, setMessage, recipientId } = useContext(MessageContext);
-  const { loggedInUsername } = useContext(UserContext);
-  const { isBlocked } = useContext(ChatContext);
+  const { loggedInUsername, isBlocked } = useContext(UserContext);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const username = loggedInUsername;
@@ -86,7 +84,10 @@ export default function MessageInput() {
               setShowEmojiPicker((value) => !value);
             }}
             disabled={isBlocked}
-            style={{ opacity: isBlocked ? '0.5' : null }}
+            style={{
+              opacity: isBlocked ? '0.5' : null,
+              cursor: isBlocked && 'auto',
+            }}
           >
             Emojis
           </button>

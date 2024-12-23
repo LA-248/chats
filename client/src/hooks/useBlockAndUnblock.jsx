@@ -1,26 +1,26 @@
+import { getBlockList } from '../api/user-api';
+
 export default function useBlockAndUnblock({
-  blockList,
   activeChat,
-  setBlockList,
   updateBlockList,
   setIsBlocked,
   setErrorMessage,
 }) {
   const handleBlockAndUnblock = async () => {
     try {
-      // Handle blocking a user
-      if (!blockList.includes(activeChat.recipient_user_id)) {
-        // Add recipient id to block list array
-        const updatedBlockList = [...blockList, activeChat.recipient_user_id];
-        setBlockList(updatedBlockList);
+      const currentUserBlockList = await getBlockList();
+      const recipientUserId = activeChat.userId;
+
+      if (!currentUserBlockList.includes(recipientUserId)) {
+        // Block user
+        const updatedBlockList = [...currentUserBlockList, recipientUserId];
         await updateBlockList(updatedBlockList);
         setIsBlocked(true);
       } else {
-        // Handle unblocking a user
-        const updatedBlockList = blockList.filter(
-          (id) => id !== activeChat.recipient_user_id
+        // Unblock user
+        const updatedBlockList = currentUserBlockList.filter(
+          (id) => id !== recipientUserId
         );
-        setBlockList(updatedBlockList);
         await updateBlockList(updatedBlockList);
         setIsBlocked(false);
       }
@@ -29,6 +29,5 @@ export default function useBlockAndUnblock({
     }
   };
 
-  // Return as an object so more functions or values can be added in the future
   return { handleBlockAndUnblock };
 }

@@ -6,7 +6,7 @@ const UserProvider = ({ children }) => {
   const [loggedInUserId, setLoggedInUserId] = useState(null);
   const [loggedInUsername, setLoggedInUsername] = useState('');
   const [profilePicture, setProfilePicture] = useState(null);
-  const [blockList, setBlockList] = useState([]);
+  const [isBlocked, setIsBlocked] = useState(null);
 
   return (
     <UserContext.Provider
@@ -17,8 +17,8 @@ const UserProvider = ({ children }) => {
         setLoggedInUsername,
         profilePicture,
         setProfilePicture,
-        blockList,
-        setBlockList,
+        isBlocked,
+        setIsBlocked,
       }}
     >
       {children}

@@ -5,7 +5,6 @@ const ChatContext = createContext();
 const ChatProvider = ({ children }) => {
   const [chatList, setChatList] = useState([]);
   const [selectedChat, setSelectedChat] = useState(null);
-  const [isBlocked, setIsBlocked] = useState(null);
   const [activeChatInfo, setActiveChatInfo] = useState(null);
   const [activeChatRoom, setActiveChatRoom] = useState(null);
   const [chatSearchInputText, setChatSearchInputText] = useState('');
@@ -17,8 +16,6 @@ const ChatProvider = ({ children }) => {
         setChatList,
         selectedChat,
         setSelectedChat,
-        isBlocked,
-        setIsBlocked,
         activeChatInfo,
         setActiveChatInfo,
         activeChatRoom,

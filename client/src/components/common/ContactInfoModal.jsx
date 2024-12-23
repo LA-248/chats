@@ -12,12 +12,10 @@ export default function ContactInfoModal({
   errorMessage,
   setErrorMessage,
 }) {
-  const { isBlocked, setIsBlocked, selectedChat } = useContext(ChatContext);
-  const { blockList, setBlockList } = useContext(UserContext);
+  const { selectedChat } = useContext(ChatContext);
+  const { isBlocked, setIsBlocked } = useContext(UserContext);
   const { handleBlockAndUnblock } = useBlockAndUnblock({
-    blockList: blockList,
     activeChat: activeChat,
-    setBlockList: setBlockList,
     updateBlockList: updateBlockList,
     setIsBlocked: setIsBlocked,
     setErrorMessage: setErrorMessage,
@@ -54,10 +52,7 @@ export default function ContactInfoModal({
       </div>
 
       <div className='modal-action-buttons-container'>
-        <button
-          className='block-user-button'
-          onClick={handleBlockAndUnblock}
-        >
+        <button className='block-user-button' onClick={handleBlockAndUnblock}>
           {isBlocked ? 'Unblock' : 'Block'}
         </button>
         <button
