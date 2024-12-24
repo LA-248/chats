@@ -117,6 +117,9 @@ const User = {
           if (err) {
             return reject(`Database error in users table: ${err.message}`);
           }
+          if (result.rows.length === 0) {
+            return resolve(null);
+          }
           return resolve(result.rows[0]);
         }
       );

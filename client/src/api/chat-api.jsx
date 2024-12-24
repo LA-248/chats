@@ -20,7 +20,7 @@ async function getChatListByUserId() {
   }
 }
 
-async function getRecipientInfo(room, username) {
+async function getRecipientInfo(room, username, navigate) {
   try {
     const response = await fetch(
       `http://localhost:8080/chats/${room}/${username}`,
@@ -29,13 +29,16 @@ async function getRecipientInfo(room, username) {
         credentials: 'include',
       }
     );
+    const data = await response.json();
 
+    // Redirect user to homepage if they try to access a chat with a user that does not exist
+    if (response.status === 302) {
+      navigate(data.redirectPath);
+    }
     if (!response.ok) {
-      const errorResponse = await response.json();
-      throw new Error(errorResponse.error);
+      throw new Error(data.error);
     }
 
-    const data = await response.json();
     return data;
   } catch (error) {
     throw error;

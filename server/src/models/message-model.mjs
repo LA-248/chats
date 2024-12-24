@@ -120,7 +120,6 @@ const Message = {
           if (err) {
             return reject(`Database error in messages table: ${err.message}`);
           }
-          console.log(result.rows);
           return resolve(result.rows);
         }
       );

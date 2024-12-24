@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { ChatContext } from '../../contexts/ChatContext';
 import { MessageContext } from '../../contexts/MessageContext';
 import { UserContext } from '../../contexts/UserContext';
@@ -11,6 +11,7 @@ import ContactInfoModal from '../common/ContactInfoModal';
 import useClearErrorMessage from '../../hooks/useClearErrorMessage';
 
 export default function ContactHeader() {
+  const navigate = useNavigate();
   const { room, username } = useParams();
   const { setIsBlocked } = useContext(UserContext);
   const { activeChatInfo, setActiveChatInfo, selectedChat, setActiveChatRoom } =
@@ -31,7 +32,7 @@ export default function ContactHeader() {
     // Plus, get the block list of the logged in user to determine if the recipient is blocked
     const retrieveRecipientContactInfo = async () => {
       try {
-        const recipientInfo = await getRecipientInfo(room, username);
+        const recipientInfo = await getRecipientInfo(room, username, navigate);
         const loggedInUserBlockList = await getBlockList();
         handleRecipientInfoSuccess(recipientInfo, loggedInUserBlockList);
       } catch (error) {
@@ -61,6 +62,7 @@ export default function ContactHeader() {
     setRecipientUsername,
     setRecipientId,
     setActiveChatRoom,
+    navigate,
   ]);
 
   useClearErrorMessage(errorMessage, setErrorMessage);

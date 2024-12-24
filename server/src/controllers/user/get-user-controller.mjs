@@ -26,19 +26,18 @@ const retrieveUserByUsername = async (req, res) => {
     const username = req.params.username;
     const user = await User.getUserByUsername(username);
 
+    if (!user) {
+      console.error('User does not exist');
+      return res.status(302).json({ redirectPath: '/' });
+    }
+
     const profilePictureUrl = user.profile_picture
       ? await createPresignedUrl(process.env.BUCKET_NAME, user.profile_picture)
       : null;
 
-    if (!user) {
-      console.error('User does not exist.');
-      return res.redirect('/');
-    }
-
     res.status(200).json({
       userId: user.user_id,
       username: user.username,
-      blockedUsers: user.blocked_users,
       profilePicture: profilePictureUrl,
     });
   } catch (error) {
