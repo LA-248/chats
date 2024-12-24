@@ -6,7 +6,7 @@ import { UserContext } from '../../contexts/UserContext';
 
 import { getRecipientInfo } from '../../api/chat-api';
 import { getBlockList, updateBlockList } from '../../api/user-api';
-import MessageSearch from './MessageSearch';
+import MessageSearch from '../message/MessageSearch';
 import ContactInfoModal from '../common/ContactInfoModal';
 import useClearErrorMessage from '../../hooks/useClearErrorMessage';
 

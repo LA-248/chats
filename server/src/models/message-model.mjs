@@ -65,7 +65,7 @@ const Message = {
 
   // UPDATE OPERATIONS
 
-  editMessage: function (newMessage, messageId) {
+  editMessageContent: function (newMessage, messageId) {
     return new Promise((resolve, reject) => {
       pool.query(
         `UPDATE messages SET content = $1 WHERE message_id = $2`,
@@ -82,22 +82,7 @@ const Message = {
 
   // READ OPERATIONS
 
-  retrieveMessageById: function (messageId) {
-    return new Promise((resolve, reject) => {
-      pool.query(
-        `SELECT message_id, sender_id, content, event_time FROM messages WHERE message_id = $1`,
-        [messageId],
-        (err, result) => {
-          if (err) {
-            return reject(`Database error in messages table: ${err.message}`);
-          }
-          return resolve(result.rows[0]);
-        }
-      );
-    });
-  },
-
-  retrieveMessages: function (serverOffset, room) {
+  retrieveMessageList: function (serverOffset, room) {
     return new Promise((resolve, reject) => {
       pool.query(
         `
@@ -121,25 +106,6 @@ const Message = {
             return reject(`Database error in messages table: ${err.message}`);
           }
           return resolve(result.rows);
-        }
-      );
-    });
-  },
-
-  retrieveLastMessageInfo: function (room) {
-    return new Promise((resolve, reject) => {
-      pool.query(
-        `SELECT message_id FROM messages WHERE room = $1 ORDER BY message_id DESC LIMIT 1`,
-        [room],
-        (err, result) => {
-          if (err) {
-            return reject(`Database error in messages table: ${err.message}`);
-          }
-          if (result.rows.length > 0) {
-            return resolve(result.rows[0]);
-          } else {
-            resolve(null);
-          }
         }
       );
     });

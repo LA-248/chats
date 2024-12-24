@@ -18,7 +18,7 @@ async function editMessageById(newMessage, messageId) {
   }
 }
 
-async function updateUsernameInMessages(username) {
+async function updateUsernameInMessageList(username) {
   try {
     const response = await fetch('http://localhost:8080/messages/usernames', {
       method: 'PUT',
@@ -58,4 +58,4 @@ async function deleteMessageById(messageId) {
   }
 }
 
-export { editMessageById, updateUsernameInMessages, deleteMessageById };
+export { editMessageById, updateUsernameInMessageList, deleteMessageById };

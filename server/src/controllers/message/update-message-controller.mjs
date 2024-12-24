@@ -4,7 +4,7 @@ const editMessageById = async (req, res) => {
   try {
     const newMessage = req.body.newMessage;
     const messageId = req.body.messageId;
-    await Message.editMessage(newMessage, messageId);
+    await Message.editMessageContent(newMessage, messageId);
     res.status(200).json({ editedMessage: newMessage });
   } catch (error) {
     console.error('Error editing message:', error);
