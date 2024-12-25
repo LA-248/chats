@@ -22,32 +22,29 @@ export default function ChatList({ setSelectedChat, setRecipientUsername }) {
   const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
 
-  // Remove a conversation from the chat list
-  const removeChat = async (room) => {
-    try {
-      await deleteChat(room);
-      const storedChatList = await getChatListByUserId(); // Get updated chat list
-      const updatedChatList = storedChatList;
-      setChatList(updatedChatList);
-    } catch (error) {
-      setErrorMessage(error.message);
-    }
-  };
-
-  const handleDeleteClick = (event, chat) => {
-    event.stopPropagation();
-    removeChat(chat.room);
-    setChatSearchInputText('');
-    if (activeChatRoom === chat.room) {
-      navigate('/');
-    }
-  };
-
   const handleChatClick = (chat) => {
     setActiveChatRoom(chat.room);
     setSelectedChat(chat.recipient_username);
     setRecipientUsername(chat.recipient_username);
     navigate(`/chats/${chat.room}/${chat.recipient_username}`);
+  };
+
+  // Remove a conversation from the chat list
+  const handleChatDelete = async (event, chat) => {
+    event.stopPropagation();
+    try {
+      await deleteChat(chat.room);
+      const updatedChatList = chatList.filter(
+        (chatItem) => chatItem.room !== chat.room
+      );
+      setChatList(updatedChatList);
+      setChatSearchInputText('');
+      if (activeChatRoom === chat.room) {
+        navigate('/');
+      }
+    } catch (error) {
+      setErrorMessage(error.message);
+    }
   };
 
   // Retrieve the user's chat list for display
@@ -64,6 +61,33 @@ export default function ChatList({ setSelectedChat, setRecipientUsername }) {
     displayChatList();
   }, [setChatList]);
 
+  // Update chat list with latest content and time info on incoming messages, and sort it
+  useEffect(() => {
+    if (socket) {
+      const handleChatListUpdate = (chatListData) => {
+        setChatList((prevChatList) =>
+          prevChatList
+            .map((chat) =>
+              chat.room === chatListData.room
+                ? {
+                    ...chat,
+                    last_message_content: chatListData.lastMessageContent,
+                    last_message_time: chatListData.lastMessageTime,
+                  }
+                : chat
+            )
+            .sort(
+              (a, b) =>
+                new Date(b.last_message_time) - new Date(a.last_message_time)
+            )
+        );
+      };
+
+      socket.on('update-chat-list', handleChatListUpdate);
+      return () => socket.off('update-chat-list', handleChatListUpdate);
+    }
+  }, [setChatList, socket]);
+
   // Filter chat list based on search input
   useEffect(() => {
     if (chatSearchInputText) {
@@ -77,7 +101,6 @@ export default function ChatList({ setSelectedChat, setRecipientUsername }) {
       setFilteredChats(chatList);
     }
   }, [chatSearchInputText, chatList]);
-
 
   useSocketErrorHandling(socket, setErrorMessage);
   useClearErrorMessage(errorMessage, setErrorMessage);
@@ -103,7 +126,7 @@ export default function ChatList({ setSelectedChat, setRecipientUsername }) {
               onMouseEnter={() => setHoverChatId(chat.chat_id)}
               onMouseLeave={() => setHoverChatId(null)}
               onClick={() => handleChatClick(chat)}
-              onDeleteClick={(event) => handleDeleteClick(event, chat)}
+              onDeleteClick={(event) => handleChatDelete(event, chat)}
             />
           ))
       )}

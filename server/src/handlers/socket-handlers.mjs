@@ -3,7 +3,7 @@ import { Message } from '../models/message-model.mjs';
 import addChatForRecipientOnMessageReceive from '../utils/handle-recipient-chat-list.mjs';
 import isSenderBlocked from '../utils/check-blocked-status.mjs';
 
-// Store user-to-socket mappings
+// Store user-to-socket mappings in a hash map
 // This allows for socket connections to be associated with the correct user
 const userSockets = new Map();
 const manageSocketConnections = (socket) => {
@@ -24,7 +24,7 @@ const formatMessage = (message) => ({
   from: message.sender_username,
   content: message.content,
   eventTime: message.event_time,
-  id: message.id,
+  id: message.message_id,
   senderId: message.sender_id,
 });
 
@@ -77,6 +77,13 @@ const handleChatMessages = (socket, io) => {
         id: newMessage.id,
         senderId: senderId,
       });
+
+      // Update a specific chat room in the chat list for both participants
+      io.to(room).emit('update-chat-list', {
+        room: room,
+        lastMessageContent: message,
+        lastMessageTime: newMessage.event_time,
+      });
     } catch (error) {
       // Check if the message was already inserted
       if (error.errno === 19) {
@@ -98,7 +105,7 @@ const displayChatMessages = async (socket, room) => {
   if (!socket.recovered) {
     try {
       // Get messages from database for display, filtered by room
-      const messages = await Message.retrieveMessages(
+      const messages = await Message.retrieveMessageList(
         socket.handshake.auth.serverOffset,
         room
       );
@@ -118,7 +125,7 @@ const displayChatMessages = async (socket, room) => {
 const processUpdateMessageEvent = (socket, io) => {
   socket.on('message-update-event', async (room, updateType) => {
     try {
-      const messages = await Message.retrieveMessages(
+      const messages = await Message.retrieveMessageList(
         socket.handshake.auth.serverOffset,
         room
       );

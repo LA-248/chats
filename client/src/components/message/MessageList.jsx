@@ -1,4 +1,5 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
+import { useSocket } from '../../hooks/useSocket';
 import { UserContext } from '../../contexts/UserContext';
 import { MessageContext } from '../../contexts/MessageContext';
 import { ChatContext } from '../../contexts/ChatContext';
@@ -16,12 +17,27 @@ export default function MessageList({
   setMessageId,
   setMessageIndex,
 }) {
+  const socket = useSocket();
   const { activeChatInfo } = useContext(ChatContext);
   const { loggedInUserId, profilePicture } = useContext(UserContext);
-  const { setCurrentMessage, messageSearchValueText } =
+  const { setMessages, setCurrentMessage, messageSearchValueText } =
     useContext(MessageContext);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+
+  useEffect(() => {
+    if (socket) {
+      const handleMessage = async (messageData) => {
+        // Append message to UI only if the user is currently in the room where the message was sent
+        if (room === messageData.room) {
+          setMessages((prevMessages) => prevMessages.concat(messageData));
+        }
+      };
+
+      socket.on('chat-message', handleMessage);
+      return () => socket.off('chat-message', handleMessage);
+    }
+  }, [room, socket, setMessages]);
 
   return (
     <>

@@ -4,8 +4,8 @@ import { useSocket } from '../../hooks/useSocket';
 import { MessageContext } from '../../contexts/MessageContext';
 import { useSocketErrorHandling } from '../../hooks/useSocketErrorHandling';
 import ContactHeader from './ContactHeader';
-import MessageInput from './MessageInput';
-import MessageList from './MessageList';
+import MessageInput from '../message/MessageInput';
+import MessageList from '../message/MessageList';
 import DeleteMessageModal from '../common/DeleteMessageModal';
 import EditMessageModal from '../common/EditMessageModal';
 
