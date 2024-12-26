@@ -1,4 +1,3 @@
-import { Message } from '../../models/message-model.mjs';
 import { PrivateChat } from '../../models/private-chat-model.mjs';
 import { User } from '../../models/user-model.mjs';
 import { getChatListByUserId } from './get-chat-controller.mjs';
@@ -12,7 +11,9 @@ const addChat = async (req, res) => {
       room
     );
 
-    if (chatDeletionStatus.user_deleted === false) {
+    // This check is needed to know whether to insert a new chat in the database
+    // or simply mark the chat as not deleted
+    if (chatDeletionStatus === null) {
       await PrivateChat.insertNewChat(
         senderId,
         recipientId,
@@ -21,7 +22,6 @@ const addChat = async (req, res) => {
     } else {
       await PrivateChat.updateChatDeletionStatus(senderId, false, room);
     }
-
     const updatedChatList = await getChatListByUserId(senderId);
 
     // Send the updated chat list to the frontend

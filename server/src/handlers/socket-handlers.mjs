@@ -78,7 +78,7 @@ const handleChatMessages = (socket, io) => {
         senderId: senderId,
       });
 
-      // Update a specific chat room in the chat list for both participants
+      // Update the info for a specific chat room in the chat list for both participants
       io.to(room).emit('update-chat-list', {
         room: room,
         lastMessageContent: message,

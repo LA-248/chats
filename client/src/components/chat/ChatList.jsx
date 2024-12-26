@@ -76,10 +76,7 @@ export default function ChatList({ setSelectedChat, setRecipientUsername }) {
                   }
                 : chat
             )
-            .sort(
-              (a, b) =>
-                new Date(b.last_message_time) - new Date(a.last_message_time)
-            )
+            .sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at))
         );
       };
 
@@ -108,7 +105,7 @@ export default function ChatList({ setSelectedChat, setRecipientUsername }) {
   return (
     <div className='chat-list'>
       {errorMessage ? (
-        <div className='error-message' style={{ marginTop: '10px' }}>
+        <div className='error-message' style={{ margin: '10px 0px 10px 0px' }}>
           {errorMessage}
         </div>
       ) : null}
