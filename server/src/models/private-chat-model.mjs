@@ -88,7 +88,7 @@ const PrivateChat = {
         END
         LEFT JOIN messages m ON pc.last_message_id = m.message_id
         WHERE (pc.user1_id = $1 OR pc.user2_id = $1)
-        ORDER BY pc.updated_at DESC
+        ORDER BY last_message_time DESC NULLS LAST
         `,
         [userId],
         (err, result) => {

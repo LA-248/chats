@@ -76,7 +76,10 @@ export default function ChatList({ setSelectedChat, setRecipientUsername }) {
                   }
                 : chat
             )
-            .sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at))
+            .sort(
+              (a, b) =>
+                new Date(b.last_message_time) - new Date(a.last_message_time)
+            )
         );
       };
 
