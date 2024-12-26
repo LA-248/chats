@@ -64,7 +64,21 @@ export default function Sidebar() {
       />
 
       {chatList.length > 0 ? (
-        <ChatSearch />
+        chatList.some((chat) => {
+          return chat.user_deleted === false;
+        }) ? (
+          <ChatSearch />
+        ) : (
+          <div className='chat-list-empty-container'>
+            <div className='chat-list-empty-message'>
+              You have no active chats
+            </div>
+            <div className='chat-list-empty-subtext'>
+              To get started, enter the username of the user you would like to
+              chat with above
+            </div>
+          </div>
+        )
       ) : (
         <div className='chat-list-empty-container'>
           <div className='chat-list-empty-message'>
