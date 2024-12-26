@@ -15,8 +15,8 @@ const PrivateChat = {
             room TEXT UNIQUE NOT NULL,
             created_at TIMESTAMPTZ DEFAULT NOW(),
             updated_at TIMESTAMPTZ DEFAULT NOW(),
-            user1_deleted BOOLEAN DEFAULT FALSE,
-            user2_deleted BOOLEAN DEFAULT FALSE,
+            user1_deleted BOOLEAN DEFAULT TRUE,
+            user2_deleted BOOLEAN DEFAULT TRUE,
             UNIQUE (user1_id, user2_id)
           )
         `,
@@ -179,7 +179,7 @@ const PrivateChat = {
             );
           }
           if (result.rowCount === 0) {
-            return reject('Chat not found or not accessible');
+            return reject('Chat not found');
           }
           return resolve(result.rows[0]);
         }
