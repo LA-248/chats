@@ -111,6 +111,28 @@ const Message = {
     });
   },
 
+  retrieveLastMessageInfo: function (room) {
+    return new Promise((resolve, reject) => {
+      pool.query(
+        `
+        SELECT
+          content,
+          event_time
+        FROM messages
+        WHERE room = $1
+        ORDER BY message_id DESC LIMIT 1 
+        `,
+        [room],
+        (err, result) => {
+          if (err) {
+            return reject(`Database error in messages table: ${err.message}`);
+          }
+          return resolve(result.rows[0]);
+        }
+      );
+    });
+  },
+
   // DELETE OPERATIONS
 
   deleteMessageById: function (messageId) {

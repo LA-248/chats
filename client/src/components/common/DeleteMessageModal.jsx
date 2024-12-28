@@ -1,11 +1,10 @@
 import { useParams } from 'react-router-dom';
-import { getChatListByUserId } from '../../api/chat-api';
 import { deleteMessageById } from '../../api/message-api';
 import { useSocket } from '../../hooks/useSocket';
 import { useContext } from 'react';
 import { MessageContext } from '../../contexts/MessageContext';
-import { ChatContext } from '../../contexts/ChatContext';
 import Modal from './ModalTemplate';
+import { updateLastMessageId } from '../../api/chat-api';
 
 export default function DeleteMessageModal({
   messageId,
@@ -18,37 +17,24 @@ export default function DeleteMessageModal({
   const socket = useSocket();
   const { room } = useParams();
   const { filteredMessages } = useContext(MessageContext);
-  const { setChatList } = useContext(ChatContext);
 
   // Message deletion logic
   const handleMessageDelete = async (messageId, messageIndex) => {
     try {
       const messageList = [...filteredMessages];
       const isLastMessage = messageIndex === messageList.length - 1;
-      const newLastMessage = messageList.length - 2;
 
-      // If the message being deleted is the last one in the list (most recent message) -
-      // update the chat list with the new last message's details after deletion
+      // Delete message from the database
+      await deleteMessageById(messageId);
       if (isLastMessage && messageList.length > 1) {
-        // await updateChatList(messageList[newLastMessage].content, room);
-        const storedChats = await getChatListByUserId();
-        
-        // TODO: Maybe the chat object inside the chatList array can be modified in state?
-        
-        setChatList(storedChats);
-        // If the message being deleted is the only message in the chat, clear the chat preview's content in the chat list
-      } else if (isLastMessage && messageList.length === 1) {
-        // await updateChatList('', room);
-        const storedChats = await getChatListByUserId();
-        setChatList(storedChats);
+        const newLastMessageIndex = messageList.length - 2;
+        const newLastMessageId = messageList[newLastMessageIndex].id;
+        await updateLastMessageId(newLastMessageId, room);
+        socket.emit('delete-message-event', room);
       }
 
-      // Delete the message from the database and update the message list state
-      await deleteMessageById(messageId);
-      messageList.splice(messageIndex, 1);
-
       // Emit event to notify the server of message deletion and update the message list for everyone in the room
-      socket.emit('message-update-event', room, 'deleting');
+      socket.emit('message-list-update-event', room, 'deleting');
 
       setIsModalOpen(false);
     } catch (error) {

@@ -89,7 +89,29 @@ async function addChat(inputUsername, chatList) {
   }
 }
 
-// Delete a chat in the user's chat list
+// Needed for when the most recent message in a chat is deleted
+// Ensures the correct latest message is shown in the chat list
+async function updateLastMessageId(messageId, room) {
+  try {
+    const response = await fetch('http://localhost:8080/chats/', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ messageId: messageId, room: room }),
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      const errorResponse = await response.json();
+      throw new Error(errorResponse.error);
+    }
+  } catch (error) {
+    throw error;
+  }
+}
+
+// Delete a chat from the user's chat list
 async function deleteChat(room) {
   try {
     const response = await fetch('http://localhost:8080/chats/', {
@@ -113,4 +135,10 @@ async function deleteChat(room) {
   }
 }
 
-export { getChatListByUserId, getRecipientInfo, addChat, deleteChat };
+export {
+  getChatListByUserId,
+  getRecipientInfo,
+  addChat,
+  updateLastMessageId,
+  deleteChat,
+};

@@ -84,7 +84,11 @@ export default function ChatList({ setSelectedChat, setRecipientUsername }) {
       };
 
       socket.on('update-chat-list', handleChatListUpdate);
-      return () => socket.off('update-chat-list', handleChatListUpdate);
+      socket.on('delete-message-event', handleChatListUpdate);
+      return () => {
+        socket.off('update-chat-list', handleChatListUpdate);
+        socket.off('delete-message-event', handleChatListUpdate);
+      };
     }
   }, [setChatList, socket]);
 

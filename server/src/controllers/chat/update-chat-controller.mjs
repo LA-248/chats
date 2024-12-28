@@ -1,5 +1,24 @@
 import { PrivateChat } from '../../models/private-chat-model.mjs';
 
+// Update the last message id for a chat
+const updateLastMessageId = async (req, res) => {
+  try {
+    const newLastMessageId = req.body.messageId;
+    console.log(newLastMessageId);
+    const room = req.body.room;
+
+    await PrivateChat.updateLastMessage(newLastMessageId, room);
+    return res
+      .status(200)
+      .json({ success: 'Last message successfully updated' });
+  } catch (error) {
+    console.error('Error updating last message id:', error);
+    return res.status(500).json({
+      error: 'There was an error updating your chat list. Please refresh the page.',
+    });
+  }
+};
+
 // Delete a chat from a user's chat list
 const deleteChat = async (req, res) => {
   try {
@@ -20,4 +39,4 @@ const deleteChat = async (req, res) => {
   }
 };
 
-export { deleteChat };
+export { updateLastMessageId, deleteChat };

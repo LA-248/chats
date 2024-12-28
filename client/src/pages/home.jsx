@@ -11,7 +11,7 @@ import ChatWindowPlaceholder from '../components/chat/ChatWindowPlaceholder.jsx'
 export const SocketContext = createContext();
 
 export default function Home() {
-  const { setActiveChatRoom } = useContext(ChatContext);
+  const { chatList, setActiveChatRoom } = useContext(ChatContext);
   const {
     loggedInUserId,
     setLoggedInUserId,
@@ -56,6 +56,12 @@ export default function Home() {
       return () => socketInstance.disconnect();
     }
   }, [loggedInUserId]);
+
+  useEffect(() => {
+    if (loggedInUserId && socket) {
+      socket.emit('initialise-chat-rooms', chatList);
+    }
+  }, [loggedInUserId, socket, chatList]);
 
   return (
     // Render child components only if the socket is initialised

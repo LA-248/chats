@@ -1,6 +1,28 @@
+function initialiseChatRooms(socket) {
+  let joinedRooms = [];
+
+  socket.on('initialise-chat-rooms', (chatListData) => {
+    for (let i = 0; i < chatListData.length; i++) {
+      const room = chatListData[i].room;
+      const isNotDeletedFromChatList = chatListData[i].user_deleted === false;
+      if (!joinedRooms.includes(room) && isNotDeletedFromChatList) {
+        joinedRooms.push(room);
+        socket.join(room);
+      }
+      console.log(joinedRooms);
+    }
+  });
+
+  socket.on('disconnect', () => {
+    for (let i = 0; i < joinedRooms.length; i++) {
+      socket.leave(joinedRooms[i]);
+    }
+  });
+}
+
 // Store user-to-socket mappings in a hash map
 // This allows for socket connections to be associated with the correct user
-export default function manageSocketConnections(socket, userSockets) {
+function manageSocketConnections(socket, userSockets) {
   socket.on('authenticate', (userId) => {
     userSockets.set(userId, socket.id);
 
@@ -13,3 +35,5 @@ export default function manageSocketConnections(socket, userSockets) {
     console.log(userSockets);
   });
 }
+
+export { initialiseChatRooms, manageSocketConnections };

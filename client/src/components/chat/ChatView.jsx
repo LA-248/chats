@@ -35,12 +35,11 @@ function ChatView() {
     // Display all messages on load when opening a chat
     socket.on('initial-messages', displayInitialMessages);
     // Update chat message list for everyone in a room after a message is deleted or edited
-    socket.on('message-update-event', handleMessageListUpdate);
+    socket.on('message-list-update-event', handleMessageListUpdate);
 
     return () => {
-      socket.emit('leave-room', room);
       socket.off('initial-messages', displayInitialMessages);
-      socket.off('message-update-event', handleMessageListUpdate);
+      socket.off('message-list-update-event', handleMessageListUpdate);
     };
   }, [socket, room, setMessages, setErrorMessage]);
 

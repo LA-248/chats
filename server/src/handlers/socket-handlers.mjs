@@ -1,9 +1,13 @@
 import {
+  deleteMessageEvent,
   displayChatMessages,
   handleChatMessages,
-  processUpdateMessageEvent,
+  updateMessageListEvent,
 } from './message-handlers.mjs';
-import manageSocketConnections from './socket-connections.mjs';
+import {
+  initialiseChatRooms,
+  manageSocketConnections,
+} from './socket-connections.mjs';
 
 const userSockets = new Map();
 
@@ -22,8 +26,11 @@ const socketHandlers = (io) => {
       console.log(`User ID: ${userId}`);
       console.log(socket.rooms);
 
+      initialiseChatRooms(socket);
       manageSocketConnections(socket, userSockets);
       handleChatMessages(socket, io, userSockets);
+      deleteMessageEvent(socket, io);
+      updateMessageListEvent(socket, io);
 
       socket.on('join-room', (room) => {
         socket.join(room);
@@ -33,8 +40,6 @@ const socketHandlers = (io) => {
       socket.on('leave-room', (room) => {
         socket.leave(room);
       });
-
-      processUpdateMessageEvent(socket, io);
     } else {
       socket.disconnect();
     }

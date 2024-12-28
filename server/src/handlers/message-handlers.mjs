@@ -3,21 +3,16 @@ import { Message } from '../models/message-model.mjs';
 import addChatForRecipientOnMessageReceive from '../utils/handle-recipient-chat-list.mjs';
 import isSenderBlocked from '../utils/check-blocked-status.mjs';
 
-const handleChatMessages = (socket, io, userSockets) => {
+const handleChatMessages = (socket, io) => {
   socket.on('chat-message', async (data, clientOffset, callback) => {
     const { username, recipientId, message } = data;
     const senderId = socket.handshake.session.passport.user;
 
-    try {
-      // Join private room
-      const room = joinPrivateRoom(
-        io,
-        socket,
-        senderId,
-        recipientId,
-        userSockets
-      );
+    // Create a consistent room name using user IDs
+    // Ensure the room is the same for both users by sorting the user IDs
+    const room = [senderId, recipientId].sort().join('-');
 
+    try {
       // Check if sender is blocked
       await checkIfBlocked(recipientId, senderId);
 
@@ -72,17 +67,36 @@ const displayChatMessages = async (socket, room) => {
   }
 };
 
-// TODO: Instead of retrieving the whole message list for edits, only fetch the edited message
+const deleteMessageEvent = (socket, io) => {
+  socket.on('delete-message-event', async (room) => {
+    try {
+      const lastMessageInfo = await Message.retrieveLastMessageInfo(room);
+      io.to(room).emit('delete-message-event', {
+        room: room,
+        lastMessageContent: lastMessageInfo.content,
+        lastMessageTime: lastMessageInfo.event_time,
+      });
+    } catch (error) {
+      console.error('Unexpected error:', error.message);
+      socket.emit('custom-error', {
+        error: `'There was an error updating your chat list. Please refresh the page.'`,
+      });
+      return;
+    }
+  });
+};
+
+// TODO: Instead of retrieving the whole message list for deletes and edits, only fetch the edited message
 // Listen for message events such as deletes and edits, and emit the updated message list to the room
-const processUpdateMessageEvent = (socket, io) => {
-  socket.on('message-update-event', async (room, updateType) => {
+const updateMessageListEvent = (socket, io) => {
+  socket.on('message-list-update-event', async (room, updateType) => {
     try {
       const messages = await Message.retrieveMessageList(
         socket.handshake.auth.serverOffset,
         room
       );
       io.to(room).emit(
-        'message-update-event',
+        'message-list-update-event',
         messages.map(formatMessage),
         updateType
       );
@@ -103,31 +117,6 @@ const formatMessage = (message) => ({
   id: message.message_id,
   senderId: message.sender_id,
 });
-
-const joinPrivateRoom = (io, socket, senderId, recipientId, userSockets) => {
-  try {
-    // Create a consistent room name using user IDs
-    // Ensure the room is the same for both users by sorting the user IDs
-    const room = [senderId, recipientId].sort().join('-');
-
-    // Extract the recipient's socket id from the userSockets hash map by using their user id
-    // This allows us to add the recipient to the correct chat room when they receive a message
-    const recipientUserSocketId = userSockets.get(recipientId);
-
-    if (recipientUserSocketId) {
-      io.in(recipientUserSocketId).socketsJoin(room);
-    }
-    socket.join(room);
-
-    return room;
-  } catch (error) {
-    console.error('Error joining room:', error.message);
-    socket.emit('custom-error', {
-      error: 'An unexpected error occurred',
-    });
-    return;
-  }
-};
 
 const checkIfBlocked = async (recipientId, senderId) => {
   try {
@@ -191,4 +180,9 @@ const broadcastMessage = (
   });
 };
 
-export { handleChatMessages, displayChatMessages, processUpdateMessageEvent };
+export {
+  handleChatMessages,
+  displayChatMessages,
+  updateMessageListEvent,
+  deleteMessageEvent,
+};
