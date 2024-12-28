@@ -1,6 +1,5 @@
 import { PrivateChat } from '../models/private-chat-model.mjs';
 import { Message } from '../models/message-model.mjs';
-import addChatForRecipientOnMessageReceive from '../utils/handle-recipient-chat-list.mjs';
 import isSenderBlocked from '../utils/check-blocked-status.mjs';
 
 const handleChatMessages = (socket, io) => {
@@ -16,21 +15,12 @@ const handleChatMessages = (socket, io) => {
       // Check if sender is blocked
       await checkIfBlocked(recipientId, senderId);
 
-      // Save message
-      const newMessage = await saveMessage(
+      const newMessage = await saveMessageInDatabase(
         message,
         senderId,
         recipientId,
         room,
         clientOffset
-      );
-
-      // Add the chat to the recipient's chat list if they don't have it
-      await addChatForRecipientOnMessageReceive(
-        senderId,
-        recipientId,
-        null,
-        room
       );
 
       broadcastMessage(io, room, username, message, senderId, newMessage);
@@ -67,11 +57,11 @@ const displayChatMessages = async (socket, room) => {
   }
 };
 
-const deleteMessageEvent = (socket, io) => {
-  socket.on('delete-message-event', async (room) => {
+const deleteMostRecentMessage = (socket, io) => {
+  socket.on('delete-most-recent-message', async (room) => {
     try {
       const lastMessageInfo = await Message.retrieveLastMessageInfo(room);
-      io.to(room).emit('delete-message-event', {
+      io.to(room).emit('delete-most-recent-message', {
         room: room,
         lastMessageContent: lastMessageInfo.content,
         lastMessageTime: lastMessageInfo.event_time,
@@ -79,7 +69,7 @@ const deleteMessageEvent = (socket, io) => {
     } catch (error) {
       console.error('Unexpected error:', error.message);
       socket.emit('custom-error', {
-        error: `'There was an error updating your chat list. Please refresh the page.'`,
+        error: `There was an error updating your chat list. Please refresh the page.`,
       });
       return;
     }
@@ -128,7 +118,7 @@ const checkIfBlocked = async (recipientId, senderId) => {
   }
 };
 
-const saveMessage = async (
+const saveMessageInDatabase = async (
   message,
   senderId,
   recipientId,
@@ -184,5 +174,5 @@ export {
   handleChatMessages,
   displayChatMessages,
   updateMessageListEvent,
-  deleteMessageEvent,
+  deleteMostRecentMessage,
 };

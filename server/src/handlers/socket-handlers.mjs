@@ -1,5 +1,5 @@
 import {
-  deleteMessageEvent,
+  deleteMostRecentMessage,
   displayChatMessages,
   handleChatMessages,
   updateMessageListEvent,
@@ -29,7 +29,7 @@ const socketHandlers = (io) => {
       initialiseChatRooms(socket);
       manageSocketConnections(socket, userSockets);
       handleChatMessages(socket, io, userSockets);
-      deleteMessageEvent(socket, io);
+      deleteMostRecentMessage(socket, io);
       updateMessageListEvent(socket, io);
 
       socket.on('join-room', (room) => {

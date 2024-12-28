@@ -30,7 +30,7 @@ export default function DeleteMessageModal({
         const newLastMessageIndex = messageList.length - 2;
         const newLastMessageId = messageList[newLastMessageIndex].id;
         await updateLastMessageId(newLastMessageId, room);
-        socket.emit('delete-message-event', room);
+        socket.emit('delete-most-recent-message', room);
       }
 
       // Emit event to notify the server of message deletion and update the message list for everyone in the room

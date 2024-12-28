@@ -9,7 +9,6 @@ function initialiseChatRooms(socket) {
         joinedRooms.push(room);
         socket.join(room);
       }
-      console.log(joinedRooms);
     }
   });
 
