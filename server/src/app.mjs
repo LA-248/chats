@@ -10,19 +10,13 @@ import { createServer } from 'node:http';
 import { Server } from 'socket.io';
 import { sessionMiddleware } from './middlewares/session-middleware.mjs';
 import { createTables, pool } from '../db/index.mjs';
+import { socketHandlers } from './handlers/socket-handlers.mjs';
 
 // Import routers
 import authRouter from './routes/auth.mjs';
 import usersRouter from './routes/users.mjs';
 import chatsRouter from './routes/chats.mjs';
 import messagesRouter from './routes/messages.mjs';
-
-import {
-  displayChatMessages,
-  handleChatMessages,
-  manageSocketConnections,
-  processUpdateMessageEvent,
-} from './handlers/socket-handlers.mjs';
 
 const app = express();
 const server = createServer(app);
@@ -64,38 +58,7 @@ const io = new Server(server, {
 
 io.use(sharedSession(sessionMiddleware, { autoSave: true }));
 
-io.on('connection', (socket) => {
-  // Access the session
-  console.log(socket.handshake.session);
-
-  // Check if user is authenticated
-  if (
-    socket.handshake.session.passport &&
-    socket.handshake.session.passport.user
-  ) {
-    const userId = socket.handshake.session.passport.user;
-    console.log(`User connected`);
-    console.log(`User ID: ${userId}`);
-    console.log(socket.rooms);
-
-    manageSocketConnections(socket);
-    handleChatMessages(socket, io);
-
-    socket.on('join-room', (room) => {
-      socket.join(room);
-      // Load messages for the room
-      displayChatMessages(socket, room);
-    });
-
-    socket.on('leave-room', (room) => {
-      socket.leave(room);
-    });
-
-    processUpdateMessageEvent(socket, io);
-  } else {
-    socket.disconnect();
-  }
-});
+socketHandlers(io);
 
 const result = await pool.query('SELECT NOW()');
 console.log(result.rows[0]);
