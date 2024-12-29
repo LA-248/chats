@@ -4,7 +4,6 @@ import { PrivateChat } from '../../models/private-chat-model.mjs';
 const updateLastMessageId = async (req, res) => {
   try {
     const newLastMessageId = req.body.messageId;
-    console.log(newLastMessageId);
     const room = req.body.room;
 
     await PrivateChat.updateLastMessage(newLastMessageId, room);

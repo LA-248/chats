@@ -58,16 +58,16 @@ const displayChatMessages = async (socket, room) => {
 };
 
 const deleteMostRecentMessage = (socket, io) => {
-  socket.on('delete-most-recent-message', async (room) => {
+  socket.on('last-message-deleted', async (room) => {
     try {
       const lastMessageInfo = await Message.retrieveLastMessageInfo(room);
-      io.to(room).emit('delete-most-recent-message', {
+      io.to(room).emit('last-message-updated', {
         room: room,
-        lastMessageContent: lastMessageInfo.content,
-        lastMessageTime: lastMessageInfo.event_time,
+        lastMessageContent: lastMessageInfo ? lastMessageInfo.content : null,
+        lastMessageTime: lastMessageInfo ? lastMessageInfo.event_time : null,
       });
     } catch (error) {
-      console.error('Unexpected error:', error.message);
+      console.error('Error updating chat list:', error.message);
       socket.emit('custom-error', {
         error: `There was an error updating your chat list. Please refresh the page.`,
       });

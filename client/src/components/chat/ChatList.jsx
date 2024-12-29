@@ -76,18 +76,24 @@ export default function ChatList({ setSelectedChat, setRecipientUsername }) {
                   }
                 : chat
             )
-            .sort(
-              (a, b) =>
-                new Date(b.last_message_time) - new Date(a.last_message_time)
-            )
+            // Ensure chat list is correctly sorted, even when last message info is empty
+            .sort((a, b) => {
+              const timeA = a.last_message_time
+                ? new Date(a.last_message_time)
+                : null;
+              const timeB = b.last_message_time
+                ? new Date(b.last_message_time)
+                : null;
+              return timeB - timeA;
+            })
         );
       };
 
       socket.on('update-chat-list', handleChatListUpdate);
-      socket.on('delete-most-recent-message', handleChatListUpdate);
+      socket.on('last-message-updated', handleChatListUpdate);
       return () => {
         socket.off('update-chat-list', handleChatListUpdate);
-        socket.off('delete-most-recent-message', handleChatListUpdate);
+        socket.off('last-message-updated', handleChatListUpdate);
       };
     }
   }, [setChatList, socket]);

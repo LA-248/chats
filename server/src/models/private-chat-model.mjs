@@ -142,13 +142,17 @@ const PrivateChat = {
           last_message_id = $1,
           updated_at = NOW()
         WHERE room = $2
+        RETURNING *
         `,
         [messageId, room],
-        (err) => {
+        (err, result) => {
           if (err) {
             return reject(
               `Database error in private_chats table: ${err.message}`
             );
+          }
+          if (!result.rows[0]) {
+            return resolve(null);
           }
           return resolve();
         }
