@@ -4,8 +4,7 @@ function initialiseChatRooms(socket) {
   socket.on('initialise-chat-rooms', (chatListData) => {
     for (let i = 0; i < chatListData.length; i++) {
       const room = chatListData[i].room;
-      const isNotDeletedFromChatList = chatListData[i].user_deleted === false;
-      if (!joinedRooms.includes(room) && isNotDeletedFromChatList) {
+      if (!joinedRooms.includes(room)) {
         joinedRooms.push(room);
         socket.join(room);
       }

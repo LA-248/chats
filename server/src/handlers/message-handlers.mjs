@@ -23,11 +23,12 @@ const handleChatMessages = (socket, io) => {
         clientOffset
       );
 
+      restoreRecipientChat(recipientId, room);
       broadcastMessage(io, room, username, message, senderId, newMessage);
     } catch (error) {
       if (
         error.message ===
-        'You cannot send messages to this user as they have you blocked'
+        'You cannot send messages to this user because they have you blocked'
       ) {
         callback(error.message);
       }
@@ -113,7 +114,7 @@ const checkIfBlocked = async (recipientId, senderId) => {
     await isSenderBlocked(recipientId, senderId);
   } catch (error) {
     throw new Error(
-      'You cannot send messages to this user as they have you blocked'
+      'You cannot send messages to this user because they have you blocked'
     );
   }
 };
@@ -146,6 +147,17 @@ const saveMessageInDatabase = async (
   }
 };
 
+// Mark the recipient's chat as not deleted in the database on incoming message if it was previously marked as deleted
+const restoreRecipientChat = async (recipientId, room) => {
+  const isNotInChatList = await PrivateChat.retrieveChatDeletionStatus(
+    recipientId,
+    room
+  );
+  if (isNotInChatList.user_deleted === true) {
+    await PrivateChat.updateChatDeletionStatus(recipientId, false, room);
+  }
+};
+
 const broadcastMessage = (
   io,
   room,
@@ -167,6 +179,7 @@ const broadcastMessage = (
     room: room,
     lastMessageContent: message,
     lastMessageTime: newMessage.event_time,
+    userDeleted: false,
   });
 };
 

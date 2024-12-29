@@ -34,12 +34,17 @@ export default function ChatList({ setSelectedChat, setRecipientUsername }) {
     event.stopPropagation();
     try {
       await deleteChat(chat.room);
-      const updatedChatList = chatList.filter(
-        (chatItem) => chatItem.room !== chat.room
-      );
+      // Mark chat as deleted in local chat list state
+      const updatedChatList = chatList.map((chatItem) => {
+        if (chatItem.room === chat.room) {
+          return { ...chatItem, user_deleted: true };
+        }
+        return chatItem;
+      });
       setChatList(updatedChatList);
       setChatSearchInputText('');
       if (activeChatRoom === chat.room) {
+        setActiveChatRoom(null);
         navigate('/');
       }
     } catch (error) {
@@ -62,9 +67,13 @@ export default function ChatList({ setSelectedChat, setRecipientUsername }) {
   }, [setChatList]);
 
   // Update chat list with latest content and time info on incoming messages, and sort it
+  /* 
+  Also mark the chat as not deleted, which ensures the chat is added for the
+  recipient if they had it marked as deleted
+  */
   useEffect(() => {
     if (socket) {
-      const handleChatListUpdate = (chatListData) => {
+      const handleChatListUpdate = (chatListData, eventType) => {
         setChatList((prevChatList) =>
           prevChatList
             .map((chat) =>
@@ -73,10 +82,13 @@ export default function ChatList({ setSelectedChat, setRecipientUsername }) {
                     ...chat,
                     last_message_content: chatListData.lastMessageContent,
                     last_message_time: chatListData.lastMessageTime,
+                    // Only add user_deleted if the eventType is update-chat-list
+                    ...(eventType === 'update-chat-list' && {
+                      user_deleted: chatListData.userDeleted,
+                    }),
                   }
                 : chat
             )
-            // Ensure chat list is correctly sorted, even when last message info is empty
             .sort((a, b) => {
               const timeA = a.last_message_time
                 ? new Date(a.last_message_time)
@@ -88,12 +100,16 @@ export default function ChatList({ setSelectedChat, setRecipientUsername }) {
             })
         );
       };
+      socket.on('update-chat-list', (data) =>
+        handleChatListUpdate(data, 'update-chat-list')
+      );
+      socket.on('last-message-updated', (data) =>
+        handleChatListUpdate(data, 'last-message-updated')
+      );
 
-      socket.on('update-chat-list', handleChatListUpdate);
-      socket.on('last-message-updated', handleChatListUpdate);
       return () => {
-        socket.off('update-chat-list', handleChatListUpdate);
-        socket.off('last-message-updated', handleChatListUpdate);
+        socket.off('update-chat-list');
+        socket.off('last-message-updated');
       };
     }
   }, [setChatList, socket]);
