@@ -29,7 +29,7 @@ export default function DeleteMessageModal({
       // If last remaining message is deleted, ensure last message id in private chat table is null
       if (messageList.length === 1) {
         await updateLastMessageId(null, room);
-        socket.emit('last-message-deleted', room);
+        socket.emit('last-message-updated', room);
       }
       if (isLastMessage && messageList.length > 1) {
         const newLastMessageIndex = messageList.length - 2;
@@ -38,11 +38,11 @@ export default function DeleteMessageModal({
         // Update the private chat table to reflect the correct ID of the last sent message after deletion
         await updateLastMessageId(newLastMessageId, room);
 
-        socket.emit('last-message-deleted', room);
+        socket.emit('last-message-updated', room);
       }
       // Emit event to notify the server of message deletion and update the message list for everyone in the room
       socket.emit('message-list-update-event', room, 'deleting');
-
+      
       setIsModalOpen(false);
     } catch (error) {
       setIsModalOpen(true);

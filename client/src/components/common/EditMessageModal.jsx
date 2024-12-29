@@ -3,8 +3,6 @@ import { useParams } from 'react-router-dom';
 import { MessageContext } from '../../contexts/MessageContext';
 import { editMessageById } from '../../api/message-api';
 import { useSocket } from '../../hooks/useSocket';
-import { getChatListByUserId } from '../../api/chat-api';
-import { ChatContext } from '../../contexts/ChatContext';
 import Modal from './ModalTemplate';
 import data from '@emoji-mart/data';
 import Picker from '@emoji-mart/react';
@@ -19,7 +17,6 @@ export default function EditMessageModal({
 }) {
   const socket = useSocket();
   const { room } = useParams();
-  const { setChatList } = useContext(ChatContext);
   const { currentMessage, filteredMessages, newMessage, setNewMessage } =
     useContext(MessageContext);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
@@ -30,24 +27,17 @@ export default function EditMessageModal({
         setIsModalOpen(false);
         return;
       }
-
       // Update the database with the edited message
       await editMessageById(newMessage, messageId);
-      // Update message list
-      filteredMessages[messageIndex].content = newMessage;
-      socket.emit('message-update-event', room, 'editing');
 
-      // If the message being edited is the last one in the message list,
-      // update the chat in the chat list with the edited message's content
       const messageList = [...filteredMessages];
       const isLastMessage = messageIndex === messageList.length - 1;
-      const newLastMessage = messageList.length - 1;
-      if (isLastMessage && messageList.length >= 1) {
-        // await updateChatList(messageList[newLastMessage].content, room);
-        const storedChats = await getChatListByUserId();
-        setChatList(storedChats);
+      if (isLastMessage) {
+        socket.emit('last-message-updated', room);
       }
-
+      // Emit event to notify the server of message deletion and update the message list for everyone in the room
+      socket.emit('message-list-update-event', room, 'editing');
+      
       setNewMessage('');
       setIsModalOpen(false);
     } catch (error) {
@@ -56,7 +46,6 @@ export default function EditMessageModal({
     }
   };
 
-  // Add the emoji(s) to the existing message
   const handleAddEmoji = (emoji) => {
     setNewMessage((prevMessage) => prevMessage + emoji.native);
   };

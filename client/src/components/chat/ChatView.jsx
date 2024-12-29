@@ -27,8 +27,10 @@ function ChatView() {
       setMessages(initialMessages);
     };
 
-    const handleMessageListUpdate = (updatedMessageList) => {
-      setMessages(updatedMessageList);
+    const handleMessageListUpdate = (messageListData) => {
+      if (messageListData.room === room) {
+        setMessages(messageListData.updatedMessageList);
+      }
     };
 
     socket.emit('join-room', room);

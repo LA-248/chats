@@ -57,8 +57,9 @@ const displayChatMessages = async (socket, room) => {
   }
 };
 
-const deleteMostRecentMessage = (socket, io) => {
-  socket.on('last-message-deleted', async (room) => {
+// Handle sending updated last message info for the chat list after a delete or edit
+const updateMostRecentMessage = (socket, io) => {
+  socket.on('last-message-updated', async (room) => {
     try {
       const lastMessageInfo = await Message.retrieveLastMessageInfo(room);
       io.to(room).emit('last-message-updated', {
@@ -76,8 +77,8 @@ const deleteMostRecentMessage = (socket, io) => {
   });
 };
 
-// TODO: Instead of retrieving the whole message list for deletes and edits, only fetch the edited message
-// Listen for message events such as deletes and edits, and emit the updated message list to the room
+// TODO: Don't retrieve the whole message list after a message is deleted or edited - optimise it
+// Listen for message deletes and edits, and emit the updated message list to the relevant room
 const updateMessageListEvent = (socket, io) => {
   socket.on('message-list-update-event', async (room, updateType) => {
     try {
@@ -85,11 +86,10 @@ const updateMessageListEvent = (socket, io) => {
         socket.handshake.auth.serverOffset,
         room
       );
-      io.to(room).emit(
-        'message-list-update-event',
-        messages.map(formatMessage),
-        updateType
-      );
+      io.to(room).emit('message-list-update-event', {
+        room: room,
+        updatedMessageList: messages.map(formatMessage),
+      });
     } catch (error) {
       console.error('Unexpected error:', error.message);
       socket.emit('custom-error', {
@@ -173,6 +173,6 @@ const broadcastMessage = (
 export {
   handleChatMessages,
   displayChatMessages,
+  updateMostRecentMessage,
   updateMessageListEvent,
-  deleteMostRecentMessage,
 };

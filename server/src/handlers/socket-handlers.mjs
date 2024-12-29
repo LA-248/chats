@@ -1,7 +1,7 @@
 import {
-  deleteMostRecentMessage,
   displayChatMessages,
   handleChatMessages,
+  updateMostRecentMessage,
   updateMessageListEvent,
 } from './message-handlers.mjs';
 import {
@@ -28,8 +28,9 @@ const socketHandlers = (io) => {
 
       initialiseChatRooms(socket);
       manageSocketConnections(socket, userSockets);
+
       handleChatMessages(socket, io, userSockets);
-      deleteMostRecentMessage(socket, io);
+      updateMostRecentMessage(socket, io);
       updateMessageListEvent(socket, io);
 
       socket.on('join-room', (room) => {
