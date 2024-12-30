@@ -30,10 +30,10 @@ export default function ChatItem({
                 {chat.last_message_content &&
                   formatDate(chat.last_message_time)}
               </div>
-              {!isActive && chat.has_new_message ? (
+              {!isActive && chat.read === false ? (
                 <span className='unread-message-alert'></span>
               ) : (
-                (chat.hasNewMessage = false)
+                (chat.read = true)
               )}
             </div>
           </div>

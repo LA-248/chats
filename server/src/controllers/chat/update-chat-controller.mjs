@@ -13,7 +13,27 @@ const updateLastMessageId = async (req, res) => {
   } catch (error) {
     console.error('Error updating last message id:', error);
     return res.status(500).json({
-      error: 'There was an error updating your chat list. Please refresh the page.',
+      error:
+        'There was an error updating your chat list. Please refresh the page.',
+    });
+  }
+};
+
+const updateChatReadStatus = async (req, res) => {
+  try {
+    const userId = req.session.passport.user;
+    const read = req.body.read;
+    const room = req.body.room;
+
+    await PrivateChat.updateReadStatus(userId, read, room);
+    return res
+      .status(200)
+      .json({ success: 'Read status updated successfully.' });
+  } catch (error) {
+    console.error('Error updating last message id:', error);
+    return res.status(500).json({
+      error:
+        'There was an error updating the read status of your chat. Please refresh the page.',
     });
   }
 };
@@ -38,4 +58,4 @@ const deleteChat = async (req, res) => {
   }
 };
 
-export { updateLastMessageId, deleteChat };
+export { updateLastMessageId, updateChatReadStatus, deleteChat };

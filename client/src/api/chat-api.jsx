@@ -93,12 +93,32 @@ async function addChat(inputUsername, chatList) {
 // Ensures the correct latest message is shown in the chat list
 async function updateLastMessageId(messageId, room) {
   try {
-    const response = await fetch('http://localhost:8080/chats/', {
+    const response = await fetch('http://localhost:8080/chats/last_messages', {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ messageId: messageId, room: room }),
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      const errorResponse = await response.json();
+      throw new Error(errorResponse.error);
+    }
+  } catch (error) {
+    throw error;
+  }
+}
+
+async function updateReadStatus(read, room) {
+  try {
+    const response = await fetch('http://localhost:8080/chats/read_receipts', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ read: read, room: room }),
       credentials: 'include',
     });
 
@@ -140,5 +160,6 @@ export {
   getRecipientInfo,
   addChat,
   updateLastMessageId,
+  updateReadStatus,
   deleteChat,
 };

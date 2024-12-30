@@ -4,6 +4,7 @@ import { UserContext } from '../../contexts/UserContext';
 import { MessageContext } from '../../contexts/MessageContext';
 import { ChatContext } from '../../contexts/ChatContext';
 import { updateBlockList } from '../../api/user-api';
+import { updateReadStatus } from '../../api/chat-api';
 import ContactInfoModal from '../common/ContactInfoModal';
 import formatDate from '../../utils/DateTimeFormat';
 
@@ -31,6 +32,7 @@ export default function MessageList({
         // Append message to UI only if the user is currently in the room where the message was sent
         if (room === messageData.room) {
           setMessages((prevMessages) => prevMessages.concat(messageData));
+          await updateReadStatus(true, room);
         }
       };
 

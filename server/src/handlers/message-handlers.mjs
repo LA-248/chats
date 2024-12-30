@@ -134,6 +134,7 @@ const saveMessageInDatabase = async (
       room,
       clientOffset
     );
+    await PrivateChat.updateReadStatus(recipientId, false, room);
     await PrivateChat.updateLastMessage(newMessage.id, room);
     return newMessage;
   } catch (error) {

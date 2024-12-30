@@ -17,6 +17,8 @@ const PrivateChat = {
             updated_at TIMESTAMPTZ DEFAULT NOW(),
             user1_deleted BOOLEAN DEFAULT TRUE,
             user2_deleted BOOLEAN DEFAULT TRUE,
+            user1_read BOOLEAN DEFAULT TRUE,
+            user2_read BOOLEAN DEFAULT TRUE,
             UNIQUE (user1_id, user2_id)
           )
         `,
@@ -75,6 +77,10 @@ const PrivateChat = {
           m.content AS last_message_content,
           m.event_time AS last_message_time,
           pc.room,
+          CASE
+            WHEN pc.user1_id = $1 THEN pc.user1_read
+            WHEN pc.user2_id = $1 THEN pc.user2_read
+          END AS read,
           pc.created_at,
           pc.updated_at,
           CASE
@@ -186,6 +192,34 @@ const PrivateChat = {
             return reject('Chat not found');
           }
           return resolve(result.rows[0]);
+        }
+      );
+    });
+  },
+
+  updateReadStatus: function (userId, read, room) {
+    return new Promise((resolve, reject) => {
+      pool.query(
+        `
+        UPDATE private_chats
+        SET
+          user1_read = CASE WHEN user1_id = $1 THEN $2 ELSE user1_read END,
+          user2_read = CASE WHEN user2_id = $1 THEN $2 ELSE user2_read END
+        WHERE room = $3
+        RETURNING
+          CASE
+            WHEN user1_id = $1 THEN user1_read
+            WHEN user2_id = $1 THEN user2_read
+          END AS read
+        `,
+        [userId, read, room],
+        (err) => {
+          if (err) {
+            return reject(
+              `Database error in private_chats table: ${err.message}`
+            );
+          }
+          return resolve();
         }
       );
     });

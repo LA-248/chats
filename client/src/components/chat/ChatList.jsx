@@ -2,7 +2,11 @@ import { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSocket } from '../../hooks/useSocket';
 import { ChatContext } from '../../contexts/ChatContext';
-import { getChatListByUserId, deleteChat } from '../../api/chat-api';
+import {
+  getChatListByUserId,
+  deleteChat,
+  updateReadStatus,
+} from '../../api/chat-api';
 import ChatItem from './ChatItem';
 import useClearErrorMessage from '../../hooks/useClearErrorMessage';
 import { useSocketErrorHandling } from '../../hooks/useSocketErrorHandling';
@@ -22,11 +26,14 @@ export default function ChatList({ setSelectedChat, setRecipientUsername }) {
   const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
 
-  const handleChatClick = (chat) => {
+  const handleChatClick = async (chat) => {
     setActiveChatRoom(chat.room);
     setSelectedChat(chat.recipient_username);
     setRecipientUsername(chat.recipient_username);
     navigate(`/chats/${chat.room}/${chat.recipient_username}`);
+    if (chat.read === false) {
+      await updateReadStatus(true, chat.room);
+    }
   };
 
   // Remove a conversation from the chat list
@@ -85,6 +92,7 @@ export default function ChatList({ setSelectedChat, setRecipientUsername }) {
                     // Only add user_deleted if the eventType is update-chat-list
                     ...(eventType === 'update-chat-list' && {
                       user_deleted: chatListData.userDeleted,
+                      read: activeChatRoom !== chat.room ? false : true,
                     }),
                   }
                 : chat
@@ -112,7 +120,7 @@ export default function ChatList({ setSelectedChat, setRecipientUsername }) {
         socket.off('last-message-updated');
       };
     }
-  }, [setChatList, socket]);
+  }, [setChatList, socket, activeChatRoom]);
 
   // Filter chat list based on search input
   useEffect(() => {
