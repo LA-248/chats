@@ -1,6 +1,6 @@
 async function getLoggedInUserData() {
   try {
-    const response = await fetch('http://localhost:8080/users/', {
+    const response = await fetch('http://localhost:8080/users', {
       method: 'GET',
       credentials: 'include',
     });
@@ -20,12 +20,8 @@ async function getLoggedInUserData() {
 // Retrieve the ID of a message recipient from the database using their username
 async function getRecipientUserIdByUsername(username) {
   try {
-    const response = await fetch('http://localhost:8080/users/recipient_id', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ username: username }),
+    const response = await fetch(`http://localhost:8080/users/${username}`, {
+      method: 'GET',
       credentials: 'include',
     });
 
@@ -44,7 +40,7 @@ async function getRecipientUserIdByUsername(username) {
 // Retrieve the block list of the logged in user
 async function getBlockList() {
   try {
-    const response = await fetch('http://localhost:8080/users/block', {
+    const response = await fetch('http://localhost:8080/users/blocked', {
       method: 'GET',
       credentials: 'include',
     });
@@ -87,7 +83,7 @@ async function updateUsername(username) {
 // Update a user's block list with the ID of who they want blocked
 async function updateBlockList(userIds) {
   try {
-    const response = await fetch('http://localhost:8080/users/block', {
+    const response = await fetch('http://localhost:8080/users/blocked', {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',

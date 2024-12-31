@@ -1,6 +1,5 @@
 import { useContext, useState } from 'react';
 import { UserContext } from '../../contexts/UserContext';
-import { updateUsernameInMessageList } from '../../api/message-api';
 import { updateUsername } from '../../api/user-api';
 import Modal from '../common/ModalTemplate';
 
@@ -27,7 +26,6 @@ export default function UsernameEdit({
         return;
       }
 
-      await updateUsernameInMessageList(usernameInput);
       await updateUsername(usernameInput);
 
       setLoggedInUsername(usernameInput);

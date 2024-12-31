@@ -81,6 +81,7 @@ export default function Home() {
                 fontSize: '28px',
                 textDecoration: 'none',
                 padding: '10px 10px 0px 10px',
+                width: 'fit-content',
               }}
               onClick={() => setActiveChatRoom(null)}
             >

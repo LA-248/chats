@@ -19,6 +19,8 @@ const addChat = async (req, res) => {
     } else {
       await PrivateChat.updateChatDeletionStatus(senderId, false, room);
     }
+    // TODO: Find a more optimised way to update the chat list with the added chat,
+    // rather than retrieving the whole chat list each time
     const updatedChatList = await getChatListByUserId(senderId);
 
     // Send the updated chat list to the frontend

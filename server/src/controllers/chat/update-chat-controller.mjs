@@ -23,7 +23,7 @@ const updateChatReadStatus = async (req, res) => {
   try {
     const userId = req.session.passport.user;
     const read = req.body.read;
-    const room = req.body.room;
+    const room = req.params.room;
 
     await PrivateChat.updateReadStatus(userId, read, room);
     return res

@@ -48,7 +48,7 @@ const retrieveUserByUsername = async (req, res) => {
 
 const retrieveIdByUsername = async (req, res) => {
   try {
-    const username = req.body.username;
+    const username = req.params.username;
     const user = await User.getIdByUsername(username);
     if (!user) {
       throw new Error(
@@ -68,14 +68,6 @@ const retrieveIdByUsername = async (req, res) => {
   }
 };
 
-const retrieveUserIdFromSession = async (req, res) => {
-  if (req.session.passport && req.session.passport.user) {
-    res.json({ userId: req.session.passport.user });
-  } else {
-    res.json({ error: 'User not authenticated.' });
-  }
-};
-
 const retrieveBlockListById = async (req, res) => {
   try {
     const userId = req.session.passport.user;
@@ -91,6 +83,5 @@ export {
   retrieveLoggedInUserDataById,
   retrieveUserByUsername,
   retrieveIdByUsername,
-  retrieveUserIdFromSession,
   retrieveBlockListById,
 };

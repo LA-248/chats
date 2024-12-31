@@ -20,7 +20,7 @@ export default function ProfilePicture({ errorMessage, setErrorMessage }) {
 
     try {
       const response = await fetch(
-        'http://localhost:8080/users/profile_pictures',
+        'http://localhost:8080/users/profile_picture',
         {
           method: 'POST',
           body: formData,
