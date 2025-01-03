@@ -49,7 +49,7 @@ export default function SignUp() {
     <div className='sign-up-container'>
       <div className='sign-up-box'>
         <div className='sign-up-header'>Sign Up</div>
-        <div className='sign-up-subtext'>Create an account to get started.</div>
+        <div className='sign-up-subtext'>Create an account</div>
         <form className='sign-up-form' onSubmit={handleFormSubmission}>
           <input
             type='text'

@@ -43,7 +43,7 @@ export default function Login() {
     <div>
       <div className='login-container'>
         <div className='login-box'>
-          <div className='login-header'>Sign In</div>
+          <div className='login-header'>Sign in</div>
           <form className='login-form' onSubmit={handleSubmit}>
             <input
               id='username'
