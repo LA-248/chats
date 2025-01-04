@@ -32,6 +32,7 @@ export default function MessageList({
         // Append message to UI only if the user is currently in the room where the message was sent
         if (room === messageData.room) {
           setMessages((prevMessages) => prevMessages.concat(messageData));
+          // If a message is received while the user has the chat open, this is needed to automatically mark the chat as read
           await updateReadStatus(true, room);
         }
       };
@@ -127,8 +128,13 @@ export default function MessageList({
                             </div>
                           ) : null}
                         </div>
-                        <div className='message-content'>
-                          {messageData.content}
+                        <div className='message-content-container'>
+                          <div className='message-content'>
+                            {messageData.content}
+                          </div>
+                          {messageData.isEdited ? (
+                            <div className='message-edited-tag'>(edited)</div>
+                          ) : null}
                         </div>
                       </div>
                     </div>

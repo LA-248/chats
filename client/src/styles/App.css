@@ -502,12 +502,23 @@ body {
   color: #888;
 }
 
+.message-content-container {
+  display: flex;
+  align-items: flex-end;
+  gap: 5px;
+}
+
 .message-content {
   font-size: 14px;
   max-width: 1000px;
   white-space: normal;
   word-wrap: break-word;
   overflow-wrap: break-word;
+}
+
+.message-edited-tag {
+  font-size: 11px;
+  color: #888;
 }
 
 .message-actions-button {

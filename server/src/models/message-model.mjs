@@ -15,6 +15,7 @@ const Message = {
             room TEXT REFERENCES private_chats(room),
             content TEXT DEFAULT NULL,
             event_time TIMESTAMPTZ DEFAULT NOW(),
+            is_edited BOOLEAN DEFAULT FALSE,
             UNIQUE (room, event_time, message_id)
           )
         `,
@@ -68,7 +69,12 @@ const Message = {
   editMessageContent: function (newMessage, messageId) {
     return new Promise((resolve, reject) => {
       pool.query(
-        `UPDATE messages SET content = $1 WHERE message_id = $2`,
+        `
+        UPDATE messages
+        SET
+          content = $1,
+          is_edited = true
+        WHERE message_id = $2`,
         [newMessage, messageId],
         (err) => {
           if (err) {
@@ -91,6 +97,7 @@ const Message = {
           m.sender_id,
           m.content,
           m.event_time,
+          m.is_edited,
           u.username as sender_username,
           u.profile_picture as profile_picture
         FROM messages m

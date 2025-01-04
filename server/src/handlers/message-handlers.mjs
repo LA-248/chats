@@ -4,12 +4,8 @@ import isSenderBlocked from '../utils/check-blocked-status.mjs';
 
 const handleChatMessages = (socket, io) => {
   socket.on('chat-message', async (data, clientOffset, callback) => {
-    const { username, recipientId, message } = data;
+    const { username, recipientId, message, room } = data;
     const senderId = socket.handshake.session.passport.user;
-
-    // Create a consistent room name using user IDs
-    // Ensure the room is the same for both users by sorting the user IDs
-    const room = [senderId, recipientId].sort().join('-');
 
     try {
       // Check if sender is blocked
@@ -32,7 +28,7 @@ const handleChatMessages = (socket, io) => {
       ) {
         callback(error.message);
       }
-      console.error(`Error sending message: ${error.message}`);
+      console.error(`Error sending message: ${error}`);
       callback('Error sending message');
     }
   });
@@ -49,7 +45,7 @@ const displayChatMessages = async (socket, room) => {
       );
       socket.emit('initial-messages', messages.map(formatMessage));
     } catch (error) {
-      console.error('Unable to retrieve chat messages:', error.message);
+      console.error('Unable to retrieve chat messages:', error);
       socket.emit('custom-error', {
         error: 'Unable to retrieve chat messages',
       });
@@ -69,7 +65,7 @@ const updateMostRecentMessage = (socket, io) => {
         lastMessageTime: lastMessageInfo ? lastMessageInfo.event_time : null,
       });
     } catch (error) {
-      console.error('Error updating chat list:', error.message);
+      console.error('Error updating chat list:', error);
       socket.emit('custom-error', {
         error: `There was an error updating your chat list. Please refresh the page.`,
       });
@@ -92,7 +88,7 @@ const updateMessageListEvent = (socket, io) => {
         updatedMessageList: messages.map(formatMessage),
       });
     } catch (error) {
-      console.error('Unexpected error:', error.message);
+      console.error('Unexpected error:', error);
       socket.emit('custom-error', {
         error: `Error ${updateType} message. Please try again.`,
       });
@@ -107,6 +103,7 @@ const formatMessage = (message) => ({
   eventTime: message.event_time,
   id: message.message_id,
   senderId: message.sender_id,
+  isEdited: message.is_edited,
 });
 
 const checkIfBlocked = async (recipientId, senderId) => {
