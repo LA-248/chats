@@ -6,7 +6,7 @@ import {
   getChatListByUserId,
   deleteChat,
   updateReadStatus,
-} from '../../api/chat-api';
+} from '../../api/private-chat-api';
 import ChatItem from './ChatItem';
 import useClearErrorMessage from '../../hooks/useClearErrorMessage';
 import { useSocketErrorHandling } from '../../hooks/useSocketErrorHandling';

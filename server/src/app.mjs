@@ -15,7 +15,8 @@ import { socketHandlers } from './handlers/socket-handlers.mjs';
 // Import routers
 import authRouter from './routes/auth.mjs';
 import usersRouter from './routes/users.mjs';
-import chatsRouter from './routes/chats.mjs';
+import privateChatsRouter from './routes/private-chats.mjs';
+import groupChatsRouter from './routes/group-chats.mjs';
 import messagesRouter from './routes/messages.mjs';
 
 const app = express();
@@ -43,7 +44,8 @@ app.use(passport.session());
 // Attach routes
 app.use('/auth', authRouter);
 app.use('/users', usersRouter);
-app.use('/chats', chatsRouter);
+app.use('/chats', privateChatsRouter);
+app.use('/groups', groupChatsRouter);
 app.use('/messages', messagesRouter);
 
 // Set up a Socket.IO server

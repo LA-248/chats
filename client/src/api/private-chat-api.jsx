@@ -3,7 +3,7 @@ import { getRecipientUserIdByUsername } from './user-api';
 // Fetch the chat list of a specific user
 async function getChatListByUserId() {
   try {
-    const response = await fetch('http://localhost:8080/chats/', {
+    const response = await fetch('http://localhost:8080/chats', {
       method: 'GET',
       credentials: 'include',
     });

@@ -1,5 +1,5 @@
-import { PrivateChat } from '../../models/private-chat-model.mjs';
-import { User } from '../../models/user-model.mjs';
+import { PrivateChat } from '../../../models/private-chat-model.mjs';
+import { User } from '../../../models/user-model.mjs';
 import { getChatListByUserId } from './get-chat-controller.mjs';
 
 // Handle adding a chat (new or previously added but deleted) to a user's chat list

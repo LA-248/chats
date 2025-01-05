@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { addChat } from '../../api/chat-api';
+import { addChat } from '../../api/private-chat-api';
 import useClearErrorMessage from '../../hooks/useClearErrorMessage';
 
 export default function AddChatInput({
@@ -26,7 +26,7 @@ export default function AddChatInput({
     [chatList, setChatList, inputUsername, setErrorMessage]
   );
 
-    useClearErrorMessage(errorMessage, setErrorMessage);
+  useClearErrorMessage(errorMessage, setErrorMessage);
 
   return (
     <div className='username-form-container'>

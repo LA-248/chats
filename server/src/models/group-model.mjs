@@ -7,10 +7,10 @@ const Group = {
         `
           CREATE TABLE IF NOT EXISTS groups (
             group_id SERIAL PRIMARY KEY,
-            owner_user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+            owner_user_id INTEGER REFERENCES users(user_id) ON DELETE SET NULL,
             name TEXT,
             group_picture TEXT,
-            room TEXT NOT NULL,
+            room UUID NOT NULL,
             created_at TIMESTAMPTZ DEFAULT NOW()
           )
         `,
@@ -19,6 +19,29 @@ const Group = {
             return reject(`Database error in groups table: ${err.message}`);
           }
           return resolve();
+        }
+      );
+    });
+  },
+
+  // INSERT OPERATIONS
+
+  insertNewGroupChat: function (ownerUserId, name, room) {
+    return new Promise((resolve, reject) => {
+      pool.query(
+        `
+          INSERT INTO groups (owner_user_id, name, room)
+          VALUES ($1, $2, $3)
+          RETURNING group_id
+        `,
+        [ownerUserId, name, room],
+        (err, result) => {
+          if (err) {
+            return reject(
+              `Database error in groups table: ${err.message}`
+            );
+          }
+          return resolve(result.rows[0]);
         }
       );
     });

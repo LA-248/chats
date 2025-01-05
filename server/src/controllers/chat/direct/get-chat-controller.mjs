@@ -1,5 +1,5 @@
-import { PrivateChat } from '../../models/private-chat-model.mjs';
-import { generatePresignedUrlsForChatList } from '../../services/s3/s3-presigned-url.mjs';
+import { PrivateChat } from '../../../models/private-chat-model.mjs';
+import { generatePresignedUrlsForChatList } from '../../../services/s3/s3-presigned-url.mjs';
 
 // Fetch the chat list of a specific user
 const getChatList = async (req, res) => {

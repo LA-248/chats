@@ -13,7 +13,8 @@ export default function Sidebar() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
   const { setRecipientId, setRecipientUsername } = useContext(MessageContext);
-  const { profilePicture, loggedInUsername } = useContext(UserContext);
+  const { profilePicture, loggedInUsername, loggedInUserId } =
+    useContext(UserContext);
   const {
     selectedChat,
     setSelectedChat,
@@ -61,6 +62,7 @@ export default function Sidebar() {
         isModalOpen={isModalOpen}
         setIsModalOpen={setIsModalOpen}
         loggedInUsername={loggedInUsername}
+        loggedInUserId={loggedInUserId}
       />
 
       {chatList.length > 0 ? (

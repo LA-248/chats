@@ -4,7 +4,7 @@ import { useSocket } from '../../hooks/useSocket';
 import { useContext } from 'react';
 import { MessageContext } from '../../contexts/MessageContext';
 import Modal from './ModalTemplate';
-import { updateLastMessageId } from '../../api/chat-api';
+import { updateLastMessageId } from '../../api/private-chat-api';
 
 export default function DeleteMessageModal({
   messageId,

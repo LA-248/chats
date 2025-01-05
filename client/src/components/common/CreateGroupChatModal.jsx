@@ -1,15 +1,18 @@
 import { useState } from 'react';
 import { getRecipientUserIdByUsername } from '../../api/user-api';
+import { addGroupMember, createGroupChat } from '../../api/group-chat-api';
 import Modal from './ModalTemplate';
 
 export default function CreateGroupChatModal({
   isModalOpen,
   setIsModalOpen,
   loggedInUsername,
+  loggedInUserId,
 }) {
   const [groupName, setGroupName] = useState('');
   const [inputUsername, setInputUsername] = useState('');
   const [addedMembers, setAddedMembers] = useState([]);
+  const [addedMembersUserIds, setAddedMembersUserIds] = useState([]);
   const [errorMessage, setErrorMessage] = useState('');
 
   const handleAddMember = async (event) => {
@@ -23,10 +26,11 @@ export default function CreateGroupChatModal({
         throw new Error('You may only add up to 10 members');
       }
       if (inputUsername === loggedInUsername) {
-        throw new Error('You may not add yourself');
+        throw new Error('As the owner of the group, you may not add yourself');
       }
       // Check if the user trying to be added exists in the database
-      await getRecipientUserIdByUsername(inputUsername);
+      // Store the user id of each added member, this is needed to add them as a group member in the database
+      const memberUserId = await getRecipientUserIdByUsername(inputUsername);
 
       // If the user has already been added to the group, throw an error
       const exists = addedMembers.some((member) => member === inputUsername);
@@ -34,7 +38,11 @@ export default function CreateGroupChatModal({
         throw new Error('This user has already been added to the group');
       }
 
-      setAddedMembers((prevMembers) => prevMembers.concat(inputUsername));
+      setAddedMembers((prevMembers) => [...prevMembers, inputUsername]);
+      setAddedMembersUserIds((prevMemberUserIds) => [
+        ...prevMemberUserIds,
+        memberUserId,
+      ]);
       setInputUsername('');
     } catch (error) {
       setErrorMessage(error.message);
@@ -52,7 +60,14 @@ export default function CreateGroupChatModal({
         throw new Error('You must add at least one member to your group');
       }
 
-      // await addGroupChat(groupName, addedMembers);
+      // TODO: This code doesn't correctly send each added user's id
+      for (let i = 0; i < addedMembersUserIds.length; i++) {
+        await addGroupMember(groupName, addedMembersUserIds[i], 'Member');
+      }
+
+      await createGroupChat(loggedInUserId, groupName);
+      setGroupName('');
+      setAddedMembers([]);
       setIsModalOpen(false);
     } catch (error) {
       setIsModalOpen(true);
@@ -60,7 +75,6 @@ export default function CreateGroupChatModal({
     }
   };
 
-  // Remove an added member
   const removeMember = (itemToRemove) => {
     setAddedMembers(addedMembers.filter((member) => member !== itemToRemove));
   };

@@ -1,4 +1,4 @@
-import { PrivateChat } from '../../models/private-chat-model.mjs';
+import { PrivateChat } from '../../../models/private-chat-model.mjs';
 
 // Update the last message id for a chat
 const updateLastMessageId = async (req, res) => {

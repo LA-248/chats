@@ -4,7 +4,7 @@ import { ChatContext } from '../../contexts/ChatContext';
 import { MessageContext } from '../../contexts/MessageContext';
 import { UserContext } from '../../contexts/UserContext';
 
-import { getRecipientInfo } from '../../api/chat-api';
+import { getRecipientInfo } from '../../api/private-chat-api';
 import { getBlockList, updateBlockList } from '../../api/user-api';
 import MessageSearch from '../message/MessageSearch';
 import ContactInfoModal from '../common/ContactInfoModal';
