@@ -14,7 +14,7 @@ const createGroupChat = async (req, res) => {
 
     // Add members to the group chat concurrently
     const insertPromises = addedMembers.map((user) =>
-      GroupMembers.insertGroupMember(result.group_id, user.userId, 'member')
+      GroupMembers.insertGroupMember(result.group_id, user.userId, user.role)
     );
 
     const results = await Promise.allSettled(insertPromises);
@@ -32,6 +32,7 @@ const createGroupChat = async (req, res) => {
     }
 
     // Handle partial success or full success
+    // This ensures that the group is still created even if certain members could not be added
     if (failedInsertions.length > 0) {
       console.warn('Some members could not be added:', failedInsertions);
       return res.status(207).json({

@@ -774,14 +774,20 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 10px 0px 10px 0px;
   font-size: 14px;
+}
+
+.added-member-username-container {
+  display: flex;
+  align-items: center;
+  gap: 5px;
 }
 
 .remove-group-member-button {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 10px;
   font-size: 14px;
   border-radius: 25px;
   color: red;
