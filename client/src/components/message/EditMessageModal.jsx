@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import { MessageContext } from '../../contexts/MessageContext';
 import { editMessageById } from '../../api/message-api';
 import { useSocket } from '../../hooks/useSocket';
-import Modal from './ModalTemplate';
+import Modal from '../common/ModalTemplate';
 import data from '@emoji-mart/data';
 import Picker from '@emoji-mart/react';
 
@@ -37,7 +37,7 @@ export default function EditMessageModal({
       }
       // Emit event to notify the server of message deletion and update the message list for everyone in the room
       socket.emit('message-list-update-event', room, 'editing');
-      
+
       setNewMessage('');
       setIsModalOpen(false);
     } catch (error) {

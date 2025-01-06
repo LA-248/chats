@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { getRecipientUserIdByUsername } from '../../api/user-api';
 import { createGroupChat } from '../../api/group-chat-api';
-import Modal from './ModalTemplate';
+import Modal from '../common/ModalTemplate';
 
 export default function CreateGroupChatModal({
   isModalOpen,

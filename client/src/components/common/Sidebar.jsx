@@ -5,7 +5,7 @@ import { UserContext } from '../../contexts/UserContext';
 import AddChatInput from '../chat/AddChatInput';
 import ChatList from '../chat/ChatList';
 import ChatSearch from '../chat/ChatSearch';
-import CreateGroupChatModal from './CreateGroupChatModal';
+import CreateGroupChatModal from '../chat/CreateGroupChatModal';
 import UserProfile from '../user/UserProfile';
 
 export default function Sidebar() {

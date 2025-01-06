@@ -6,8 +6,8 @@ import { useSocketErrorHandling } from '../../hooks/useSocketErrorHandling';
 import ContactHeader from './ContactHeader';
 import MessageInput from '../message/MessageInput';
 import MessageList from '../message/MessageList';
-import DeleteMessageModal from '../common/DeleteMessageModal';
-import EditMessageModal from '../common/EditMessageModal';
+import DeleteMessageModal from '../message/DeleteMessageModal';
+import EditMessageModal from '../message/EditMessageModal';
 
 function ChatView() {
   const { filteredMessages, setMessages } = useContext(MessageContext);

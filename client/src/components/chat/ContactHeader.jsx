@@ -7,7 +7,7 @@ import { UserContext } from '../../contexts/UserContext';
 import { getRecipientInfo } from '../../api/private-chat-api';
 import { getBlockList, updateBlockList } from '../../api/user-api';
 import MessageSearch from '../message/MessageSearch';
-import ContactInfoModal from '../common/ContactInfoModal';
+import ContactInfoModal from './ContactInfoModal';
 import useClearErrorMessage from '../../hooks/useClearErrorMessage';
 
 export default function ContactHeader() {

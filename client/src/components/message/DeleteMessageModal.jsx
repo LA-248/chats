@@ -3,7 +3,7 @@ import { deleteMessageById } from '../../api/message-api';
 import { useSocket } from '../../hooks/useSocket';
 import { useContext } from 'react';
 import { MessageContext } from '../../contexts/MessageContext';
-import Modal from './ModalTemplate';
+import Modal from '../common/ModalTemplate';
 import { updateLastMessageId } from '../../api/private-chat-api';
 
 export default function DeleteMessageModal({
@@ -42,7 +42,7 @@ export default function DeleteMessageModal({
       }
       // Emit event to notify the server of message deletion and update the message list for everyone in the room
       socket.emit('message-list-update-event', room, 'deleting');
-      
+
       setIsModalOpen(false);
     } catch (error) {
       setIsModalOpen(true);

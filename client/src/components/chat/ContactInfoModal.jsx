@@ -1,7 +1,7 @@
 import { useContext } from 'react';
 import { UserContext } from '../../contexts/UserContext';
 import useBlockAndUnblock from '../../hooks/useBlockAndUnblock';
-import Modal from './ModalTemplate';
+import Modal from '../common/ModalTemplate';
 
 export default function ContactInfoModal({
   activeChat,

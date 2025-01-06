@@ -5,7 +5,7 @@ import { MessageContext } from '../../contexts/MessageContext';
 import { ChatContext } from '../../contexts/ChatContext';
 import { updateBlockList } from '../../api/user-api';
 import { updateReadStatus } from '../../api/private-chat-api';
-import ContactInfoModal from '../common/ContactInfoModal';
+import ContactInfoModal from '../chat/ContactInfoModal';
 import formatDate from '../../utils/DateTimeFormat';
 
 export default function MessageList({
