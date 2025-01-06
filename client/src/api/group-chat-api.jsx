@@ -19,7 +19,11 @@ async function createGroupChat(loggedInUserId, groupName, addedMembersUserIds) {
         throw new Error(data.error);
       }
 
-      return data;
+      if (response.status === 207) {
+        return data.message;
+      } else {
+        return data.success;
+      }
     }
   } catch (error) {
     throw error;

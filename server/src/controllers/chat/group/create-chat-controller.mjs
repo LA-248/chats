@@ -11,16 +11,36 @@ const createGroupChat = async (req, res) => {
     const room = uuidv4();
 
     const result = await Group.insertNewGroupChat(ownerUserId, groupName, room);
-    for (let i = 0; i < addedMembersUserIds.length; i++) {
-      await GroupMembers.insertGroupMember(
-        result.group_id,
-        addedMembersUserIds[i],
-        'member'
-      );
+
+    // Add members to the group chat concurrently
+    const insertPromises = addedMembersUserIds.map((userId) =>
+      GroupMembers.insertGroupMember(result.group_id, userId, 'member')
+    );
+
+    const results = await Promise.allSettled(insertPromises);
+
+    // Log failed insertions
+    const failedInsertions = [];
+    for (let i = 0; i < results.length; i++) {
+      if (results[i].status === 'rejected') {
+        console.error(
+          `Failed to add user ${addedMembersUserIds[i]}:`,
+          result.reason
+        );
+        failedInsertions.push(addedMembersUserIds[i]);
+      }
     }
 
-    // Send the updated chat list to the frontend
-    return res.status(200).json({ updatedChatList: 'Group created' });
+    // Handle partial success or full success
+    if (failedInsertions.length > 0) {
+      console.warn('Some members could not be added:', failedInsertions);
+      return res.status(207).json({
+        message:
+          'Group created successfully but some members could not be added',
+        failedMembers: failedInsertions,
+      });
+    }
+    return res.status(200).json({ success: 'Group created successfully' });
   } catch (error) {
     console.error('Error:', error);
     return res
