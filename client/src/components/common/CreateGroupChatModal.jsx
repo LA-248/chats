@@ -12,7 +12,6 @@ export default function CreateGroupChatModal({
   const [groupName, setGroupName] = useState('');
   const [inputUsername, setInputUsername] = useState('');
   const [addedMembers, setAddedMembers] = useState([]);
-  const [addedMembersUserIds, setAddedMembersUserIds] = useState([]);
   const [errorMessage, setErrorMessage] = useState('');
 
   const handleAddMember = async (event) => {
@@ -38,10 +37,9 @@ export default function CreateGroupChatModal({
         throw new Error('This user has already been added to the group');
       }
 
-      setAddedMembers((prevMembers) => [...prevMembers, inputUsername]);
-      setAddedMembersUserIds((prevMemberUserIds) => [
-        ...prevMemberUserIds,
-        memberUserId,
+      setAddedMembers((prevMembers) => [
+        ...prevMembers,
+        { username: inputUsername, userId: memberUserId },
       ]);
       setInputUsername('');
     } catch (error) {
@@ -60,10 +58,9 @@ export default function CreateGroupChatModal({
         throw new Error('You must add at least one member to your group');
       }
 
-      await createGroupChat(loggedInUserId, groupName, addedMembersUserIds);
+      await createGroupChat(loggedInUserId, groupName, addedMembers);
       setGroupName('');
       setAddedMembers([]);
-      setAddedMembersUserIds([]);
       setIsModalOpen(false);
     } catch (error) {
       setIsModalOpen(true);
@@ -71,8 +68,8 @@ export default function CreateGroupChatModal({
     }
   };
 
-  const removeMember = (itemToRemove) => {
-    setAddedMembers(addedMembers.filter((member) => member !== itemToRemove));
+  const removeMember = (memberToRemove) => {
+    setAddedMembers(addedMembers.filter((member) => member !== memberToRemove));
   };
 
   return (
@@ -117,7 +114,7 @@ export default function CreateGroupChatModal({
           <div className='added-group-members-container'>
             {addedMembers.map((addedMember, index) => (
               <div className='added-group-member' key={index}>
-                <div>{addedMember}</div>
+                <div>{addedMember.username}</div>
                 <div
                   className='remove-group-member-button'
                   onClick={() => removeMember(addedMember)}

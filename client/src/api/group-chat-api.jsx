@@ -1,4 +1,4 @@
-async function createGroupChat(loggedInUserId, groupName, addedMembersUserIds) {
+async function createGroupChat(loggedInUserId, groupName, addedMembers) {
   try {
     if (groupName) {
       const response = await fetch('http://localhost:8080/groups', {
@@ -9,7 +9,7 @@ async function createGroupChat(loggedInUserId, groupName, addedMembersUserIds) {
         body: JSON.stringify({
           loggedInUserId: loggedInUserId,
           groupName: groupName,
-          addedMembersUserIds: addedMembersUserIds,
+          addedMembers: addedMembers,
         }),
         credentials: 'include',
       });

@@ -7,14 +7,14 @@ const createGroupChat = async (req, res) => {
   try {
     const ownerUserId = req.body.loggedInUserId;
     const groupName = req.body.groupName;
-    const addedMembersUserIds = req.body.addedMembersUserIds;
+    const addedMembers = req.body.addedMembers;
     const room = uuidv4();
 
     const result = await Group.insertNewGroupChat(ownerUserId, groupName, room);
 
     // Add members to the group chat concurrently
-    const insertPromises = addedMembersUserIds.map((userId) =>
-      GroupMembers.insertGroupMember(result.group_id, userId, 'member')
+    const insertPromises = addedMembers.map((user) =>
+      GroupMembers.insertGroupMember(result.group_id, user.userId, 'member')
     );
 
     const results = await Promise.allSettled(insertPromises);
