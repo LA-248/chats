@@ -1,5 +1,4 @@
 import { useContext } from 'react';
-import { ChatContext } from '../../contexts/ChatContext';
 import { UserContext } from '../../contexts/UserContext';
 import useBlockAndUnblock from '../../hooks/useBlockAndUnblock';
 import Modal from './ModalTemplate';
@@ -12,7 +11,6 @@ export default function ContactInfoModal({
   errorMessage,
   setErrorMessage,
 }) {
-  const { selectedChat } = useContext(ChatContext);
   const { isBlocked, setIsBlocked } = useContext(UserContext);
   const { handleBlockAndUnblock } = useBlockAndUnblock({
     activeChat: activeChat,
@@ -46,9 +44,7 @@ export default function ContactInfoModal({
           alt='Profile avatar'
           style={{ height: '100px', width: '100px' }}
         ></img>
-        <div className='recipient-username'>
-          {selectedChat || activeChat.name}
-        </div>
+        <div className='recipient-username'>{activeChat.name}</div>
       </div>
 
       <div className='modal-action-buttons-container'>

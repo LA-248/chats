@@ -11,7 +11,7 @@ import ChatItem from './ChatItem';
 import useClearErrorMessage from '../../hooks/useClearErrorMessage';
 import { useSocketErrorHandling } from '../../hooks/useSocketErrorHandling';
 
-export default function ChatList({ setSelectedChat, setRecipientUsername }) {
+export default function ChatList({ setRecipientUsername }) {
   const socket = useSocket();
   const {
     chatSearchInputText,
@@ -28,7 +28,6 @@ export default function ChatList({ setSelectedChat, setRecipientUsername }) {
 
   const handleChatClick = async (chat) => {
     setActiveChatRoom(chat.room);
-    setSelectedChat(chat.recipient_username);
     setRecipientUsername(chat.recipient_username);
     navigate(`/chats/${chat.room}/${chat.recipient_username}`);
     if (chat.read === false) {

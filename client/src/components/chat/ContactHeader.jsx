@@ -14,7 +14,7 @@ export default function ContactHeader() {
   const navigate = useNavigate();
   const { room, username } = useParams();
   const { setIsBlocked } = useContext(UserContext);
-  const { activeChatInfo, setActiveChatInfo, selectedChat, setActiveChatRoom } =
+  const { activeChatInfo, setActiveChatInfo, setActiveChatRoom } =
     useContext(ChatContext);
   const {
     messages,
@@ -56,7 +56,6 @@ export default function ContactHeader() {
   }, [
     room,
     username,
-    selectedChat,
     setActiveChatInfo,
     setIsBlocked,
     setRecipientUsername,
