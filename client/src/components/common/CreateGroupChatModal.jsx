@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { getRecipientUserIdByUsername } from '../../api/user-api';
-import { addGroupMember, createGroupChat } from '../../api/group-chat-api';
+import { createGroupChat } from '../../api/group-chat-api';
 import Modal from './ModalTemplate';
 
 export default function CreateGroupChatModal({
@@ -60,14 +60,10 @@ export default function CreateGroupChatModal({
         throw new Error('You must add at least one member to your group');
       }
 
-      // TODO: This code doesn't correctly send each added user's id
-      for (let i = 0; i < addedMembersUserIds.length; i++) {
-        await addGroupMember(groupName, addedMembersUserIds[i], 'Member');
-      }
-
-      await createGroupChat(loggedInUserId, groupName);
+      await createGroupChat(loggedInUserId, groupName, addedMembersUserIds);
       setGroupName('');
       setAddedMembers([]);
+      setAddedMembersUserIds([]);
       setIsModalOpen(false);
     } catch (error) {
       setIsModalOpen(true);

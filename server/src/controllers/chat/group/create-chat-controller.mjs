@@ -7,10 +7,17 @@ const createGroupChat = async (req, res) => {
   try {
     const ownerUserId = req.body.loggedInUserId;
     const groupName = req.body.groupName;
+    const addedMembersUserIds = req.body.addedMembersUserIds;
     const room = uuidv4();
 
     const result = await Group.insertNewGroupChat(ownerUserId, groupName, room);
-    await addGroupMember(req, res, result.group_id);
+    for (let i = 0; i < addedMembersUserIds.length; i++) {
+      await GroupMembers.insertGroupMember(
+        result.group_id,
+        addedMembersUserIds[i],
+        'member'
+      );
+    }
 
     // Send the updated chat list to the frontend
     return res.status(200).json({ updatedChatList: 'Group created' });
@@ -22,17 +29,4 @@ const createGroupChat = async (req, res) => {
   }
 };
 
-const addGroupMember = async (req, res, groupId) => {
-  try {
-    const userId = req.params.userId;
-    const role = req.body.role;
-
-    const result = await GroupMembers.insertGroupMember(groupId, userId, role);
-    console.log(result);
-  } catch (error) {
-    console.error('Error in addGroupMember:', error);
-    throw new Error('Failed to add group member');
-  }
-};
-
-export { createGroupChat, addGroupMember };
+export { createGroupChat };

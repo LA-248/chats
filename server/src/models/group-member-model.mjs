@@ -16,7 +16,7 @@ const GroupMembers = {
         (err) => {
           if (err) {
             return reject(
-              `Database error in group_members table: ${err.message}`
+              `Database error: Error creating group_members table: ${err.message}`
             );
           }
           return resolve();
@@ -35,9 +35,11 @@ const GroupMembers = {
           VALUES ($1, $2, $3)
         `,
         [groupId, userId, role],
-        (err, result) => {
+        (err) => {
           if (err) {
-            return reject(`Database error in group_members table: ${err.message}`);
+            return reject(
+              `Database error: Error inserting in group_members table: ${err.message}`
+            );
           }
           return resolve();
         }
