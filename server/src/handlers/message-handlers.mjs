@@ -21,6 +21,7 @@ const handleChatMessages = (socket, io) => {
 
       restoreRecipientChat(recipientId, room);
       broadcastMessage(io, room, username, message, senderId, newMessage);
+      broadcastChatListUpdate(io, room, message, newMessage);
     } catch (error) {
       if (
         error.message ===
@@ -172,7 +173,10 @@ const broadcastMessage = (
     id: newMessage.id,
     senderId: senderId,
   });
+};
 
+// Update the chat's preview info in the chat list for everyone in the room
+const broadcastChatListUpdate = (io, room, message, newMessage) => {
   io.to(room).emit('update-chat-list', {
     room: room,
     lastMessageContent: message,
