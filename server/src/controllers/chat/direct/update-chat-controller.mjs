@@ -21,7 +21,7 @@ const updateLastMessageId = async (req, res) => {
 
 const updateChatReadStatus = async (req, res) => {
   try {
-    const userId = req.session.passport.user;
+    const userId = req.user.user_id;
     const read = req.body.read;
     const room = req.params.room;
 
@@ -41,7 +41,7 @@ const updateChatReadStatus = async (req, res) => {
 // Delete a chat from a user's chat list
 const deleteChat = async (req, res) => {
   try {
-    const userId = req.session.passport.user;
+    const userId = req.user.user_id;
     const room = req.body.room;
 
     const deleteChatStatus = await PrivateChat.updateChatDeletionStatus(

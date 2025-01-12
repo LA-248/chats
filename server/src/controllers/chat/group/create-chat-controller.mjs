@@ -2,6 +2,7 @@ import { GroupMembers } from '../../../models/group-member-model.mjs';
 import { Group } from '../../../models/group-model.mjs';
 import { v4 as uuidv4 } from 'uuid';
 
+// TODO: Break up into smaller functions
 // Handle adding a group chat
 const createGroupChat = async (req, res) => {
   try {

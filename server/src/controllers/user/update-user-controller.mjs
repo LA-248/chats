@@ -4,7 +4,7 @@ import { createPresignedUrl } from '../../services/s3/s3-presigned-url.mjs';
 
 const uploadProfilePicture = async (req, res) => {
   try {
-    const userId = req.session.passport.user;
+    const userId = req.user.user_id;
 
     // Delete previous profile picture from S3 storage
     const fileName = await User.getUserProfilePicture(userId);
@@ -32,7 +32,7 @@ const uploadProfilePicture = async (req, res) => {
 
 const updateUsernameById = async (req, res) => {
   try {
-    const userId = req.session.passport.user;
+    const userId = req.user.user_id;
     const username = req.body.username;
     await User.updateUsernameById(username, userId);
     res.status(200).json({ success: 'Username updated successfully' });
@@ -47,7 +47,7 @@ const updateUsernameById = async (req, res) => {
 // Update a user's list of blocked users
 const updateBlockedUsers = async (req, res) => {
   try {
-    const userId = req.session.passport.user;
+    const userId = req.user.user_id;
     const blockedUserIds = req.body.blockedUserIds;
     await User.updateBlockedUsersById(blockedUserIds, userId);
     res.status(200).json({ success: 'Block list successfully updated' });

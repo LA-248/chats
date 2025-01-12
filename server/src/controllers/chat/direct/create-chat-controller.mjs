@@ -41,14 +41,14 @@ const addChat = async (req, res) => {
 
 const getChatRoomData = async (req) => {
   const username = req.body.recipientName;
-  const user = await User.getUserByUsername(username);
+  const user = await User.getUserProfileByUsername(username);
   // If there are no rows, the user does not exist
   if (!user) {
     throw new Error(
       'User does not exist. Make sure that the username is correct.'
     );
   }
-  const senderId = req.session.passport.user;
+  const senderId = req.user.user_id;
   const recipientId = req.body.recipientId;
 
   // Ensure the room is the same for both users by sorting the user IDs

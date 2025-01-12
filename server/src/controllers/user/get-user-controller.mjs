@@ -3,16 +3,17 @@ import { createPresignedUrl } from '../../services/s3/s3-presigned-url.mjs';
 
 const retrieveLoggedInUserDataById = async (req, res) => {
   try {
-    const userId = req.session.passport.user;
-    const user = await User.getUserById(userId);
+    const userId = req.user.user_id;
+    const username = req.user.username;
+    const profilePicture = req.user.profile_picture;
 
-    const profilePictureUrl = user.profile_picture
-      ? await createPresignedUrl(process.env.BUCKET_NAME, user.profile_picture)
+    const profilePictureUrl = profilePicture
+      ? await createPresignedUrl(process.env.BUCKET_NAME, profilePicture)
       : null;
 
     res.status(200).json({
-      userId: user.user_id,
-      username: user.username,
+      userId: userId,
+      username: username,
       profilePicture: profilePictureUrl,
     });
   } catch (error) {
@@ -70,7 +71,7 @@ const retrieveIdByUsername = async (req, res) => {
 
 const retrieveBlockListById = async (req, res) => {
   try {
-    const userId = req.session.passport.user;
+    const userId = req.user.user_id;
     const blockList = await User.getBlockListById(userId);
     res.status(200).json({ blockList: blockList });
   } catch (error) {
