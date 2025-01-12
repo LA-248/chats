@@ -21,10 +21,10 @@ const retrieveLoggedInUserDataById = async (req, res) => {
   }
 };
 
-const retrieveUserByUsername = async (req, res) => {
+const retrieveUserProfileByUsername = async (req, res) => {
   try {
     const username = req.params.username;
-    const user = await User.getUserByUsername(username);
+    const user = await User.getUserProfileByUsername(username);
 
     if (!user) {
       console.error('User does not exist');
@@ -81,7 +81,7 @@ const retrieveBlockListById = async (req, res) => {
 
 export {
   retrieveLoggedInUserDataById,
-  retrieveUserByUsername,
+  retrieveUserProfileByUsername,
   retrieveIdByUsername,
   retrieveBlockListById,
 };

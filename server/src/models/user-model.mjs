@@ -126,6 +126,24 @@ const User = {
     });
   },
 
+  getUserProfileByUsername: function (username) {
+    return new Promise((resolve, reject) => {
+      pool.query(
+        `SELECT user_id, username, profile_picture, blocked_users FROM users WHERE username = $1`,
+        [username],
+        (err, result) => {
+          if (err) {
+            return reject(`Database error in users table: ${err.message}`);
+          }
+          if (result.rows.length === 0) {
+            return resolve(null);
+          }
+          return resolve(result.rows[0]);
+        }
+      );
+    });
+  },
+
   getIdByUsername: function (username) {
     return new Promise((resolve, reject) => {
       pool.query(
