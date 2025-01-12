@@ -9,7 +9,6 @@ import ContactInfoModal from '../chat/ContactInfoModal';
 import formatDate from '../../utils/DateTimeFormat';
 
 export default function MessageList({
-  filteredMessages,
   room,
   hoveredIndex,
   setHoveredIndex,
@@ -21,8 +20,12 @@ export default function MessageList({
   const socket = useSocket();
   const { activeChatInfo } = useContext(ChatContext);
   const { loggedInUserId, profilePicture } = useContext(UserContext);
-  const { setMessages, setCurrentMessage, messageSearchValueText } =
-    useContext(MessageContext);
+  const {
+    setMessages,
+    setCurrentMessage,
+    messageSearchValueText,
+    filteredMessages,
+  } = useContext(MessageContext);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 

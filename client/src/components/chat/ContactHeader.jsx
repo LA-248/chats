@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { ChatContext } from '../../contexts/ChatContext';
 import { MessageContext } from '../../contexts/MessageContext';
 import { UserContext } from '../../contexts/UserContext';
@@ -10,9 +10,8 @@ import MessageSearch from '../message/MessageSearch';
 import ContactInfoModal from './ContactInfoModal';
 import useClearErrorMessage from '../../hooks/useClearErrorMessage';
 
-export default function ContactHeader() {
+export default function ContactHeader({ room, username }) {
   const navigate = useNavigate();
-  const { room, username } = useParams();
   const { setIsBlocked } = useContext(UserContext);
   const { activeChatInfo, setActiveChatInfo, setActiveChatRoom } =
     useContext(ChatContext);
@@ -34,22 +33,15 @@ export default function ContactHeader() {
       try {
         const recipientInfo = await getRecipientInfo(room, username, navigate);
         const loggedInUserBlockList = await getBlockList();
-        handleRecipientInfoSuccess(recipientInfo, loggedInUserBlockList);
+        setActiveChatInfo(recipientInfo);
+        setIsBlocked(loggedInUserBlockList.includes(recipientInfo.userId));
+        setRecipientProfilePicture(recipientInfo.profilePicture);
+        setRecipientUsername(recipientInfo.username);
+        setRecipientId(recipientInfo.userId);
+        setActiveChatRoom(room);
       } catch (error) {
         setErrorMessage(error.message);
       }
-    };
-
-    const handleRecipientInfoSuccess = (
-      recipientInfo,
-      loggedInUserBlockList
-    ) => {
-      setActiveChatInfo(recipientInfo);
-      setIsBlocked(loggedInUserBlockList.includes(recipientInfo.userId));
-      setRecipientProfilePicture(recipientInfo.profilePicture);
-      setRecipientUsername(recipientInfo.username);
-      setRecipientId(recipientInfo.userId);
-      setActiveChatRoom(room);
     };
 
     retrieveRecipientContactInfo();

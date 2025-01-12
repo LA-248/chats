@@ -10,8 +10,8 @@ import DeleteMessageModal from '../message/DeleteMessageModal';
 import EditMessageModal from '../message/EditMessageModal';
 
 function ChatView() {
-  const { filteredMessages, setMessages } = useContext(MessageContext);
-  const { room } = useParams(); // Extract room from URL
+  const { setMessages } = useContext(MessageContext);
+  const { room, username } = useParams();
   const socket = useSocket();
   const [messageId, setMessageId] = useState(null);
   const [messageIndex, setMessageIndex] = useState(false);
@@ -47,10 +47,9 @@ function ChatView() {
 
   return (
     <div className='chat-view-container'>
-      <ContactHeader />
+      <ContactHeader room={room} username={username} />
 
       <MessageList
-        filteredMessages={filteredMessages}
         room={room}
         hoveredIndex={hoveredIndex}
         setHoveredIndex={setHoveredIndex}
