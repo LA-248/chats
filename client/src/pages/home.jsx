@@ -50,7 +50,6 @@ export default function Home() {
         // Need to send cookies with the request
         withCredentials: true,
       });
-      socketInstance.emit('authenticate', loggedInUserId);
       setSocket(socketInstance);
 
       return () => socketInstance.disconnect();
