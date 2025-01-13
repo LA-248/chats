@@ -1,4 +1,5 @@
-import React, { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useSocket } from '../../hooks/useSocket';
 import { UserContext } from '../../contexts/UserContext';
 import { MessageContext } from '../../contexts/MessageContext';
@@ -17,6 +18,7 @@ export default function MessageList({
   setMessageId,
   setMessageIndex,
 }) {
+  const navigate = useNavigate();
   const socket = useSocket();
   const { activeChatInfo } = useContext(ChatContext);
   const { loggedInUserId, profilePicture } = useContext(UserContext);
@@ -59,7 +61,7 @@ export default function MessageList({
       )}
 
       {/* Only render the messages if the user is a part of the private chat */}
-      {room.includes(loggedInUserId) && (
+      {room.includes(loggedInUserId) ? (
         <div className='chat-content-container'>
           <div className='messages-container'>
             <ul id='messages'>
@@ -155,6 +157,8 @@ export default function MessageList({
             </div>
           ) : null}
         </div>
+      ) : (
+        navigate('/')
       )}
     </>
   );

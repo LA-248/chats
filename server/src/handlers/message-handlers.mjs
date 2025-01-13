@@ -29,7 +29,7 @@ const handleChatMessages = (socket, io) => {
       ) {
         callback(error.message);
       }
-      console.error(`Error sending message: ${error}`);
+      console.error(error.message);
       callback('Error sending message');
     }
   });
@@ -125,6 +125,11 @@ const saveMessageInDatabase = async (
   clientOffset
 ) => {
   try {
+    // Prevents unauthorized users from sending messages to chat rooms they are not a part of
+    if ([senderId, recipientId].sort().join('-') !== room) {
+      throw new Error('User is not authorized to send messages in this chat');
+    }
+
     const newMessage = await Message.insertNewMessage(
       message,
       senderId,
@@ -142,7 +147,7 @@ const saveMessageInDatabase = async (
         clientOffset
       );
     }
-    throw new Error('Error saving message:', error.message);
+    throw error;
   }
 };
 
