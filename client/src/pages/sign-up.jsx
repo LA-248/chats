@@ -15,6 +15,10 @@ export default function SignUp() {
       // Validate username and password
       if (username === '' || password === '') {
         throw new Error('Please ensure both fields are filled');
+      } else if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+        throw new Error(
+          'Username can only contain letters, numbers, and underscores'
+        );
       } else if (username.length < 2 || username.length > 30) {
         throw new Error('Username must be between 2 and 30 characters');
       } else if (password.length < 4 || password.length > 100) {
