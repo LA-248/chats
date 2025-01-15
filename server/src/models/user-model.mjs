@@ -96,7 +96,7 @@ const User = {
   getUserById: function (userId) {
     return new Promise((resolve, reject) => {
       pool.query(
-        `SELECT user_id, username, profile_picture FROM users WHERE user_id = $1`,
+        `SELECT user_id, username FROM users WHERE user_id = $1`,
         [userId],
         (err, result) => {
           if (err) {
