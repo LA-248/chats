@@ -1,10 +1,11 @@
 import { useContext, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { ChatContext } from '../../contexts/ChatContext';
 import { MessageContext } from '../../contexts/MessageContext';
 import { UserContext } from '../../contexts/UserContext';
 
 import { getRecipientInfo } from '../../api/private-chat-api';
+import { getGroupChatInfo } from '../../api/group-chat-api';
 import { getBlockList, updateBlockList } from '../../api/user-api';
 import MessageSearch from '../message/MessageSearch';
 import ContactInfoModal from './ContactInfoModal';
@@ -12,32 +13,38 @@ import useClearErrorMessage from '../../hooks/useClearErrorMessage';
 
 export default function ContactHeader({ room, username }) {
   const navigate = useNavigate();
+  const location = useLocation();
+  // Extract chat type from URL path
+  const pathSegments = location.pathname.split('/');
+  const chatType = pathSegments[1];
+
   const { setIsBlocked } = useContext(UserContext);
+  const { chatName, setChatName, setChatId } = useContext(ChatContext);
   const { activeChatInfo, setActiveChatInfo, setActiveChatRoom } =
     useContext(ChatContext);
-  const {
-    messages,
-    recipientUsername,
-    setRecipientUsername,
-    setRecipientId,
-    setFilteredMessages,
-  } = useContext(MessageContext);
-  const [recipientProfilePicture, setRecipientProfilePicture] = useState('');
+  const { messages, setFilteredMessages } = useContext(MessageContext);
+  const [chatPicture, setChatPicture] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
-    // Fetch info of a chat recipient to display in the contact header
-    // Plus, get the block list of the logged in user to determine if the recipient is blocked
+    // Fetch info of a private or group chat for display in the contact header
+    // Plus, for private chats, get the block list of the logged in user to determine if the recipient is blocked
     const retrieveRecipientContactInfo = async () => {
       try {
-        const recipientInfo = await getRecipientInfo(room, username, navigate);
+        const isPrivateChat = chatType === 'chats';
+        const chatInfo = isPrivateChat
+          ? await getRecipientInfo(room, username, navigate)
+          : await getGroupChatInfo(room);
         const loggedInUserBlockList = await getBlockList();
-        setActiveChatInfo(recipientInfo);
-        setIsBlocked(loggedInUserBlockList.includes(recipientInfo.userId));
-        setRecipientProfilePicture(recipientInfo.profilePicture);
-        setRecipientUsername(recipientInfo.username);
-        setRecipientId(recipientInfo.userId);
+        setIsBlocked(
+          isPrivateChat ? loggedInUserBlockList.includes(chatInfo.userId) : null
+        );
+        setActiveChatInfo(chatInfo);
+        setChatPicture(chatInfo.profilePicture);
+        // TODO: Find a better way to do the below
+        setChatName(isPrivateChat ? chatInfo.username : chatInfo.name);
+        setChatId(isPrivateChat ? chatInfo.userId : chatInfo.chatId);
         setActiveChatRoom(room);
       } catch (error) {
         setErrorMessage(error.message);
@@ -47,11 +54,12 @@ export default function ContactHeader({ room, username }) {
     retrieveRecipientContactInfo();
   }, [
     room,
+    chatType,
     username,
     setActiveChatInfo,
     setIsBlocked,
-    setRecipientUsername,
-    setRecipientId,
+    setChatName,
+    setChatId,
     setActiveChatRoom,
     navigate,
   ]);
@@ -65,7 +73,7 @@ export default function ContactHeader({ room, username }) {
           <div className='picture-and-name'>
             <img
               className='chat-pic'
-              src={recipientProfilePicture || '/images/default-avatar.jpg'}
+              src={chatPicture || '/images/default-avatar.jpg'}
               alt='Profile avatar'
               style={{ height: '35px', width: '35px' }}
             ></img>
@@ -73,7 +81,7 @@ export default function ContactHeader({ room, username }) {
               className='recipient-username'
               onClick={() => setIsModalOpen(true)}
             >
-              {recipientUsername}
+              {chatName}
             </div>
           </div>
 

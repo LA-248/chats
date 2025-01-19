@@ -1,8 +1,8 @@
 import { useContext, useEffect } from 'react';
-import { MessageContext } from '../contexts/MessageContext';
+import { ChatContext } from '../contexts/ChatContext';
 
 export default function useClearErrorMessage(errorMessage, setErrorMessage) {
-  const { recipientId } = useContext(MessageContext);
+  const { chatId } = useContext(ChatContext);
 
   useEffect(() => {
     if (errorMessage) {
@@ -17,5 +17,5 @@ export default function useClearErrorMessage(errorMessage, setErrorMessage) {
   // Clear error message when the user changes chat
   useEffect(() => {
     setErrorMessage('');
-  }, [recipientId, setErrorMessage]);
+  }, [chatId, setErrorMessage]);
 }

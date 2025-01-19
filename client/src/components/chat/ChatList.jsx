@@ -11,7 +11,7 @@ import ChatItem from './ChatItem';
 import useClearErrorMessage from '../../hooks/useClearErrorMessage';
 import { useSocketErrorHandling } from '../../hooks/useSocketErrorHandling';
 
-export default function ChatList({ setRecipientUsername }) {
+export default function ChatList({ setChatName }) {
   const socket = useSocket();
   const {
     chatSearchInputText,
@@ -28,8 +28,14 @@ export default function ChatList({ setRecipientUsername }) {
 
   const handleChatClick = async (chat) => {
     setActiveChatRoom(chat.room);
-    setRecipientUsername(chat.recipient_username);
-    navigate(`/chats/${chat.room}/${chat.recipient_username}`);
+    setChatName(chat.recipient_username);
+
+    if (chat.chat_type === 'private_chat') {
+      navigate(`/chats/${chat.room}/${chat.recipient_username}`);
+    } else {
+      navigate(`/groups/${chat.room}`);
+    }
+
     if (chat.read === false) {
       await updateReadStatus(true, chat.room);
     }
@@ -72,9 +78,9 @@ export default function ChatList({ setRecipientUsername }) {
     displayChatList();
   }, [setChatList]);
 
-  // Update chat list with latest content and time info on incoming messages, and sort it
   /* 
-  Also mark the chat as not deleted, which ensures the chat is added for the
+  Update chat list with latest content and time info on incoming messages, and sort it
+  Also mark the chat as not deleted, which ensures the chat is added for the -
   recipient if they had it marked as deleted
   */
   useEffect(() => {

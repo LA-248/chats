@@ -4,6 +4,7 @@ import { useParams } from 'react-router-dom';
 import { useSocket } from '../../hooks/useSocket';
 import { MessageContext } from '../../contexts/MessageContext';
 import { UserContext } from '../../contexts/UserContext';
+import { ChatContext } from '../../contexts/ChatContext';
 import useClearErrorMessage from '../../hooks/useClearErrorMessage';
 import data from '@emoji-mart/data';
 import Picker from '@emoji-mart/react';
@@ -11,7 +12,8 @@ import Picker from '@emoji-mart/react';
 export default function MessageInput() {
   const socket = useSocket();
   const { room } = useParams();
-  const { message, setMessage, recipientId } = useContext(MessageContext);
+  const { chatId } = useContext(ChatContext);
+  const { message, setMessage } = useContext(MessageContext);
   const { loggedInUsername, isBlocked } = useContext(UserContext);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -26,7 +28,7 @@ export default function MessageInput() {
       // Send the message and its metadata to the server
       socket.emit(
         'chat-message',
-        { username, recipientId, message, room },
+        { username, chatId, message, room },
         clientOffset,
         (response) => {
           if (response) {

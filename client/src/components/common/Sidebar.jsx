@@ -1,5 +1,4 @@
 import { useContext, useState } from 'react';
-import { MessageContext } from '../../contexts/MessageContext';
 import { ChatContext } from '../../contexts/ChatContext';
 import { UserContext } from '../../contexts/UserContext';
 import AddChatInput from '../chat/AddChatInput';
@@ -11,10 +10,10 @@ import UserProfile from '../user/UserProfile';
 export default function Sidebar() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
-  const { setRecipientUsername } = useContext(MessageContext);
   const { profilePicture, loggedInUsername, loggedInUserId } =
     useContext(UserContext);
-  const { chatList, setChatList, setActiveChatRoom } = useContext(ChatContext);
+  const { chatList, setChatName, setChatList, setActiveChatRoom } =
+    useContext(ChatContext);
 
   return (
     <div className='sidebar'>
@@ -69,7 +68,7 @@ export default function Sidebar() {
       )}
 
       <div className='chat-list-and-profile-container'>
-        <ChatList setRecipientUsername={setRecipientUsername} />
+        <ChatList setChatName={setChatName} />
         <UserProfile
           profilePicture={profilePicture}
           loggedInUsername={loggedInUsername}
