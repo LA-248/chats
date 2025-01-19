@@ -25,7 +25,7 @@ function App() {
                   <Route element={<ProtectedRoutes />}>
                     <Route path='/' element={<Home />}>
                       <Route
-                        path='/chats/:room/:username'
+                        path='/chats/:room'
                         element={<ChatView />}
                       />
                       <Route path='/groups/:room' element={<ChatView />} />

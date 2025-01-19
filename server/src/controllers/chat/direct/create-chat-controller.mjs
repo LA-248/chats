@@ -42,7 +42,7 @@ const addChat = async (req, res) => {
 
 const getChatRoomData = async (req) => {
   const username = req.body.recipientName;
-  const user = await User.getUserProfileByUsername(username);
+  const user = await User.getIdByUsername(username);
   // If there are no rows, the user does not exist
   if (!user) {
     throw new Error(

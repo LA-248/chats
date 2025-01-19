@@ -31,7 +31,7 @@ export default function ChatList({ setChatName }) {
     setChatName(chat.recipient_username);
 
     if (chat.chat_type === 'private_chat') {
-      navigate(`/chats/${chat.room}/${chat.recipient_username}`);
+      navigate(`/chats/${chat.room}`);
     } else {
       navigate(`/groups/${chat.room}`);
     }

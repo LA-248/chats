@@ -20,10 +20,10 @@ async function getChatListByUserId() {
   }
 }
 
-async function getRecipientInfo(room, username, navigate) {
+async function getRecipientInfo(room, navigate) {
   try {
     const response = await fetch(
-      `http://localhost:8080/chats/${room}/${username}`,
+      `http://localhost:8080/chats/${room}`,
       {
         method: 'GET',
         credentials: 'include',

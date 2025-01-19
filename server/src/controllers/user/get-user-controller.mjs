@@ -22,10 +22,12 @@ const retrieveLoggedInUserDataById = async (req, res) => {
   }
 };
 
-const retrieveUserProfileByUsername = async (req, res) => {
+const retrieveRecipientProfile = async (req, res) => {
   try {
-    const username = req.params.username;
-    const user = await User.getUserProfileByUsername(username);
+    const userId = req.user.user_id;
+    const room = req.params.room;
+    const user = await User.getRecipientUserProfile(userId, room);
+    console.log(user);
 
     if (!user) {
       console.error('User does not exist');
@@ -82,7 +84,7 @@ const retrieveBlockListById = async (req, res) => {
 
 export {
   retrieveLoggedInUserDataById,
-  retrieveUserProfileByUsername,
+  retrieveRecipientProfile,
   retrieveIdByUsername,
   retrieveBlockListById,
 };

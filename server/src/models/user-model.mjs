@@ -126,11 +126,23 @@ const User = {
     });
   },
 
-  getUserProfileByUsername: function (username) {
+  getRecipientUserProfile: function (userId, room) {
     return new Promise((resolve, reject) => {
       pool.query(
-        `SELECT user_id, username, profile_picture, blocked_users FROM users WHERE username = $1`,
-        [username],
+        `
+        SELECT
+          u.user_id,
+          u.username,
+          u.profile_picture,
+          u.blocked_users
+        FROM users u
+        JOIN private_chats pc ON u.user_id = CASE
+          WHEN pc.user1_id = $1 THEN pc.user2_id
+          ELSE pc.user1_id
+        END
+        WHERE pc.room = $2
+        `,
+        [userId, room],
         (err, result) => {
           if (err) {
             return reject(`Database error in users table: ${err.message}`);
@@ -152,6 +164,9 @@ const User = {
         (err, result) => {
           if (err) {
             return reject(`Database error in users table: ${err.message}`);
+          }
+          if (result.rows.length === 0) {
+            return resolve(null);
           }
           return resolve(result.rows[0]);
         }
