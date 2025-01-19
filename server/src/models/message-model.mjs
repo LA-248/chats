@@ -1,8 +1,6 @@
 import { pool } from '../../db/index.mjs';
 
 const Message = {
-  // INSERT OPERATIONS
-
   createMessagesTable: function () {
     return new Promise((resolve, reject) => {
       pool.query(
@@ -12,7 +10,7 @@ const Message = {
             sender_id INTEGER REFERENCES users(user_id) ON DELETE CASCADE,
             recipient_id INTEGER REFERENCES users(user_id) ON DELETE CASCADE,
             client_offset TEXT UNIQUE,
-            room TEXT REFERENCES private_chats(room),
+            room UUID NOT NULL,
             content TEXT DEFAULT NULL,
             event_time TIMESTAMPTZ DEFAULT NOW(),
             is_edited BOOLEAN DEFAULT FALSE,
@@ -28,6 +26,8 @@ const Message = {
       );
     });
   },
+
+  // INSERT OPERATIONS
 
   insertNewMessage: function (
     content,

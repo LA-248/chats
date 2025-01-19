@@ -12,7 +12,7 @@ const PrivateChat = {
             user1_id INTEGER REFERENCES users(user_id) ON DELETE CASCADE,
             user2_id INTEGER REFERENCES users(user_id) ON DELETE CASCADE,
             last_message_id INTEGER REFERENCES messages(message_id) ON DELETE SET NULL,
-            room TEXT UNIQUE NOT NULL,
+            room UUID UNIQUE NOT NULL,
             created_at TIMESTAMPTZ DEFAULT NOW(),
             updated_at TIMESTAMPTZ DEFAULT NOW(),
             user1_deleted BOOLEAN DEFAULT TRUE,
@@ -59,9 +59,9 @@ const PrivateChat = {
 
   // READ OPERATIONS
 
-  // Retrieve a user's chat list and sort it by timestamp
+  // Retrieve all private chats for a user and sort it by timestamp
   // Use a CASE expression to dynamically identify the other user involved in the chat for any given user
-  retrieveChatListByUserId: function (userId) {
+  retrievePrivateChatsByUserId: function (userId) {
     return new Promise((resolve, reject) => {
       pool.query(
         `
@@ -104,6 +104,25 @@ const PrivateChat = {
             );
           }
           return resolve(result.rows);
+        }
+      );
+    });
+  },
+
+  retrievePrivateChatMembersByRoom: function (room) {
+    return new Promise((resolve, reject) => {
+      pool.query(
+        `
+        SELECT user1_id, user2_id FROM private_chats WHERE room = $1
+        `,
+        [room],
+        (err, result) => {
+          if (err) {
+            return reject(
+              `Database error in private_chats table: ${err.message}`
+            );
+          }
+          return resolve(result.rows[0]);
         }
       );
     });

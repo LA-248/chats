@@ -4,32 +4,31 @@ import isSenderBlocked from '../utils/check-blocked-status.mjs';
 
 const handleChatMessages = (socket, io) => {
   socket.on('chat-message', async (data, clientOffset, callback) => {
-    const { username, recipientId, message, room } = data;
+    const { username, chatId, message, room } = data;
     const senderId = socket.handshake.session.passport.user;
 
     try {
       // Check if sender is blocked
-      await checkIfBlocked(recipientId, senderId);
+      await checkIfBlocked(chatId, senderId);
 
       const newMessage = await saveMessageInDatabase(
         message,
         senderId,
-        recipientId,
+        chatId,
         room,
         clientOffset
       );
 
-      restoreRecipientChat(recipientId, room);
+      restoreRecipientChat(chatId, room);
       broadcastMessage(io, room, username, message, senderId, newMessage);
       broadcastChatListUpdate(io, room, message, newMessage);
     } catch (error) {
-      if (
-        error.message ===
-        'You cannot send messages to this user because they have you blocked'
-      ) {
-        callback(error.message);
+      if (error.message === 'Sender is blocked by the recipient') {
+        callback(
+          'You cannot send messages to this user because they have you blocked'
+        );
       }
-      console.error(error.message);
+      console.error('Error sending message:', error.message);
       callback('Error sending message');
     }
   });
@@ -107,39 +106,40 @@ const formatMessage = (message) => ({
   isEdited: message.is_edited,
 });
 
-const checkIfBlocked = async (recipientId, senderId) => {
+const checkIfBlocked = async (chatId, senderId) => {
   try {
-    await isSenderBlocked(recipientId, senderId);
+    await isSenderBlocked(chatId, senderId);
   } catch (error) {
-    throw new Error(
-      'You cannot send messages to this user because they have you blocked'
-    );
+    throw error;
   }
 };
 
 const saveMessageInDatabase = async (
   message,
   senderId,
-  recipientId,
+  chatId,
   room,
   clientOffset
 ) => {
   try {
-    // Prevents unauthorized users from sending messages to chat rooms they are not a part of
-    if ([senderId, recipientId].sort().join('-') !== room) {
-      throw new Error('User is not authorized to send messages in this chat');
-    }
+    // Prevent unauthorised users from sending messages to chat rooms they are not a part of
+    const privateChatMembers =
+      await PrivateChat.retrievePrivateChatMembersByRoom(room);
 
-    const newMessage = await Message.insertNewMessage(
-      message,
-      senderId,
-      recipientId,
-      room,
-      clientOffset
-    );
-    await PrivateChat.updateReadStatus(recipientId, false, room);
-    await PrivateChat.updateLastMessage(newMessage.id, room);
-    return newMessage;
+    if (Object.values(privateChatMembers).includes(senderId)) {
+      const newMessage = await Message.insertNewMessage(
+        message,
+        senderId,
+        chatId,
+        room,
+        clientOffset
+      );
+      await PrivateChat.updateReadStatus(chatId, false, room);
+      await PrivateChat.updateLastMessage(newMessage.id, room);
+      return newMessage;
+    } else {
+      throw new Error('User is not authorised to send messages in this chat');
+    }
   } catch (error) {
     if (error.errno === 19) {
       console.error(
@@ -147,18 +147,19 @@ const saveMessageInDatabase = async (
         clientOffset
       );
     }
+    console.error('Error saving message in database:', error);
     throw error;
   }
 };
 
 // Mark the recipient's chat as not deleted in the database on incoming message if it was previously marked as deleted
-const restoreRecipientChat = async (recipientId, room) => {
+const restoreRecipientChat = async (chatId, room) => {
   const isNotInChatList = await PrivateChat.retrieveChatDeletionStatus(
-    recipientId,
+    chatId,
     room
   );
   if (isNotInChatList.user_deleted === true) {
-    await PrivateChat.updateChatDeletionStatus(recipientId, false, room);
+    await PrivateChat.updateChatDeletionStatus(chatId, false, room);
   }
 };
 

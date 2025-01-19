@@ -1,6 +1,7 @@
 import { PrivateChat } from '../../../models/private-chat-model.mjs';
 import { User } from '../../../models/user-model.mjs';
 import { getChatListByUserId } from './get-chat-controller.mjs';
+import { v4 as uuidv4 } from 'uuid';
 
 // Handle adding a chat (new or previously added but deleted) to a user's chat list
 const addChat = async (req, res) => {
@@ -52,7 +53,7 @@ const getChatRoomData = async (req) => {
   const recipientId = req.body.recipientId;
 
   // Ensure the room is the same for both users by sorting the user IDs
-  const room = [senderId, recipientId].sort().join('-');
+  const room = uuidv4();
 
   return { senderId, recipientId, room };
 };
