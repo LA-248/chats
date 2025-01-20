@@ -60,7 +60,7 @@ function ChatView() {
       />
 
       <div className='message-form-container'>
-        <MessageInput />
+        <MessageInput key={room} />
       </div>
 
       <DeleteMessageModal

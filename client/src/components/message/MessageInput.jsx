@@ -2,7 +2,6 @@ import { v4 as uuidv4 } from 'uuid';
 import { useContext, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useSocket } from '../../hooks/useSocket';
-import { MessageContext } from '../../contexts/MessageContext';
 import { UserContext } from '../../contexts/UserContext';
 import { ChatContext } from '../../contexts/ChatContext';
 import useClearErrorMessage from '../../hooks/useClearErrorMessage';
@@ -13,8 +12,8 @@ export default function MessageInput() {
   const socket = useSocket();
   const { room } = useParams();
   const { chatId } = useContext(ChatContext);
-  const { message, setMessage } = useContext(MessageContext);
   const { loggedInUsername, isBlocked } = useContext(UserContext);
+  const [message, setMessage] = useState('');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const username = loggedInUsername;
