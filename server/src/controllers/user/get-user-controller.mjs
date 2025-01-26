@@ -27,7 +27,6 @@ const retrieveRecipientProfile = async (req, res) => {
     const userId = req.user.user_id;
     const room = req.params.room;
     const user = await User.getRecipientUserProfile(userId, room);
-    console.log(user);
 
     if (!user) {
       console.error('User does not exist');
