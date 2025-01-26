@@ -1,5 +1,5 @@
 import express from 'express';
-import { requireAuth } from '../middlewares/auth-middleware.mjs';
+import { requireAuth, roomAuth } from '../middlewares/auth-middleware.mjs';
 import { retrieveRecipientProfile } from '../controllers/user/get-user-controller.mjs';
 
 import { getChatList } from '../controllers/chat/direct/get-chat-controller.mjs';
@@ -15,9 +15,9 @@ privateChatsRouter.use(requireAuth);
 
 privateChatsRouter.post('/', addChat);
 privateChatsRouter.get('/', getChatList);
-privateChatsRouter.get('/:room', retrieveRecipientProfile);
-privateChatsRouter.put('/', updateLastMessageId);
-privateChatsRouter.put('/:room/read_status', updateChatReadStatus);
-privateChatsRouter.delete('/', deleteChat);
+privateChatsRouter.get('/:room', roomAuth, retrieveRecipientProfile);
+privateChatsRouter.put('/:room/last_message', updateLastMessageId);
+privateChatsRouter.put('/:room/read_status', roomAuth, updateChatReadStatus);
+privateChatsRouter.delete('/:room', deleteChat);
 
 export default privateChatsRouter;

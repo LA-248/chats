@@ -22,17 +22,15 @@ async function getChatListByUserId() {
 
 async function getRecipientInfo(room, navigate) {
   try {
-    const response = await fetch(
-      `http://localhost:8080/chats/${room}`,
-      {
-        method: 'GET',
-        credentials: 'include',
-      }
-    );
+    const response = await fetch(`http://localhost:8080/chats/${room}`, {
+      method: 'GET',
+      credentials: 'include',
+    });
     const data = await response.json();
 
     // Redirect user to homepage if they try to access a chat via the URL with a user that does not exist
-    if (response.status === 302) {
+    // or they try to access a room that they are not a part of
+    if (response.status === 401 || response.status === 404) {
       navigate(data.redirectPath);
     }
     if (!response.ok) {
@@ -93,14 +91,17 @@ async function addChat(inputUsername, chatList) {
 // Ensures the correct latest message is shown in the chat list
 async function updateLastMessageId(messageId, room) {
   try {
-    const response = await fetch('http://localhost:8080/chats', {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ messageId: messageId, room: room }),
-      credentials: 'include',
-    });
+    const response = await fetch(
+      `http://localhost:8080/chats/${room}/last_message`,
+      {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ messageId: messageId }),
+        credentials: 'include',
+      }
+    );
 
     if (!response.ok) {
       const errorResponse = await response.json();
@@ -137,12 +138,11 @@ async function updateReadStatus(read, room) {
 // Delete a chat from the user's chat list
 async function deleteChat(room) {
   try {
-    const response = await fetch('http://localhost:8080/chats', {
+    const response = await fetch(`http://localhost:8080/chats/${room}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ room: room }),
       credentials: 'include',
     });
 

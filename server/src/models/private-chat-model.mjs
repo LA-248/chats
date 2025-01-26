@@ -122,6 +122,9 @@ const PrivateChat = {
               `Database error in private_chats table: ${err.message}`
             );
           }
+          if (result.rows.length === 0) {
+            return resolve(null);
+          }
           return resolve(result.rows[0]);
         }
       );
