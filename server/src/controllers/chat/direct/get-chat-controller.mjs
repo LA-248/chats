@@ -1,10 +1,10 @@
-import { PrivateChat } from '../../../models/private-chat-model.mjs';
+import { Chat } from '../../../models/chat-list-model.mjs';
 import { generatePresignedUrlsForChatList } from '../../../services/s3/s3-presigned-url.mjs';
 
 // Fetch the chat list of a specific user
 const getChatList = async (req, res) => {
   try {
-    const userId = req.session.passport.user;
+    const userId = req.user.user_id;
     const chatList = await getChatListByUserId(userId);
 
     // Send user's chat list data to the frontend so it can be displayed in the UI
@@ -21,7 +21,7 @@ const getChatList = async (req, res) => {
 };
 
 const getChatListByUserId = async (userId) => {
-  const chatList = await PrivateChat.retrieveChatListByUserId(userId);
+  const chatList = await Chat.retrieveAllChats(userId);
   await generatePresignedUrlsForChatList(chatList);
   return chatList;
 };
