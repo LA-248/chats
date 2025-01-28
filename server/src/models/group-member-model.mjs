@@ -46,6 +46,31 @@ const GroupMembers = {
       );
     });
   },
+
+  // READ OPERATIONS
+
+  retrieveGroupChatMembersByRoom: function (room) {
+    return new Promise((resolve, reject) => {
+      pool.query(
+        `
+        SELECT
+          gm.user_id
+        FROM group_members gm
+        JOIN groups g ON g.group_id = gm.group_id
+        WHERE g.room = $1
+        `,
+        [room],
+        (err, result) => {
+          if (err) {
+            return reject(
+              `Database error in group_members table: ${err.message}`
+            );
+          }
+          return resolve(result.rows);
+        }
+      );
+    });
+  },
 };
 
 export { GroupMembers };

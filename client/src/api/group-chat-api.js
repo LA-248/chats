@@ -30,4 +30,25 @@ async function createGroupChat(loggedInUserId, groupName, addedMembers) {
   }
 }
 
-export { createGroupChat };
+async function getGroupChatInfo(room) {
+  try {
+    const response = await fetch(`http://localhost:8080/groups/${room}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+    });
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error);
+    }
+
+    return data;
+  } catch (error) {
+    throw error;
+  }
+}
+
+export { createGroupChat, getGroupChatInfo };

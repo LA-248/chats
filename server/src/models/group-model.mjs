@@ -10,7 +10,7 @@ const Group = {
             owner_user_id INTEGER REFERENCES users(user_id) ON DELETE SET NULL,
             name TEXT,
             group_picture TEXT,
-            room TEXT NOT NULL,
+            room UUID UNIQUE NOT NULL,
             created_at TIMESTAMPTZ DEFAULT NOW()
           )
         `,
