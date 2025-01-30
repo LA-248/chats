@@ -4,7 +4,7 @@ import { Link, Outlet, useLocation } from 'react-router-dom';
 
 import { ChatContext } from '../contexts/ChatContext.jsx';
 import { UserContext } from '../contexts/UserContext.jsx';
-import { getLoggedInUserData } from '../api/user-api.jsx';
+import { getLoggedInUserData } from '../api/user-api.js';
 import Sidebar from '../components/common/Sidebar.jsx';
 import ChatWindowPlaceholder from '../components/chat/ChatWindowPlaceholder.jsx';
 
