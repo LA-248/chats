@@ -8,7 +8,7 @@ import { Message } from '../src/models/message-model.mjs';
 import { Session } from '../src/models/session-model.mjs';
 import { PrivateChat } from '../src/models/private-chat-model.mjs';
 import { Group } from '../src/models/group-model.mjs';
-import { GroupMembers } from '../src/models/group-member-model.mjs';
+import { GroupMember } from '../src/models/group-member-model.mjs';
 
 // Initialize a connection pool
 const pool = new Pool({
@@ -24,7 +24,7 @@ async function createTables() {
     await User.createUsersTable();
     await PrivateChat.createPrivateChatsTable();
     await Group.createGroupsTable();
-    await GroupMembers.createGroupMembersTable();
+    await GroupMember.createGroupMemberTable();
     await Message.createMessagesTable();
     await Session.createSessionsTable();
   } catch (error) {

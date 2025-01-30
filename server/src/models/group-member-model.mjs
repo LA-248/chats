@@ -1,7 +1,7 @@
 import { pool } from '../../db/index.mjs';
 
-const GroupMembers = {
-  createGroupMembersTable: function () {
+const GroupMember = {
+  createGroupMemberTable: function () {
     return new Promise((resolve, reject) => {
       pool.query(
         `
@@ -73,4 +73,4 @@ const GroupMembers = {
   },
 };
 
-export { GroupMembers };
+export { GroupMember };

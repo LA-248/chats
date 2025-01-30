@@ -1,4 +1,4 @@
-import { GroupMembers } from '../../../models/group-member-model.mjs';
+import { GroupMember } from '../../../models/group-member-model.mjs';
 import { Group } from '../../../models/group-model.mjs';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -15,7 +15,7 @@ const createGroupChat = async (req, res) => {
 
     // Add members to the group chat concurrently
     const insertPromises = addedMembers.map((user) =>
-      GroupMembers.insertGroupMember(result.group_id, user.userId, user.role)
+      GroupMember.insertGroupMember(result.group_id, user.userId, user.role)
     );
 
     const results = await Promise.allSettled(insertPromises);
