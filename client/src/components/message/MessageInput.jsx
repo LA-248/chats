@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import { useContext, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 import { useSocket } from '../../hooks/useSocket';
 import { UserContext } from '../../contexts/UserContext';
 import { ChatContext } from '../../contexts/ChatContext';
@@ -10,6 +10,10 @@ import Picker from '@emoji-mart/react';
 
 export default function MessageInput() {
   const socket = useSocket();
+  const location = useLocation();
+  const pathSegments = location.pathname.split('/');
+  const chatType = pathSegments[1];
+
   const { room } = useParams();
   const { chatId } = useContext(ChatContext);
   const { loggedInUsername, isBlocked } = useContext(UserContext);
@@ -20,14 +24,13 @@ export default function MessageInput() {
 
   const handleChatMessageSubmission = (event) => {
     event.preventDefault();
-
     if (message) {
       // Compute a unique offset
       const clientOffset = uuidv4();
       // Send the message and its metadata to the server
       socket.emit(
         'chat-message',
-        { username, chatId, message, room },
+        { username, chatId, message, room, chatType },
         clientOffset,
         (response) => {
           if (response) {
