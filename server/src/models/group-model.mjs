@@ -8,10 +8,14 @@ const Group = {
           CREATE TABLE IF NOT EXISTS groups (
             group_id SERIAL PRIMARY KEY,
             owner_user_id INTEGER REFERENCES users(user_id) ON DELETE SET NULL,
+            last_message_id INTEGER REFERENCES messages(message_id) ON DELETE SET NULL,
             name TEXT,
             group_picture TEXT,
             room UUID UNIQUE NOT NULL,
-            created_at TIMESTAMPTZ DEFAULT NOW()
+            deleted_for INTEGER[],
+            read_by INTEGER[],
+            created_at TIMESTAMPTZ DEFAULT NOW(),
+            updated_at TIMESTAMPTZ DEFAULT NOW()
           )
         `,
         (err) => {
@@ -91,6 +95,33 @@ const Group = {
             return reject(`Database error in groups table: ${err.message}`);
           }
           return resolve(result.rows[0]);
+        }
+      );
+    });
+  },
+
+  // UPDATE OPERATIONS
+
+  updateLastMessage: function (messageId, room) {
+    return new Promise((resolve, reject) => {
+      pool.query(
+        `
+        UPDATE groups
+        SET
+          last_message_id = $1,
+          updated_at = NOW()
+        WHERE room = $2
+        RETURNING *
+        `,
+        [messageId, room],
+        (err, result) => {
+          if (err) {
+            return reject(`Database error in groups table: ${err.message}`);
+          }
+          if (!result.rows[0]) {
+            return resolve(null);
+          }
+          return resolve();
         }
       );
     });

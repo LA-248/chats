@@ -1,6 +1,7 @@
+import { Group } from '../models/group-model.mjs';
+import { GroupMember } from '../models/group-member-model.mjs';
 import { PrivateChat } from '../models/private-chat-model.mjs';
 import { Message } from '../models/message-model.mjs';
-import { GroupMembers } from '../models/group-member-model.mjs';
 import isSenderBlocked from '../utils/check-blocked-status.mjs';
 
 const handleChatMessages = (socket, io) => {
@@ -130,10 +131,12 @@ const CHAT_HANDLERS = {
   },
   groups: {
     getMembers: async (room) => {
-      const members = await GroupMembers.retrieveGroupChatMembersByRoom(room);
+      const members = await GroupMember.retrieveGroupChatMembersByRoom(room);
       return members.map((member) => member.user_id);
     },
-    postInsert: () => {},
+    postInsert: async (newMessage, _chatId, room) => {
+      await Group.updateLastMessage(newMessage.id, room);
+    },
   },
 };
 

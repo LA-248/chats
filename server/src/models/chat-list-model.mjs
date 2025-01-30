@@ -44,9 +44,9 @@ const Chat = {
           NULL as recipient_user_id,
           g.name AS recipient_username,
           g.group_picture AS recipient_profile_picture,
-          NULL AS last_message_id,
-          NULL AS last_message_content,
-          NULL AS last_message_time,
+          g.last_message_id,
+          m.content AS last_message_content,
+          m.event_time AS last_message_time,
           g.room,
           NULL AS read,
           'group' AS chat_type,
@@ -55,6 +55,7 @@ const Chat = {
           FALSE AS user_deleted
         FROM groups g
         JOIN group_members gm ON g.group_id = gm.group_id
+        LEFT JOIN messages m ON g.last_message_id = m.message_id
         WHERE gm.user_id = $1
 
         ORDER BY last_message_time DESC NULLS LAST
