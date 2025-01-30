@@ -1,10 +1,11 @@
 import { PrivateChat } from '../models/private-chat-model.mjs';
 import { Message } from '../models/message-model.mjs';
+import { GroupMembers } from '../models/group-member-model.mjs';
 import isSenderBlocked from '../utils/check-blocked-status.mjs';
 
 const handleChatMessages = (socket, io) => {
   socket.on('chat-message', async (data, clientOffset, callback) => {
-    const { username, chatId, message, room } = data;
+    const { username, chatId, message, room, chatType } = data;
     const senderId = socket.handshake.session.passport.user;
 
     try {
@@ -16,10 +17,11 @@ const handleChatMessages = (socket, io) => {
         senderId,
         chatId,
         room,
+        chatType,
         clientOffset
       );
 
-      restoreRecipientChat(chatId, room);
+      restoreRecipientChat(chatId, room, chatType);
       broadcastMessage(io, room, username, message, senderId, newMessage);
       broadcastChatListUpdate(io, room, message, newMessage);
     } catch (error) {
@@ -28,7 +30,7 @@ const handleChatMessages = (socket, io) => {
           'You cannot send messages to this user because they have you blocked'
         );
       }
-      console.error('Error sending message:', error.message);
+      console.error('Error sending message:', error);
       callback('Error sending message');
     }
   });
@@ -114,33 +116,56 @@ const checkIfBlocked = async (chatId, senderId) => {
   }
 };
 
+// Handlers for chat-type-specific operations, allowing for polymorphic behaviour at runtime
+const CHAT_HANDLERS = {
+  chats: {
+    getMembers: async (room) => {
+      const members = await PrivateChat.retrievePrivateChatMembersByRoom(room);
+      return Object.values(members);
+    },
+    postInsert: async (newMessage, chatId, room) => {
+      await PrivateChat.updateReadStatus(chatId, false, room);
+      await PrivateChat.updateLastMessage(newMessage.id, room);
+    },
+  },
+  groups: {
+    getMembers: async (room) => {
+      const members = await GroupMembers.retrieveGroupChatMembersByRoom(room);
+      return members.map((member) => member.user_id);
+    },
+    postInsert: () => {},
+  },
+};
+
 const saveMessageInDatabase = async (
   message,
   senderId,
   chatId,
   room,
+  chatType,
   clientOffset
 ) => {
   try {
-    // Prevent unauthorised users from sending messages to chat rooms they are not a part of
-    const privateChatMembers =
-      await PrivateChat.retrievePrivateChatMembersByRoom(room);
+    const handler = CHAT_HANDLERS[chatType];
 
-    if (Object.values(privateChatMembers).includes(senderId)) {
-      const newMessage = await Message.insertNewMessage(
-        message,
-        senderId,
-        chatId,
-        room,
-        clientOffset
-      );
-      await PrivateChat.updateReadStatus(chatId, false, room);
-      await PrivateChat.updateLastMessage(newMessage.id, room);
-      return newMessage;
-    } else {
+    // Prevent unauthorised users from sending messages to chat rooms they are not a part of
+    const memberIds = await handler.getMembers(room);
+    if (!memberIds.includes(senderId)) {
       throw new Error('User is not authorised to send messages in this chat');
     }
+
+    const newMessage = await Message.insertNewMessage(
+      message,
+      senderId,
+      chatId,
+      room,
+      clientOffset
+    );
+    await handler.postInsert(newMessage, chatId, room);
+
+    return newMessage;
   } catch (error) {
+    // Error handling remains the same
     if (error.errno === 19) {
       console.error(
         'Message with this client offset already exists:',
@@ -153,13 +178,15 @@ const saveMessageInDatabase = async (
 };
 
 // Mark the recipient's chat as not deleted in the database on incoming message if it was previously marked as deleted
-const restoreRecipientChat = async (chatId, room) => {
-  const isNotInChatList = await PrivateChat.retrieveChatDeletionStatus(
-    chatId,
-    room
-  );
-  if (isNotInChatList.user_deleted === true) {
-    await PrivateChat.updateChatDeletionStatus(chatId, false, room);
+const restoreRecipientChat = async (chatId, room, chatType) => {
+  if (chatType === 'chats') {
+    const isNotInChatList = await PrivateChat.retrieveChatDeletionStatus(
+      chatId,
+      room
+    );
+    if (isNotInChatList.user_deleted === true) {
+      await PrivateChat.updateChatDeletionStatus(chatId, false, room);
+    }
   }
 };
 
