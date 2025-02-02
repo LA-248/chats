@@ -3,45 +3,45 @@ import { Outlet, Navigate } from 'react-router-dom';
 
 // Set up route protection - done by retrieving the auth status from the backend
 export default function ProtectedRoutes() {
-  const [authenticationStatus, setAuthenticationStatus] = useState(null);
-  const [error, setError] = useState(null);
+	const [authenticationStatus, setAuthenticationStatus] = useState(null);
+	const [error, setError] = useState(null);
 
-  useEffect(() => {
-    try {
-      const checkAuthStatus = async () => {
-        const response = await fetch('http://localhost:8080/auth/status', {
-          method: 'GET',
-          credentials: 'include',
-        });
+	useEffect(() => {
+		try {
+			const checkAuthStatus = async () => {
+				const response = await fetch('http://localhost:8080/auth/status', {
+					method: 'GET',
+					credentials: 'include',
+				});
 
-        if (!response.ok) {
-          throw new Error(
-            'There was an error retrieving the authentication status.'
-          );
-        }
+				if (!response.ok) {
+					throw new Error(
+						'There was an error retrieving the authentication status.'
+					);
+				}
 
-        const data = await response.json();
-        setAuthenticationStatus(data.authenticated);
-      };
+				const data = await response.json();
+				setAuthenticationStatus(data.authenticated);
+			};
 
-      checkAuthStatus();
-    } catch (error) {
-      console.error(error);
-      setError(error.message);
-    }
-  }, []);
+			checkAuthStatus();
+		} catch (error) {
+			console.error(error);
+			setError(error.message);
+		}
+	}, []);
 
-  if (error) {
-    return <div>{error}</div>;
-  }
+	if (error) {
+		return <div>{error}</div>;
+	}
 
-  if (authenticationStatus === null) {
-    return <div>Loading...</div>;
-  }
+	if (authenticationStatus === null) {
+		return <div>Loading...</div>;
+	}
 
-  if (authenticationStatus === true) {
-    return <Outlet />;
-  } else {
-    return <Navigate to='/login' />;
-  }
+	if (authenticationStatus === true) {
+		return <Outlet />;
+	} else {
+		return <Navigate to='/login' />;
+	}
 }

@@ -1,36 +1,36 @@
 function initialiseChatRooms(socket) {
-  let joinedRooms = [];
+	let joinedRooms = [];
 
-  socket.on('initialise-chat-rooms', (chatListData) => {
-    for (let i = 0; i < chatListData.length; i++) {
-      const room = chatListData[i].room;
-      if (!joinedRooms.includes(room)) {
-        joinedRooms.push(room);
-        socket.join(room);
-      }
-    }
-  });
+	socket.on('initialise-chat-rooms', (chatListData) => {
+		for (let i = 0; i < chatListData.length; i++) {
+			const room = chatListData[i].room;
+			if (!joinedRooms.includes(room)) {
+				joinedRooms.push(room);
+				socket.join(room);
+			}
+		}
+	});
 
-  socket.on('disconnect', () => {
-    for (let i = 0; i < joinedRooms.length; i++) {
-      socket.leave(joinedRooms[i]);
-    }
-  });
+	socket.on('disconnect', () => {
+		for (let i = 0; i < joinedRooms.length; i++) {
+			socket.leave(joinedRooms[i]);
+		}
+	});
 }
 
 // Store user-to-socket mappings in a hash map
 // This allows for socket connections to be associated with the correct user
 function manageSocketConnections(socket, userSockets) {
-  const userId = socket.handshake.session.passport.user;
-  userSockets.set(userId, socket.id);
+	const userId = socket.handshake.session.passport.user;
+	userSockets.set(userId, socket.id);
 
-  socket.on('disconnect', () => {
-    if (userSockets.get(userId) === socket.id) {
-      userSockets.delete(userId);
-    }
-  });
+	socket.on('disconnect', () => {
+		if (userSockets.get(userId) === socket.id) {
+			userSockets.delete(userId);
+		}
+	});
 
-  console.log(userSockets);
+	console.log(userSockets);
 }
 
 export { initialiseChatRooms, manageSocketConnections };

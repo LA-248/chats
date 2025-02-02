@@ -1,8 +1,8 @@
 import express from 'express';
 import { requireAuth } from '../middlewares/auth-middleware.mjs';
 import {
-  deleteMessageById,
-  editMessageById,
+	deleteMessageById,
+	editMessageById,
 } from '../controllers/message/update-message-controller.mjs';
 
 const messagesRouter = express.Router();

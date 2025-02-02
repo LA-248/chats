@@ -3,33 +3,33 @@ import handleModalOutsideClick from '../../utils/ModalOutsideClick';
 import useClearErrorMessage from '../../hooks/useClearErrorMessage';
 
 export default function Modal({
-  isModalOpen,
-  setIsModalOpen,
-  errorMessage,
-  setErrorMessage,
-  children,
+	isModalOpen,
+	setIsModalOpen,
+	errorMessage,
+	setErrorMessage,
+	children,
 }) {
-  const modalRef = useRef();
+	const modalRef = useRef();
 
-  useEffect(() => {
-    handleModalOutsideClick(modalRef, setIsModalOpen, isModalOpen);
-  }, [setIsModalOpen, isModalOpen]);
+	useEffect(() => {
+		handleModalOutsideClick(modalRef, setIsModalOpen, isModalOpen);
+	}, [setIsModalOpen, isModalOpen]);
 
-  useClearErrorMessage(errorMessage, setErrorMessage);
+	useClearErrorMessage(errorMessage, setErrorMessage);
 
-  if (!isModalOpen) {
-    return null;
-  }
+	if (!isModalOpen) {
+		return null;
+	}
 
-  return (
-    <div className='modal-overlay'>
-      <div className='modal-content' ref={modalRef}>
-        {children}
+	return (
+		<div className='modal-overlay'>
+			<div className='modal-content' ref={modalRef}>
+				{children}
 
-        {errorMessage ? (
-          <div className='error-message'>{errorMessage}</div>
-        ) : null}
-      </div>
-    </div>
-  );
+				{errorMessage ? (
+					<div className='error-message'>{errorMessage}</div>
+				) : null}
+			</div>
+		</div>
+	);
 }

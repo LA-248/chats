@@ -30,10 +30,10 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use(
-  cors({
-    origin: 'http://localhost:3000',
-    credentials: true,
-  })
+	cors({
+		origin: 'http://localhost:3000',
+		credentials: true,
+	})
 );
 
 configurePassport();
@@ -50,12 +50,12 @@ app.use('/messages', messagesRouter);
 
 // Set up a Socket.IO server
 const io = new Server(server, {
-  cors: {
-    origin: 'http://localhost:3000',
-    methods: ['GET', 'POST'],
-    credentials: true,
-  },
-  connectionStateRecovery: {},
+	cors: {
+		origin: 'http://localhost:3000',
+		methods: ['GET', 'POST'],
+		credentials: true,
+	},
+	connectionStateRecovery: {},
 });
 
 io.use(sharedSession(sessionMiddleware, { autoSave: true }));
@@ -67,5 +67,5 @@ console.log(result.rows[0]);
 createTables();
 
 server.listen(port, () => {
-  console.log(`Server running at http://localhost:${port}`);
+	console.log(`Server running at http://localhost:${port}`);
 });

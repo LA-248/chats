@@ -12,24 +12,24 @@ import { GroupMember } from '../src/models/group-member-model.mjs';
 
 // Initialize a connection pool
 const pool = new Pool({
-  user: process.env.USERNAME,
-  host: process.env.HOST,
-  database: process.env.DATABASE_NAME,
-  password: process.env.DATABASE_PASSWORD,
-  port: process.env.DATABASE_PORT,
+	user: process.env.USERNAME,
+	host: process.env.HOST,
+	database: process.env.DATABASE_NAME,
+	password: process.env.DATABASE_PASSWORD,
+	port: process.env.DATABASE_PORT,
 });
 
 async function createTables() {
-  try {
-    await User.createUsersTable();
-    await PrivateChat.createPrivateChatsTable();
-    await Group.createGroupsTable();
-    await GroupMember.createGroupMemberTable();
-    await Message.createMessagesTable();
-    await Session.createSessionsTable();
-  } catch (error) {
-    console.error('Error creating tables:', error);
-  }
+	try {
+		await User.createUsersTable();
+		await PrivateChat.createPrivateChatsTable();
+		await Group.createGroupsTable();
+		await GroupMember.createGroupMemberTable();
+		await Message.createMessagesTable();
+		await Session.createSessionsTable();
+	} catch (error) {
+		console.error('Error creating tables:', error);
+	}
 }
 
 export { pool, createTables };
