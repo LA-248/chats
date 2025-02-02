@@ -121,7 +121,7 @@ async function updateReadStatus(read, room) {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ read: read }),
+        body: JSON.stringify({ read }),
         credentials: 'include',
       }
     );

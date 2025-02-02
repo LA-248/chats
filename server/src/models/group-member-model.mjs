@@ -1,10 +1,10 @@
 import { pool } from '../../db/index.mjs';
 
 const GroupMember = {
-  createGroupMemberTable: function () {
-    return new Promise((resolve, reject) => {
-      pool.query(
-        `
+	createGroupMemberTable: function () {
+		return new Promise((resolve, reject) => {
+			pool.query(
+				`
           CREATE TABLE IF NOT EXISTS group_members (
             group_id INTEGER REFERENCES groups(group_id) ON DELETE CASCADE,
             user_id INTEGER REFERENCES users(user_id) ON DELETE CASCADE,
@@ -13,64 +13,67 @@ const GroupMember = {
             PRIMARY KEY (group_id, user_id)
           )
         `,
-        (err) => {
-          if (err) {
-            return reject(
-              `Database error: Error creating group_members table: ${err.message}`
-            );
-          }
-          return resolve();
-        }
-      );
-    });
-  },
+				(err) => {
+					if (err) {
+						return reject(
+							`Database error: Error creating group_members table: ${err.message}`
+						);
+					}
+					return resolve();
+				}
+			);
+		});
+	},
 
-  // INSERT OPERATIONS
+	// INSERT OPERATIONS
 
-  insertGroupMember: function (groupId, userId, role) {
-    return new Promise((resolve, reject) => {
-      pool.query(
-        `
+	insertGroupMember: function (groupId, userId, role) {
+		return new Promise((resolve, reject) => {
+			pool.query(
+				`
           INSERT INTO group_members (group_id, user_id, role)
           VALUES ($1, $2, $3)
         `,
-        [groupId, userId, role],
-        (err) => {
-          if (err) {
-            return reject(
-              `Database error: Error inserting in group_members table: ${err.message}`
-            );
-          }
-          return resolve();
-        }
-      );
-    });
-  },
+				[groupId, userId, role],
+				(err) => {
+					if (err) {
+						return reject(
+							`Database error: Error inserting in group_members table: ${err.message}`
+						);
+					}
+					return resolve();
+				}
+			);
+		});
+	},
 
-  // READ OPERATIONS
+	// READ OPERATIONS
 
-  retrieveGroupChatMembersByRoom: function (room) {
-    return new Promise((resolve, reject) => {
-      pool.query(
-        `
+	retrieveGroupChatMembersByRoom: function (room) {
+		return new Promise((resolve, reject) => {
+			pool.query(
+				`
         SELECT
           gm.user_id
         FROM group_members gm
         JOIN groups g ON g.group_id = gm.group_id
         WHERE g.room = $1
         `,
-        [room],
-        (err, result) => {
-          if (err) {
-            return reject(
-              `Database error in group_members table: ${err.message}`
-            );
-          }
-          return resolve(result.rows);
-        }
-      );
-    });
-  },
+				[room],
+				(err, result) => {
+					if (err) {
+						return reject(
+							`Database error in group_members table: ${err.message}`
+						);
+					}
+					if (result.rows.length === 0) {
+						return resolve(null);
+					}
+					return resolve(result.rows);
+				}
+			);
+		});
+	},
 };
 
 export { GroupMember };
