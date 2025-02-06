@@ -42,7 +42,7 @@ const updateChatReadStatus = async (req, res) => {
 const deleteChat = async (req, res) => {
 	try {
 		const userId = req.user.user_id;
-		const room = req.body.room;
+		const room = req.params.room;
 
 		const deleteChatStatus = await PrivateChat.updateChatDeletionStatus(
 			userId,

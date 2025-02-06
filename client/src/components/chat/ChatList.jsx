@@ -49,7 +49,7 @@ export default function ChatList({ setChatName }) {
 			// Mark chat as deleted in local chat list state
 			const updatedChatList = chatList.map((chatItem) => {
 				if (chatItem.room === chat.room) {
-					return { ...chatItem, user_deleted: true };
+					return { ...chatItem, deleted: true };
 				}
 				return chatItem;
 			});
@@ -94,9 +94,9 @@ export default function ChatList({ setChatName }) {
 										...chat,
 										last_message_content: chatListData.lastMessageContent,
 										last_message_time: chatListData.lastMessageTime,
-										// Only add user_deleted if the eventType is update-chat-list
+										// Only add deleted if the eventType is update-chat-list
 										...(eventType === 'update-chat-list' && {
-											user_deleted: chatListData.userDeleted,
+											deleted: chatListData.deleted,
 											read: activeChatRoom !== chat.room ? false : true,
 										}),
 								  }
@@ -155,7 +155,7 @@ export default function ChatList({ setChatName }) {
 				<div id='no-chats-state'>No chats found</div>
 			) : (
 				filteredChats
-					.filter((chat) => chat.user_deleted === false)
+					.filter((chat) => chat.deleted === false)
 					.map((chat) => (
 						<ChatItem
 							key={chat.chat_id}

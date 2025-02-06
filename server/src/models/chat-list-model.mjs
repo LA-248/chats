@@ -28,7 +28,7 @@ const Chat = {
           CASE
             WHEN pc.user1_id = $1 THEN pc.user1_deleted
             WHEN pc.user2_id = $1 THEN pc.user2_deleted
-          END AS user_deleted
+          END AS deleted
         FROM private_chats pc
         JOIN users u ON u.user_id = CASE
           WHEN pc.user1_id = $1 THEN pc.user2_id
@@ -52,7 +52,7 @@ const Chat = {
           'group' AS chat_type,
           g.created_at,
           NULL AS updated_at,
-          FALSE AS user_deleted
+          FALSE AS deleted
         FROM groups g
         JOIN group_members gm ON g.group_id = gm.group_id
         LEFT JOIN messages m ON g.last_message_id = m.message_id

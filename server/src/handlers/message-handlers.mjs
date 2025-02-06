@@ -187,7 +187,7 @@ const restoreRecipientChat = async (chatId, room, chatType) => {
 			chatId,
 			room
 		);
-		if (isNotInChatList.user_deleted === true) {
+		if (isNotInChatList === true) {
 			await PrivateChat.updateChatDeletionStatus(chatId, false, room);
 		}
 	}
@@ -217,7 +217,7 @@ const broadcastChatListUpdate = (io, room, message, newMessage) => {
 		room: room,
 		lastMessageContent: message,
 		lastMessageTime: newMessage.event_time,
-		userDeleted: false,
+		deleted: false,
 	});
 };
 

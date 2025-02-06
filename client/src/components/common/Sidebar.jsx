@@ -41,7 +41,7 @@ export default function Sidebar() {
 
 			{chatList.length > 0 ? (
 				chatList.some((chat) => {
-					return chat.user_deleted === false;
+					return chat.deleted === false;
 				}) ? (
 					<ChatSearch />
 				) : (
