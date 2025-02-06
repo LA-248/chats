@@ -6,17 +6,15 @@ import { v4 as uuidv4 } from 'uuid';
 // Handle adding a chat (new or previously added but deleted) to a user's chat list
 const addChat = async (req, res) => {
 	try {
-		const { senderId, recipientId, room } = await getChatRoomData(req);
-		const chatDeletionStatus = await PrivateChat.retrieveChatDeletionStatus(
-			senderId,
-			room
-		);
+		const { senderId, recipientId } = await getChatRoomData(req);
+		const room = await PrivateChat.retrieveRoomByMembers(senderId, recipientId);
 
 		// This check is needed to know whether to insert a new chat in the database and mark it as not deleted or to only do the latter
 		// All chats are marked as deleted by default to prevent incorrectly displaying them in a user's chat list
-		if (chatDeletionStatus === null) {
-			await PrivateChat.insertNewChat(senderId, recipientId, room);
-			await PrivateChat.updateChatDeletionStatus(senderId, false, room);
+		if (room === null) {
+			const newRoom = uuidv4();
+			await PrivateChat.insertNewChat(senderId, recipientId, newRoom);
+			await PrivateChat.updateChatDeletionStatus(senderId, false, newRoom);
 		} else {
 			await PrivateChat.updateChatDeletionStatus(senderId, false, room);
 		}
@@ -24,7 +22,6 @@ const addChat = async (req, res) => {
 		// rather than retrieving the whole chat list each time
 		const updatedChatList = await getChatListByUserId(senderId);
 
-		// Send the updated chat list to the frontend
 		return res.status(200).json({ updatedChatList: updatedChatList });
 	} catch (error) {
 		if (
@@ -52,10 +49,7 @@ const getChatRoomData = async (req) => {
 	const senderId = req.user.user_id;
 	const recipientId = req.body.recipientId;
 
-	// Ensure the room is the same for both users by sorting the user IDs
-	const room = uuidv4();
-
-	return { senderId, recipientId, room };
+	return { senderId, recipientId };
 };
 
 export { addChat };

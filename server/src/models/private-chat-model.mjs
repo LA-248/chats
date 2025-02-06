@@ -86,7 +86,7 @@ const PrivateChat = {
           CASE
             WHEN pc.user1_id = $1 THEN pc.user1_deleted
             WHEN pc.user2_id = $1 THEN pc.user2_deleted
-          END AS user_deleted
+          END AS deleted
         FROM private_chats pc
         JOIN users u ON u.user_id = CASE
           WHEN pc.user1_id = $1 THEN pc.user2_id
@@ -131,6 +131,30 @@ const PrivateChat = {
 		});
 	},
 
+	retrieveRoomByMembers: function (user1Id, user2Id) {
+		return new Promise((resolve, reject) => {
+			pool.query(
+				`
+        SELECT room FROM private_chats 
+        WHERE (user1_id = $1 AND user2_id = $2)
+        OR (user1_id = $2 AND user2_id = $1)
+        `,
+				[user1Id, user2Id],
+				(err, result) => {
+					if (err) {
+						return reject(
+							`Database error in private_chats table: ${err.message}`
+						);
+					}
+					if (result.rows.length === 0) {
+						return resolve(null);
+					}
+					return resolve(result.rows[0].room);
+				}
+			);
+		});
+	},
+
 	retrieveChatDeletionStatus: function (userId, room) {
 		return new Promise((resolve, reject) => {
 			pool.query(
@@ -139,7 +163,7 @@ const PrivateChat = {
           CASE
             WHEN user1_id = $1 THEN user1_deleted
             ELSE user2_deleted
-          END AS user_deleted
+          END AS deleted
         FROM private_chats
         WHERE room = $2
         `,
@@ -153,7 +177,7 @@ const PrivateChat = {
 					if (result.rowCount === 0) {
 						return resolve(null);
 					}
-					return resolve(result.rows[0]);
+					return resolve(result.rows[0].deleted);
 				}
 			);
 		});
@@ -201,7 +225,7 @@ const PrivateChat = {
           CASE
             WHEN user1_id = $1 THEN user1_deleted
             WHEN user2_id = $1 THEN user2_deleted
-          END AS user_deleted
+          END AS deleted
         `,
 				[userId, isDeleted, room],
 				(err, result) => {
