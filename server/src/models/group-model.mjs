@@ -68,7 +68,7 @@ const Group = {
           NULL AS is_read,
           g.created_at,
           NULL as updated_at,
-          NULL AS user_deleted
+          NULL AS deleted
         FROM groups g
         JOIN group_members gm ON g.group_id = gm.group_id
         WHERE gm.user_id = $1
