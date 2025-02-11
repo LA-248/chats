@@ -2,6 +2,9 @@ async function getLoggedInUserData() {
 	try {
 		const response = await fetch('http://localhost:8080/users', {
 			method: 'GET',
+			headers: {
+				Accept: 'application/json',
+			},
 			credentials: 'include',
 		});
 
@@ -22,6 +25,9 @@ async function getRecipientUserIdByUsername(username) {
 	try {
 		const response = await fetch(`http://localhost:8080/users/${username}`, {
 			method: 'GET',
+			headers: {
+				Accept: 'application/json',
+			},
 			credentials: 'include',
 		});
 
@@ -42,6 +48,9 @@ async function getBlockList() {
 	try {
 		const response = await fetch('http://localhost:8080/users/blocked', {
 			method: 'GET',
+			headers: {
+				Accept: 'application/json',
+			},
 			credentials: 'include',
 		});
 
@@ -63,6 +72,7 @@ async function updateUsername(username) {
 			method: 'PUT',
 			headers: {
 				'Content-Type': 'application/json',
+				Accept: 'application/json',
 			},
 			body: JSON.stringify({ username: username }),
 			credentials: 'include',

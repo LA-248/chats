@@ -5,6 +5,7 @@ async function createGroupChat(loggedInUserId, groupName, addedMembers) {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
+					Accept: 'application/json',
 				},
 				body: JSON.stringify({
 					loggedInUserId: loggedInUserId,
@@ -35,7 +36,7 @@ async function getGroupChatInfo(room) {
 		const response = await fetch(`http://localhost:8080/groups/${room}`, {
 			method: 'GET',
 			headers: {
-				'Content-Type': 'application/json',
+				Accept: 'application/json',
 			},
 			credentials: 'include',
 		});

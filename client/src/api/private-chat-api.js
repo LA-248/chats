@@ -5,6 +5,9 @@ async function getChatListByUserId() {
 	try {
 		const response = await fetch('http://localhost:8080/chats', {
 			method: 'GET',
+			headers: {
+				Accept: 'application/json',
+			},
 			credentials: 'include',
 		});
 
@@ -24,6 +27,9 @@ async function getRecipientInfo(room, navigate) {
 	try {
 		const response = await fetch(`http://localhost:8080/chats/${room}`, {
 			method: 'GET',
+			headers: {
+				Accept: 'application/json',
+			},
 			credentials: 'include',
 		});
 		const data = await response.json();
@@ -65,6 +71,7 @@ async function addChat(inputUsername, chatList) {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
+					Accept: 'application/json',
 				},
 				// Send the username entered to the backend to ensure that it exists in the database
 				body: JSON.stringify({
