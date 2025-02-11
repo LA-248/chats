@@ -136,12 +136,12 @@ async function updateReadStatus(read, room) {
 }
 
 // Delete a chat from the user's chat list
-async function deleteChat(room) {
+async function deletePrivateChat(room) {
 	try {
 		const response = await fetch(`http://localhost:8080/chats/${room}`, {
 			method: 'DELETE',
 			headers: {
-				'Content-Type': 'application/json',
+				Accept: 'application/json',
 			},
 			credentials: 'include',
 		});
@@ -150,9 +150,6 @@ async function deleteChat(room) {
 			const errorResponse = await response.json();
 			throw new Error(errorResponse.error);
 		}
-
-		const data = await response.json();
-		return data.deleteChatStatus;
 	} catch (error) {
 		throw error;
 	}
@@ -164,5 +161,5 @@ export {
 	addChat,
 	updateLastMessageId,
 	updateReadStatus,
-	deleteChat,
+	deletePrivateChat,
 };

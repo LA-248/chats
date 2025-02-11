@@ -44,12 +44,8 @@ const deleteChat = async (req, res) => {
 		const userId = req.user.user_id;
 		const room = req.params.room;
 
-		const deleteChatStatus = await PrivateChat.updateChatDeletionStatus(
-			userId,
-			true,
-			room
-		);
-		return res.status(200).json({ deleteChatStatus: deleteChatStatus });
+		await PrivateChat.updateChatDeletionStatus(userId, true, room);
+		return res.status(200).json({ message: 'Chat deleted successfully' });
 	} catch (error) {
 		console.error('Error deleting chat:', error);
 		return res

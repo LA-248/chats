@@ -52,7 +52,10 @@ const Chat = {
           'group' AS chat_type,
           g.created_at,
           NULL AS updated_at,
-          FALSE AS deleted
+          CASE 
+            WHEN $1 = ANY(g.deleted_for) THEN TRUE 
+            ELSE FALSE 
+          END AS deleted
         FROM groups g
         JOIN group_members gm ON g.group_id = gm.group_id
         LEFT JOIN messages m ON g.last_message_id = m.message_id

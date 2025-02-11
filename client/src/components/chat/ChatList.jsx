@@ -4,12 +4,13 @@ import { useSocket } from '../../hooks/useSocket';
 import { ChatContext } from '../../contexts/ChatContext';
 import {
 	getChatListByUserId,
-	deleteChat,
+	deletePrivateChat,
 	updateReadStatus,
 } from '../../api/private-chat-api';
 import ChatItem from './ChatItem';
 import useClearErrorMessage from '../../hooks/useClearErrorMessage';
 import { useSocketErrorHandling } from '../../hooks/useSocketErrorHandling';
+import { deleteGroupChat } from '../../api/group-chat-api';
 
 export default function ChatList({ setChatName }) {
 	const socket = useSocket();
@@ -45,7 +46,11 @@ export default function ChatList({ setChatName }) {
 	const handleChatDelete = async (event, chat) => {
 		event.stopPropagation();
 		try {
-			await deleteChat(chat.room);
+			if (chat.chat_id.includes('p')) {
+				await deletePrivateChat(chat.room);
+			} else {
+				await deleteGroupChat(chat.room);
+			}
 			// Mark chat as deleted in local chat list state
 			const updatedChatList = chatList.map((chatItem) => {
 				if (chatItem.room === chat.room) {

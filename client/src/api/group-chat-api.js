@@ -51,4 +51,23 @@ async function getGroupChatInfo(room) {
 	}
 }
 
-export { createGroupChat, getGroupChatInfo };
+async function deleteGroupChat(room) {
+	try {
+		const response = await fetch(`http://localhost:8080/groups/${room}`, {
+			method: 'DELETE',
+			headers: {
+				Accept: 'application/json',
+			},
+			credentials: 'include',
+		});
+
+		if (!response.ok) {
+			const errorResponse = await response.json();
+			throw new Error(errorResponse.error);
+		}
+	} catch (error) {
+		throw error;
+	}
+}
+
+export { createGroupChat, getGroupChatInfo, deleteGroupChat };

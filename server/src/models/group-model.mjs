@@ -126,6 +126,28 @@ const Group = {
 			);
 		});
 	},
+
+	updateChatDeletionStatus: function (userId, room) {
+		return new Promise((resolve, reject) => {
+			pool.query(
+				`
+        UPDATE groups
+        SET deleted_for = array_append(deleted_for, $1)
+        WHERE room = $2
+        `,
+				[userId, room],
+				(err, result) => {
+					if (err) {
+						return reject(`Database error in groups table: ${err.message}`);
+					}
+					if (result.rowCount === 0) {
+						return reject('Chat not found');
+					}
+					return resolve(result.rows[0]);
+				}
+			);
+		});
+	},
 };
 
 export { Group };
