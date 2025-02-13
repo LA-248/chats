@@ -20,10 +20,16 @@ const getChatList = async (req, res) => {
 	}
 };
 
+// TODO: Move to different file - this retrieves all chats, not just private ones
 const getChatListByUserId = async (userId) => {
-	const chatList = await Chat.retrieveAllChats(userId);
-	await generatePresignedUrlsForChatList(chatList);
-	return chatList;
+	try {
+		const chatList = await Chat.retrieveAllChats(userId);
+		await generatePresignedUrlsForChatList(chatList);
+		return chatList;
+	} catch (error) {
+		console.error('Error retrieving chat list:', error);
+		throw error;
+	}
 };
 
 export { getChatList, getChatListByUserId };

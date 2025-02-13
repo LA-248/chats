@@ -30,7 +30,7 @@ const addChat = async (req, res) => {
 		) {
 			return res.status(404).json({ error: error.message });
 		}
-		console.error('Error:', error);
+		console.error('Error adding chat:', error);
 		return res
 			.status(500)
 			.json({ error: 'Error adding chat. Please try again.' });
@@ -38,18 +38,23 @@ const addChat = async (req, res) => {
 };
 
 const getChatRoomData = async (req) => {
-	const username = req.body.recipientName;
-	const user = await User.getIdByUsername(username);
-	// If there are no rows, the user does not exist
-	if (!user) {
-		throw new Error(
-			'User does not exist. Make sure that the username is correct.'
-		);
-	}
-	const senderId = req.user.user_id;
-	const recipientId = req.body.recipientId;
+	try {
+		const username = req.body.recipientName;
+		const user = await User.getIdByUsername(username);
+		// If there are no rows, the user does not exist
+		if (!user) {
+			throw new Error(
+				'User does not exist. Make sure that the username is correct.'
+			);
+		}
+		const senderId = req.user.user_id;
+		const recipientId = req.body.recipientId;
 
-	return { senderId, recipientId };
+		return { senderId, recipientId };
+	} catch (error) {
+		console.error('Error retrieving chat room data:', error);
+		throw error;
+	}
 };
 
 export { addChat };
