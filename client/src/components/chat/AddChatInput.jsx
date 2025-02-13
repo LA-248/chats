@@ -16,7 +16,17 @@ export default function AddChatInput({
 			event.preventDefault();
 
 			try {
-				const response = await addChat(inputUsername, chatList);
+				const exists = chatList.some(
+					(chat) => chat.name === inputUsername && chat.deleted === false
+				);
+				if (exists) {
+					throw new Error('You already have an active chat with this user');
+				}
+				if (!inputUsername) {
+					throw new Error('Please enter a username');
+				}
+
+				const response = await addChat(inputUsername);
 				setChatList(response.updatedChatList);
 				setInputUsername('');
 			} catch (error) {
@@ -35,7 +45,7 @@ export default function AddChatInput({
 					<input
 						id='username-input'
 						type='text'
-						placeholder='Enter a username'
+						placeholder='Find or start a conversation'
 						value={inputUsername}
 						onChange={(event) => {
 							setInputUsername(event.target.value);
