@@ -24,7 +24,7 @@ export default function ChatItem({
 				></img>
 				<div className='chat-info'>
 					<div className='chat-name-and-time'>
-						<h4 className='chat-name'>{chat.recipient_username}</h4>
+						<h4 className='chat-name'>{chat.name}</h4>
 						<div className='time-and-notification-container'>
 							<div className='chat-time'>
 								{chat.last_message_content &&

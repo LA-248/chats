@@ -71,7 +71,7 @@ const PrivateChat = {
             WHEN pc.user1_id = $1 THEN pc.user2_id
             ELSE pc.user1_id
           END AS recipient_user_id,
-          u.username AS recipient_username,
+          u.username AS name,
           u.profile_picture AS recipient_profile_picture,
           pc.last_message_id,
           m.content AS last_message_content,

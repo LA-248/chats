@@ -12,7 +12,7 @@ const Chat = {
             WHEN pc.user1_id = $1 THEN pc.user2_id
             ELSE pc.user1_id
           END AS recipient_user_id,
-          u.username AS recipient_username,
+          u.username AS name,
           u.profile_picture AS recipient_profile_picture,
           pc.last_message_id,
           m.content AS last_message_content,
@@ -42,7 +42,7 @@ const Chat = {
         SELECT
           CONCAT('g_', g.group_id) AS chat_id,
           NULL as recipient_user_id,
-          g.name AS recipient_username,
+          g.name AS name,
           g.group_picture AS recipient_profile_picture,
           g.last_message_id,
           m.content AS last_message_content,

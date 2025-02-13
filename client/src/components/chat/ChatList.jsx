@@ -29,7 +29,7 @@ export default function ChatList({ setChatName }) {
 
 	const handleChatClick = async (chat) => {
 		setActiveChatRoom(chat.room);
-		setChatName(chat.recipient_username);
+		setChatName(chat.name);
 
 		if (chat.chat_type === 'private_chat') {
 			navigate(`/chats/${chat.room}`);
@@ -46,6 +46,7 @@ export default function ChatList({ setChatName }) {
 	const handleChatDelete = async (event, chat) => {
 		event.stopPropagation();
 		try {
+			// TODO: this is dogshit logic, clean it up
 			if (chat.chat_id.includes('p')) {
 				await deletePrivateChat(chat.room);
 			} else {
@@ -136,9 +137,7 @@ export default function ChatList({ setChatName }) {
 	useEffect(() => {
 		if (chatSearchInputText) {
 			const filtered = chatList.filter((chat) =>
-				chat.recipient_username
-					.toLowerCase()
-					.includes(chatSearchInputText.toLowerCase())
+				chat.name.toLowerCase().includes(chatSearchInputText.toLowerCase())
 			);
 			setFilteredChats(filtered);
 		} else {
