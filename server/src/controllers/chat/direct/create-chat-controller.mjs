@@ -52,7 +52,6 @@ const getChatRoomData = async (req) => {
 
 		return { senderId, recipientId };
 	} catch (error) {
-		console.error('Error retrieving chat room data:', error);
 		throw error;
 	}
 };

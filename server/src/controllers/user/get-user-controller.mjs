@@ -11,14 +11,14 @@ const retrieveLoggedInUserDataById = async (req, res) => {
 			? await createPresignedUrl(process.env.BUCKET_NAME, profilePicture)
 			: null;
 
-		res.status(200).json({
+		return res.status(200).json({
 			userId: userId,
 			username: username,
 			profilePicture: profilePictureUrl,
 		});
 	} catch (error) {
-		console.error('Error retrieving user data:', error);
-		res.status(500).json({ error: 'An unexpected error occurred.' });
+		console.error('Error retrieving data of logged in user:', error);
+		return res.status(500).json({ error: 'An unexpected error occurred.' });
 	}
 };
 
@@ -37,14 +37,14 @@ const retrieveRecipientProfile = async (req, res) => {
 			? await createPresignedUrl(process.env.BUCKET_NAME, user.profile_picture)
 			: null;
 
-		res.status(200).json({
+		return res.status(200).json({
 			userId: user.user_id,
 			username: user.username,
 			profilePicture: profilePictureUrl,
 		});
 	} catch (error) {
-		console.error('Error retrieving user data:', error);
-		res.status(500).json({ error: 'An unexpected error occurred.' });
+		console.error('Error retrieving recipient user data', error);
+		return res.status(500).json({ error: 'An unexpected error occurred.' });
 	}
 };
 
@@ -57,7 +57,7 @@ const retrieveIdByUsername = async (req, res) => {
 				'User does not exist. Make sure that the username is correct.'
 			);
 		}
-		res.status(200).json({ userId: user.user_id });
+		return res.status(200).json({ userId: user.user_id });
 	} catch (error) {
 		if (
 			error.message ===
@@ -66,7 +66,7 @@ const retrieveIdByUsername = async (req, res) => {
 			return res.status(404).json({ error: error.message });
 		}
 		console.error('Error retrieving user ID:', error);
-		res.status(500).json({ error: 'An unexpected error occurred' });
+		return res.status(500).json({ error: 'An unexpected error occurred' });
 	}
 };
 
@@ -74,10 +74,10 @@ const retrieveBlockListById = async (req, res) => {
 	try {
 		const userId = req.user.user_id;
 		const blockList = await User.getBlockListById(userId);
-		res.status(200).json({ blockList: blockList });
+		return res.status(200).json({ blockList: blockList });
 	} catch (error) {
 		console.error('Error retrieving block list:', error);
-		res.status(500).json({ error: 'Error retrieving blocked status' });
+		return res.status(500).json({ error: 'Error retrieving blocked status' });
 	}
 };
 

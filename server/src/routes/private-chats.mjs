@@ -19,7 +19,11 @@ privateChatsRouter.use(requireAuth);
 privateChatsRouter.post('/', addChat);
 privateChatsRouter.get('/', getChatList);
 privateChatsRouter.get('/:room', privateChatRoomAuth, retrieveRecipientProfile);
-privateChatsRouter.put('/:room/last_message', updateLastMessageId);
+privateChatsRouter.put(
+	'/:room/last_message',
+	privateChatRoomAuth,
+	updateLastMessageId
+);
 privateChatsRouter.put(
 	'/:room/read_status',
 	privateChatRoomAuth,

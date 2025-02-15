@@ -16,7 +16,7 @@ const getChatList = async (req, res) => {
 				.json({ error: 'Unable to retrieve profile picture(s)' });
 		}
 		console.error('Error retrieving chat list:', error);
-		return res.status(500).json({ error: 'Unable to retrieve chat list.' });
+		return res.status(500).json({ error: 'Unable to retrieve chat list' });
 	}
 };
 
@@ -27,7 +27,6 @@ const getChatListByUserId = async (userId) => {
 		await generatePresignedUrlsForChatList(chatList);
 		return chatList;
 	} catch (error) {
-		console.error('Error retrieving chat list:', error);
 		throw error;
 	}
 };

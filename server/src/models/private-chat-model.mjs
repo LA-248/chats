@@ -109,7 +109,7 @@ const PrivateChat = {
 		});
 	},
 
-	retrievePrivateChatMembersByRoom: function (room) {
+	retrieveMembersByRoom: function (room) {
 		return new Promise((resolve, reject) => {
 			pool.query(
 				`
@@ -200,7 +200,7 @@ const PrivateChat = {
 				(err, result) => {
 					if (err) {
 						return reject(
-							`Database error in private_chats table: ${err.message}`
+							`Error updating last message in private_chats database table: ${err.message}`
 						);
 					}
 					if (!result.rows[0]) {
@@ -262,7 +262,7 @@ const PrivateChat = {
 				(err) => {
 					if (err) {
 						return reject(
-							`Database error in private_chats table: ${err.message}`
+							`Error updating read status in private_chats database table:: ${err.message}`
 						);
 					}
 					return resolve();

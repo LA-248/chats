@@ -49,7 +49,7 @@ const GroupMember = {
 
 	// READ OPERATIONS
 
-	retrieveGroupChatMembersByRoom: function (room) {
+	retrieveMembersByRoom: function (room) {
 		return new Promise((resolve, reject) => {
 			pool.query(
 				`

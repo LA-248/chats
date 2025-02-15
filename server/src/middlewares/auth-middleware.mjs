@@ -20,7 +20,7 @@ const privateChatRoomAuth = async (req, res, next) => {
 
 	try {
 		const privateChatMembers =
-			await PrivateChat.retrievePrivateChatMembersByRoom(room);
+			await PrivateChat.retrieveMembersByRoom(room);
 
 		if (!privateChatMembers) {
 			return res.status(404).json({
@@ -53,9 +53,7 @@ const groupChatRoomAuth = async (req, res, next) => {
 	const room = req.params.room;
 
 	try {
-		const groupChatMembers = await GroupMember.retrieveGroupChatMembersByRoom(
-			room
-		);
+		const groupChatMembers = await GroupMember.retrieveMembersByRoom(room);
 		const groupChatMemberIds = groupChatMembers.map((member) => member.user_id);
 
 		if (!groupChatMembers) {

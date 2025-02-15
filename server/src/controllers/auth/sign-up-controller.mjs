@@ -40,7 +40,7 @@ const handleSignUp = async (req, res) => {
 			return res.status(200).json({ redirectPath: '/' });
 		});
 	} catch (error) {
-		console.error(error);
+		console.error('Error during sign up:', error);
 		return res.status(500).json({ error: 'An unexpected error occurred.' });
 	}
 };

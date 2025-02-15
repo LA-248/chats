@@ -4,7 +4,7 @@ import { PrivateChat } from '../../../models/private-chat-model.mjs';
 const updateLastMessageId = async (req, res) => {
 	try {
 		const newLastMessageId = req.body.messageId;
-		const room = req.body.room;
+		const room = req.params.room;
 
 		await PrivateChat.updateLastMessage(newLastMessageId, room);
 		return res
@@ -30,7 +30,7 @@ const updateChatReadStatus = async (req, res) => {
 			.status(200)
 			.json({ success: 'Read status updated successfully.' });
 	} catch (error) {
-		console.error('Error updating last message id:', error);
+		console.error('Error updating read status:', error);
 		return res.status(500).json({
 			error:
 				'There was an error updating the read status of your chat. Please refresh the page.',

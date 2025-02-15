@@ -5,7 +5,7 @@ const deleteGroupChat = async (req, res) => {
 		const userId = req.user.user_id;
 		const room = req.params.room;
 
-		await Group.updateChatDeletionStatus(userId, room);
+		await Group.deleteChat(userId, room);
 		return res.status(200).json({ message: 'Chat deleted successfully' });
 	} catch (error) {
 		console.error('Error deleting chat:', error);
