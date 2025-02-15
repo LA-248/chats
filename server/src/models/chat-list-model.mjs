@@ -48,7 +48,10 @@ const Chat = {
           m.content AS last_message_content,
           m.event_time AS last_message_time,
           g.room,
-          NULL AS read,
+          CASE 
+            WHEN $1 = ANY(g.read_by) THEN TRUE 
+            ELSE FALSE 
+          END AS read,
           'group' AS chat_type,
           g.created_at,
           NULL AS updated_at,

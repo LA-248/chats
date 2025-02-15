@@ -243,7 +243,7 @@ const PrivateChat = {
 		});
 	},
 
-	updateReadStatus: function (userId, read, room) {
+	updateUserReadStatus: function (userId, read, room) {
 		return new Promise((resolve, reject) => {
 			pool.query(
 				`

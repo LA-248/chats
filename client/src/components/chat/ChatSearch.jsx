@@ -10,7 +10,7 @@ export default function ChatSearch() {
 			<input
 				id='chat-search-input'
 				type='text'
-				placeholder='Find a conversation'
+				placeholder='Search chats'
 				value={chatSearchInputText}
 				onChange={(event) => setChatSearchInputText(event.target.value)}
 			></input>

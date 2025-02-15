@@ -138,10 +138,10 @@ const CHAT_HANDLERS = {
 				});
 			}
 		},
-		postInsert: async (_senderId, newMessage, chatId, room) => {
+		postInsert: async (_senderId, newMessageId, chatId, room) => {
 			try {
-				await PrivateChat.updateReadStatus(chatId, false, room);
-				await PrivateChat.updateLastMessage(newMessage, room);
+				await PrivateChat.updateUserReadStatus(chatId, false, room);
+				await PrivateChat.updateLastMessage(newMessageId, room);
 			} catch (error) {
 				throw new Error('Unable to update private chat metadata:', {
 					cause: error,
@@ -160,10 +160,10 @@ const CHAT_HANDLERS = {
 				});
 			}
 		},
-		postInsert: async (senderId, newMessage, _chatId, room) => {
+		postInsert: async (senderId, newMessageId, _chatId, room) => {
 			try {
-				await Group.removeMembersFromReadList([senderId], room);
-				await Group.updateLastMessage(newMessage, room);
+				await Group.resetReadByList([senderId], room);
+				await Group.updateLastMessage(newMessageId, room);
 			} catch (error) {
 				throw new Error('Unable to update group chat metadata', {
 					cause: error,

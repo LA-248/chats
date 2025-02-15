@@ -10,7 +10,7 @@ import {
 import ChatItem from './ChatItem';
 import useClearErrorMessage from '../../hooks/useClearErrorMessage';
 import { useSocketErrorHandling } from '../../hooks/useSocketErrorHandling';
-import { deleteGroupChat } from '../../api/group-chat-api';
+import { deleteGroupChat, markUserAsRead } from '../../api/group-chat-api';
 
 export default function ChatList({ setChatName }) {
 	const socket = useSocket();
@@ -38,6 +38,9 @@ export default function ChatList({ setChatName }) {
 			}
 		} else {
 			navigate(`/groups/${chat.room}`);
+			if (chat.read === false) {
+				await markUserAsRead(chat.room);
+			}
 		}
 	};
 

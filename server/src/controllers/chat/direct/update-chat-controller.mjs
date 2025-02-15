@@ -25,7 +25,7 @@ const updateChatReadStatus = async (req, res) => {
 		const read = req.body.read;
 		const room = req.params.room;
 
-		await PrivateChat.updateReadStatus(userId, read, room);
+		await PrivateChat.updateUserReadStatus(userId, read, room);
 		return res
 			.status(200)
 			.json({ success: 'Read status updated successfully.' });

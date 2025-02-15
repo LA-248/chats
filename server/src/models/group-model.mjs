@@ -116,7 +116,9 @@ const Group = {
 				[messageId, room],
 				(err, result) => {
 					if (err) {
-						return reject(`Database error in groups table: ${err.message}`);
+						return reject(
+							`Error updating last message in groups database table: ${err.message}`
+						);
 					}
 					if (!result.rows[0]) {
 						return resolve(null);
@@ -127,7 +129,47 @@ const Group = {
 		});
 	},
 
-	updateChatDeletionStatus: function (userId, room) {
+	markUserAsRead: function (userId, room) {
+		return new Promise((resolve, reject) => {
+			pool.query(
+				`
+        UPDATE groups
+        SET read_by = array_append(read_by, $1)
+        WHERE room = $2
+        `,
+				[userId, room],
+				(err) => {
+					if (err) {
+						return reject(`Database error in groups table: ${err.message}`);
+					}
+					return resolve();
+				}
+			);
+		});
+	},
+
+	resetReadByList: function (userId, room) {
+		return new Promise((resolve, reject) => {
+			pool.query(
+				`
+        UPDATE groups
+        SET read_by = $1::integer[]
+        WHERE room = $2;
+        `,
+				[userId, room],
+				(err) => {
+					if (err) {
+						return reject(
+							`Error removing members from read list in groups database table: ${err.message}`
+						);
+					}
+					return resolve();
+				}
+			);
+		});
+	},
+
+	deleteChat: function (userId, room) {
 		return new Promise((resolve, reject) => {
 			pool.query(
 				`
@@ -136,14 +178,30 @@ const Group = {
         WHERE room = $2
         `,
 				[userId, room],
-				(err, result) => {
+				(err) => {
 					if (err) {
 						return reject(`Database error in groups table: ${err.message}`);
 					}
-					if (result.rowCount === 0) {
-						return reject('Chat not found');
+					return resolve();
+				}
+			);
+		});
+	},
+
+	unDeleteChat: function (userId, room) {
+		return new Promise((resolve, reject) => {
+			pool.query(
+				`
+        UPDATE groups
+        SET deleted_for = array_remove(deleted_for, $1)
+        WHERE room = $2;
+        `,
+				[userId, room],
+				(err) => {
+					if (err) {
+						return reject(`Database error in groups table: ${err.message}`);
 					}
-					return resolve(result.rows[0]);
+					return resolve();
 				}
 			);
 		});
