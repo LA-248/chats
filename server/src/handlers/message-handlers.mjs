@@ -1,4 +1,3 @@
-import { pool } from '../../db/index.mjs';
 import { Group } from '../models/group-model.mjs';
 import { GroupMember } from '../models/group-member-model.mjs';
 import { PrivateChat } from '../models/private-chat-model.mjs';
