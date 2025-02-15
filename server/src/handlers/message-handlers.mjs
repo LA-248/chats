@@ -1,3 +1,4 @@
+import { pool } from '../../db/index.mjs';
 import { Group } from '../models/group-model.mjs';
 import { GroupMember } from '../models/group-member-model.mjs';
 import { PrivateChat } from '../models/private-chat-model.mjs';
@@ -26,12 +27,12 @@ const handleChatMessages = (socket, io) => {
 			broadcastMessage(io, room, username, message, senderId, newMessage);
 			broadcastChatListUpdate(io, room, message, newMessage);
 		} catch (error) {
+			console.error('Error handling chat message:', error);
 			if (error.message === 'Sender is blocked by the recipient') {
 				callback(
 					'You cannot send messages to this user because they have you blocked'
 				);
 			}
-			console.error('Error sending message:', error);
 			callback('Error sending message');
 		}
 	});
@@ -121,21 +122,46 @@ const checkIfBlocked = async (chatId, senderId) => {
 const CHAT_HANDLERS = {
 	chats: {
 		getMembers: async (room) => {
-			const members = await PrivateChat.retrievePrivateChatMembersByRoom(room);
-			return Object.values(members);
+			try {
+				const members = await PrivateChat.retrieveMembersByRoom(room);
+				return Object.values(members);
+			} catch (error) {
+				throw new Error('Unable to retrieve private chat members:', {
+					cause: error,
+				});
+			}
 		},
-		postInsert: async (newMessage, chatId, room) => {
-			await PrivateChat.updateReadStatus(chatId, false, room);
-			await PrivateChat.updateLastMessage(newMessage.id, room);
+		postInsert: async (_senderId, newMessage, chatId, room) => {
+			try {
+				await PrivateChat.updateReadStatus(chatId, false, room);
+				await PrivateChat.updateLastMessage(newMessage, room);
+			} catch (error) {
+				throw new Error('Unable to update private chat metadata:', {
+					cause: error,
+				});
+			}
 		},
 	},
 	groups: {
 		getMembers: async (room) => {
-			const members = await GroupMember.retrieveGroupChatMembersByRoom(room);
-			return members.map((member) => member.user_id);
+			try {
+				const members = await GroupMember.retrieveMembersByRoom(room);
+				return members.map((member) => member.user_id);
+			} catch (error) {
+				throw new Error('Unable to retrieve group chat members', {
+					cause: error,
+				});
+			}
 		},
-		postInsert: async (newMessage, _chatId, room) => {
-			await Group.updateLastMessage(newMessage.id, room);
+		postInsert: async (senderId, newMessage, _chatId, room) => {
+			try {
+				await Group.removeMembersFromReadList([senderId], room);
+				await Group.updateLastMessage(newMessage, room);
+			} catch (error) {
+				throw new Error('Unable to update group chat metadata', {
+					cause: error,
+				});
+			}
 		},
 	},
 };
@@ -148,47 +174,50 @@ const saveMessageInDatabase = async (
 	chatType,
 	clientOffset
 ) => {
+	let newMessage;
+
 	try {
-		const handler = CHAT_HANDLERS[chatType];
+		const chatHandler = CHAT_HANDLERS[chatType];
 
 		// Prevent unauthorised users from sending messages to chat rooms they are not a part of
-		const memberIds = await handler.getMembers(room);
+		const memberIds = await chatHandler.getMembers(room);
 		if (!memberIds.includes(senderId)) {
 			throw new Error('User is not authorised to send messages in this chat');
 		}
 
-		const newMessage = await Message.insertNewMessage(
+		newMessage = await Message.insertNewMessage(
 			message,
 			senderId,
 			chatId,
 			room,
 			clientOffset
 		);
-		await handler.postInsert(newMessage, chatId, room);
 
+		await chatHandler.postInsert(senderId, newMessage.id, chatId, room);
 		return newMessage;
 	} catch (error) {
-		// Error handling remains the same
+		if (newMessage) {
+			await Message.deleteMessageById(newMessage.id);
+		}
 		if (error.errno === 19) {
 			console.error(
 				'Message with this client offset already exists:',
 				clientOffset
 			);
 		}
-		console.error('Error saving message in database:', error);
 		throw error;
 	}
 };
 
 // Mark the recipient's chat as not deleted in the database on incoming message if it was previously marked as deleted
-const restoreRecipientChat = async (chatId, room, chatType) => {
+const restoreRecipientChat = async (recipientId, room, chatType) => {
 	if (chatType === 'chats') {
 		const isNotInChatList = await PrivateChat.retrieveChatDeletionStatus(
-			chatId,
+			recipientId,
 			room
 		);
 		if (isNotInChatList === true) {
-			await PrivateChat.updateChatDeletionStatus(chatId, false, room);
+			await PrivateChat.updateChatDeletionStatus(recipientId, false, room);
 		}
 	}
 };
