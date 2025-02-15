@@ -8,6 +8,7 @@ export default function CreateGroupChatModal({
 	setIsModalOpen,
 	loggedInUsername,
 	loggedInUserId,
+	setChatList,
 }) {
 	const [groupName, setGroupName] = useState('');
 	const [inputUsername, setInputUsername] = useState('');
@@ -72,7 +73,12 @@ export default function CreateGroupChatModal({
 				throw new Error('You must add at least one member to your group');
 			}
 
-			await createGroupChat(loggedInUserId, groupName, addedMembers);
+			const updatedChatList = await createGroupChat(
+				loggedInUserId,
+				groupName,
+				addedMembers
+			);
+			setChatList(updatedChatList);
 			setGroupName('');
 			setAddedMembers([
 				{ username: loggedInUsername, userId: loggedInUserId, role: 'owner' },

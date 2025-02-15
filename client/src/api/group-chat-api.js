@@ -23,7 +23,7 @@ async function createGroupChat(loggedInUserId, groupName, addedMembers) {
 			if (response.status === 207) {
 				return data.message;
 			} else {
-				return data.success;
+				return data.updatedChatList;
 			}
 		}
 	} catch (error) {

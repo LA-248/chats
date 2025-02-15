@@ -37,6 +37,7 @@ export default function Sidebar() {
 				setIsModalOpen={setIsModalOpen}
 				loggedInUsername={loggedInUsername}
 				loggedInUserId={loggedInUserId}
+				setChatList={setChatList}
 			/>
 
 			{chatList.length > 0 ? (

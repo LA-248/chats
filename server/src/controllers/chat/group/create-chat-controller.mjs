@@ -1,6 +1,7 @@
 import { GroupMember } from '../../../models/group-member-model.mjs';
 import { Group } from '../../../models/group-model.mjs';
 import { v4 as uuidv4 } from 'uuid';
+import { getChatListByUserId } from '../direct/get-chat-controller.mjs';
 
 // TODO: Break up into smaller functions
 // Handle adding a group chat
@@ -14,11 +15,11 @@ const createGroupChat = async (req, res) => {
 		const result = await Group.insertNewGroupChat(ownerUserId, groupName, room);
 
 		// Add members to the group chat concurrently
-		const insertPromises = addedMembers.map((user) =>
+		const insertGroupMembers = addedMembers.map((user) =>
 			GroupMember.insertGroupMember(result.group_id, user.userId, user.role)
 		);
 
-		const results = await Promise.allSettled(insertPromises);
+		const results = await Promise.allSettled(insertGroupMembers);
 
 		// Log failed insertions
 		const failedInsertions = [];
@@ -35,16 +36,22 @@ const createGroupChat = async (req, res) => {
 		// Handle partial success or full success
 		// This ensures that the group is still created even if certain members could not be added
 		if (failedInsertions.length > 0) {
-			console.warn('Some members could not be added:', failedInsertions);
 			return res.status(207).json({
 				message:
 					'Group created successfully but some members could not be added',
 				failedMembers: failedInsertions,
 			});
 		}
-		return res.status(200).json({ success: 'Group created successfully' });
+
+		// TODO: Find a more optimised way to update the chat list with the created group chat,
+		// rather than retrieving the whole chat list each time
+		const updatedChatList = await getChatListByUserId(ownerUserId);
+
+		return res.status(200).json({
+			updatedChatList: updatedChatList,
+		});
 	} catch (error) {
-		console.error('Error:', error);
+		console.error('Error creating group chat:', error);
 		return res
 			.status(500)
 			.json({ error: 'Error creating group chat. Please try again.' });
