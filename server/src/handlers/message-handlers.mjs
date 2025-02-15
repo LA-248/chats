@@ -23,7 +23,15 @@ const handleChatMessages = (socket, io) => {
 			);
 
 			restoreRecipientChat(chatId, room, chatType);
-			broadcastMessage(io, room, username, message, senderId, newMessage);
+			broadcastMessage(
+				io,
+				room,
+				username,
+				message,
+				senderId,
+				newMessage,
+				chatType
+			);
 			broadcastChatListUpdate(io, room, message, newMessage);
 		} catch (error) {
 			console.error('Error handling chat message:', error);
@@ -227,7 +235,8 @@ const broadcastMessage = (
 	username,
 	message,
 	senderId,
-	newMessage
+	newMessage,
+	chatType
 ) => {
 	io.to(room).emit('chat-message', {
 		from: username,
@@ -236,6 +245,7 @@ const broadcastMessage = (
 		eventTime: newMessage.event_time,
 		id: newMessage.id,
 		senderId: senderId,
+		chatType: chatType,
 	});
 };
 

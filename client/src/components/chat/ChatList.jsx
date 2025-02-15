@@ -33,12 +33,11 @@ export default function ChatList({ setChatName }) {
 
 		if (chat.chat_type === 'private_chat') {
 			navigate(`/chats/${chat.room}`);
+			if (chat.read === false) {
+				await updateReadStatus(true, chat.room);
+			}
 		} else {
 			navigate(`/groups/${chat.room}`);
-		}
-
-		if (chat.read === false) {
-			await updateReadStatus(true, chat.room);
 		}
 	};
 
