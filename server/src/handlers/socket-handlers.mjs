@@ -33,8 +33,7 @@ const socketHandlers = (io) => {
 			updateMostRecentMessage(socket, io);
 			updateMessageListEvent(socket, io);
 
-			socket.on('join-room', (room) => {
-				socket.join(room);
+			socket.on('open-chat', (room) => {
 				displayChatMessages(socket, room);
 			});
 

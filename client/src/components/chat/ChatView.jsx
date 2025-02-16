@@ -33,7 +33,7 @@ function ChatView() {
 			}
 		};
 
-		socket.emit('join-room', room);
+		socket.emit('open-chat', room);
 		// Display all messages on load when opening a chat
 		socket.on('initial-messages', displayInitialMessages);
 		// Update chat message list for everyone in a room after a message is deleted or edited
