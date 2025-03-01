@@ -7,6 +7,8 @@ import { updateBlockList } from '../../api/user-api';
 import { updateReadStatus } from '../../api/private-chat-api';
 import ContactInfoModal from '../chat/ContactInfoModal';
 import formatDate from '../../utils/DateTimeFormat';
+import { useGroupChatInfo } from '../../hooks/useGroupChatInfo';
+import { useLocation } from 'react-router-dom';
 
 export default function MessageList({
 	room,
@@ -17,6 +19,11 @@ export default function MessageList({
 	setMessageId,
 	setMessageIndex,
 }) {
+	const location = useLocation();
+	// Extract chat type from URL path
+	const pathSegments = location.pathname.split('/');
+	const chatType = pathSegments[1];
+
 	const socket = useSocket();
 	const { activeChatInfo } = useContext(ChatContext);
 	const { loggedInUserId, profilePicture } = useContext(UserContext);
@@ -32,20 +39,40 @@ export default function MessageList({
 	useEffect(() => {
 		if (socket) {
 			const handleMessage = async (messageData) => {
-				// Append message to UI only if the user is currently in the room where the message was sent
-				if (room === messageData.room) {
-					setMessages((prevMessages) => prevMessages.concat(messageData));
-					// If a message is received while the user has the chat open, this is needed to automatically mark the chat as read
-					if (messageData.chatType === 'chats') {
-						await updateReadStatus(true, room);
+				try {
+					// Append message to UI only if the user is currently in the room where the message was sent
+					if (room === messageData.room) {
+						setMessages((prevMessages) => prevMessages.concat(messageData));
+						// If a message is received while the user has the chat open, this is needed to automatically mark the chat as read
+						if (messageData.chatType === 'chats') {
+							await updateReadStatus(true, room);
+						}
 					}
+				} catch (error) {
+					setErrorMessage(error.message);
 				}
 			};
-
 			socket.on('chat-message', handleMessage);
 			return () => socket.off('chat-message', handleMessage);
 		}
 	}, [room, socket, setMessages]);
+
+	const groupMembersInfo = useGroupChatInfo(room, chatType, setErrorMessage);
+
+	const getProfilePicture = (messageData) => {
+		if (chatType === 'groups') {
+			const groupMember = groupMembersInfo.find(
+				(member) => messageData.senderId === member.user_id
+			);
+			return groupMember?.profile_picture || '/images/default-avatar.png';
+		}
+
+		// Private chat
+		if (loggedInUserId === messageData.senderId) {
+			return profilePicture;
+		}
+		return activeChatInfo?.profilePicture || '/images/default-avatar.jpg';
+	};
 
 	return (
 		<>
@@ -78,12 +105,7 @@ export default function MessageList({
 										{activeChatInfo && (
 											<img
 												className='message-profile-picture'
-												src={
-													loggedInUserId === messageData.senderId
-														? profilePicture
-														: activeChatInfo.profilePicture ||
-														  '/images/default-avatar.jpg'
-												}
+												src={getProfilePicture(messageData)}
 												alt='Profile avatar'
 											/>
 										)}
@@ -91,13 +113,16 @@ export default function MessageList({
 											<div className='message-details'>
 												<div
 													className={`message-from ${
-														loggedInUserId !== messageData.senderId
+														loggedInUserId !== messageData.senderId &&
+														chatType === 'chats'
 															? 'clickable'
 															: ''
 													}`}
 													onClick={() =>
 														loggedInUserId !== messageData.senderId &&
-														setIsModalOpen(true)
+														chatType === 'chats'
+															? setIsModalOpen(true)
+															: null
 													}
 												>
 													{messageData.from}

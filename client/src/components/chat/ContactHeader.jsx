@@ -45,8 +45,8 @@ export default function ContactHeader({ room, username }) {
 				setChatPicture(
 					isPrivateChat ? chatInfo.profilePicture : chatInfo.groupPicture
 				);
-				setChatName(isPrivateChat ? chatInfo.username : chatInfo.name);
-				setChatId(isPrivateChat ? chatInfo.userId : chatInfo.chatId);
+				setChatName(isPrivateChat ? chatInfo.username : chatInfo.info.name);
+				setChatId(isPrivateChat ? chatInfo.userId : chatInfo.info.chatId);
 				setActiveChatRoom(room);
 			} catch (error) {
 				setErrorMessage(error.message);

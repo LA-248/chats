@@ -85,6 +85,31 @@ const Group = {
 		});
 	},
 
+	retrieveMembersInfo: function (groupId) {
+		return new Promise((resolve, reject) => {
+			pool.query(
+				`
+        SELECT
+          u.user_id,
+          u.username,
+          u.profile_picture
+        FROM users u
+        JOIN group_members gm ON u.user_id = gm.user_id
+        WHERE gm.group_id = $1
+        `,
+				[groupId],
+				(err, result) => {
+					if (err) {
+						return reject(
+							`Error retrieving group members in groups database table: ${err.message}`
+						);
+					}
+					return resolve(result.rows);
+				}
+			);
+		});
+	},
+
 	retrieveGroupInfoByRoom: function (room) {
 		return new Promise((resolve, reject) => {
 			pool.query(
