@@ -44,19 +44,15 @@ export default function ContactInfoModal({
 			<div className='contact-info-container'>
 				<img
 					className='chat-pic'
-					src={
-						activeChat.profilePicture
-							? activeChat.profilePicture
-							: '/images/default-avatar.jpg'
-					}
+					src={activeChat.profilePicture ?? '/images/default-avatar.jpg'}
 					alt='Profile avatar'
 					style={{ height: '100px', width: '100px' }}
 				></img>
 				<div
-					className='recipient-username'
+					className='chat-name-contact-info-modal'
 					style={{ textDecoration: 'none', cursor: 'auto' }}
 				>
-					{chatType === 'groups' ? activeChat.name : activeChat.username}
+					{chatType === 'groups' ? activeChat.info.name : activeChat.username}
 				</div>
 			</div>
 

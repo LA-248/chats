@@ -860,12 +860,17 @@ body {
 	width: 100%;
 }
 
+.group-member-list-header {
+	font-size: 16px;
+	font-weight: 600;
+}
+
 .group-member {
 	display: flex;
 	justify-content: center;
 	align-items: center;
 	font-size: 13px;
-	font-weight: 600;
+	font-weight: 500;
 }
 
 .group-member-profile-picture {
@@ -875,6 +880,20 @@ body {
 	background-color: #ccc;
 	flex-shrink: 0;
 	margin-right: 10px;
+}
+
+.leave-group-button {
+  display: flex;
+  justify-content: center;
+  font-size: 13px;
+	color: red;
+  width: max-content;
+}
+
+.leave-group-button:hover {
+	cursor: pointer;
+	opacity: 0.9;
+	text-decoration: underline;
 }
 
 /* SETTINGS */
@@ -945,7 +964,6 @@ body {
 .error-message {
 	font-size: 14px;
 	color: red;
-	text-decoration: underline;
 	text-align: center;
 }
 

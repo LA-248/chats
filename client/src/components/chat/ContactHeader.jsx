@@ -24,7 +24,7 @@ export default function ContactHeader({ room, username }) {
 	const { activeChatInfo, setActiveChatInfo, setActiveChatRoom } =
 		useContext(ChatContext);
 	const { messages, setFilteredMessages } = useContext(MessageContext);
-	const { loggedInUsername } = useContext(UserContext);
+	const { loggedInUsername, loggedInUserId } = useContext(UserContext);
 	const [chatName, setChatName] = useState('');
 	const [chatPicture, setChatPicture] = useState('');
 	const [isModalOpen, setIsModalOpen] = useState(false);
@@ -125,6 +125,7 @@ export default function ContactHeader({ room, username }) {
 			{activeChatInfo && isModalOpen && chatType === 'groups' && (
 				<GroupInfoModal
 					activeChat={activeChatInfo}
+					loggedInUserId={loggedInUserId}
 					loggedInUsername={loggedInUsername}
 					isModalOpen={isModalOpen}
 					setIsModalOpen={setIsModalOpen}

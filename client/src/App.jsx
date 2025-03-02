@@ -9,6 +9,7 @@ import { ChatView } from './components/chat/ChatView.jsx';
 import { UserProvider } from './contexts/UserContext.jsx';
 import { ChatProvider } from './contexts/ChatContext.jsx';
 import { MessageProvider } from './contexts/MessageContext.jsx';
+import { Toaster } from 'sonner';
 
 function App() {
 	return (
@@ -16,22 +17,19 @@ function App() {
 			<ChatProvider>
 				<MessageProvider>
 					<Router>
-						<div>
-							<div>
-								<Routes>
-									<Route path='/register' element={<SignUp />} />
-									<Route path='/login' element={<Login />} />
+						<Toaster position='top-center' richColors={true} />
+						<Routes>
+							<Route path='/register' element={<SignUp />} />
+							<Route path='/login' element={<Login />} />
 
-									<Route element={<ProtectedRoutes />}>
-										<Route path='/' element={<Home />}>
-											<Route path='/chats/:room' element={<ChatView />} />
-											<Route path='/groups/:room' element={<ChatView />} />
-											<Route path='/settings' element={<Settings />} />
-										</Route>
-									</Route>
-								</Routes>
-							</div>
-						</div>
+							<Route element={<ProtectedRoutes />}>
+								<Route path='/' element={<Home />}>
+									<Route path='/chats/:room' element={<ChatView />} />
+									<Route path='/groups/:room' element={<ChatView />} />
+									<Route path='/settings' element={<Settings />} />
+								</Route>
+							</Route>
+						</Routes>
 					</Router>
 				</MessageProvider>
 			</ChatProvider>

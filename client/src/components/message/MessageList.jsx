@@ -60,11 +60,12 @@ export default function MessageList({
 	const groupMembersInfo = useGroupChatInfo(room, chatType, setErrorMessage);
 
 	const getProfilePicture = (messageData) => {
+		// Group chat
 		if (chatType === 'groups') {
 			const groupMember = groupMembersInfo.find(
 				(member) => messageData.senderId === member.user_id
 			);
-			return groupMember?.profile_picture || '/images/default-avatar.png';
+			return groupMember?.profile_picture ?? '/images/default-avatar.jpg';
 		}
 
 		// Private chat

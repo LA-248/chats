@@ -74,6 +74,28 @@ const GroupMember = {
 			);
 		});
 	},
+
+	// DELETE OPERATIONS
+
+	removeGroupMember: function (groupId, userId) {
+		return new Promise((resolve, reject) => {
+			pool.query(
+				`
+        DELETE FROM group_members 
+        WHERE group_id = $1 AND user_id = $2;
+        `,
+				[groupId, userId],
+				(err) => {
+					if (err) {
+						return reject(
+							`Database error deleting group member in group_members table: ${err.message}`
+						);
+					}
+					return resolve();
+				}
+			);
+		});
+	},
 };
 
 export { GroupMember };

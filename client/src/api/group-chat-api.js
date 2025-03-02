@@ -52,25 +52,6 @@ async function getGroupChatInfo(room) {
 	}
 }
 
-async function deleteGroupChat(room) {
-	try {
-		const response = await fetch(`http://localhost:8080/groups/${room}`, {
-			method: 'DELETE',
-			headers: {
-				Accept: 'application/json',
-			},
-			credentials: 'include',
-		});
-
-		if (!response.ok) {
-			const errorResponse = await response.json();
-			throw new Error(errorResponse.error);
-		}
-	} catch (error) {
-		throw error;
-	}
-}
-
 async function markUserAsRead(room) {
 	try {
 		const response = await fetch(`http://localhost:8080/groups/${room}`, {
@@ -90,4 +71,54 @@ async function markUserAsRead(room) {
 	}
 }
 
-export { createGroupChat, getGroupChatInfo, deleteGroupChat, markUserAsRead };
+async function deleteGroupChat(room) {
+	try {
+		const response = await fetch(`http://localhost:8080/groups/${room}`, {
+			method: 'DELETE',
+			headers: {
+				Accept: 'application/json',
+			},
+			credentials: 'include',
+		});
+
+		if (!response.ok) {
+			const errorResponse = await response.json();
+			throw new Error(errorResponse.error);
+		}
+	} catch (error) {
+		throw error;
+	}
+}
+
+async function leaveGroupChat(groupId, userId) {
+	try {
+		const response = await fetch(
+			`http://localhost:8080/groups/${groupId}/${userId}`,
+			{
+				method: 'DELETE',
+				headers: {
+					Accept: 'application/json',
+				},
+				credentials: 'include',
+			}
+		);
+		const data = response.json();
+
+		if (!response.ok) {
+			const errorResponse = await response.json();
+			throw new Error(errorResponse.error);
+		}
+
+		return data.message;
+	} catch (error) {
+		throw error;
+	}
+}
+
+export {
+	createGroupChat,
+	getGroupChatInfo,
+	markUserAsRead,
+	deleteGroupChat,
+	leaveGroupChat,
+};
