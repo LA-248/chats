@@ -9,6 +9,7 @@ import { getGroupChatInfo } from '../../api/group-chat-api';
 import { getBlockList, updateBlockList } from '../../api/user-api';
 import MessageSearch from '../message/MessageSearch';
 import ContactInfoModal from './ContactInfoModal';
+import GroupInfoModal from './GroupInfoModal';
 import useClearErrorMessage from '../../hooks/useClearErrorMessage';
 
 export default function ContactHeader({ room, username }) {
@@ -77,7 +78,7 @@ export default function ContactHeader({ room, username }) {
 					<div className='picture-and-name'>
 						<img
 							className='chat-pic'
-							src={chatPicture || '/images/default-avatar.jpg'}
+							src={chatPicture ?? '/images/default-avatar.jpg'}
 							alt='Profile avatar'
 							style={{ height: '35px', width: '35px' }}
 						></img>
@@ -111,12 +112,22 @@ export default function ContactHeader({ room, username }) {
 				</div>
 			</div>
 
-			{activeChatInfo && isModalOpen && (
+			{activeChatInfo && isModalOpen && chatType === 'chats' && (
 				<ContactInfoModal
 					activeChat={activeChatInfo}
 					isModalOpen={isModalOpen}
 					setIsModalOpen={setIsModalOpen}
 					updateBlockList={updateBlockList}
+					errorMessage={errorMessage}
+					setErrorMessage={setErrorMessage}
+				/>
+			)}
+			{activeChatInfo && isModalOpen && chatType === 'groups' && (
+				<GroupInfoModal
+					activeChat={activeChatInfo}
+					loggedInUsername={loggedInUsername}
+					isModalOpen={isModalOpen}
+					setIsModalOpen={setIsModalOpen}
 					errorMessage={errorMessage}
 					setErrorMessage={setErrorMessage}
 				/>

@@ -841,6 +841,42 @@ body {
 	border: none;
 }
 
+/* GROUP INFO MODAL */
+
+.group-info-container {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	gap: 10px;
+}
+
+.group-member-list-container {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: flex-start;
+	gap: 10px;
+	width: 100%;
+}
+
+.group-member {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	font-size: 13px;
+	font-weight: 600;
+}
+
+.group-member-profile-picture {
+	height: 40px;
+	width: 40px;
+	border-radius: 50%;
+	background-color: #ccc;
+	flex-shrink: 0;
+	margin-right: 10px;
+}
+
 /* SETTINGS */
 
 .username-heading {
