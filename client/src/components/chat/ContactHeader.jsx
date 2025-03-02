@@ -19,10 +19,12 @@ export default function ContactHeader({ room, username }) {
 	const chatType = pathSegments[1];
 
 	const { setIsBlocked } = useContext(UserContext);
-	const { chatName, setChatName, setChatId } = useContext(ChatContext);
+	const { setChatId } = useContext(ChatContext);
 	const { activeChatInfo, setActiveChatInfo, setActiveChatRoom } =
 		useContext(ChatContext);
 	const { messages, setFilteredMessages } = useContext(MessageContext);
+	const { loggedInUsername } = useContext(UserContext);
+	const [chatName, setChatName] = useState('');
 	const [chatPicture, setChatPicture] = useState('');
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [errorMessage, setErrorMessage] = useState('');
@@ -43,7 +45,7 @@ export default function ContactHeader({ room, username }) {
 				setActiveChatInfo(chatInfo);
 				// TODO: Find a better way to do the below
 				setChatPicture(
-					isPrivateChat ? chatInfo.profilePicture : chatInfo.groupPicture
+					isPrivateChat ? chatInfo.profilePicture : chatInfo.info.groupPicture
 				);
 				setChatName(isPrivateChat ? chatInfo.username : chatInfo.info.name);
 				setChatId(isPrivateChat ? chatInfo.userId : chatInfo.info.chatId);
@@ -79,11 +81,26 @@ export default function ContactHeader({ room, username }) {
 							alt='Profile avatar'
 							style={{ height: '35px', width: '35px' }}
 						></img>
-						<div
-							className='recipient-username'
-							onClick={() => setIsModalOpen(true)}
-						>
-							{chatName}
+						<div>
+							<div
+								className='chat-name-contact-header'
+								onClick={() => setIsModalOpen(true)}
+							>
+								{chatName}
+							</div>
+							{chatType === 'groups' &&
+							activeChatInfo &&
+							activeChatInfo.membersInfo ? (
+								<div className='group-member-list'>
+									{activeChatInfo.membersInfo
+										.map((member) => {
+											return loggedInUsername === member.username
+												? 'You'
+												: member.username;
+										})
+										.join(', ')}
+								</div>
+							) : null}
 						</div>
 					</div>
 

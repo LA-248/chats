@@ -385,14 +385,24 @@ body {
 	gap: 10px;
 }
 
-.recipient-username {
+.chat-name-contact-header,
+.chat-name-contact-info-modal {
+	font-size: 15px;
 	font-weight: 600;
 	color: white;
 }
 
-.recipient-username:hover {
+.chat-name-contact-header:hover {
 	cursor: pointer;
 	text-decoration: underline;
+}
+
+.group-member-list {
+	display: flex;
+	font-size: 13px;
+	font-weight: 500;
+	color: white;
+	gap: 5px;
 }
 
 #message-search-input {
