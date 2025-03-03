@@ -24,7 +24,7 @@ export default function LeaveGroupModal({
 			const updatedList = await getChatListByUserId();
 			setChatList(updatedList);
 
-			toast.success(result.message);
+			toast.success(result);
 			navigate('/');
 		} catch (error) {
 			setIsModalOpen(true);

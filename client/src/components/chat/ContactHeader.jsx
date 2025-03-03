@@ -38,7 +38,7 @@ export default function ContactHeader({ room, username }) {
 				const isPrivateChat = chatType === 'chats';
 				const chatInfo = isPrivateChat
 					? await getRecipientInfo(room, navigate)
-					: await getGroupChatInfo(room);
+					: await getGroupChatInfo(room, navigate);
 				const loggedInUserBlockList = await getBlockList();
 				setIsBlocked(
 					isPrivateChat ? loggedInUserBlockList.includes(chatInfo.userId) : null

@@ -31,7 +31,7 @@ async function createGroupChat(loggedInUserId, groupName, addedMembers) {
 	}
 }
 
-async function getGroupChatInfo(room) {
+async function getGroupChatInfo(room, navigate) {
 	try {
 		const response = await fetch(`http://localhost:8080/groups/${room}`, {
 			method: 'GET',
@@ -42,6 +42,11 @@ async function getGroupChatInfo(room) {
 		});
 		const data = await response.json();
 
+		// Redirect user to homepage if they try to access a chat via the URL with a user that does not exist
+		// or they try to access a room that they are not a part of
+		if (response.status === 401 || response.status === 404) {
+			navigate(data.redirectPath);
+		}
 		if (!response.ok) {
 			throw new Error(data.error);
 		}
@@ -102,7 +107,7 @@ async function leaveGroupChat(groupId, userId) {
 				credentials: 'include',
 			}
 		);
-		const data = response.json();
+		const data = await response.json();
 
 		if (!response.ok) {
 			const errorResponse = await response.json();
