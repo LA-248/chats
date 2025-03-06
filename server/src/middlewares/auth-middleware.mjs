@@ -19,8 +19,7 @@ const privateChatRoomAuth = async (req, res, next) => {
 	const room = req.params.room;
 
 	try {
-		const privateChatMembers =
-			await PrivateChat.retrieveMembersByRoom(room);
+		const privateChatMembers = await PrivateChat.retrieveMembersByRoom(room);
 
 		if (!privateChatMembers) {
 			return res.status(404).json({
@@ -33,7 +32,7 @@ const privateChatRoomAuth = async (req, res, next) => {
 		if (Object.values(privateChatMembers).includes(senderId)) {
 			return next();
 		} else {
-			return res.status(401).json({
+			return res.status(403).json({
 				error: 'Unauthorised',
 				message: 'You are not a member of this chat',
 				redirectPath: '/',
@@ -54,8 +53,6 @@ const groupChatRoomAuth = async (req, res, next) => {
 
 	try {
 		const groupChatMembers = await GroupMember.retrieveMembersByRoom(room);
-		const groupChatMemberIds = groupChatMembers.map((member) => member.user_id);
-
 		if (!groupChatMembers) {
 			return res.status(404).json({
 				error: 'Not found',
@@ -63,12 +60,13 @@ const groupChatRoomAuth = async (req, res, next) => {
 				redirectPath: '/',
 			});
 		}
+		const groupChatMemberIds = groupChatMembers.map((member) => member.user_id);
 
 		if (groupChatMemberIds.includes(senderId)) {
 			return next();
 		}
 
-		return res.status(401).json({
+		return res.status(403).json({
 			error: 'Unauthorised',
 			message: 'You are not a member of this chat',
 			redirectPath: '/',

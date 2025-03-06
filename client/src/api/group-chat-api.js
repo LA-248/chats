@@ -42,9 +42,13 @@ async function getGroupChatInfo(room, navigate) {
 		});
 		const data = await response.json();
 
-		// Redirect user to homepage if they try to access a chat via the URL with a user that does not exist
+		// Redirect user to homepage if they try to access a group chat via the URL that does not exist
 		// or they try to access a room that they are not a part of
-		if (response.status === 401 || response.status === 404) {
+		if (
+			response.status === 403 ||
+			response.status === 404 ||
+			response.status === 500
+		) {
 			navigate(data.redirectPath);
 		}
 		if (!response.ok) {
