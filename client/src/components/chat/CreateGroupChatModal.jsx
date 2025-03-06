@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { getRecipientUserIdByUsername } from '../../api/user-api';
 import { createGroupChat } from '../../api/group-chat-api';
+import { toast } from 'sonner';
 import Modal from '../common/ModalTemplate';
 
 export default function CreateGroupChatModal({
@@ -73,12 +74,14 @@ export default function CreateGroupChatModal({
 				throw new Error('You must add at least one member to your group');
 			}
 
-			const updatedChatList = await createGroupChat(
+			const response = await createGroupChat(
 				loggedInUserId,
 				groupName,
 				addedMembers
 			);
+			const updatedChatList = response.updatedChatList;
 			setChatList(updatedChatList);
+			toast.success(response.message);
 			setGroupName('');
 			setAddedMembers([
 				{ username: loggedInUsername, userId: loggedInUserId, role: 'owner' },

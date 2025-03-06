@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { getChatListByUserId } from '../direct/get-chat-controller.mjs';
 
 // TODO: Break up into smaller functions
-// Handle adding a group chat
+// Handle creating a group chat
 const createGroupChat = async (req, res) => {
 	try {
 		const ownerUserId = req.body.loggedInUserId;
@@ -48,6 +48,7 @@ const createGroupChat = async (req, res) => {
 		const updatedChatList = await getChatListByUserId(ownerUserId);
 
 		return res.status(200).json({
+			message: 'Group created',
 			updatedChatList: updatedChatList,
 		});
 	} catch (error) {
