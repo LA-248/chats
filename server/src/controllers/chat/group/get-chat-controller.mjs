@@ -44,4 +44,18 @@ const retrieveGroupMembersInfo = async (groupId) => {
 	}
 };
 
-export { retrieveGroupInfo };
+const retrieveMemberUsernames = async (req, res) => {
+	try {
+		const groupId = req.params.groupId;
+		const groupMembersInfo = await Group.retrieveMembersInfo(groupId);
+		const memberUsernames = groupMembersInfo.map((member) => {
+			return member.username;
+		});
+		res.status(200).json({ memberUsernames });
+	} catch (error) {
+		console.error('Error retrieving group member usernames:', error);
+		res.status(500).json({ error: 'An unexpected error occurred' });
+	}
+};
+
+export { retrieveGroupInfo, retrieveMemberUsernames };

@@ -11,8 +11,7 @@ const addMembers = async (req, res) => {
 		const insertGroupMembers = addedMembers.map((user) =>
 			GroupMember.insertGroupMember(groupInfo.group_id, user.userId, user.role)
 		);
-		const results = await Promise.allSettled(insertGroupMembers);
-		console.log(results);
+		await Promise.all(insertGroupMembers);
 
 		return res.status(200).json({
 			message: 'Members added',

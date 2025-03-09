@@ -33,17 +33,20 @@ async function createGroupChat(loggedInUserId, groupName, addedMembers) {
 
 async function addMembers(room, addedMembers) {
 	try {
-		const response = await fetch(`http://localhost:8080/groups/${room}/members`, {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-				Accept: 'application/json',
-			},
-			body: JSON.stringify({
-				addedMembers: addedMembers,
-			}),
-			credentials: 'include',
-		});
+		const response = await fetch(
+			`http://localhost:8080/groups/${room}/members`,
+			{
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					Accept: 'application/json',
+				},
+				body: JSON.stringify({
+					addedMembers: addedMembers,
+				}),
+				credentials: 'include',
+			}
+		);
 		const data = await response.json();
 
 		if (!response.ok) {
@@ -80,6 +83,29 @@ async function getGroupChatInfo(room, navigate) {
 		}
 
 		return data;
+	} catch (error) {
+		throw error;
+	}
+}
+
+async function retrieveGroupMembersInfo(groupId) {
+	try {
+		const response = await fetch(
+			`http://localhost:8080/groups/${groupId}/members`,
+			{
+				method: 'GET',
+				headers: {
+					Accept: 'application/json',
+				},
+				credentials: 'include',
+			}
+		);
+		const data = await response.json();
+
+		if (!response.ok) {
+			throw new Error(data.error);
+		}
+		return data.memberUsernames;
 	} catch (error) {
 		throw error;
 	}
@@ -152,6 +178,7 @@ export {
 	createGroupChat,
 	addMembers,
 	getGroupChatInfo,
+	retrieveGroupMembersInfo,
 	markUserAsRead,
 	deleteGroupChat,
 	leaveGroupChat,

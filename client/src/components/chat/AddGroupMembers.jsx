@@ -1,20 +1,24 @@
-import { useContext, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ChatContext } from '../../contexts/ChatContext';
 import { toast } from 'sonner';
 import { getRecipientUserIdByUsername } from '../../api/user-api';
-import { addMembers, getGroupChatInfo } from '../../api/group-chat-api';
+import {
+	addMembers,
+	getGroupChatInfo,
+	retrieveGroupMembersInfo,
+} from '../../api/group-chat-api';
 import Modal from '../common/ModalTemplate';
 
 export default function AddGroupMembers({
 	isModalOpen,
 	setIsModalOpen,
+	activeChatInfo,
+	setActiveChatInfo,
 	loggedInUsername,
 	loggedInUserId,
 }) {
 	const navigate = useNavigate();
 	const { room } = useParams();
-	const { setActiveChatInfo } = useContext(ChatContext);
 	const [inputUsername, setInputUsername] = useState('');
 	const [addedMembers, setAddedMembers] = useState([]);
 	const [errorMessage, setErrorMessage] = useState('');
@@ -41,11 +45,19 @@ export default function AddGroupMembers({
 				(member) => member.username === inputUsername
 			);
 			if (exists) {
-				throw new Error('This user has already been added to the group');
+				throw new Error('This user has already been selected to be added');
 			}
 
 			// Check if the user being added exists in the database, if they do, their user id is returned
 			const memberUserId = await getRecipientUserIdByUsername(inputUsername);
+
+			// This checks if the user trying to be added is already a member
+			const groupId = activeChatInfo.info.chatId;
+			const currentGroupMembers = await retrieveGroupMembersInfo(groupId);
+			if (currentGroupMembers.includes(inputUsername)) {
+				throw new Error('This user is already a member of this group');
+			}
+
 			// Store the username, id, and group role of each added member, this is needed to add them as a group member in the database
 			setAddedMembers((prevMembers) => [
 				...prevMembers,
@@ -72,7 +84,8 @@ export default function AddGroupMembers({
 
 		try {
 			const result = await addMembers(room, addedMembers);
-			setActiveChatInfo(await getGroupChatInfo(room, navigate));
+			const updatedGroupInfo = await getGroupChatInfo(room, navigate);
+			setActiveChatInfo(updatedGroupInfo);
 			toast.success(result.message);
 			setIsModalOpen(false);
 		} catch (error) {

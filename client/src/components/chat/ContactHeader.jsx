@@ -127,6 +127,8 @@ export default function ContactHeader({ room, username }) {
 			<AddGroupMembers
 				isModalOpen={isAddMembersModalOpen}
 				setIsModalOpen={setIsAddMembersModalOpen}
+				activeChatInfo={activeChatInfo}
+				setActiveChatInfo={setActiveChatInfo}
 				loggedInUsername={loggedInUsername}
 				loggedInUserId={loggedInUserId}
 				setChatList={setChatList}
