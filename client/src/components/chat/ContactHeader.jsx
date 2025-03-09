@@ -11,6 +11,7 @@ import MessageSearch from '../message/MessageSearch';
 import ContactInfoModal from './ContactInfoModal';
 import GroupInfoModal from './GroupInfoModal';
 import useClearErrorMessage from '../../hooks/useClearErrorMessage';
+import AddGroupMembers from './AddGroupMembers';
 
 export default function ContactHeader({ room, username }) {
 	const navigate = useNavigate();
@@ -20,14 +21,15 @@ export default function ContactHeader({ room, username }) {
 	const chatType = pathSegments[1];
 
 	const { setIsBlocked } = useContext(UserContext);
-	const { setChatId } = useContext(ChatContext);
+	const { setChatId, setChatList } = useContext(ChatContext);
 	const { activeChatInfo, setActiveChatInfo, setActiveChatRoom } =
 		useContext(ChatContext);
 	const { messages, setFilteredMessages } = useContext(MessageContext);
 	const { loggedInUsername, loggedInUserId } = useContext(UserContext);
 	const [chatName, setChatName] = useState('');
 	const [chatPicture, setChatPicture] = useState('');
-	const [isModalOpen, setIsModalOpen] = useState(false);
+	const [isChatInfoModalOpen, setIsChatInfoModalOpen] = useState(false);
+	const [isAddMembersModalOpen, setIsAddMembersModalOpen] = useState(false);
 	const [errorMessage, setErrorMessage] = useState('');
 
 	useEffect(() => {
@@ -85,7 +87,7 @@ export default function ContactHeader({ room, username }) {
 						<div>
 							<div
 								className='chat-name-contact-header'
-								onClick={() => setIsModalOpen(true)}
+								onClick={() => setIsChatInfoModalOpen(true)}
 							>
 								{chatName}
 							</div>
@@ -105,30 +107,48 @@ export default function ContactHeader({ room, username }) {
 						</div>
 					</div>
 
-					<MessageSearch
-						messages={messages}
-						setFilteredMessages={setFilteredMessages}
-					/>
+					<div className='group-chat-action-buttons'>
+						{chatType === 'groups' ? (
+							<button
+								className='add-group-members-button'
+								onClick={() => setIsAddMembersModalOpen(true)}
+							>
+								Add members
+							</button>
+						) : null}
+						<MessageSearch
+							messages={messages}
+							setFilteredMessages={setFilteredMessages}
+						/>
+					</div>
 				</div>
 			</div>
 
-			{activeChatInfo && isModalOpen && chatType === 'chats' && (
+			<AddGroupMembers
+				isModalOpen={isAddMembersModalOpen}
+				setIsModalOpen={setIsAddMembersModalOpen}
+				loggedInUsername={loggedInUsername}
+				loggedInUserId={loggedInUserId}
+				setChatList={setChatList}
+			/>
+
+			{activeChatInfo && isChatInfoModalOpen && chatType === 'chats' && (
 				<ContactInfoModal
 					activeChat={activeChatInfo}
-					isModalOpen={isModalOpen}
-					setIsModalOpen={setIsModalOpen}
+					isModalOpen={isChatInfoModalOpen}
+					setIsModalOpen={setIsChatInfoModalOpen}
 					updateBlockList={updateBlockList}
 					errorMessage={errorMessage}
 					setErrorMessage={setErrorMessage}
 				/>
 			)}
-			{activeChatInfo && isModalOpen && chatType === 'groups' && (
+			{activeChatInfo && isChatInfoModalOpen && chatType === 'groups' && (
 				<GroupInfoModal
 					activeChat={activeChatInfo}
 					loggedInUserId={loggedInUserId}
 					loggedInUsername={loggedInUsername}
-					isModalOpen={isModalOpen}
-					setIsModalOpen={setIsModalOpen}
+					isModalOpen={isChatInfoModalOpen}
+					setIsModalOpen={setIsChatInfoModalOpen}
 					errorMessage={errorMessage}
 					setErrorMessage={setErrorMessage}
 				/>

@@ -9,19 +9,20 @@ import {
 	deleteGroupChat,
 	removeGroupMember,
 } from '../controllers/chat/group/delete-chat-controller.mjs';
-import { updateUserReadStatus } from '../controllers/chat/group/update-chat-controller.mjs';
+import {
+	addMembers,
+	updateUserReadStatus,
+} from '../controllers/chat/group/update-chat-controller.mjs';
 
 const groupChatsRouter = express.Router();
 groupChatsRouter.use(requireAuth);
 
 groupChatsRouter.post('/', createGroupChat);
+groupChatsRouter.post('/:room/members', groupChatRoomAuth, addMembers);
 groupChatsRouter.get('/:room', groupChatRoomAuth, retrieveGroupInfo);
 groupChatsRouter.delete('/:room', groupChatRoomAuth, deleteGroupChat);
-groupChatsRouter.delete(
-	'/:groupId/:userId',
-	groupChatRoomAuth,
-	removeGroupMember
-);
+// TODO: Add authorisation middleware to this route to ensure not anyone can remove a member from a group
+groupChatsRouter.delete('/:groupId/:userId', removeGroupMember);
 groupChatsRouter.put('/:room', groupChatRoomAuth, updateUserReadStatus);
 
 export default groupChatsRouter;

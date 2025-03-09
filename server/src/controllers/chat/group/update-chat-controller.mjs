@@ -1,4 +1,29 @@
+import { GroupMember } from '../../../models/group-member-model.mjs';
 import { Group } from '../../../models/group-model.mjs';
+
+const addMembers = async (req, res) => {
+	try {
+		const addedMembers = req.body.addedMembers;
+		const room = req.params.room;
+		const groupInfo = await Group.retrieveGroupInfoByRoom(room);
+
+		// Add members to the group chat
+		const insertGroupMembers = addedMembers.map((user) =>
+			GroupMember.insertGroupMember(groupInfo.group_id, user.userId, user.role)
+		);
+		const results = await Promise.allSettled(insertGroupMembers);
+		console.log(results);
+
+		return res.status(200).json({
+			message: 'Members added',
+		});
+	} catch (error) {
+		console.error('Error adding members to group chat:', error);
+		return res
+			.status(500)
+			.json({ error: 'Error adding members. Please try again.' });
+	}
+};
 
 const updateUserReadStatus = async (req, res) => {
 	try {
@@ -13,4 +38,4 @@ const updateUserReadStatus = async (req, res) => {
 	}
 };
 
-export { updateUserReadStatus };
+export { addMembers, updateUserReadStatus };
