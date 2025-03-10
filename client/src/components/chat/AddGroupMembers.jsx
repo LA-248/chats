@@ -29,6 +29,8 @@ export default function AddGroupMembers({
 
 	const handleAddMember = async (event) => {
 		event.preventDefault();
+		const groupId = activeChatInfo.info.chatId;
+		const currentGroupMembers = await retrieveGroupMembersInfo(groupId);
 
 		try {
 			if (!inputUsername) {
@@ -47,13 +49,13 @@ export default function AddGroupMembers({
 			if (exists) {
 				throw new Error('This user has already been selected to be added');
 			}
-
+			if (currentGroupMembers.length === 10) {
+				throw new Error('Groups have a limit of 10 members');
+			}
 			// Check if the user being added exists in the database, if they do, their user id is returned
 			const memberUserId = await getRecipientUserIdByUsername(inputUsername);
 
 			// This checks if the user trying to be added is already a member
-			const groupId = activeChatInfo.info.chatId;
-			const currentGroupMembers = await retrieveGroupMembersInfo(groupId);
 			if (currentGroupMembers.includes(inputUsername)) {
 				throw new Error('This user is already a member of this group');
 			}
@@ -87,6 +89,7 @@ export default function AddGroupMembers({
 			const updatedGroupInfo = await getGroupChatInfo(room, navigate);
 			setActiveChatInfo(updatedGroupInfo);
 			toast.success(result.message);
+			setAddedMembers([]);
 			setIsModalOpen(false);
 		} catch (error) {
 			setIsModalOpen(true);
