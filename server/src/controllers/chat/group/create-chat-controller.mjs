@@ -18,7 +18,6 @@ const createGroupChat = async (req, res) => {
 		const insertGroupMembers = addedMembers.map((user) =>
 			GroupMember.insertGroupMember(result.group_id, user.userId, user.role)
 		);
-
 		const results = await Promise.allSettled(insertGroupMembers);
 
 		// Log failed insertions

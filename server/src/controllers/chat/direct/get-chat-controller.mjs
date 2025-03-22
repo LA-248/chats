@@ -1,6 +1,8 @@
 import { Chat } from '../../../models/chat-list-model.mjs';
 import { generatePresignedUrlsForChatList } from '../../../services/s3/s3-presigned-url.mjs';
 
+// TODO: Move both of these functions to a different file - this handles all chats, not just private ones
+
 // Fetch the chat list of a specific user
 const getChatList = async (req, res) => {
 	try {
@@ -20,7 +22,6 @@ const getChatList = async (req, res) => {
 	}
 };
 
-// TODO: Move to different file - this retrieves all chats, not just private ones
 const getChatListByUserId = async (userId) => {
 	try {
 		const chatList = await Chat.retrieveAllChats(userId);

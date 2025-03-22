@@ -21,6 +21,7 @@ export default function LeaveGroupModal({
 			const groupId = activeChat.info.chatId;
 			const result = await leaveGroupChat(groupId, loggedInUserId);
 
+      // Fetch updated chat list after leaving group to reflect changes
 			const updatedList = await getChatListByUserId();
 			setChatList(updatedList);
 
