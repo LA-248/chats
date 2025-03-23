@@ -73,7 +73,7 @@ export default function CreateGroupChatModal({
 			if (!/^[a-zA-Z0-9 ]+$/.test(groupName)) {
 				throw new Error('Group name can only contain letters and numbers');
 			}
-			if (groupName.length < 2 || groupName.length > 40) {
+			if (groupName.length < 1 || groupName.length > 50) {
 				throw new Error('Group name must be between 1 and 50 characters');
 			}
 			if (addedMembers.length <= 1) {
