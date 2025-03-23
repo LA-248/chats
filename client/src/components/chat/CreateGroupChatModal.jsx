@@ -70,6 +70,12 @@ export default function CreateGroupChatModal({
 			if (!groupName) {
 				throw new Error('Please enter a name for your group');
 			}
+			if (!/^[a-zA-Z0-9 ]+$/.test(groupName)) {
+				throw new Error('Group name can only contain letters and numbers');
+			}
+			if (groupName.length < 2 || groupName.length > 40) {
+				throw new Error('Group name must be between 1 and 50 characters');
+			}
 			if (addedMembers.length <= 1) {
 				throw new Error('You must add at least one member to your group');
 			}
