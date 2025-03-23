@@ -32,23 +32,32 @@ function GroupInfoHeader({ activeChat, setIsLeaveModalOpen }) {
 	);
 }
 
-function GroupMemberList({ members, loggedInUsername }) {
+function GroupMembersList({ members, loggedInUsername }) {
 	return (
 		<>
 			<div className='group-member-list-container'>
 				<div className='group-member-list-header'>Members</div>
 				{members.map((member) => {
 					return (
-						<div className='group-member' key={member.username}>
-							<img
-								className='group-member-profile-picture'
-								src={member.profile_picture ?? '/images/default-avatar.jpg'}
-								alt='Profile avatar'
-							/>
-							<div>
-								{loggedInUsername === member.username ? 'You' : member.username}
+						<>
+							<div className='group-member' key={member.username}>
+								<div className='group-member-profile-pic-and-name'>
+									<img
+										className='group-member-profile-picture'
+										src={member.profile_picture ?? '/images/default-avatar.jpg'}
+										alt='Profile avatar'
+									/>
+									<div className='group-member-name'>
+										{loggedInUsername === member.username
+											? 'You'
+											: member.username}
+									</div>
+								</div>
+								<div className='group-member-role'>
+									<div>{member.role === 'owner' ? 'Admin' : null}</div>
+								</div>
 							</div>
-						</div>
+						</>
 					);
 				})}
 			</div>
@@ -84,7 +93,7 @@ export default function GroupInfoModal({
 				<hr
 					style={{ width: '100%', border: 'solid 1px gray', margin: '10px' }}
 				></hr>
-				<GroupMemberList
+				<GroupMembersList
 					members={activeChat.membersInfo}
 					loggedInUsername={loggedInUsername}
 				/>

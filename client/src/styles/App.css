@@ -880,7 +880,6 @@ body {
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
-	align-items: flex-start;
 	gap: 10px;
 	width: 100%;
 }
@@ -892,10 +891,15 @@ body {
 
 .group-member {
 	display: flex;
-	justify-content: center;
+	justify-content: space-between;
 	align-items: center;
 	font-size: 13px;
 	font-weight: 500;
+}
+
+.group-member-profile-pic-and-name {
+  display: flex;
+  align-items: center;
 }
 
 .group-member-profile-picture {
@@ -905,6 +909,15 @@ body {
 	background-color: #ccc;
 	flex-shrink: 0;
 	margin-right: 10px;
+}
+
+.group-member-name {
+  font-weight: 600;
+}
+
+.group-member-role {
+  display: flex;
+  justify-content: space-between;
 }
 
 .leave-group-button {

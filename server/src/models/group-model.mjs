@@ -92,7 +92,8 @@ const Group = {
         SELECT
           u.user_id,
           u.username,
-          u.profile_picture
+          u.profile_picture,
+          gm.role
         FROM users u
         JOIN group_members gm ON u.user_id = gm.user_id
         WHERE gm.group_id = $1
