@@ -1,6 +1,6 @@
 import { PrivateChat } from '../../../models/private-chat-model.mjs';
 
-// Update the last message id for a chat
+// Update the last message id for a chat, used when last message is deleted
 const updateLastMessageId = async (req, res) => {
 	try {
 		const newLastMessageId = req.body.messageId;

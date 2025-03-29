@@ -111,6 +111,31 @@ async function retrieveGroupMembersInfo(groupId) {
 	}
 }
 
+// Needed for when the most recent message in a group chat is deleted
+// Ensures the correct latest message is shown in the chat list
+async function updateLastGroupMessageId(messageId, room) {
+	try {
+		const response = await fetch(
+			`http://localhost:8080/groups/${room}/last_message`,
+			{
+				method: 'PUT',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({ messageId: messageId }),
+				credentials: 'include',
+			}
+		);
+
+		if (!response.ok) {
+			const errorResponse = await response.json();
+			throw new Error(errorResponse.error);
+		}
+	} catch (error) {
+		throw error;
+	}
+}
+
 async function markUserAsRead(room) {
 	try {
 		const response = await fetch(`http://localhost:8080/groups/${room}`, {
@@ -179,6 +204,7 @@ export {
 	addMembers,
 	getGroupChatInfo,
 	retrieveGroupMembersInfo,
+	updateLastGroupMessageId,
 	markUserAsRead,
 	deleteGroupChat,
 	leaveGroupChat,

@@ -1,10 +1,11 @@
-import { useParams } from 'react-router-dom';
+import { useContext } from 'react';
+import { useLocation, useParams } from 'react-router-dom';
 import { deleteMessageById } from '../../api/message-api';
 import { useSocket } from '../../hooks/useSocket';
-import { useContext } from 'react';
 import { MessageContext } from '../../contexts/MessageContext';
-import Modal from '../common/ModalTemplate';
 import { updateLastMessageId } from '../../api/private-chat-api';
+import { updateLastGroupMessageId } from '../../api/group-chat-api';
+import Modal from '../common/ModalTemplate';
 
 export default function DeleteMessageModal({
 	messageId,
@@ -15,6 +16,9 @@ export default function DeleteMessageModal({
 	setErrorMessage,
 }) {
 	const socket = useSocket();
+	const location = useLocation();
+	const pathSegments = location.pathname.split('/');
+	const chatType = pathSegments[1];
 	const { room } = useParams();
 	const { filteredMessages } = useContext(MessageContext);
 
@@ -35,8 +39,10 @@ export default function DeleteMessageModal({
 				const newLastMessageIndex = messageList.length - 2;
 				const newLastMessageId = messageList[newLastMessageIndex].id;
 
-				// Update the private chat table to reflect the correct ID of the last sent message after deletion
-				await updateLastMessageId(newLastMessageId, room);
+				// Update the private or group chat table to reflect the correct ID of the last sent message after deletion
+				chatType === 'chats'
+					? await updateLastMessageId(newLastMessageId, room)
+					: await updateLastGroupMessageId(newLastMessageId, room);
 
 				socket.emit('last-message-updated', room);
 			}

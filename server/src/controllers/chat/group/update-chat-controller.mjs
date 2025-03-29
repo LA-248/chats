@@ -37,4 +37,23 @@ const updateUserReadStatus = async (req, res) => {
 	}
 };
 
-export { addMembers, updateUserReadStatus };
+// Update the last message id for a group chat, used when last message is deleted
+const updateLastMessageId = async (req, res) => {
+	try {
+		const newLastMessageId = req.body.messageId;
+		const room = req.params.room;
+
+		await Group.updateLastMessage(newLastMessageId, room);
+		return res
+			.status(200)
+			.json({ success: 'Last message successfully updated' });
+	} catch (error) {
+		console.error('Error updating last message id:', error);
+		return res.status(500).json({
+			error:
+				'There was an error updating your chat list. Please refresh the page.',
+		});
+	}
+};
+
+export { addMembers, updateUserReadStatus, updateLastMessageId };

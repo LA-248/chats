@@ -14,6 +14,7 @@ import {
 } from '../controllers/chat/group/delete-chat-controller.mjs';
 import {
 	addMembers,
+	updateLastMessageId,
 	updateUserReadStatus,
 } from '../controllers/chat/group/update-chat-controller.mjs';
 
@@ -29,5 +30,10 @@ groupChatsRouter.delete('/:room', groupChatRoomAuth, deleteGroupChat);
 // TODO: Add authorisation middleware to this route to ensure not anyone can remove a member from a group
 groupChatsRouter.delete('/:groupId/:userId', removeGroupMember);
 groupChatsRouter.put('/:room', groupChatRoomAuth, updateUserReadStatus);
+groupChatsRouter.put(
+	'/:room/last_message',
+	groupChatRoomAuth,
+	updateLastMessageId
+);
 
 export default groupChatsRouter;
