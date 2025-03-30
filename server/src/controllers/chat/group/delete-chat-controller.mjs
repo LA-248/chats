@@ -16,6 +16,7 @@ const deleteGroupChat = async (req, res) => {
 	}
 };
 
+// Used when a user voluntarily leaves a group chat
 const removeGroupMember = async (req, res) => {
 	try {
 		const groupId = req.params.groupId;

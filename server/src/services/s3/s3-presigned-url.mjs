@@ -20,8 +20,8 @@ const generatePresignedUrlsForChatList = async (chatList) => {
 		// This url is required to display the recipient's profile picture in the chat list UI
 		for (let i = 0; i < chatList.length; i++) {
 			// Only run this code if the user has uploaded a profile picture
-			if (chatList[i].recipient_profile_picture !== null) {
-				const profilePictureFileName = chatList[i].recipient_profile_picture;
+			if (chatList[i].chat_picture !== null) {
+				const profilePictureFileName = chatList[i].chat_picture;
 				let presignedS3Url = profilePictureUrlCache.get(profilePictureFileName);
 
 				// If presigned url is not in cache, generate a new one
@@ -33,7 +33,7 @@ const generatePresignedUrlsForChatList = async (chatList) => {
 					profilePictureUrlCache.set(profilePictureFileName, presignedS3Url);
 				}
 
-				chatList[i].recipient_profile_picture = presignedS3Url;
+				chatList[i].chat_picture = presignedS3Url;
 			}
 		}
 	} catch (error) {

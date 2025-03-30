@@ -126,7 +126,43 @@ const Group = {
 		});
 	},
 
+	retrievePicture: function (room) {
+		return new Promise((resolve, reject) => {
+			pool.query(
+				`SELECT group_picture FROM groups WHERE room = $1`,
+				[room],
+				(err, result) => {
+					if (err) {
+						return reject(`Database error in groups table: ${err.message}`);
+					}
+					if (
+						result.rows.length === 0 ||
+						result.rows[0].group_picture === null
+					) {
+						return resolve(null);
+					}
+					return resolve(result.rows[0].group_picture);
+				}
+			);
+		});
+	},
+
 	// UPDATE OPERATIONS
+
+	updatePicture: function (fileName, room) {
+		return new Promise((resolve, reject) => {
+			pool.query(
+				`UPDATE groups SET group_picture = $1 WHERE room = $2`,
+				[fileName, room],
+				(err) => {
+					if (err) {
+						return reject(`Database error in groups table: ${err.message}`);
+					}
+					return resolve();
+				}
+			);
+		});
+	},
 
 	updateLastMessage: function (messageId, room) {
 		return new Promise((resolve, reject) => {

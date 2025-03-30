@@ -77,7 +77,7 @@ export default function AddGroupMembers({
 		);
 	};
 
-	const handleAddAllMembers = async (event) => {
+	const handleAddMembers = async (event) => {
 		event.preventDefault();
 
 		if (addedMembers.length === 0) {
@@ -146,7 +146,7 @@ export default function AddGroupMembers({
 			</div>
 
 			<div className='modal-action-buttons-container'>
-				<form onSubmit={handleAddAllMembers}>
+				<form onSubmit={handleAddMembers}>
 					<button
 						className='confirm-action-button'
 						disabled={addedMembers.length === 0}
@@ -155,7 +155,7 @@ export default function AddGroupMembers({
 							cursor: addedMembers.length === 0 && 'auto',
 						}}
 					>
-						Add
+						Add members
 					</button>
 				</form>
 

@@ -21,7 +21,7 @@ export default function ContactHeader({ room, username }) {
 	const chatType = pathSegments[1];
 
 	const { setIsBlocked } = useContext(UserContext);
-	const { setChatId, setChatList } = useContext(ChatContext);
+	const { setChatId, setChatList, setGroupPicture } = useContext(ChatContext);
 	const { activeChatInfo, setActiveChatInfo, setActiveChatRoom } =
 		useContext(ChatContext);
 	const { messages, setFilteredMessages } = useContext(MessageContext);
@@ -50,6 +50,7 @@ export default function ContactHeader({ room, username }) {
 				setChatPicture(
 					isPrivateChat ? chatInfo.profilePicture : chatInfo.info.groupPicture
 				);
+				setGroupPicture(chatInfo.info.groupPicture);
 				setChatName(isPrivateChat ? chatInfo.username : chatInfo.info.name);
 				setChatId(isPrivateChat ? chatInfo.userId : chatInfo.info.chatId);
 				setActiveChatRoom(room);
@@ -68,6 +69,7 @@ export default function ContactHeader({ room, username }) {
 		setChatName,
 		setChatId,
 		setActiveChatRoom,
+		setGroupPicture,
 		navigate,
 	]);
 

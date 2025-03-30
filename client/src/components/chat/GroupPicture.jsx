@@ -1,39 +1,41 @@
 import { useContext, useRef } from 'react';
-import { useLocation } from 'react-router-dom';
-import { UserContext } from '../../contexts/UserContext';
+import { useLocation, useParams } from 'react-router-dom';
+import { ChatContext } from '../../contexts/ChatContext';
 import { usePictureUpload } from '../../hooks/usePictureUpload';
 
-export default function ProfilePicture() {
+export default function GroupPicture() {
 	const fileInputRef = useRef(null);
 	const formRef = useRef(null);
+	const { room } = useParams();
 	const location = useLocation();
 	const pathSegments = location.pathname.split('/');
 	const chatType = pathSegments[1];
-	const { profilePicture, setProfilePicture } = useContext(UserContext);
+	const { groupPicture, setGroupPicture } = useContext(ChatContext);
 
 	const { handleFileInputClick, handleProfilePictureUpload } = usePictureUpload(
 		fileInputRef,
 		formRef,
-		setProfilePicture,
-		chatType
+		setGroupPicture,
+		chatType,
+		room
 	);
 
 	return (
-		<div className='profile-picture-container'>
+		<div className='group-picture-container'>
 			<img
-				className='profile-picture'
-				alt='Profile avatar'
-				src={profilePicture}
+				className='group-picture'
+				alt='Group avatar'
+				src={groupPicture || '/images/default-avatar.jpg'}
 			></img>
 			<form
 				ref={formRef}
-				id='profile-picture-upload-form'
+				id='group-picture-upload-form'
 				encType='multipart/form-data'
 			>
 				<input
 					ref={fileInputRef}
 					type='file'
-					name='profile-picture'
+					name='group-picture'
 					accept='image/*'
 					style={{ display: 'none' }}
 					onChange={handleProfilePictureUpload}
@@ -41,7 +43,7 @@ export default function ProfilePicture() {
 			</form>
 			<button
 				type='file'
-				className='upload-profile-picture-button'
+				className='upload-group-picture-button'
 				onClick={handleFileInputClick}
 			>
 				Upload

@@ -7,11 +7,18 @@ const retrieveGroupInfo = async (req, res) => {
 		const groupInfo = await Group.retrieveGroupInfoByRoom(room);
 		const groupMembersInfo = await retrieveGroupMembersInfo(groupInfo.group_id);
 
+		const groupPictureUrl = groupInfo.group_picture
+			? await createPresignedUrl(
+					process.env.BUCKET_NAME,
+					groupInfo.group_picture
+			  )
+			: null;
+
 		res.status(200).json({
 			info: {
 				chatId: groupInfo.group_id,
 				name: groupInfo.name,
-				groupPicture: groupInfo.group_picture,
+				groupPicture: groupPictureUrl,
 			},
 			membersInfo: groupMembersInfo,
 		});

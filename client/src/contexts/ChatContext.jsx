@@ -9,6 +9,7 @@ const ChatProvider = ({ children }) => {
 	const [activeChatInfo, setActiveChatInfo] = useState(null);
 	const [activeChatRoom, setActiveChatRoom] = useState(null);
 	const [chatSearchInputText, setChatSearchInputText] = useState('');
+	const [groupPicture, setGroupPicture] = useState(null);
 
 	return (
 		<ChatContext.Provider
@@ -25,6 +26,8 @@ const ChatProvider = ({ children }) => {
 				setChatId,
 				chatName,
 				setChatName,
+				groupPicture,
+				setGroupPicture,
 			}}
 		>
 			{children}

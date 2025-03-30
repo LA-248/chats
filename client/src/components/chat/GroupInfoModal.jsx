@@ -1,16 +1,12 @@
 import { useState } from 'react';
 import Modal from '../common/ModalTemplate';
 import LeaveGroupModal from './LeaveGroupModal';
+import GroupPicture from './GroupPicture';
 
 function GroupInfoHeader({ activeChat, setIsLeaveModalOpen }) {
 	return (
 		<>
-			<img
-				className='chat-pic'
-				src={activeChat.info.profilePicture ?? '/images/default-avatar.jpg'}
-				alt='Group profile avatar'
-				style={{ height: '100px', width: '100px' }}
-			></img>
+			<GroupPicture />
 			<div
 				className='chat-name-contact-info-modal'
 				style={{ textDecoration: 'none', cursor: 'auto' }}

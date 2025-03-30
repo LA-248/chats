@@ -13,7 +13,7 @@ const Chat = {
             ELSE pc.user1_id
           END AS recipient_user_id,
           u.username AS name,
-          u.profile_picture AS recipient_profile_picture,
+          u.profile_picture AS chat_picture,
           pc.last_message_id,
           m.content AS last_message_content,
           m.event_time AS last_message_time,
@@ -43,7 +43,7 @@ const Chat = {
           CONCAT('g_', g.group_id) AS chat_id,
           NULL as recipient_user_id,
           g.name AS name,
-          g.group_picture AS recipient_profile_picture,
+          g.group_picture AS chat_picture,
           g.last_message_id,
           m.content AS last_message_content,
           m.event_time AS last_message_time,
