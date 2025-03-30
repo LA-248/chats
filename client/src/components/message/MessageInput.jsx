@@ -81,6 +81,7 @@ export default function MessageInput() {
 						value={message}
 						onChange={(event) => setMessage(event.target.value)}
 						disabled={isBlocked}
+						autoFocus
 					/>
 					<button
 						type='button'
