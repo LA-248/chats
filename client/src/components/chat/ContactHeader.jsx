@@ -50,7 +50,8 @@ export default function ContactHeader({ room, username }) {
 				setChatPicture(
 					isPrivateChat ? chatInfo.profilePicture : chatInfo.info.groupPicture
 				);
-				setGroupPicture(chatInfo.info.groupPicture);
+				// FIXME: This sets the group picture in the group info modal, it should not be set here
+				!isPrivateChat && setGroupPicture(chatInfo.info.groupPicture);
 				setChatName(isPrivateChat ? chatInfo.username : chatInfo.info.name);
 				setChatId(isPrivateChat ? chatInfo.userId : chatInfo.info.chatId);
 				setActiveChatRoom(room);
