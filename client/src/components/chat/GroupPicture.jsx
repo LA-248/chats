@@ -46,7 +46,7 @@ export default function GroupPicture() {
 				className='upload-group-picture-button'
 				onClick={handleFileInputClick}
 			>
-				Change icon
+				Change picture
 			</button>
 		</div>
 	);

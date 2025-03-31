@@ -2,9 +2,9 @@ import { useNavigate } from 'react-router-dom';
 import { useContext, useState } from 'react';
 import { toast } from 'sonner';
 import { leaveGroupChat } from '../../api/group-chat-api';
+import { getChatListByUserId } from '../../api/private-chat-api';
 import { ChatContext } from '../../contexts/ChatContext';
 import Modal from '../common/ModalTemplate';
-import { getChatListByUserId } from '../../api/private-chat-api';
 
 export default function LeaveGroupModal({
 	activeChat,
@@ -21,7 +21,7 @@ export default function LeaveGroupModal({
 			const groupId = activeChat.info.chatId;
 			const result = await leaveGroupChat(groupId, loggedInUserId);
 
-      // Fetch updated chat list after leaving group to reflect changes
+			// Fetch updated chat list after leaving group to reflect changes
 			const updatedList = await getChatListByUserId();
 			setChatList(updatedList);
 

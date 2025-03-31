@@ -47,9 +47,11 @@ const uploadPicture = async (req, res) => {
 			req.file.key
 		);
 
-		updateGroupPicture(io, room, presignedS3Url);
+		await updateGroupPicture(io, room, presignedS3Url);
 
-		return res.status(200).json({ fileUrl: presignedS3Url });
+		return res
+			.status(200)
+			.json({ message: 'Group picture successfully updated' });
 	} catch (error) {
 		console.error('Error uploading group picture:', error);
 		if (res) {
@@ -92,6 +94,7 @@ const updateLastMessageId = async (req, res) => {
 	}
 };
 
+// Update the picture of a group for all its members in real-time
 const updateGroupPicture = async (io, room, groupPicture) => {
 	io.to(room).emit('update-group-picture', {
 		groupPicture,
