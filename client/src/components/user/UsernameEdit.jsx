@@ -1,6 +1,7 @@
 import { useContext, useState } from 'react';
 import { UserContext } from '../../contexts/UserContext';
 import { updateUsername } from '../../api/user-api';
+import { toast } from 'sonner';
 import Modal from '../common/ModalTemplate';
 
 export default function UsernameEdit({
@@ -11,32 +12,28 @@ export default function UsernameEdit({
 }) {
 	const { loggedInUsername, setLoggedInUsername } = useContext(UserContext);
 	const [usernameInput, setUsernameInput] = useState('');
-	const [usernameEditStatus, setUsernameEditStatus] = useState('');
 
 	const handleFormSubmit = async (event) => {
 		event.preventDefault();
 
-		try {
-			if (!usernameInput) {
-				throw new Error('Please enter a username');
-			} else if (usernameInput.length < 2) {
-				throw new Error('Username must contain at least 2 characters');
-			} else if (usernameInput === loggedInUsername) {
-				setIsModalOpen(false);
-				return;
-			}
-
-			await updateUsername(usernameInput);
-
-			setLoggedInUsername(usernameInput);
+		if (!usernameInput) {
+			throw new Error('Please enter a username');
+		} else if (usernameInput.length < 2) {
+			throw new Error('Username must contain at least 2 characters');
+		} else if (usernameInput === loggedInUsername) {
 			setIsModalOpen(false);
-			setUsernameEditStatus('Username successfully changed');
-			setTimeout(() => {
-				setUsernameEditStatus('');
-			}, 3000);
-		} catch (error) {
-			setErrorMessage(error.message);
+			return;
 		}
+
+		toast.promise(updateUsername(usernameInput), {
+			loading: 'In progress...',
+			success: () => {
+				return 'Username changed successfully';
+			},
+			error: (error) => error.message,
+		});
+    setLoggedInUsername(usernameInput);
+		setIsModalOpen(false);
 	};
 
 	return (
@@ -56,9 +53,6 @@ export default function UsernameEdit({
 						Edit
 					</button>
 				</div>
-				{usernameEditStatus ? (
-					<div className='status-text'>{usernameEditStatus}</div>
-				) : null}
 			</div>
 
 			<Modal

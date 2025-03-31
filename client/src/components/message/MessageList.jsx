@@ -23,10 +23,13 @@ export default function MessageList({
 	// Extract chat type from URL path
 	const pathSegments = location.pathname.split('/');
 	const chatType = pathSegments[1];
+	const isPrivateChat = chatType === 'chats';
 
 	const socket = useSocket();
-	const { activeChatInfo, recipientProfilePicture } = useContext(ChatContext);
-	const { loggedInUserId, profilePicture } = useContext(UserContext);
+	const { activeChatInfo, recipientProfilePicture, chatName } =
+		useContext(ChatContext);
+	const { loggedInUsername, loggedInUserId, profilePicture } =
+		useContext(UserContext);
 	const {
 		setMessages,
 		setCurrentMessage,
@@ -61,7 +64,7 @@ export default function MessageList({
 
 	const getProfilePicture = (messageData) => {
 		// Group chat
-		if (chatType === 'groups') {
+		if (!isPrivateChat) {
 			const groupMember = groupMembersInfo.find(
 				(member) => messageData.senderId === member.user_id
 			);
@@ -120,18 +123,22 @@ export default function MessageList({
 												<div
 													className={`message-from ${
 														loggedInUserId !== messageData.senderId &&
-														chatType === 'chats'
+														isPrivateChat
 															? 'clickable'
 															: ''
 													}`}
 													onClick={() =>
 														loggedInUserId !== messageData.senderId &&
-														chatType === 'chats'
+														isPrivateChat
 															? setIsModalOpen(true)
 															: null
 													}
 												>
-													{messageData.from}
+													{isPrivateChat
+														? loggedInUserId !== messageData.senderId
+															? chatName
+															: loggedInUsername
+														: messageData.from}
 												</div>
 												<div className='message-time'>
 													{formatDate(messageData.eventTime)}

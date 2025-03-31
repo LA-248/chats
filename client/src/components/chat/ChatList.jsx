@@ -163,10 +163,10 @@ export default function ChatList({ setChatName }) {
 		}
 	}, [setChatList, setGroupPicture, socket]);
 
-  // Update the profile picture of a private chat recipient when they change it
+	// Update the profile picture of a private chat recipient when they change it
 	useEffect(() => {
 		if (socket) {
-			const handleRecipientProfilePictureUpdate = (data) => {
+			const handleContactProfilePictureUpdate = (data) => {
 				console.log(data);
 				setChatList((prevChatList) =>
 					prevChatList.map((chat) =>
@@ -181,11 +181,38 @@ export default function ChatList({ setChatName }) {
 				setRecipientProfilePicture(data.profilePicture);
 			};
 			socket.on('update-profile-picture-for-contacts', (data) =>
-				handleRecipientProfilePictureUpdate(data)
+				handleContactProfilePictureUpdate(data)
 			);
 
 			return () => {
 				socket.off('update-profile-picture-for-contacts');
+			};
+		}
+	});
+
+	// Update the username of a private chat recipient when they change it
+	useEffect(() => {
+		if (socket) {
+			const handleContactUsernameUpdate = (data) => {
+				console.log(data);
+				setChatList((prevChatList) =>
+					prevChatList.map((chat) =>
+						chat.recipient_user_id === data.userId
+							? {
+									...chat,
+									name: data.newUsername,
+							  }
+							: chat
+					)
+				);
+				setChatName(data.newUsername);
+			};
+			socket.on('update-username-for-contacts', (data) =>
+				handleContactUsernameUpdate(data)
+			);
+
+			return () => {
+				socket.off('update-username-for-contacts');
 			};
 		}
 	});

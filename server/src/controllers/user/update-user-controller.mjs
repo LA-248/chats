@@ -24,7 +24,7 @@ const uploadProfilePicture = async (req, res) => {
 			req.file.key
 		);
 
-		updateProfilePictureForAllContacts(io, userId, presignedS3Url);
+		await updateProfilePictureForAllContacts(io, userId, presignedS3Url);
 
 		return res.status(200).json({ fileUrl: presignedS3Url });
 	} catch (error) {
@@ -37,9 +37,13 @@ const uploadProfilePicture = async (req, res) => {
 
 const updateUsernameById = async (req, res) => {
 	try {
+		const io = req.app.get('io');
 		const userId = req.user.user_id;
 		const username = req.body.username;
+
 		await User.updateUsernameById(username, userId);
+		await updateUsernameForAllContacts(io, userId, username);
+
 		return res.status(200).json({ success: 'Username updated successfully' });
 	} catch (error) {
 		console.error('Error updating username:', error);
@@ -78,6 +82,21 @@ const updateProfilePictureForAllContacts = async (
 		io.to(room).emit('update-profile-picture-for-contacts', {
 			userId,
 			profilePicture,
+			room,
+		});
+	}
+};
+
+// Update username for all the user's contacts in real-time
+const updateUsernameForAllContacts = async (io, userId, newUsername) => {
+	const rooms = await PrivateChat.retrieveAllRoomsByUser(userId);
+	const roomIds = rooms.map((row) => row.room);
+
+	for (let i = 0; i < roomIds.length; i++) {
+		const room = roomIds[i];
+		io.to(room).emit('update-username-for-contacts', {
+			userId,
+			newUsername,
 			room,
 		});
 	}

@@ -27,13 +27,14 @@ export default function ContactHeader({ room }) {
 		setRecipientProfilePicture,
 		groupPicture,
 		setGroupPicture,
+		chatName,
+		setChatName,
 	} = useContext(ChatContext);
 	const { activeChatInfo, setActiveChatInfo, setActiveChatRoom } =
 		useContext(ChatContext);
 	const { messages, setFilteredMessages } = useContext(MessageContext);
 	const { loggedInUsername, loggedInUserId } = useContext(UserContext);
 
-	const [chatName, setChatName] = useState('');
 	const [isChatInfoModalOpen, setIsChatInfoModalOpen] = useState(false);
 	const [isAddMembersModalOpen, setIsAddMembersModalOpen] = useState(false);
 	const [errorMessage, setErrorMessage] = useState('');
@@ -75,6 +76,7 @@ export default function ContactHeader({ room }) {
 		setActiveChatRoom,
 		setRecipientProfilePicture,
 		setGroupPicture,
+		setChatName,
 		isPrivateChat,
 	]);
 

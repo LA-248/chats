@@ -18,7 +18,7 @@ export default function ContactInfoModal({
 	const pathSegments = location.pathname.split('/');
 	const chatType = pathSegments[1];
 
-	const { recipientProfilePicture } = useContext(ChatContext);
+	const { chatName, recipientProfilePicture } = useContext(ChatContext);
 	const { isBlocked, setIsBlocked } = useContext(UserContext);
 	const { handleBlockAndUnblock } = useBlockAndUnblock({
 		activeChat: activeChat,
@@ -54,7 +54,7 @@ export default function ContactInfoModal({
 					className='chat-name-contact-info-modal'
 					style={{ textDecoration: 'none', cursor: 'auto' }}
 				>
-					{chatType === 'groups' ? activeChat.info.name : activeChat.username}
+					{chatType === 'groups' ? activeChat.info.name : chatName}
 				</div>
 			</div>
 
