@@ -12,7 +12,7 @@ export function usePictureUpload(
 		fileInputRef.current.click();
 	};
 
-	const handleProfilePictureUpload = async (event) => {
+	const handlePictureUpload = async (event) => {
 		event.preventDefault();
 		// Use formData to package the file to then be sent to the server
 		const formData = new FormData(formRef.current);
@@ -48,5 +48,5 @@ export function usePictureUpload(
 		});
 	};
 
-	return { handleFileInputClick, handleProfilePictureUpload };
+	return { handleFileInputClick, handlePictureUpload };
 }

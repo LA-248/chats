@@ -28,6 +28,7 @@ const addMembers = async (req, res) => {
 
 const uploadPicture = async (req, res) => {
 	try {
+		const io = req.app.get('io');
 		const room = req.params.room;
 
 		// Delete previous picture from S3 storage
@@ -45,12 +46,17 @@ const uploadPicture = async (req, res) => {
 			process.env.BUCKET_NAME,
 			req.file.key
 		);
-		res.status(200).json({ fileUrl: presignedS3Url });
+
+		updateGroupPicture(io, room, presignedS3Url);
+
+		return res.status(200).json({ fileUrl: presignedS3Url });
 	} catch (error) {
 		console.error('Error uploading group picture:', error);
-		res
-			.status(500)
-			.json({ error: 'Error uploading picture. Please try again.' });
+		if (res) {
+			return res
+				.status(500)
+				.json({ error: 'Error uploading picture. Please try again.' });
+		}
 	}
 };
 
@@ -86,4 +92,17 @@ const updateLastMessageId = async (req, res) => {
 	}
 };
 
-export { addMembers, uploadPicture, updateUserReadStatus, updateLastMessageId };
+const updateGroupPicture = async (io, room, groupPicture) => {
+	io.to(room).emit('update-group-picture', {
+		groupPicture,
+		room,
+	});
+};
+
+export {
+	addMembers,
+	uploadPicture,
+	updateUserReadStatus,
+	updateLastMessageId,
+	updateGroupPicture,
+};

@@ -26,6 +26,19 @@ groupChatsRouter.use(requireAuth);
 
 groupChatsRouter.post('/', createGroupChat);
 groupChatsRouter.post('/:room/members', groupChatRoomAuth, addMembers);
+groupChatsRouter.post(
+	'/:room/picture',
+	(req, res, next) => {
+		groupChatRoomAuth,
+			s3Upload.single('group-picture')(req, res, (err) => {
+				if (err) {
+					return handleMulterError(err, req, res, next);
+				}
+				next();
+			});
+	},
+	uploadPicture
+);
 
 groupChatsRouter.get('/:room', groupChatRoomAuth, retrieveGroupInfo);
 // FIXME: Group chat auth middleware doesn't work for this route because the group ID is used instead of the room for retrieval of data
@@ -40,19 +53,6 @@ groupChatsRouter.put(
 	'/:room/last_message',
 	groupChatRoomAuth,
 	updateLastMessageId
-);
-
-groupChatsRouter.post(
-	'/:room/picture',
-	(req, res, next) => {
-		s3Upload.single('group-picture')(req, res, (err) => {
-			if (err) {
-				return handleMulterError(err, req, res, next);
-			}
-			next();
-		});
-	},
-	uploadPicture
 );
 
 export default groupChatsRouter;

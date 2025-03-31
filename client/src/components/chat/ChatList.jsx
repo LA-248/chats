@@ -21,6 +21,7 @@ export default function ChatList({ setChatName }) {
 		setChatList,
 		activeChatRoom,
 		setActiveChatRoom,
+		setGroupPicture,
 	} = useContext(ChatContext);
 	const [filteredChats, setFilteredChats] = useState([]);
 	const [hoverChatId, setHoverChatId] = useState(null);
@@ -134,6 +135,32 @@ export default function ChatList({ setChatName }) {
 			};
 		}
 	}, [setChatList, socket, activeChatRoom]);
+
+	// Update the picture of a group chat in real-time for all members
+	useEffect(() => {
+		if (socket) {
+			const handleGroupPictureUpdate = (data) => {
+				setChatList((prevChatList) =>
+					prevChatList.map((chat) =>
+						chat.room === data.room
+							? {
+									...chat,
+									chat_picture: data.groupPicture,
+							  }
+							: chat
+					)
+				);
+				setGroupPicture(data.groupPicture);
+			};
+			socket.on('update-group-picture', (data) =>
+				handleGroupPictureUpdate(data)
+			);
+
+			return () => {
+				socket.off('update-group-picture');
+			};
+		}
+	}, [setChatList, setGroupPicture, socket]);
 
 	// Filter chat list based on search input
 	useEffect(() => {

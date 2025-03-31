@@ -11,7 +11,7 @@ export default function ProfilePicture() {
 	const chatType = pathSegments[1];
 	const { profilePicture, setProfilePicture } = useContext(UserContext);
 
-	const { handleFileInputClick, handleProfilePictureUpload } = usePictureUpload(
+	const { handleFileInputClick, handlePictureUpload } = usePictureUpload(
 		fileInputRef,
 		formRef,
 		setProfilePicture,
@@ -36,7 +36,7 @@ export default function ProfilePicture() {
 					name='profile-picture'
 					accept='image/*'
 					style={{ display: 'none' }}
-					onChange={handleProfilePictureUpload}
+					onChange={handlePictureUpload}
 				/>
 			</form>
 			<button

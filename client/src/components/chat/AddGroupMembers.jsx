@@ -122,7 +122,7 @@ export default function AddGroupMembers({
 						</button>
 					</div>
 					{addedMembers.length > 0 ? (
-						<div className='added-group-members-heading'>Added:</div>
+						<div className='added-group-members-heading'>Selected:</div>
 					) : null}
 					<div className='added-group-members-container'>
 						{addedMembers.map((addedMember, index) => (

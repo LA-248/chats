@@ -12,7 +12,7 @@ export default function GroupPicture() {
 	const chatType = pathSegments[1];
 	const { groupPicture, setGroupPicture } = useContext(ChatContext);
 
-	const { handleFileInputClick, handleProfilePictureUpload } = usePictureUpload(
+	const { handleFileInputClick, handlePictureUpload } = usePictureUpload(
 		fileInputRef,
 		formRef,
 		setGroupPicture,
@@ -38,7 +38,7 @@ export default function GroupPicture() {
 					name='group-picture'
 					accept='image/*'
 					style={{ display: 'none' }}
-					onChange={handleProfilePictureUpload}
+					onChange={handlePictureUpload}
 				/>
 			</form>
 			<button
@@ -46,7 +46,7 @@ export default function GroupPicture() {
 				className='upload-group-picture-button'
 				onClick={handleFileInputClick}
 			>
-				Upload
+				Change icon
 			</button>
 		</div>
 	);

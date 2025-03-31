@@ -23,7 +23,18 @@ const app = express();
 const server = createServer(app);
 const port = process.env.PORT || 4000;
 
-app.set('view engine', 'ejs');
+// Set up a Socket.IO server
+const io = new Server(server, {
+	cors: {
+		origin: 'http://localhost:3000',
+		methods: ['GET', 'POST'],
+		credentials: true,
+	},
+	connectionStateRecovery: {},
+});
+io.use(sharedSession(sessionMiddleware, { autoSave: true }));
+
+app.set('io', io);
 app.use(express.static('../../client/src/styles'));
 
 app.use(express.json());
@@ -47,18 +58,6 @@ app.use('/users', usersRouter);
 app.use('/chats', privateChatsRouter);
 app.use('/groups', groupChatsRouter);
 app.use('/messages', messagesRouter);
-
-// Set up a Socket.IO server
-const io = new Server(server, {
-	cors: {
-		origin: 'http://localhost:3000',
-		methods: ['GET', 'POST'],
-		credentials: true,
-	},
-	connectionStateRecovery: {},
-});
-
-io.use(sharedSession(sessionMiddleware, { autoSave: true }));
 
 socketHandlers(io);
 
