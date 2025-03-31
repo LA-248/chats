@@ -13,68 +13,64 @@ import GroupInfoModal from './GroupInfoModal';
 import useClearErrorMessage from '../../hooks/useClearErrorMessage';
 import AddGroupMembers from './AddGroupMembers';
 
-export default function ContactHeader({ room, username }) {
+export default function ContactHeader({ room }) {
 	const navigate = useNavigate();
 	const location = useLocation();
-	// Extract chat type from URL path
-	const pathSegments = location.pathname.split('/');
-	const chatType = pathSegments[1];
+	const chatType = location.pathname.split('/')[1];
+	const isPrivateChat = chatType === 'chats';
 
 	const { setIsBlocked } = useContext(UserContext);
-	const { setChatId, setChatList, setGroupPicture } = useContext(ChatContext);
+	const { setChatId, setChatList, groupPicture, setGroupPicture } =
+		useContext(ChatContext);
 	const { activeChatInfo, setActiveChatInfo, setActiveChatRoom } =
 		useContext(ChatContext);
 	const { messages, setFilteredMessages } = useContext(MessageContext);
 	const { loggedInUsername, loggedInUserId } = useContext(UserContext);
+
 	const [chatName, setChatName] = useState('');
-	const [chatPicture, setChatPicture] = useState('');
+	const [privateChatPicture, setPrivateChatPicture] = useState(null);
 	const [isChatInfoModalOpen, setIsChatInfoModalOpen] = useState(false);
 	const [isAddMembersModalOpen, setIsAddMembersModalOpen] = useState(false);
 	const [errorMessage, setErrorMessage] = useState('');
 
+	useClearErrorMessage(errorMessage, setErrorMessage);
+
 	useEffect(() => {
-		// Fetch info of a private or group chat for display in the contact header
-		// Plus, for private chats, get the block list of the logged in user to determine if the recipient is blocked
-		const retrieveRecipientContactInfo = async () => {
+		const fetchChatInfo = async () => {
 			try {
-				const isPrivateChat = chatType === 'chats';
 				const chatInfo = isPrivateChat
 					? await getRecipientInfo(room, navigate)
 					: await getGroupChatInfo(room, navigate);
+
 				const loggedInUserBlockList = await getBlockList();
 				setIsBlocked(
 					isPrivateChat ? loggedInUserBlockList.includes(chatInfo.userId) : null
 				);
+
 				setActiveChatInfo(chatInfo);
-				// TODO: Find a better way to do the below
-				setChatPicture(
-					isPrivateChat ? chatInfo.profilePicture : chatInfo.info.groupPicture
-				);
-				// FIXME: This sets the group picture in the group info modal, it should not be set here
-				!isPrivateChat && setGroupPicture(chatInfo.info.groupPicture);
 				setChatName(isPrivateChat ? chatInfo.username : chatInfo.info.name);
 				setChatId(isPrivateChat ? chatInfo.userId : chatInfo.info.chatId);
 				setActiveChatRoom(room);
+				isPrivateChat
+					? setPrivateChatPicture(chatInfo.profilePicture)
+					: setGroupPicture(chatInfo.info.groupPicture);
 			} catch (error) {
 				setErrorMessage(error.message);
 			}
 		};
 
-		retrieveRecipientContactInfo();
+		fetchChatInfo();
 	}, [
 		room,
 		chatType,
-		username,
-		setActiveChatInfo,
+		navigate,
 		setIsBlocked,
-		setChatName,
+		setActiveChatInfo,
 		setChatId,
 		setActiveChatRoom,
 		setGroupPicture,
-		navigate,
+		isPrivateChat,
 	]);
-
-	useClearErrorMessage(errorMessage, setErrorMessage);
 
 	return (
 		<div>
@@ -83,7 +79,10 @@ export default function ContactHeader({ room, username }) {
 					<div className='picture-and-name'>
 						<img
 							className='chat-pic'
-							src={chatPicture ?? '/images/default-avatar.jpg'}
+							src={
+								(isPrivateChat ? privateChatPicture : groupPicture) ||
+								'/images/default-avatar.jpg'
+							}
 							alt='Profile avatar'
 							style={{ height: '35px', width: '35px' }}
 						></img>
