@@ -20,15 +20,20 @@ export default function ContactHeader({ room }) {
 	const isPrivateChat = chatType === 'chats';
 
 	const { setIsBlocked } = useContext(UserContext);
-	const { setChatId, setChatList, groupPicture, setGroupPicture } =
-		useContext(ChatContext);
+	const {
+		setChatId,
+		setChatList,
+		recipientProfilePicture,
+		setRecipientProfilePicture,
+		groupPicture,
+		setGroupPicture,
+	} = useContext(ChatContext);
 	const { activeChatInfo, setActiveChatInfo, setActiveChatRoom } =
 		useContext(ChatContext);
 	const { messages, setFilteredMessages } = useContext(MessageContext);
 	const { loggedInUsername, loggedInUserId } = useContext(UserContext);
 
 	const [chatName, setChatName] = useState('');
-	const [privateChatPicture, setPrivateChatPicture] = useState(null);
 	const [isChatInfoModalOpen, setIsChatInfoModalOpen] = useState(false);
 	const [isAddMembersModalOpen, setIsAddMembersModalOpen] = useState(false);
 	const [errorMessage, setErrorMessage] = useState('');
@@ -52,7 +57,7 @@ export default function ContactHeader({ room }) {
 				setChatId(isPrivateChat ? chatInfo.userId : chatInfo.info.chatId);
 				setActiveChatRoom(room);
 				isPrivateChat
-					? setPrivateChatPicture(chatInfo.profilePicture)
+					? setRecipientProfilePicture(chatInfo.profilePicture)
 					: setGroupPicture(chatInfo.info.groupPicture);
 			} catch (error) {
 				setErrorMessage(error.message);
@@ -68,6 +73,7 @@ export default function ContactHeader({ room }) {
 		setActiveChatInfo,
 		setChatId,
 		setActiveChatRoom,
+		setRecipientProfilePicture,
 		setGroupPicture,
 		isPrivateChat,
 	]);
@@ -80,7 +86,7 @@ export default function ContactHeader({ room }) {
 						<img
 							className='chat-pic'
 							src={
-								(isPrivateChat ? privateChatPicture : groupPicture) ||
+								(isPrivateChat ? recipientProfilePicture : groupPicture) ||
 								'/images/default-avatar.jpg'
 							}
 							alt='Profile avatar'

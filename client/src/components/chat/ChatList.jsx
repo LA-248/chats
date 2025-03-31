@@ -21,6 +21,7 @@ export default function ChatList({ setChatName }) {
 		setChatList,
 		activeChatRoom,
 		setActiveChatRoom,
+		setRecipientProfilePicture,
 		setGroupPicture,
 	} = useContext(ChatContext);
 	const [filteredChats, setFilteredChats] = useState([]);
@@ -136,7 +137,7 @@ export default function ChatList({ setChatName }) {
 		}
 	}, [setChatList, socket, activeChatRoom]);
 
-	// Update the picture of a group chat in real-time for all members
+	// Update the picture of a group for all its members in real-time
 	useEffect(() => {
 		if (socket) {
 			const handleGroupPictureUpdate = (data) => {
@@ -161,6 +162,33 @@ export default function ChatList({ setChatName }) {
 			};
 		}
 	}, [setChatList, setGroupPicture, socket]);
+
+  // Update the profile picture of a private chat recipient when they change it
+	useEffect(() => {
+		if (socket) {
+			const handleRecipientProfilePictureUpdate = (data) => {
+				console.log(data);
+				setChatList((prevChatList) =>
+					prevChatList.map((chat) =>
+						chat.recipient_user_id === data.userId
+							? {
+									...chat,
+									chat_picture: data.profilePicture,
+							  }
+							: chat
+					)
+				);
+				setRecipientProfilePicture(data.profilePicture);
+			};
+			socket.on('update-profile-picture-for-contacts', (data) =>
+				handleRecipientProfilePictureUpdate(data)
+			);
+
+			return () => {
+				socket.off('update-profile-picture-for-contacts');
+			};
+		}
+	});
 
 	// Filter chat list based on search input
 	useEffect(() => {

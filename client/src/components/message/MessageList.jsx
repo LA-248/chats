@@ -25,7 +25,7 @@ export default function MessageList({
 	const chatType = pathSegments[1];
 
 	const socket = useSocket();
-	const { activeChatInfo } = useContext(ChatContext);
+	const { activeChatInfo, recipientProfilePicture } = useContext(ChatContext);
 	const { loggedInUserId, profilePicture } = useContext(UserContext);
 	const {
 		setMessages,
@@ -65,14 +65,19 @@ export default function MessageList({
 			const groupMember = groupMembersInfo.find(
 				(member) => messageData.senderId === member.user_id
 			);
-			return groupMember?.profile_picture ?? '/images/default-avatar.jpg';
+			return groupMember?.profile_picture || '/images/default-avatar.jpg';
 		}
 
 		// Private chat
 		if (loggedInUserId === messageData.senderId) {
 			return profilePicture;
+		} else {
+			return (
+				recipientProfilePicture ||
+				activeChatInfo?.profilePicture ||
+				'/images/default-avatar.jpg'
+			);
 		}
-		return activeChatInfo?.profilePicture || '/images/default-avatar.jpg';
 	};
 
 	return (

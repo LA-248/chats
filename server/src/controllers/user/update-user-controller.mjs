@@ -1,9 +1,11 @@
+import { PrivateChat } from '../../models/private-chat-model.mjs';
 import { User } from '../../models/user-model.mjs';
 import { deleteS3Object } from '../../services/s3/s3-file-handler.mjs';
 import { createPresignedUrl } from '../../services/s3/s3-presigned-url.mjs';
 
 const uploadProfilePicture = async (req, res) => {
 	try {
+		const io = req.app.get('io');
 		const userId = req.user.user_id;
 
 		// Delete previous profile picture from S3 storage
@@ -21,10 +23,13 @@ const uploadProfilePicture = async (req, res) => {
 			process.env.BUCKET_NAME,
 			req.file.key
 		);
-		res.status(200).json({ fileUrl: presignedS3Url });
+
+		updateProfilePictureForAllContacts(io, userId, presignedS3Url);
+
+		return res.status(200).json({ fileUrl: presignedS3Url });
 	} catch (error) {
 		console.error('Error uploading profile picture:', error);
-		res
+		return res
 			.status(500)
 			.json({ error: 'Error uploading profile picture. Please try again.' });
 	}
@@ -35,10 +40,10 @@ const updateUsernameById = async (req, res) => {
 		const userId = req.user.user_id;
 		const username = req.body.username;
 		await User.updateUsernameById(username, userId);
-		res.status(200).json({ success: 'Username updated successfully' });
+		return res.status(200).json({ success: 'Username updated successfully' });
 	} catch (error) {
 		console.error('Error updating username:', error);
-		res
+		return res
 			.status(500)
 			.json({ error: 'Error updating username. Please try again.' });
 	}
@@ -50,10 +55,31 @@ const updateBlockedUsers = async (req, res) => {
 		const userId = req.user.user_id;
 		const blockedUserIds = req.body.blockedUserIds;
 		await User.updateBlockedUsersById(blockedUserIds, userId);
-		res.status(200).json({ success: 'Block list successfully updated' });
+		return res.status(200).json({ success: 'Block list successfully updated' });
 	} catch (error) {
 		console.error('Error blocking user:', error);
-		res.status(500).json({ error: 'Error blocking user. Please try again.' });
+		return res
+			.status(500)
+			.json({ error: 'Error blocking user. Please try again.' });
+	}
+};
+
+// Update profile picture for all the user's contacts in real-time
+const updateProfilePictureForAllContacts = async (
+	io,
+	userId,
+	profilePicture
+) => {
+	const rooms = await PrivateChat.retrieveAllRoomsByUser(userId);
+	const roomIds = rooms.map((row) => row.room);
+
+	for (let i = 0; i < roomIds.length; i++) {
+		const room = roomIds[i];
+		io.to(room).emit('update-profile-picture-for-contacts', {
+			userId,
+			profilePicture,
+			room,
+		});
 	}
 };
 

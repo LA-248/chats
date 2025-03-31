@@ -9,6 +9,7 @@ const ChatProvider = ({ children }) => {
 	const [activeChatInfo, setActiveChatInfo] = useState(null);
 	const [activeChatRoom, setActiveChatRoom] = useState(null);
 	const [chatSearchInputText, setChatSearchInputText] = useState('');
+	const [recipientProfilePicture, setRecipientProfilePicture] = useState(null);
 	const [groupPicture, setGroupPicture] = useState(null);
 
 	return (
@@ -26,6 +27,8 @@ const ChatProvider = ({ children }) => {
 				setChatId,
 				chatName,
 				setChatName,
+				recipientProfilePicture,
+				setRecipientProfilePicture,
 				groupPicture,
 				setGroupPicture,
 			}}

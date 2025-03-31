@@ -1,6 +1,7 @@
 import { useContext } from 'react';
 import { useLocation } from 'react-router-dom';
 import { UserContext } from '../../contexts/UserContext';
+import { ChatContext } from '../../contexts/ChatContext';
 import useBlockAndUnblock from '../../hooks/useBlockAndUnblock';
 import Modal from '../common/ModalTemplate';
 
@@ -17,6 +18,7 @@ export default function ContactInfoModal({
 	const pathSegments = location.pathname.split('/');
 	const chatType = pathSegments[1];
 
+	const { recipientProfilePicture } = useContext(ChatContext);
 	const { isBlocked, setIsBlocked } = useContext(UserContext);
 	const { handleBlockAndUnblock } = useBlockAndUnblock({
 		activeChat: activeChat,
@@ -44,7 +46,7 @@ export default function ContactInfoModal({
 			<div className='contact-info-container'>
 				<img
 					className='chat-pic'
-					src={activeChat.profilePicture ?? '/images/default-avatar.jpg'}
+					src={recipientProfilePicture || '/images/default-avatar.jpg'}
 					alt='Profile avatar'
 					style={{ height: '100px', width: '100px' }}
 				></img>
