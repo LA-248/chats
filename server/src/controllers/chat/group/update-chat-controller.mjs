@@ -51,7 +51,10 @@ const uploadPicture = async (req, res) => {
 
 		return res
 			.status(200)
-			.json({ message: 'Group picture successfully updated' });
+			.json({
+				fileUrl: presignedS3Url,
+				message: 'Group picture successfully updated',
+			});
 	} catch (error) {
 		console.error('Error uploading group picture:', error);
 		if (res) {
