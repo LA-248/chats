@@ -9,6 +9,7 @@ import {
 } from '../../api/private-chat-api';
 import ChatItem from './ChatItem';
 import useClearErrorMessage from '../../hooks/useClearErrorMessage';
+import useChatUpdates from '../../hooks/useChatUpdates';
 import { useSocketErrorHandling } from '../../hooks/useSocketErrorHandling';
 import { deleteGroupChat, markUserAsRead } from '../../api/group-chat-api';
 
@@ -138,84 +139,40 @@ export default function ChatList({ setChatName }) {
 	}, [setChatList, socket, activeChatRoom]);
 
 	// Update the picture of a group for all its members in real-time
-	useEffect(() => {
-		if (socket) {
-			const handleGroupPictureUpdate = (data) => {
-				setChatList((prevChatList) =>
-					prevChatList.map((chat) =>
-						chat.room === data.room
-							? {
-									...chat,
-									chat_picture: data.groupPicture,
-							  }
-							: chat
-					)
-				);
-				setGroupPicture(data.groupPicture);
-			};
-			socket.on('update-group-picture', (data) =>
-				handleGroupPictureUpdate(data)
-			);
+	useChatUpdates(
+		socket,
+		setChatList,
+		'room',
+		'room',
+		'chat_picture',
+		'groupPicture',
+		setGroupPicture,
+		'update-group-picture'
+	);
 
-			return () => {
-				socket.off('update-group-picture');
-			};
-		}
-	}, [setChatList, setGroupPicture, socket]);
+	// Update the profile picture of a private chat recipient when changed
+	useChatUpdates(
+		socket,
+		setChatList,
+		'recipient_user_id',
+		'userId',
+		'chat_picture',
+		'profilePicture',
+		setRecipientProfilePicture,
+		'update-profile-picture-for-contacts'
+	);
 
-	// Update the profile picture of a private chat recipient when they change it
-	useEffect(() => {
-		if (socket) {
-			const handleContactProfilePictureUpdate = (data) => {
-				console.log(data);
-				setChatList((prevChatList) =>
-					prevChatList.map((chat) =>
-						chat.recipient_user_id === data.userId
-							? {
-									...chat,
-									chat_picture: data.profilePicture,
-							  }
-							: chat
-					)
-				);
-				setRecipientProfilePicture(data.profilePicture);
-			};
-			socket.on('update-profile-picture-for-contacts', (data) =>
-				handleContactProfilePictureUpdate(data)
-			);
-
-			return () => {
-				socket.off('update-profile-picture-for-contacts');
-			};
-		}
-	});
-
-	// Update the username of a private chat recipient when they change it
-	useEffect(() => {
-		if (socket) {
-			const handleContactUsernameUpdate = (data) => {
-				console.log(data);
-				setChatList((prevChatList) =>
-					prevChatList.map((chat) =>
-						chat.recipient_user_id === data.userId
-							? {
-									...chat,
-									name: data.newUsername,
-							  }
-							: chat
-					)
-				);
-				setChatName(data.newUsername);
-			};
-			socket.on('update-username-for-contacts', (data) =>
-				handleContactUsernameUpdate(data)
-			);
-
-			return () => {
-				socket.off('update-username-for-contacts');
-			};
-		}
-	});
+	// Update the username of a private chat contact when changed
+	useChatUpdates(
+		socket,
+		setChatList,
+		'recipient_user_id',
+		'userId',
+		'name',
+		'newUsername',
+		setChatName,
+		'update-username-for-contacts'
+	);
 
 	// Filter chat list based on search input
 	useEffect(() => {
