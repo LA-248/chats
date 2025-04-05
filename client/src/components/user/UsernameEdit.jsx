@@ -17,9 +17,11 @@ export default function UsernameEdit({
 		event.preventDefault();
 
 		if (!usernameInput) {
-			throw new Error('Please enter a username');
-		} else if (usernameInput.length < 2) {
-			throw new Error('Username must contain at least 2 characters');
+			toast.error('Please enter a username');
+			return;
+		} else if (usernameInput.length < 2 || usernameInput.length > 30) {
+			toast.error('Username must be between 2 and 30 characters');
+			return;
 		} else if (usernameInput === loggedInUsername) {
 			setIsModalOpen(false);
 			return;
@@ -32,7 +34,7 @@ export default function UsernameEdit({
 			},
 			error: (error) => error.message,
 		});
-    setLoggedInUsername(usernameInput);
+		setLoggedInUsername(usernameInput);
 		setIsModalOpen(false);
 	};
 
