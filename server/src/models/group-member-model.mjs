@@ -82,16 +82,17 @@ const GroupMember = {
 			pool.query(
 				`
         DELETE FROM group_members 
-        WHERE group_id = $1 AND user_id = $2;
+        WHERE group_id = $1 AND user_id = $2
+        RETURNING *
         `,
 				[groupId, userId],
-				(err) => {
+				(err, result) => {
 					if (err) {
 						return reject(
 							`Database error deleting group member in group_members table: ${err.message}`
 						);
 					}
-					return resolve();
+					return resolve(result.rows[0]);
 				}
 			);
 		});

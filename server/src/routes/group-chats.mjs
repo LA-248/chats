@@ -9,12 +9,10 @@ import {
 	retrieveGroupInfo,
 	retrieveMemberUsernames,
 } from '../controllers/chat/group/get-chat-controller.mjs';
-import {
-	deleteGroupChat,
-	removeGroupMember,
-} from '../controllers/chat/group/delete-chat-controller.mjs';
+import { deleteGroupChat } from '../controllers/chat/group/delete-chat-controller.mjs';
 import {
 	addMembers,
+	removeGroupMember,
 	updateLastMessageId,
 	updateUserReadStatus,
 	uploadPicture,

@@ -7,7 +7,7 @@ import { ChatContext } from '../../contexts/ChatContext';
 import Modal from '../common/ModalTemplate';
 
 export default function LeaveGroupModal({
-	activeChat,
+	group,
 	loggedInUserId,
 	isModalOpen,
 	setIsModalOpen,
@@ -18,7 +18,7 @@ export default function LeaveGroupModal({
 
 	const handleLeavingGroup = async () => {
 		try {
-			const groupId = activeChat.info.chatId;
+			const groupId = group.info.chatId;
 			const result = await leaveGroupChat(groupId, loggedInUserId);
 
 			// Fetch updated chat list after leaving group to reflect changes

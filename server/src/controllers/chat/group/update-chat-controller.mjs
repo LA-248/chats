@@ -16,13 +16,40 @@ const addMembers = async (req, res) => {
 		await Promise.all(insertGroupMembers);
 
 		return res.status(200).json({
-			message: 'Members added',
+			message: addedMembers.length > 1 ? 'Members added' : 'Member added',
 		});
 	} catch (error) {
 		console.error('Error adding members to group chat:', error);
 		return res
 			.status(500)
 			.json({ error: 'Error adding members. Please try again.' });
+	}
+};
+
+// Used when a user voluntarily leaves a group chat
+const removeGroupMember = async (req, res) => {
+	try {
+		const io = req.app.get('io');
+		const groupId = req.params.groupId;
+		const userId = req.params.userId;
+		const { room } = await Group.retrieveRoomByGroupId(groupId);
+
+		const removedUser = await GroupMember.removeGroupMember(groupId, userId);
+
+		// Send the user id of the removed member to the frontend through a socket event
+		// This allows for the members list to be updated in real-time for all group chat participants
+		io.to(room).emit('update-members-list', {
+			removedUserId: removedUser.user_id,
+		});
+
+		return res
+			.status(200)
+			.json({ message: 'You successfully left the group chat' });
+	} catch (error) {
+		console.error('Error leaving group chat:', error);
+		return res
+			.status(500)
+			.json({ error: 'Error leaving group chat. Please try again.' });
 	}
 };
 
@@ -49,12 +76,10 @@ const uploadPicture = async (req, res) => {
 
 		await updateGroupPicture(io, room, presignedS3Url);
 
-		return res
-			.status(200)
-			.json({
-				fileUrl: presignedS3Url,
-				message: 'Group picture successfully updated',
-			});
+		return res.status(200).json({
+			fileUrl: presignedS3Url,
+			message: 'Group picture successfully updated',
+		});
 	} catch (error) {
 		console.error('Error uploading group picture:', error);
 		if (res) {
@@ -107,6 +132,7 @@ const updateGroupPicture = async (io, room, groupPicture) => {
 
 export {
 	addMembers,
+	removeGroupMember,
 	uploadPicture,
 	updateUserReadStatus,
 	updateLastMessageId,

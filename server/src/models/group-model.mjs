@@ -126,6 +126,21 @@ const Group = {
 		});
 	},
 
+	retrieveRoomByGroupId: function (groupId) {
+		return new Promise((resolve, reject) => {
+			pool.query(
+				`SELECT room FROM groups WHERE group_id = $1`,
+				[groupId],
+				(err, result) => {
+					if (err) {
+						return reject(`Database error in groups table: ${err.message}`);
+					}
+					return resolve(result.rows[0]);
+				}
+			);
+		});
+	},
+
 	retrievePicture: function (room) {
 		return new Promise((resolve, reject) => {
 			pool.query(

@@ -3,7 +3,7 @@ import Modal from '../common/ModalTemplate';
 import LeaveGroupModal from './LeaveGroupModal';
 import GroupPicture from './GroupPicture';
 
-function GroupInfoHeader({ activeChat, setIsLeaveModalOpen }) {
+function GroupInfoHeader({ group, setIsLeaveModalOpen }) {
 	return (
 		<>
 			<GroupPicture />
@@ -11,10 +11,10 @@ function GroupInfoHeader({ activeChat, setIsLeaveModalOpen }) {
 				className='chat-name-contact-info-modal'
 				style={{ textDecoration: 'none', cursor: 'auto' }}
 			>
-				{activeChat.info.name}
+				{group.info.name}
 			</div>
 			<div style={{ textDecoration: 'none', cursor: 'auto', fontSize: '13px' }}>
-				Group - {activeChat.membersInfo.length} members
+				Group - {group.members.length} members
 			</div>
 			<div
 				className='leave-group-button'
@@ -28,12 +28,12 @@ function GroupInfoHeader({ activeChat, setIsLeaveModalOpen }) {
 	);
 }
 
-function GroupMembersList({ members, loggedInUsername }) {
+function GroupMembersList({ membersList, loggedInUsername }) {
 	return (
 		<>
 			<div className='group-member-list-container'>
 				<div className='group-member-list-header'>Members</div>
-				{members.map((member) => {
+				{membersList.map((member) => {
 					return (
 						<div className='group-member' key={member.user_id}>
 							<div className='group-member-profile-pic-and-name'>
@@ -60,7 +60,8 @@ function GroupMembersList({ members, loggedInUsername }) {
 }
 
 export default function GroupInfoModal({
-	activeChat,
+	group,
+	membersList,
 	loggedInUserId,
 	loggedInUsername,
 	isModalOpen,
@@ -81,14 +82,14 @@ export default function GroupInfoModal({
 
 			<div className='group-info-container'>
 				<GroupInfoHeader
-					activeChat={activeChat}
+					group={group}
 					setIsLeaveModalOpen={setIsLeaveModalOpen}
 				/>
 				<hr
 					style={{ width: '100%', border: 'solid 1px gray', margin: '10px' }}
 				></hr>
 				<GroupMembersList
-					members={activeChat.membersInfo}
+					membersList={membersList}
 					loggedInUsername={loggedInUsername}
 				/>
 			</div>
@@ -104,7 +105,7 @@ export default function GroupInfoModal({
 			</div>
 
 			<LeaveGroupModal
-				activeChat={activeChat}
+				group={group}
 				loggedInUserId={loggedInUserId}
 				isModalOpen={isLeaveModalOpen}
 				setIsModalOpen={setIsLeaveModalOpen}

@@ -20,7 +20,7 @@ const retrieveGroupInfo = async (req, res) => {
 				name: groupInfo.name,
 				groupPicture: groupPictureUrl,
 			},
-			membersInfo: groupMembersInfo,
+			members: groupMembersInfo,
 		});
 	} catch (error) {
 		console.error('Error retrieving group info:', error);

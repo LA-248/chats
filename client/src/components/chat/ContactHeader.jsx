@@ -1,5 +1,6 @@
 import { useContext, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useSocket } from '../../hooks/useSocket';
 import { ChatContext } from '../../contexts/ChatContext';
 import { MessageContext } from '../../contexts/MessageContext';
 import { UserContext } from '../../contexts/UserContext';
@@ -11,9 +12,11 @@ import MessageSearch from '../message/MessageSearch';
 import ContactInfoModal from './ContactInfoModal';
 import GroupInfoModal from './GroupInfoModal';
 import useClearErrorMessage from '../../hooks/useClearErrorMessage';
+import useMembersListUpdate from '../../hooks/useMembersListUpdate';
 import AddGroupMembers from './AddGroupMembers';
 
 export default function ContactHeader({ room }) {
+	const socket = useSocket();
 	const navigate = useNavigate();
 	const location = useLocation();
 	const chatType = location.pathname.split('/')[1];
@@ -29,12 +32,14 @@ export default function ContactHeader({ room }) {
 		setGroupPicture,
 		chatName,
 		setChatName,
+		membersList,
+		setMembersList,
 	} = useContext(ChatContext);
 	const { activeChatInfo, setActiveChatInfo, setActiveChatRoom } =
 		useContext(ChatContext);
 	const { messages, setFilteredMessages } = useContext(MessageContext);
 	const { loggedInUsername, loggedInUserId } = useContext(UserContext);
-
+	const [groupInfo, setGroupInfo] = useState([]);
 	const [isChatInfoModalOpen, setIsChatInfoModalOpen] = useState(false);
 	const [isAddMembersModalOpen, setIsAddMembersModalOpen] = useState(false);
 	const [errorMessage, setErrorMessage] = useState('');
@@ -57,9 +62,14 @@ export default function ContactHeader({ room }) {
 				setChatName(isPrivateChat ? chatInfo.username : chatInfo.info.name);
 				setChatId(isPrivateChat ? chatInfo.userId : chatInfo.info.chatId);
 				setActiveChatRoom(room);
+
 				isPrivateChat
 					? setRecipientProfilePicture(chatInfo.profilePicture)
 					: setGroupPicture(chatInfo.info.groupPicture);
+				if (!isPrivateChat) {
+					setGroupInfo(chatInfo);
+					setMembersList(chatInfo.members);
+				}
 			} catch (error) {
 				setErrorMessage(error.message);
 			}
@@ -77,8 +87,11 @@ export default function ContactHeader({ room }) {
 		setRecipientProfilePicture,
 		setGroupPicture,
 		setChatName,
+		setMembersList,
 		isPrivateChat,
 	]);
+
+	useMembersListUpdate(socket, groupInfo.members, setMembersList);
 
 	return (
 		<div>
@@ -101,11 +114,9 @@ export default function ContactHeader({ room }) {
 							>
 								{chatName}
 							</div>
-							{chatType === 'groups' &&
-							activeChatInfo &&
-							activeChatInfo.membersInfo ? (
+							{chatType === 'groups' && groupInfo.members ? (
 								<div className='group-member-list'>
-									{activeChatInfo.membersInfo
+									{membersList
 										.map((member) => {
 											return loggedInUsername === member.username
 												? 'You'
@@ -144,7 +155,7 @@ export default function ContactHeader({ room }) {
 				setChatList={setChatList}
 			/>
 
-			{activeChatInfo && isChatInfoModalOpen && chatType === 'chats' && (
+			{isChatInfoModalOpen && chatType === 'chats' && (
 				<ContactInfoModal
 					activeChat={activeChatInfo}
 					isModalOpen={isChatInfoModalOpen}
@@ -154,9 +165,10 @@ export default function ContactHeader({ room }) {
 					setErrorMessage={setErrorMessage}
 				/>
 			)}
-			{activeChatInfo && isChatInfoModalOpen && chatType === 'groups' && (
+			{isChatInfoModalOpen && chatType === 'groups' && (
 				<GroupInfoModal
-					activeChat={activeChatInfo}
+					group={groupInfo}
+					membersList={membersList}
 					loggedInUserId={loggedInUserId}
 					loggedInUsername={loggedInUsername}
 					isModalOpen={isChatInfoModalOpen}

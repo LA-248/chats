@@ -11,7 +11,7 @@ export function useGroupChatInfo(room, chatType, setErrorMessage) {
 			try {
 				if (chatType === 'groups') {
 					const groupChatInfo = await getGroupChatInfo(room, navigate);
-					setGroupMembersInfo(groupChatInfo.membersInfo);
+					setGroupMembersInfo(groupChatInfo.members);
 				}
 			} catch (error) {
 				setErrorMessage(error.message);

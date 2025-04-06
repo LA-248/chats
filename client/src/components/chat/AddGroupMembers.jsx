@@ -155,7 +155,7 @@ export default function AddGroupMembers({
 							cursor: addedMembers.length === 0 && 'auto',
 						}}
 					>
-						Add members
+						Add
 					</button>
 				</form>
 

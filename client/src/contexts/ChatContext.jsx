@@ -11,6 +11,7 @@ const ChatProvider = ({ children }) => {
 	const [chatSearchInputText, setChatSearchInputText] = useState('');
 	const [recipientProfilePicture, setRecipientProfilePicture] = useState(null);
 	const [groupPicture, setGroupPicture] = useState(null);
+	const [membersList, setMembersList] = useState([]);
 
 	return (
 		<ChatContext.Provider
@@ -31,6 +32,8 @@ const ChatProvider = ({ children }) => {
 				setRecipientProfilePicture,
 				groupPicture,
 				setGroupPicture,
+				membersList,
+				setMembersList,
 			}}
 		>
 			{children}
