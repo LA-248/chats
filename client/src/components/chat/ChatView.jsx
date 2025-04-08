@@ -11,7 +11,7 @@ import EditMessageModal from '../message/EditMessageModal';
 
 function ChatView() {
 	const { setMessages } = useContext(MessageContext);
-	const { room, username } = useParams();
+	const { room } = useParams();
 	const socket = useSocket();
 	const [messageId, setMessageId] = useState(null);
 	const [messageIndex, setMessageIndex] = useState(false);
@@ -47,7 +47,7 @@ function ChatView() {
 
 	return (
 		<div className='chat-view-container'>
-			<ContactHeader room={room} username={username} />
+			<ContactHeader room={room} />
 
 			<MessageList
 				room={room}
