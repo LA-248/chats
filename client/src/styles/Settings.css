@@ -1,149 +1,149 @@
 * {
-	box-sizing: border-box;
-	margin: 0;
-	padding: 0;
-	font-family: 'Geist', sans-serif;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Geist', sans-serif;
 }
 
 body {
-	margin: 0;
-	background-color: #212121;
+  margin: 0;
+  background-color: #212121;
 }
 
 .status-text {
-	font-size: 14px;
-	margin-top: 5px;
-	text-decoration: underline;
+  font-size: 14px;
+  margin-top: 5px;
+  text-decoration: underline;
 }
 
 .settings-main-container {
-	display: flex;
-	flex-direction: column;
-	height: 100vh;
-	overflow-y: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow-y: hidden;
 }
 
 .settings-header {
-	display: flex;
-	align-items: center;
-	margin-bottom: 10px;
-	width: 100%;
-	border-bottom: 1px solid rgb(75, 73, 73);
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  width: 100%;
+  border-bottom: 1px solid rgb(75, 73, 73);
 }
 
 .settings-heading {
-	font-size: 22px;
-	font-weight: 600;
-	color: white;
-	padding: 20px;
+  font-size: 22px;
+  font-weight: 600;
+  color: white;
+  padding: 20px;
 }
 
 .account-container {
-	display: flex;
-	flex-direction: column;
-	padding: 20px;
-	color: white;
-	gap: 40px;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  color: white;
+  gap: 40px;
 }
 
 .account-heading {
-	font-size: 18px;
-	font-weight: 600;
-	color: white;
+  font-size: 18px;
+  font-weight: 600;
+  color: white;
 }
 
 /* PROFILE PICTURE */
 
 .profile-picture-container {
-	display: flex;
-	flex-direction: column;
-	align-items: flex-start;
-	width: fit-content;
-	gap: 5px;
-	margin-top: -20px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: fit-content;
+  gap: 5px;
+  margin-top: -20px;
 }
 
 .profile-picture-heading {
-	font-size: 14px;
+  font-size: 14px;
 }
 
 .profile-picture {
-	height: 100px;
-	width: 100px;
-	border-radius: 100%;
+  height: 100px;
+  width: 100px;
+  border-radius: 100%;
 }
 
 .upload-profile-picture-button {
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	padding: 5px 10px;
-	height: 30px;
-	width: 100px;
-	background-color: #1db954;
-	color: white;
-	border: none;
-	border-radius: 25px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 5px 10px;
+  height: 30px;
+  width: 100px;
+  background-color: #1db954;
+  color: white;
+  border: none;
+  border-radius: 25px;
 }
 
 .upload-profile-picture-button:hover {
-	cursor: pointer;
-	opacity: 0.9;
+  cursor: pointer;
+  opacity: 0.9;
 }
 
 /* USERNAME EDIT */
 
 .username-container {
-	display: flex;
-	flex-direction: column;
-	gap: 5px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
 }
 
 .username-input-wrapper {
-	position: relative;
-	display: flex;
-	align-items: center;
-	gap: 10px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .username-display,
 .username-input {
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	padding: 10px;
-	font-size: 13px;
-	border-radius: 25px;
-	width: 300px;
-	height: 35px;
-	background-color: #303030;
-	color: white;
-	border: solid 1px gray;
-	font-weight: 400;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+  font-size: 13px;
+  border-radius: 25px;
+  width: 300px;
+  height: 35px;
+  background-color: #303030;
+  color: white;
+  border: solid 1px gray;
+  font-weight: 400;
 }
 
 .username-input {
-	width: 100%;
+  width: 100%;
 }
 
 .username-display::placeholder {
-	color: white;
+  color: white;
 }
 
 .edit-username-button {
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	padding: 5px 10px;
-	height: 35px;
-	width: 80px;
-	background-color: #1db954;
-	color: white;
-	border: none;
-	border-radius: 25px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 5px 10px;
+  height: 35px;
+  width: 80px;
+  background-color: #1db954;
+  color: white;
+  border: none;
+  border-radius: 25px;
 }
 
 .edit-username-button:hover {
-	cursor: pointer;
-	opacity: 0.9;
+  cursor: pointer;
+  opacity: 0.9;
 }

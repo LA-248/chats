@@ -1,12 +1,12 @@
 import { pool } from '../../db/index.mjs';
 
 const PrivateChat = {
-	// CREATE OPERATIONS
+  // CREATE OPERATIONS
 
-	createPrivateChatsTable: function () {
-		return new Promise((resolve, reject) => {
-			pool.query(
-				`
+  createPrivateChatsTable: function () {
+    return new Promise((resolve, reject) => {
+      pool.query(
+        `
           CREATE TABLE IF NOT EXISTS private_chats (
             chat_id SERIAL PRIMARY KEY,
             user1_id INTEGER REFERENCES users(user_id) ON DELETE CASCADE,
@@ -22,49 +22,49 @@ const PrivateChat = {
             UNIQUE (user1_id, user2_id)
           )
         `,
-				(err) => {
-					if (err) {
-						return reject(
-							`Database error in private_chats table: ${err.message}`
-						);
-					}
-					return resolve();
-				}
-			);
-		});
-	},
+        (err) => {
+          if (err) {
+            return reject(
+              `Database error in private_chats table: ${err.message}`
+            );
+          }
+          return resolve();
+        }
+      );
+    });
+  },
 
-	// INSERT OPERATIONS
+  // INSERT OPERATIONS
 
-	insertNewChat: function (user1Id, user2Id, room) {
-		return new Promise((resolve, reject) => {
-			pool.query(
-				`
+  insertNewChat: function (user1Id, user2Id, room) {
+    return new Promise((resolve, reject) => {
+      pool.query(
+        `
           INSERT INTO private_chats (user1_id, user2_id, room)
           VALUES ($1, $2, $3)
           RETURNING *
         `,
-				[user1Id, user2Id, room],
-				(err, result) => {
-					if (err) {
-						return reject(
-							`Database error in private_chats table: ${err.message}`
-						);
-					}
-					return resolve(result.rows[0]);
-				}
-			);
-		});
-	},
+        [user1Id, user2Id, room],
+        (err, result) => {
+          if (err) {
+            return reject(
+              `Database error in private_chats table: ${err.message}`
+            );
+          }
+          return resolve(result.rows[0]);
+        }
+      );
+    });
+  },
 
-	// READ OPERATIONS
+  // READ OPERATIONS
 
-	// Retrieve all private chats for a user and sort it by timestamp
-	// Use a CASE expression to dynamically identify the other user involved in the chat for any given user
-	retrievePrivateChatsByUserId: function (userId) {
-		return new Promise((resolve, reject) => {
-			pool.query(
-				`
+  // Retrieve all private chats for a user and sort it by timestamp
+  // Use a CASE expression to dynamically identify the other user involved in the chat for any given user
+  retrievePrivateChatsByUserId: function (userId) {
+    return new Promise((resolve, reject) => {
+      pool.query(
+        `
         SELECT
           pc.chat_id,
           CASE
@@ -96,92 +96,92 @@ const PrivateChat = {
         WHERE (pc.user1_id = $1 OR pc.user2_id = $1)
         ORDER BY last_message_time DESC NULLS LAST
         `,
-				[userId],
-				(err, result) => {
-					if (err) {
-						return reject(
-							`Database error in private_chats table: ${err.message}`
-						);
-					}
-					return resolve(result.rows);
-				}
-			);
-		});
-	},
+        [userId],
+        (err, result) => {
+          if (err) {
+            return reject(
+              `Database error in private_chats table: ${err.message}`
+            );
+          }
+          return resolve(result.rows);
+        }
+      );
+    });
+  },
 
-	retrieveMembersByRoom: function (room) {
-		return new Promise((resolve, reject) => {
-			pool.query(
-				`
+  retrieveMembersByRoom: function (room) {
+    return new Promise((resolve, reject) => {
+      pool.query(
+        `
         SELECT user1_id, user2_id FROM private_chats WHERE room = $1
         `,
-				[room],
-				(err, result) => {
-					if (err) {
-						return reject(
-							`Database error in private_chats table: ${err.message}`
-						);
-					}
-					if (result.rows.length === 0) {
-						return resolve(null);
-					}
-					return resolve(result.rows[0]);
-				}
-			);
-		});
-	},
+        [room],
+        (err, result) => {
+          if (err) {
+            return reject(
+              `Database error in private_chats table: ${err.message}`
+            );
+          }
+          if (result.rows.length === 0) {
+            return resolve(null);
+          }
+          return resolve(result.rows[0]);
+        }
+      );
+    });
+  },
 
-	retrieveRoomByMembers: function (user1Id, user2Id) {
-		return new Promise((resolve, reject) => {
-			pool.query(
-				`
+  retrieveRoomByMembers: function (user1Id, user2Id) {
+    return new Promise((resolve, reject) => {
+      pool.query(
+        `
         SELECT room FROM private_chats 
         WHERE (user1_id = $1 AND user2_id = $2)
         OR (user1_id = $2 AND user2_id = $1)
         `,
-				[user1Id, user2Id],
-				(err, result) => {
-					if (err) {
-						return reject(
-							`Database error in private_chats table: ${err.message}`
-						);
-					}
-					if (result.rows.length === 0) {
-						return resolve(null);
-					}
-					return resolve(result.rows[0].room);
-				}
-			);
-		});
-	},
+        [user1Id, user2Id],
+        (err, result) => {
+          if (err) {
+            return reject(
+              `Database error in private_chats table: ${err.message}`
+            );
+          }
+          if (result.rows.length === 0) {
+            return resolve(null);
+          }
+          return resolve(result.rows[0].room);
+        }
+      );
+    });
+  },
 
-	retrieveAllRoomsByUser: function (userId) {
-		return new Promise((resolve, reject) => {
-			pool.query(
-				`
+  retrieveAllRoomsByUser: function (userId) {
+    return new Promise((resolve, reject) => {
+      pool.query(
+        `
         SELECT room FROM private_chats 
         WHERE (user1_id = $1 OR user2_id = $1)
         `,
-				[userId],
-				(err, result) => {
-					if (err) {
-						return reject(
-							`Database error in private_chats table: ${err.message}`
-						);
-					}
-					if (result.rows.length === 0) {
-						return resolve(null);
-					}
-					return resolve(result.rows);
-				}
-			);
-		});
-	},
+        [userId],
+        (err, result) => {
+          if (err) {
+            return reject(
+              `Database error in private_chats table: ${err.message}`
+            );
+          }
+          if (result.rows.length === 0) {
+            return resolve(null);
+          }
+          return resolve(result.rows);
+        }
+      );
+    });
+  },
 
-	retrieveChatDeletionStatus: function (userId, room) {
-		return new Promise((resolve, reject) => {
-			pool.query(
-				`
+  retrieveChatDeletionStatus: function (userId, room) {
+    return new Promise((resolve, reject) => {
+      pool.query(
+        `
         SELECT
           CASE
             WHEN user1_id = $1 THEN user1_deleted
@@ -190,28 +190,28 @@ const PrivateChat = {
         FROM private_chats
         WHERE room = $2
         `,
-				[userId, room],
-				(err, result) => {
-					if (err) {
-						return reject(
-							`Database error in private_chats table: ${err.message}`
-						);
-					}
-					if (result.rowCount === 0) {
-						return resolve(null);
-					}
-					return resolve(result.rows[0].deleted);
-				}
-			);
-		});
-	},
+        [userId, room],
+        (err, result) => {
+          if (err) {
+            return reject(
+              `Database error in private_chats table: ${err.message}`
+            );
+          }
+          if (result.rowCount === 0) {
+            return resolve(null);
+          }
+          return resolve(result.rows[0].deleted);
+        }
+      );
+    });
+  },
 
-	// UPDATE OPERATIONS
+  // UPDATE OPERATIONS
 
-	updateLastMessage: function (messageId, room) {
-		return new Promise((resolve, reject) => {
-			pool.query(
-				`
+  updateLastMessage: function (messageId, room) {
+    return new Promise((resolve, reject) => {
+      pool.query(
+        `
         UPDATE private_chats
         SET
           last_message_id = $1,
@@ -219,26 +219,26 @@ const PrivateChat = {
         WHERE room = $2
         RETURNING *
         `,
-				[messageId, room],
-				(err, result) => {
-					if (err) {
-						return reject(
-							`Error updating last message in private_chats database table: ${err.message}`
-						);
-					}
-					if (!result.rows[0]) {
-						return resolve(null);
-					}
-					return resolve();
-				}
-			);
-		});
-	},
+        [messageId, room],
+        (err, result) => {
+          if (err) {
+            return reject(
+              `Error updating last message in private_chats database table: ${err.message}`
+            );
+          }
+          if (!result.rows[0]) {
+            return resolve(null);
+          }
+          return resolve();
+        }
+      );
+    });
+  },
 
-	updateChatDeletionStatus: function (userId, isDeleted, room) {
-		return new Promise((resolve, reject) => {
-			pool.query(
-				`
+  updateChatDeletionStatus: function (userId, isDeleted, room) {
+    return new Promise((resolve, reject) => {
+      pool.query(
+        `
         UPDATE private_chats
         SET
           user1_deleted = CASE WHEN user1_id = $1 THEN $2 ELSE user1_deleted END,
@@ -250,26 +250,26 @@ const PrivateChat = {
             WHEN user2_id = $1 THEN user2_deleted
           END AS deleted
         `,
-				[userId, isDeleted, room],
-				(err, result) => {
-					if (err) {
-						return reject(
-							`Database error in private_chats table: ${err.message}`
-						);
-					}
-					if (result.rowCount === 0) {
-						return reject('Chat not found');
-					}
-					return resolve(result.rows[0]);
-				}
-			);
-		});
-	},
+        [userId, isDeleted, room],
+        (err, result) => {
+          if (err) {
+            return reject(
+              `Database error in private_chats table: ${err.message}`
+            );
+          }
+          if (result.rowCount === 0) {
+            return reject('Chat not found');
+          }
+          return resolve(result.rows[0]);
+        }
+      );
+    });
+  },
 
-	updateUserReadStatus: function (userId, read, room) {
-		return new Promise((resolve, reject) => {
-			pool.query(
-				`
+  updateUserReadStatus: function (userId, read, room) {
+    return new Promise((resolve, reject) => {
+      pool.query(
+        `
         UPDATE private_chats
         SET
           user1_read = CASE WHEN user1_id = $1 THEN $2 ELSE user1_read END,
@@ -281,18 +281,18 @@ const PrivateChat = {
             WHEN user2_id = $1 THEN user2_read
           END AS read
         `,
-				[userId, read, room],
-				(err) => {
-					if (err) {
-						return reject(
-							`Error updating read status in private_chats database table:: ${err.message}`
-						);
-					}
-					return resolve();
-				}
-			);
-		});
-	},
+        [userId, read, room],
+        (err) => {
+          if (err) {
+            return reject(
+              `Error updating read status in private_chats database table:: ${err.message}`
+            );
+          }
+          return resolve();
+        }
+      );
+    });
+  },
 };
 
 export { PrivateChat };

@@ -1,75 +1,75 @@
 .logotype {
-	font-size: 28px;
-	font-weight: 600;
-	color: white;
-	margin-top: 20px;
-	text-decoration: underline;
+  font-size: 28px;
+  font-weight: 600;
+  color: white;
+  margin-top: 20px;
+  text-decoration: underline;
 }
 
 .login-container {
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	align-items: center;
-	height: 100vh;
-	background-color: #1d1d1d;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #1d1d1d;
 }
 
 .login-box {
-	background-color: #2c2c2c;
-	padding: 50px;
-	border-radius: 20px;
-	text-align: center;
+  background-color: #2c2c2c;
+  padding: 50px;
+  border-radius: 20px;
+  text-align: center;
 }
 
 .login-header {
-	font-size: 20px;
-	font-weight: 600;
-	color: #ffffff;
-	margin-bottom: 20px;
+  font-size: 20px;
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 20px;
 }
 
 .login-subtext {
-	font-size: 14px;
-	font-weight: 500;
-	color: #ffffff;
-	margin-bottom: 40px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #ffffff;
+  margin-bottom: 40px;
 }
 
 .login-form {
-	display: flex;
-	flex-direction: column;
+  display: flex;
+  flex-direction: column;
 }
 
 .login-box input {
-	background-color: #3c3c3c;
-	border: 1px solid #4c4c4c;
-	border-radius: 4px;
-	padding: 10px;
-	margin-bottom: 10px;
-	color: #ffffff;
+  background-color: #3c3c3c;
+  border: 1px solid #4c4c4c;
+  border-radius: 4px;
+  padding: 10px;
+  margin-bottom: 10px;
+  color: #ffffff;
 }
 
 .login-button {
-	background-color: #4c9aff;
-	border: none;
-	border-radius: 4px;
-	padding: 10px;
-	color: #ffffff;
-	cursor: pointer;
+  background-color: #4c9aff;
+  border: none;
+  border-radius: 4px;
+  padding: 10px;
+  color: #ffffff;
+  cursor: pointer;
 }
 
 .login-box a {
-	color: #4c9aff;
-	text-decoration: none;
+  color: #4c9aff;
+  text-decoration: none;
 }
 
 .login-box a:hover {
-	text-decoration: underline;
+  text-decoration: underline;
 }
 
 .sign-up-redirect {
-	font-size: 14px;
-	color: white;
-	margin-top: 20px;
+  font-size: 14px;
+  color: white;
+  margin-top: 20px;
 }

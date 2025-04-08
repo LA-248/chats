@@ -2,10 +2,10 @@ import { pool } from '../../db/index.mjs';
 
 // Combine private and group chats to display them all in the user's chat list
 const Chat = {
-	retrieveAllChats: function (userId) {
-		return new Promise((resolve, reject) => {
-			pool.query(
-				`
+  retrieveAllChats: function (userId) {
+    return new Promise((resolve, reject) => {
+      pool.query(
+        `
         SELECT
           CONCAT('p_', pc.chat_id) AS chat_id,
           CASE
@@ -66,16 +66,16 @@ const Chat = {
 
         ORDER BY last_message_time DESC NULLS LAST
         `,
-				[userId],
-				(err, result) => {
-					if (err) {
-						return reject(`Database error: ${err.message}`);
-					}
-					return resolve(result.rows);
-				}
-			);
-		});
-	},
+        [userId],
+        (err, result) => {
+          if (err) {
+            return reject(`Database error: ${err.message}`);
+          }
+          return resolve(result.rows);
+        }
+      );
+    });
+  },
 };
 
 export { Chat };
