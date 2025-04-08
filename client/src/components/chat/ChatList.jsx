@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useSocket } from '../../hooks/useSocket';
 import { ChatContext } from '../../contexts/ChatContext';
 import {
@@ -15,6 +15,7 @@ import { deleteGroupChat, markUserAsRead } from '../../api/group-chat-api';
 
 export default function ChatList({ setChatName }) {
 	const socket = useSocket();
+	const { room } = useParams();
 	const {
 		chatSearchInputText,
 		setChatSearchInputText,
@@ -146,6 +147,7 @@ export default function ChatList({ setChatName }) {
 		'room',
 		'chat_picture',
 		'groupPicture',
+		room,
 		setGroupPicture,
 		'update-group-picture'
 	);
@@ -158,6 +160,7 @@ export default function ChatList({ setChatName }) {
 		'userId',
 		'chat_picture',
 		'profilePicture',
+		room,
 		setRecipientProfilePicture,
 		'update-profile-picture-for-contacts'
 	);
@@ -170,6 +173,7 @@ export default function ChatList({ setChatName }) {
 		'userId',
 		'name',
 		'newUsername',
+		room,
 		setChatName,
 		'update-username-for-contacts'
 	);

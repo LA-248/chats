@@ -7,6 +7,7 @@ export default function useChatUpdates(
 	eventKey,
 	matchKey,
 	updateField,
+	room,
 	setData,
 	socketEvent
 ) {
@@ -21,7 +22,12 @@ export default function useChatUpdates(
 						: chat
 				)
 			);
-			setData(data[updateField]);
+			// Update other components where the data is also displayed, such as the contact header and chat info modal
+			// Since these components exist in the chat view, only update them in real-time if the user currently has -
+			// the chat where the update occurred open
+			if (room === data.room) {
+				setData(data[updateField]);
+			}
 		};
 
 		socket.on(socketEvent, handleUpdate);
@@ -33,6 +39,7 @@ export default function useChatUpdates(
 		eventKey,
 		matchKey,
 		updateField,
+		room,
 		setData,
 		socketEvent,
 	]);
