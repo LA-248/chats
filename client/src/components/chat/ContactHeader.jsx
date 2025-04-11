@@ -91,7 +91,7 @@ export default function ContactHeader({ room }) {
     isPrivateChat,
   ]);
 
-  useMembersListUpdate(socket, groupInfo.members, setMembersList);
+  useMembersListUpdate(socket, setMembersList);
 
   return (
     <div>

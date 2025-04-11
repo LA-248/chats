@@ -1,21 +1,30 @@
 import { useEffect } from 'react';
 
-export default function useMembersListUpdate(
-	socket,
-	groupMembers,
-	setMembersList
-) {
-	useEffect(() => {
-		if (!socket) return;
+export default function useMembersListUpdate(socket, setMembersList) {
+  useEffect(() => {
+    if (!socket) return;
 
-		const handleMembersListUpdate = (data) => {
-			const updatedMembersList = groupMembers.filter(
-				(member) => member.user_id !== data.removedUserId
-			);
-			setMembersList(updatedMembersList);
-		};
+    const handleMemberRemoval = (data) => {
+      setMembersList((prevMembersList) =>
+        prevMembersList.filter(
+          (member) => member.user_id !== data.removedUserId
+        )
+      );
+    };
 
-		socket.on('update-members-list', handleMembersListUpdate);
-		return () => socket.off('update-members-list', handleMembersListUpdate);
-	}, [socket, groupMembers, setMembersList]);
+    const handleMemberAddition = (data) => {
+      console.log(data.addedUsers);
+      setMembersList((prevMembersList) =>
+        prevMembersList.concat(data.addedUsers)
+      );
+    };
+
+    socket.on('remove-member', handleMemberRemoval);
+    socket.on('add-members', handleMemberAddition);
+
+    return () => {
+      socket.off('remove-member', handleMemberRemoval);
+      socket.off('add-members', handleMemberAddition);
+    };
+  }, [socket, setMembersList]);
 }

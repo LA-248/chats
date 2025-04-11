@@ -33,15 +33,16 @@ const GroupMember = {
 				`
           INSERT INTO group_members (group_id, user_id, role)
           VALUES ($1, $2, $3)
+          RETURNING *
         `,
 				[groupId, userId, role],
-				(err) => {
+				(err, result) => {
 					if (err) {
 						return reject(
 							`Database error: Error inserting in group_members table: ${err.message}`
 						);
 					}
-					return resolve();
+					return resolve(result.rows[0]);
 				}
 			);
 		});
@@ -83,7 +84,7 @@ const GroupMember = {
 				`
         DELETE FROM group_members 
         WHERE group_id = $1 AND user_id = $2
-        RETURNING *
+        RETURNING user_id
         `,
 				[groupId, userId],
 				(err, result) => {

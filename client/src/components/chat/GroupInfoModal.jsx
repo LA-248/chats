@@ -13,9 +13,6 @@ function GroupInfoHeader({ group, setIsLeaveModalOpen }) {
       >
         {group.info.name}
       </div>
-      <div style={{ textDecoration: 'none', cursor: 'auto', fontSize: '13px' }}>
-        Group - {group.members.length} members
-      </div>
       <div
         className='leave-group-button'
         onClick={() => {

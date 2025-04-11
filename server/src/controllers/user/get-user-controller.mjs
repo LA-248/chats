@@ -48,6 +48,24 @@ const retrieveRecipientProfile = async (req, res) => {
   }
 };
 
+// TODO: Move this function, it should not be in a controller
+const retrieveUserById = async (id) => {
+  try {
+    const user = await User.getUserById(id);
+    const userId = user.user_id;
+    const username = user.username;
+
+    const profilePictureUrl = user.profile_picture
+      ? await createPresignedUrl(process.env.BUCKET_NAME, user.profile_picture)
+      : null;
+
+    return { user_id: userId, username, profile_picture: profilePictureUrl };
+  } catch (error) {
+    console.error('Error retrieving user data:', error);
+    throw error;
+  }
+};
+
 const retrieveIdByUsername = async (req, res) => {
   try {
     const username = req.params.username;
@@ -84,6 +102,7 @@ const retrieveBlockListById = async (req, res) => {
 export {
   retrieveLoggedInUserDataById,
   retrieveRecipientProfile,
+  retrieveUserById,
   retrieveIdByUsername,
   retrieveBlockListById,
 };
