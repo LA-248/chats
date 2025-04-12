@@ -13,7 +13,6 @@ export default function useMembersListUpdate(socket, setMembersList) {
     };
 
     const handleMemberAddition = (data) => {
-      console.log(data.addedUsers);
       setMembersList((prevMembersList) =>
         prevMembersList.concat(data.addedUsers)
       );

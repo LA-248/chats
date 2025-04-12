@@ -48,7 +48,7 @@ const retrieveRecipientProfile = async (req, res) => {
   }
 };
 
-// TODO: Move this function, it should not be in a controller
+// TODO: Move this function, it is not a controller
 const retrieveUserById = async (id) => {
   try {
     const user = await User.getUserById(id);

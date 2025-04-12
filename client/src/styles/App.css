@@ -163,6 +163,7 @@ body {
   margin: 0;
   font-size: 14px;
   color: white;
+  text-wrap: nowrap;
 }
 
 .chat-metadata-container {
