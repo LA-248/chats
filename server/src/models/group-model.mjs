@@ -162,6 +162,24 @@ const Group = {
     });
   },
 
+  retrieveDeletedForList: function (room) {
+    return new Promise((resolve, reject) => {
+      pool.query(
+        `SELECT deleted_for FROM groups WHERE room = $1`,
+        [room],
+        (err, result) => {
+          if (err) {
+            return reject(`Database error in groups table: ${err.message}`);
+          }
+          if (result.rows.length === 0) {
+            return resolve(null);
+          }
+          return resolve(result.rows[0].deleted_for);
+        }
+      );
+    });
+  },
+
   // UPDATE OPERATIONS
 
   updatePicture: function (fileName, room) {
@@ -265,15 +283,15 @@ const Group = {
     });
   },
 
-  unDeleteChat: function (userId, room) {
+  restoreChat: function (room) {
     return new Promise((resolve, reject) => {
       pool.query(
         `
         UPDATE groups
-        SET deleted_for = array_remove(deleted_for, $1)
-        WHERE room = $2;
+        SET deleted_for = '{}'
+        WHERE room = $1;
         `,
-        [userId, room],
+        [room],
         (err) => {
           if (err) {
             return reject(`Database error in groups table: ${err.message}`);

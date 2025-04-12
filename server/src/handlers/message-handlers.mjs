@@ -22,7 +22,7 @@ const handleChatMessages = (socket, io) => {
         clientOffset
       );
 
-      restoreRecipientChat(chatId, room, chatType);
+      restoreChat(chatId, room, chatType);
       broadcastMessage(
         io,
         room,
@@ -220,8 +220,8 @@ const saveMessageInDatabase = async (
   }
 };
 
-// Mark the recipient's chat as not deleted in the database on incoming message if it was previously marked as deleted
-const restoreRecipientChat = async (recipientId, room, chatType) => {
+// Mark a chat as not deleted in the database on incoming message if it was previously marked as deleted
+const restoreChat = async (recipientId, room, chatType) => {
   if (chatType === 'chats') {
     const isNotInChatList = await PrivateChat.retrieveChatDeletionStatus(
       recipientId,
@@ -229,6 +229,11 @@ const restoreRecipientChat = async (recipientId, room, chatType) => {
     );
     if (isNotInChatList === true) {
       await PrivateChat.updateChatDeletionStatus(recipientId, false, room);
+    }
+  } else if (chatType === 'groups') {
+    const membersWhoDeletedChat = await Group.retrieveDeletedForList(room);
+    if (membersWhoDeletedChat !== null) {
+      await Group.restoreChat(room);
     }
   }
 };
