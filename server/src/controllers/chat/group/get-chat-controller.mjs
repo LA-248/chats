@@ -1,18 +1,15 @@
 import { Group } from '../../../models/group-model.mjs';
 import { createPresignedUrl } from '../../../services/s3/s3-presigned-url.mjs';
+import createGroupPictureUrl from '../../../utils/create-group-picture-url.mjs';
 
 const retrieveGroupInfo = async (req, res) => {
   try {
     const room = req.params.room;
     const groupInfo = await Group.retrieveGroupInfoByRoom(room);
     const groupMembersInfo = await retrieveGroupMembersInfo(groupInfo.group_id);
-
-    const groupPictureUrl = groupInfo.group_picture
-      ? await createPresignedUrl(
-          process.env.BUCKET_NAME,
-          groupInfo.group_picture
-        )
-      : null;
+    const groupPictureUrl = await createGroupPictureUrl(
+      groupInfo.group_picture
+    );
 
     res.status(200).json({
       info: {

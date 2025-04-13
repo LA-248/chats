@@ -2,7 +2,7 @@ export default function formatDate(timestamp) {
   const date = new Date(timestamp);
 
   const formattedDate = new Intl.DateTimeFormat('en-GB', {
-    year: 'numeric',
+    year: '2-digit',
     month: '2-digit',
     day: '2-digit',
     hour: '2-digit',
@@ -11,5 +11,5 @@ export default function formatDate(timestamp) {
   }).format(date);
 
   // Replace comma with hyphen and space
-  return formattedDate.replace(',', ' -');
+  return formattedDate;
 }

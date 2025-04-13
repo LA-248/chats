@@ -27,8 +27,7 @@ export default function ChatItem({
             <h4 className='chat-name'>{chat.name}</h4>
             <div className='time-and-notification-container'>
               <div className='chat-time'>
-                {chat.last_message_content &&
-                  formatDate(chat.last_message_time)}
+                {chat.last_message_time && formatDate(chat.last_message_time)}
               </div>
               {!isActive && chat.read === false ? (
                 <span className='unread-message-alert'></span>

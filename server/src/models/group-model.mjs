@@ -243,6 +243,25 @@ const Group = {
     });
   },
 
+  removeUserFromReadList: function (userId, room) {
+    return new Promise((resolve, reject) => {
+      pool.query(
+        `
+        UPDATE groups
+        SET read_by = array_remove(read_by, $1)
+        WHERE room = $2 AND $1 = ANY(read_by)
+        `,
+        [userId, room],
+        (err) => {
+          if (err) {
+            return reject(`Database error in groups table: ${err.message}`);
+          }
+          return resolve();
+        }
+      );
+    });
+  },
+
   resetReadByList: function (userId, room) {
     return new Promise((resolve, reject) => {
       pool.query(

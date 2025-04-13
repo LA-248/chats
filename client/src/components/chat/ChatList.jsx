@@ -10,6 +10,7 @@ import {
 import ChatItem from './ChatItem';
 import useClearErrorMessage from '../../hooks/useClearErrorMessage';
 import useChatUpdates from '../../hooks/useChatUpdates';
+import useAddGroupToChatList from '../../hooks/useAddGroupToChatList';
 import { useSocketErrorHandling } from '../../hooks/useSocketErrorHandling';
 import { deleteGroupChat, markUserAsRead } from '../../api/group-chat-api';
 
@@ -125,6 +126,7 @@ export default function ChatList({ setChatName }) {
             })
         );
       };
+
       socket.on('update-chat-list', (data) =>
         handleChatListUpdate(data, 'update-chat-list')
       );
@@ -138,6 +140,9 @@ export default function ChatList({ setChatName }) {
       };
     }
   }, [setChatList, socket, activeChatRoom]);
+
+  // When a user is added to a group chat, notify them and add it to their chat list
+  useAddGroupToChatList(socket, setChatList);
 
   // Update the picture of a group for all its members in real-time
   useChatUpdates(

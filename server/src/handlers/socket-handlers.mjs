@@ -46,4 +46,4 @@ const socketHandlers = (io) => {
   });
 };
 
-export { socketHandlers };
+export { socketHandlers, userSockets };

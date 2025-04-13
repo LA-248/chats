@@ -1,16 +1,18 @@
+import { userSockets } from '../../../handlers/socket-handlers.mjs';
 import { GroupMember } from '../../../models/group-member-model.mjs';
 import { Group } from '../../../models/group-model.mjs';
 import { deleteS3Object } from '../../../services/s3/s3-file-handler.mjs';
 import { createPresignedUrl } from '../../../services/s3/s3-presigned-url.mjs';
+import createGroupPictureUrl from '../../../utils/create-group-picture-url.mjs';
 import { retrieveUserById } from '../../user/get-user-controller.mjs';
 
+// TODO: Use database transactions here to only insert new members in the database if all operations succeed
 const addMembers = async (req, res) => {
   try {
     const io = req.app.get('io');
     const addedMembers = req.body.addedMembers;
     const room = req.params.room;
     const groupInfo = await Group.retrieveGroupInfoByRoom(room);
-    const addedUsers = [];
 
     // Add members to the group chat
     const insertGroupMembers = addedMembers.map((user) =>
@@ -18,14 +20,16 @@ const addMembers = async (req, res) => {
     );
     const insertedGroupMembers = await Promise.all(insertGroupMembers);
 
-    // Retrieve info for each added member
-    for (let i = 0; i < insertedGroupMembers.length; i++) {
-      const user = await retrieveUserById(insertedGroupMembers[i].user_id);
-      addedUsers.push(user);
-    }
+    const addedUsersInfo = await notifyAddedUsers(
+      io,
+      insertedGroupMembers,
+      groupInfo,
+      room
+    );
 
+    // Emit info of added users to update the members list in real-time
     io.to(room).emit('add-members', {
-      addedUsers,
+      addedUsersInfo,
     });
 
     return res.status(200).json({
@@ -48,6 +52,7 @@ const removeGroupMember = async (req, res) => {
     const { room } = await Group.retrieveRoomByGroupId(groupId);
 
     const removedUser = await GroupMember.removeGroupMember(groupId, userId);
+    await Group.removeUserFromReadList(userId, room);
 
     // Send the user id of the removed member to the frontend through a socket event
     // This allows for the members list to be updated in real-time for all group chat participants
@@ -141,6 +146,37 @@ const updateGroupPicture = async (io, room, groupPicture) => {
     groupPicture,
     room,
   });
+};
+
+// Retrieve the info of each added user and notify them that they were added
+const notifyAddedUsers = async (io, insertedGroupMembers, groupInfo, room) => {
+  const groupPictureUrl = await createGroupPictureUrl(groupInfo.group_picture);
+  const addedUsersInfo = [];
+
+  for (const member of insertedGroupMembers) {
+    const user = await retrieveUserById(member.user_id);
+    addedUsersInfo.push(user);
+
+    if (userSockets.has(user.user_id)) {
+      const socket = userSockets.get(user.user_id);
+      io.to(socket).emit('add-group-to-chat-list', {
+        chat_id: `g_${groupInfo.group_id}`,
+        chat_picture: groupPictureUrl,
+        chat_type: 'group',
+        deleted: false,
+        last_message_content: 'You were added',
+        last_message_id: null,
+        last_message_time: new Date(),
+        name: groupInfo.name,
+        read: false,
+        recipient_user_id: null,
+        room,
+        updated_at: null,
+      });
+    }
+  }
+
+  return addedUsersInfo;
 };
 
 export {
