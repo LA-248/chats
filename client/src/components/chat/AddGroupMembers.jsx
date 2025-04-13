@@ -1,23 +1,17 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { getRecipientUserIdByUsername } from '../../api/user-api';
-import {
-  addMembers,
-  getGroupChatInfo,
-  retrieveGroupMembersInfo,
-} from '../../api/group-chat-api';
+import { addMembers, retrieveGroupMembersInfo } from '../../api/group-chat-api';
 import Modal from '../common/ModalTemplate';
 
 export default function AddGroupMembers({
   isModalOpen,
   setIsModalOpen,
   activeChatInfo,
-  setActiveChatInfo,
   loggedInUsername,
   loggedInUserId,
 }) {
-  const navigate = useNavigate();
   const { room } = useParams();
   const [inputUsername, setInputUsername] = useState('');
   const [addedMembers, setAddedMembers] = useState([]);
@@ -86,8 +80,6 @@ export default function AddGroupMembers({
 
     try {
       const result = await addMembers(room, addedMembers);
-      const updatedGroupInfo = await getGroupChatInfo(room, navigate);
-      setActiveChatInfo(updatedGroupInfo);
       toast.success(result.message);
       setAddedMembers([]);
       setIsModalOpen(false);
