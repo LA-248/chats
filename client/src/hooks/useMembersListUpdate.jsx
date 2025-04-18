@@ -14,7 +14,7 @@ export default function useMembersListUpdate(socket, setMembersList) {
 
     const handleMemberAddition = (data) => {
       setMembersList((prevMembersList) =>
-        prevMembersList.concat(data.addedUsers)
+        prevMembersList.concat(data.addedUsersInfo)
       );
     };
 

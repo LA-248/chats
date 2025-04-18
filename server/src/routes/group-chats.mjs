@@ -9,7 +9,7 @@ import {
   retrieveGroupInfo,
   retrieveMemberUsernames,
 } from '../controllers/chat/group/get-chat-controller.mjs';
-import { deleteGroupChat } from '../controllers/chat/group/delete-chat-controller.mjs';
+import { markGroupChatAsDeleted } from '../controllers/chat/group/delete-chat-controller.mjs';
 import {
   addMembers,
   removeGroupMember,
@@ -42,7 +42,7 @@ groupChatsRouter.get('/:room', groupChatRoomAuth, retrieveGroupInfo);
 // FIXME: Group chat auth middleware doesn't work for this route because the group ID is used instead of the room for retrieval of data
 groupChatsRouter.get('/:groupId/members', retrieveMemberUsernames);
 
-groupChatsRouter.delete('/:room', groupChatRoomAuth, deleteGroupChat);
+groupChatsRouter.delete('/:room', groupChatRoomAuth, markGroupChatAsDeleted);
 // TODO: Add authorisation middleware to this route to ensure not anyone can remove a member from a group
 groupChatsRouter.delete('/:groupId/:userId', removeGroupMember);
 

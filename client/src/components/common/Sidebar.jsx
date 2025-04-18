@@ -52,7 +52,7 @@ export default function Sidebar() {
             </div>
             <div className='chat-list-empty-subtext'>
               To get started, enter the username of the user you would like to
-              chat with above
+              chat with above or create a group chat
             </div>
           </div>
         )
@@ -63,7 +63,7 @@ export default function Sidebar() {
           </div>
           <div className='chat-list-empty-subtext'>
             To get started, enter the username of the user you would like to
-            chat with above
+            chat with above or create a group chat
           </div>
         </div>
       )}

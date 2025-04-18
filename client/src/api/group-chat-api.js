@@ -174,7 +174,7 @@ async function deleteGroupChat(room) {
   }
 }
 
-async function leaveGroupChat(groupId, userId) {
+async function removeGroupMember(groupId, userId) {
   try {
     const response = await fetch(
       `http://localhost:8080/groups/${groupId}/${userId}`,
@@ -207,5 +207,5 @@ export {
   updateLastGroupMessageId,
   markUserAsRead,
   deleteGroupChat,
-  leaveGroupChat,
+  removeGroupMember,
 };
