@@ -2,6 +2,7 @@ import { useState } from 'react';
 import Modal from '../common/ModalTemplate';
 import LeaveGroupModal from './LeaveGroupModal';
 import GroupPicture from './GroupPicture';
+import PersonRemoveAlt1RoundedIcon from '@mui/icons-material/PersonRemoveAlt1Rounded';
 
 function GroupInfoHeader({ group, setIsLeaveModalOpen }) {
   return (
@@ -25,7 +26,18 @@ function GroupInfoHeader({ group, setIsLeaveModalOpen }) {
   );
 }
 
-function GroupMembersList({ membersList, loggedInUsername }) {
+function GroupMembersList({ membersList, loggedInUsername, loggedInUserId }) {
+  let isMemberAdmin;
+
+  // Check if current logged in user is the group admin
+  for (let member of membersList) {
+    if (member.user_id === loggedInUserId) {
+      member.role === 'owner'
+        ? (isMemberAdmin = true)
+        : (isMemberAdmin = false);
+    }
+  }
+
   return (
     <>
       <div className='group-member-list-container'>
@@ -48,6 +60,14 @@ function GroupMembersList({ membersList, loggedInUsername }) {
               <div className='group-member-role'>
                 <div>{member.role === 'owner' ? 'Admin' : null}</div>
               </div>
+
+              {isMemberAdmin ? (
+                member.role !== 'owner' ? (
+                  <div className='remove-member-button'>
+                    <PersonRemoveAlt1RoundedIcon fontSize='small' />
+                  </div>
+                ) : null
+              ) : null}
             </div>
           );
         })}
@@ -88,6 +108,7 @@ export default function GroupInfoModal({
         <GroupMembersList
           membersList={membersList}
           loggedInUsername={loggedInUsername}
+          loggedInUserId={loggedInUserId}
         />
       </div>
 

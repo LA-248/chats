@@ -968,6 +968,16 @@ body {
   text-decoration: underline;
 }
 
+.remove-member-button {
+  color: red;
+}
+
+.remove-member-button:hover {
+  cursor: pointer;
+  text-decoration: underline;
+  opacity: 0.9;
+}
+
 /* SETTINGS */
 
 .username-heading {
