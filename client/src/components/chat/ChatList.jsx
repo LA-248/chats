@@ -107,6 +107,7 @@ export default function ChatList({ setChatName }) {
                     ...chat,
                     last_message_content: chatListData.lastMessageContent,
                     last_message_time: chatListData.lastMessageTime,
+                    updated_at: chatListData.lastMessageTime,
                     // Only add deleted if the eventType is update-chat-list
                     ...(eventType === 'update-chat-list' && {
                       deleted: chatListData.deleted,
@@ -116,11 +117,11 @@ export default function ChatList({ setChatName }) {
                 : chat
             )
             .sort((a, b) => {
-              const timeA = a.last_message_time
-                ? new Date(a.last_message_time)
+              const timeA = a.updated_at
+                ? new Date(a.updated_at)
                 : null;
-              const timeB = b.last_message_time
-                ? new Date(b.last_message_time)
+              const timeB = b.updated_at
+                ? new Date(b.updated_at)
                 : null;
               return timeB - timeA;
             })

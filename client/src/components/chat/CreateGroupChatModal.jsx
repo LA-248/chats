@@ -85,8 +85,6 @@ export default function CreateGroupChatModal({
         groupName,
         addedMembers
       );
-      const updatedChatList = response.updatedChatList;
-      setChatList(updatedChatList);
       toast.success(response.message);
       setGroupName('');
       setAddedMembers([

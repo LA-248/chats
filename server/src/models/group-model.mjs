@@ -36,7 +36,7 @@ const Group = {
         `
           INSERT INTO groups (owner_user_id, name, room)
           VALUES ($1, $2, $3)
-          RETURNING group_id
+          RETURNING group_id, room, name
         `,
         [ownerUserId, name, room],
         (err, result) => {
@@ -283,7 +283,7 @@ const Group = {
     });
   },
 
-  deleteChat: function (userId, room) {
+  markAsDeleted: function (userId, room) {
     return new Promise((resolve, reject) => {
       pool.query(
         `

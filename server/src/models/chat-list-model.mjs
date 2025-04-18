@@ -54,7 +54,7 @@ const Chat = {
           END AS read,
           'group' AS chat_type,
           g.created_at,
-          NULL AS updated_at,
+          g.updated_at,
           CASE 
             WHEN $1 = ANY(g.deleted_for) THEN TRUE 
             ELSE FALSE 
@@ -64,7 +64,7 @@ const Chat = {
         LEFT JOIN messages m ON g.last_message_id = m.message_id
         WHERE gm.user_id = $1
 
-        ORDER BY last_message_time DESC NULLS LAST
+        ORDER BY updated_at DESC
         `,
         [userId],
         (err, result) => {

@@ -166,12 +166,12 @@ const notifyAddedUsers = async (io, insertedGroupMembers, groupInfo, room) => {
         deleted: false,
         last_message_content: 'You were added',
         last_message_id: null,
-        last_message_time: new Date(),
+        last_message_time: null,
         name: groupInfo.name,
         read: false,
         recipient_user_id: null,
         room,
-        updated_at: null,
+        updated_at: new Date(),
       });
     }
   }
