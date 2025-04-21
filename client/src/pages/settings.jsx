@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import ProfilePicture from '../components/user/ProfilePicture';
-import UsernameEdit from '../components/user/UsernameEdit';
+import ProfilePicture from '../features/users/components/ProfilePicture';
+import UsernameEdit from '../features/users/components/UsernameEdit';
 import '../styles/Settings.css';
 
 export default function Settings() {
