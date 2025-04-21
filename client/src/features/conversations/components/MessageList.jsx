@@ -5,6 +5,7 @@ import { MessageContext } from '../../../contexts/MessageContext';
 import { ChatContext } from '../../../contexts/ChatContext';
 import { updateBlockList } from '../../../api/user-api';
 import { updateReadStatus } from '../../../api/private-chat-api';
+import { markUserAsRead } from '../../../api/group-chat-api';
 import ContactInfoModal from './ContactInfoModal';
 import formatDate from '../../../utils/DateTimeFormat';
 import { useGroupChatInfo } from '../../groups/hooks/useGroupChatInfo';
@@ -49,6 +50,8 @@ export default function MessageList({
             // If a message is received while the user has the chat open, this is needed to automatically mark the chat as read
             if (messageData.chatType === 'chats') {
               await updateReadStatus(true, room);
+            } else if (messageData.chatType === 'groups') {
+              await markUserAsRead(room);
             }
           }
         } catch (error) {
