@@ -4,20 +4,20 @@ dotenv.config({ path: '../.env' });
 import express from 'express';
 import sharedSession from 'express-socket.io-session';
 import passport from 'passport';
-import configurePassport from './config/passport-auth-setup.js';
+import configurePassport from './config/passport-auth-setup.ts';
 import cors from 'cors';
 import { createServer } from 'node:http';
 import { Server } from 'socket.io';
-import { sessionMiddleware } from './middlewares/session.middleware.js';
-import { createTables, pool } from '../db/index.js';
-import { socketHandlers } from './handlers/socket-handlers.js';
+import { sessionMiddleware } from './middlewares/session.middleware.ts';
+import { createTables, pool } from '../db/index.ts';
+import { socketHandlers } from './handlers/socket-handlers.ts';
 
 // Import routers
-import authRouter from './routes/auth.routes.js';
-import usersRouter from './routes/user.routes.js';
-import privateChatsRouter from './routes/private-chats.routes.js';
-import groupChatsRouter from './routes/group-chats.routes.js';
-import messagesRouter from './routes/message.routes.js';
+import authRouter from './routes/auth.routes.ts';
+import usersRouter from './routes/user.routes.ts';
+import privateChatsRouter from './routes/private-chats.routes.ts';
+import groupChatsRouter from './routes/group-chats.routes.ts';
+import messagesRouter from './routes/message.routes.ts';
 
 const app = express();
 const server = createServer(app);
