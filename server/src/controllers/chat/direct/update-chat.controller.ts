@@ -22,7 +22,7 @@ const updateLastMessageId = async (req: Request, res: Response) => {
 
 const updateChatReadStatus = async (req: Request, res: Response) => {
   try {
-    const userId = req.user.user_id;
+    const userId = req.user?.user_id;
     const read = req.body.read;
     const room = req.params.room;
 
@@ -42,7 +42,7 @@ const updateChatReadStatus = async (req: Request, res: Response) => {
 // Delete a chat from a user's chat list
 const deleteChat = async (req: Request, res: Response) => {
   try {
-    const userId = req.user.user_id;
+    const userId = req.user?.user_id;
     const room = req.params.room;
 
     await PrivateChat.updateChatDeletionStatus(userId, true, room);

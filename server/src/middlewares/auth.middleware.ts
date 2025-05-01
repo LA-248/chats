@@ -71,7 +71,7 @@ const groupChatRoomAuth = async (
       });
     }
     const groupChatMemberIds = groupChatMembers.map(
-      (member: GroupParticipant) => member.user_id
+      (member: { user_id: number }) => member.user_id
     );
 
     if (!senderId) {

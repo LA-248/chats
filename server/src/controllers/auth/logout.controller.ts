@@ -1,14 +1,14 @@
-import { Request, Response } from "express";
+import { Request, Response } from 'express';
 
 export const handleLogout = (req: Request, res: Response) => {
-  req.logout((err) => {
+  req.logout((err: Error) => {
     if (err) {
       console.error('Logout error:', err);
       res.status(500).json('Error logging out.');
       return;
     }
 
-    req.session.destroy((err) => {
+    req.session.destroy((err: Error) => {
       if (err) {
         console.error('Session destruction error:', err);
         res.status(500).json('Error destroying session.');

@@ -4,19 +4,18 @@ import {
   groupChatRoomAuth,
   requireAuth,
 } from '../middlewares/auth.middleware.js';
-import { createGroupChat } from '../controllers/chat/group/create-chat.controller.ts';
-import {
-  retrieveGroupInfo,
-  retrieveMemberUsernames,
-} from '../controllers/chat/group/group-chat.controller.ts';
-import { deleteGroupChat } from '../controllers/chat/group/delete-chat.controller.ts';
 import {
   addMembers,
+  createGroupChat,
+  deleteGroupChat,
   removeGroupMember,
+  retrieveGroupInfo,
+  retrieveMemberUsernames,
+  updateGroupPicture,
   updateLastMessageId,
   updateUserReadStatus,
-  uploadPicture,
-} from '../controllers/chat/group/update-chat.controller.ts';
+} from '../controllers/chat/group/group-chat.controller.ts';
+
 import { s3Upload } from '../services/s3.service.ts';
 
 const groupChatsRouter = express.Router();
@@ -35,7 +34,7 @@ groupChatsRouter.post(
         next();
       });
   },
-  uploadPicture
+  updateGroupPicture
 );
 
 groupChatsRouter.get('/:room', groupChatRoomAuth, retrieveGroupInfo);

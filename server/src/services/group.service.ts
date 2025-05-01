@@ -18,8 +18,6 @@ import {
 } from '../schemas/group.schema.ts';
 import { AddedUserInfo, GroupMemberToBeAdded } from '../types/group.js';
 
-// READ OPERATIONS
-
 export const retrieveGroupInfoWithMembers = async (
   room: string
 ): Promise<GroupInfoWithMembers> => {
@@ -51,11 +49,9 @@ export const retrieveGroupMembersInfo = async (
     const groupMember = groupMembersInfo[i];
     if (groupMember.profile_picture) {
       groupMember.profile_picture = await createPresignedUrl(
-        process.env.BUCKET_NAME as string,
+        process.env.BUCKET_NAME!,
         groupMember.profile_picture
       );
-    } else {
-      groupMember.profile_picture = null;
     }
   }
 
@@ -69,15 +65,13 @@ export const getMemberUsernames = async (
   return groupMembersInfo.map((member: GroupParticipant) => member.username);
 };
 
-// CREATE OPERATIONS
-
-const createNewGroup = async (
+export const createNewGroup = async (
+  io: Server,
   ownerUserId: number,
   groupName: string,
   room: string,
-  addedMembers: GroupMemberToBeAdded[],
-  failedInsertions: GroupMemberInsertionResult[]
-) => {
+  addedMembers: GroupMemberToBeAdded[]
+): Promise<GroupMemberInsertionResult[]> => {
   const newGroupChat: NewGroupChat = await Group.insertNewGroupChat(
     ownerUserId,
     groupName,
@@ -92,6 +86,7 @@ const createNewGroup = async (
     await Promise.allSettled(insertGroupMembers);
 
   // Log failed insertions
+  const failedInsertions: GroupMemberInsertionResult[] = [];
   for (let i = 0; i < insertedGroupMembers.length; i++) {
     if (insertedGroupMembers[i].status === 'rejected') {
       console.error(`Failed to add user ${insertedGroupMembers[i]}`);
@@ -99,7 +94,9 @@ const createNewGroup = async (
     }
   }
 
-  notifyAddedUsers(io, insertedGroupMembers, newGroupChat);
+  broadcastGroupCreation(io, insertedGroupMembers, newGroupChat);
+
+  return failedInsertions;
 };
 
 export const addUsersToGroup = async (
@@ -117,8 +114,6 @@ export const addUsersToGroup = async (
 
   return await notifyAddedUsers(io, insertedGroupMembers, groupInfo, room);
 };
-
-// UPDATE OPERATIONS
 
 export const removeMember = async (
   groupId: number,
@@ -140,7 +135,7 @@ export const uploadGroupPicture = async (
   const fileName = await Group.retrievePicture(room);
   if (!(fileName === null)) {
     // Only run if a picture exists
-    await deleteS3Object(process.env.BUCKET_NAME, fileName);
+    await deleteS3Object(process.env.BUCKET_NAME!, fileName);
   }
 
   // Upload new picture
@@ -148,7 +143,7 @@ export const uploadGroupPicture = async (
 
   // Generate a temporary URL for viewing the uploaded picture from S3
   const presignedS3Url = await createPresignedUrl(
-    process.env.BUCKET_NAME,
+    process.env.BUCKET_NAME!,
     file.key
   );
 
@@ -176,6 +171,18 @@ export const markGroupAsDeleted = async (
   room: string
 ): Promise<void> => {
   return await Group.updateDeletedForList(userId, room);
+};
+
+// Update the picture of a group for all its members in real-time
+const emitGroupPictureUpdate = async (
+  io: Server,
+  room: string,
+  groupPicture: string
+) => {
+  io.to(room).emit('update-group-picture', {
+    groupPicture,
+    room,
+  });
 };
 
 // Retrieve the info of each added user and notify them that they were added
@@ -219,14 +226,36 @@ const notifyAddedUsers = async (
   return addedUsersInfo;
 };
 
-// Update the picture of a group for all its members in real-time
-const emitGroupPictureUpdate = async (
+// When a new group chat is created, add it to the chat list of the owner and all users added during creation
+const broadcastGroupCreation = (
   io: Server,
-  room: string,
-  groupPicture: string
-) => {
-  io.to(room).emit('update-group-picture', {
-    groupPicture,
-    room,
-  });
+  insertedGroupMembers: GroupMemberInsertionResult[],
+  newGroupChat: NewGroupChat
+): void => {
+  for (const member of insertedGroupMembers) {
+    if (member.value) {
+      if (userSockets.has(member.value.user_id)) {
+        const socketId = userSockets.get(member.value.user_id);
+        if (socketId) {
+          io.to(socketId).emit('add-group-to-chat-list', {
+            chat_id: `g_${newGroupChat.group_id}`,
+            chat_picture: null,
+            chat_type: 'group',
+            deleted: false,
+            last_message_content:
+              member.value.role === 'owner'
+                ? `You created ${newGroupChat.name}`
+                : 'You were added',
+            last_message_id: null,
+            last_message_time: null,
+            name: newGroupChat.name,
+            read: false,
+            recipient_user_id: null,
+            room: newGroupChat.room,
+            updated_at: new Date(),
+          });
+        }
+      }
+    }
+  }
 };

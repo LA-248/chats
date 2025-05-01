@@ -1,9 +1,23 @@
 import { pool } from '../../db/index.ts';
+import {
+  RecipientUserProfile,
+  RecipientUserProfileSchema,
+  User,
+  UserBlockList,
+  UserBlockListSchema,
+  UserId,
+  UserIdSchema,
+  UserProfile,
+  UserProfilePicture,
+  UserProfilePictureSchema,
+  UserProfileSchema,
+  UserSchema,
+} from '../schemas/user.schema.ts';
 
 const User = {
   // CREATE OPERATIONS
 
-  createUsersTable: function () {
+  createUsersTable: function (): Promise<void> {
     return new Promise((resolve, reject) => {
       pool.query(
         `
@@ -29,7 +43,10 @@ const User = {
 
   // INSERT OPERATIONS
 
-  insertNewUser: function (username, hashedPassword) {
+  insertNewUser: function (
+    username: string,
+    hashedPassword: string
+  ): Promise<void> {
     return new Promise((resolve, reject) => {
       pool.query(
         `INSERT INTO users (username, hashed_password) VALUES ($1, $2)`,
@@ -46,7 +63,10 @@ const User = {
 
   // UPDATE OPERATIONS
 
-  updateUsernameById: function (username, userId) {
+  updateUsernameById: function (
+    username: string,
+    userId: number
+  ): Promise<void> {
     return new Promise((resolve, reject) => {
       pool.query(
         `UPDATE users SET username = $1 WHERE user_id = $2`,
@@ -61,7 +81,10 @@ const User = {
     });
   },
 
-  updateProfilePictureById: function (fileName, userId) {
+  updateProfilePictureById: function (
+    fileName: string,
+    userId: number
+  ): Promise<void> {
     return new Promise((resolve, reject) => {
       pool.query(
         `UPDATE users SET profile_picture = $1 WHERE user_id = $2`,
@@ -76,7 +99,10 @@ const User = {
     });
   },
 
-  updateBlockedUsersById: function (blockedUsers, userId) {
+  updateBlockedUsersById: function (
+    blockedUsers: number[],
+    userId: number
+  ): Promise<void> {
     return new Promise((resolve, reject) => {
       pool.query(
         `UPDATE users SET blocked_users = $1 WHERE user_id = $2`,
@@ -93,7 +119,7 @@ const User = {
 
   // READ OPERATIONS
 
-  getUserById: function (userId) {
+  getUserById: function (userId: number): Promise<UserProfile> {
     return new Promise((resolve, reject) => {
       pool.query(
         `SELECT user_id, username, profile_picture FROM users WHERE user_id = $1`,
@@ -102,13 +128,23 @@ const User = {
           if (err) {
             return reject(`Database error in users table: ${err.message}`);
           }
-          return resolve(result.rows[0]);
+
+          try {
+            const userProfile = UserProfileSchema.parse(result.rows[0]);
+            return resolve(userProfile);
+          } catch (error) {
+            return reject(
+              `Error validating user profile data: ${
+                error instanceof Error ? error.message : error
+              }`
+            );
+          }
         }
       );
     });
   },
 
-  getUserByUsername: function (username) {
+  getUserByUsername: function (username: string): Promise<User | null> {
     return new Promise((resolve, reject) => {
       pool.query(
         `SELECT * FROM users WHERE username = $1`,
@@ -120,13 +156,26 @@ const User = {
           if (result.rows.length === 0) {
             return resolve(null);
           }
-          return resolve(result.rows[0]);
+
+          try {
+            const user = UserSchema.parse(result.rows[0]);
+            return resolve(user);
+          } catch (error) {
+            return reject(
+              `Error validating user data: ${
+                error instanceof Error ? error.message : error
+              }`
+            );
+          }
         }
       );
     });
   },
 
-  getRecipientUserProfile: function (userId, room) {
+  getRecipientUserProfile: function (
+    userId: number,
+    room: string
+  ): Promise<RecipientUserProfile | null> {
     return new Promise((resolve, reject) => {
       pool.query(
         `
@@ -150,13 +199,25 @@ const User = {
           if (result.rows.length === 0) {
             return resolve(null);
           }
-          return resolve(result.rows[0]);
+
+          try {
+            const recipientUserProfile = RecipientUserProfileSchema.parse(
+              result.rows[0]
+            );
+            return resolve(recipientUserProfile);
+          } catch (error) {
+            return reject(
+              `Error validating recipient user profile data: ${
+                error instanceof Error ? error.message : error
+              }`
+            );
+          }
         }
       );
     });
   },
 
-  getIdByUsername: function (username) {
+  getIdByUsername: function (username: string): Promise<UserId | null> {
     return new Promise((resolve, reject) => {
       pool.query(
         `SELECT user_id FROM users WHERE username = $1`,
@@ -168,13 +229,25 @@ const User = {
           if (result.rows.length === 0) {
             return resolve(null);
           }
-          return resolve(result.rows[0]);
+
+          try {
+            const id = UserIdSchema.parse(result.rows[0]);
+            return resolve(id);
+          } catch (error) {
+            return reject(
+              `Error validating user ID data: ${
+                error instanceof Error ? error.message : error
+              }`
+            );
+          }
         }
       );
     });
   },
 
-  getUserProfilePicture: function (userId) {
+  getUserProfilePicture: function (
+    userId: number
+  ): Promise<UserProfilePicture | null> {
     return new Promise((resolve, reject) => {
       pool.query(
         `SELECT profile_picture FROM users WHERE user_id = $1`,
@@ -189,13 +262,25 @@ const User = {
           ) {
             return resolve(null);
           }
-          return resolve(result.rows[0].profile_picture);
+
+          try {
+            const profilePicture = UserProfilePictureSchema.parse(
+              result.rows[0].profile_picture
+            );
+            return resolve(profilePicture);
+          } catch (error) {
+            return reject(
+              `Error validating user profile picture data: ${
+                error instanceof Error ? error.message : error
+              }`
+            );
+          }
         }
       );
     });
   },
 
-  getBlockListById: function (userId) {
+  getBlockListById: function (userId: number): Promise<UserBlockList | null> {
     return new Promise((resolve, reject) => {
       pool.query(
         `SELECT blocked_users FROM users WHERE user_id = $1`,
@@ -207,7 +292,19 @@ const User = {
           if (result.rows.length === 0) {
             return resolve(null);
           }
-          return resolve(result.rows[0].blocked_users);
+
+          try {
+            const blockList = UserBlockListSchema.parse(
+              result.rows[0].blocked_users
+            );
+            return resolve(blockList);
+          } catch (error) {
+            return reject(
+              `Error validating user block list data: ${
+                error instanceof Error ? error.message : error
+              }`
+            );
+          }
         }
       );
     });

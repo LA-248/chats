@@ -1,10 +1,11 @@
+import { Socket, Server } from 'socket.io';
 import { Group } from '../models/group.model.ts';
 import { GroupMember } from '../models/group-member.model.ts';
 import { PrivateChat } from '../models/private-chat.model.ts';
 import { Message } from '../models/message.model.ts';
 import isSenderBlocked from '../utils/check-blocked-status.ts';
 
-const handleChatMessages = (socket, io) => {
+const handleChatMessages = (socket: Socket, io: Server) => {
   socket.on('chat-message', async (data, clientOffset, callback) => {
     const { username, chatId, message, room, chatType } = data;
     const senderId = socket.handshake.session.passport.user;
@@ -33,12 +34,14 @@ const handleChatMessages = (socket, io) => {
         chatType
       );
       broadcastChatListUpdate(io, room, message, newMessage);
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error handling chat message:', error);
-      if (error.message === 'Sender is blocked by the recipient') {
-        callback(
-          'You cannot send messages to this user because they have you blocked'
-        );
+      if (error instanceof Error) {
+        if (error.message === 'Sender is blocked by the recipient') {
+          callback(
+            'You cannot send messages to this user because they have you blocked'
+          );
+        }
       }
       callback('Error sending message');
     }
@@ -46,7 +49,7 @@ const handleChatMessages = (socket, io) => {
 };
 
 // Load all messages of a chat when opened
-const displayChatMessages = async (socket, room) => {
+const displayChatMessages = async (socket: Socket, room: string) => {
   if (!socket.recovered) {
     try {
       // Get messages from database for display, filtered by room
@@ -66,7 +69,7 @@ const displayChatMessages = async (socket, room) => {
 };
 
 // Handle sending updated last message info for the chat list after a delete or edit
-const updateMostRecentMessage = (socket, io) => {
+const updateMostRecentMessage = (socket: Socket, io: Server) => {
   socket.on('last-message-updated', async (room) => {
     try {
       const lastMessageInfo = await Message.retrieveLastMessageInfo(room);
@@ -87,7 +90,7 @@ const updateMostRecentMessage = (socket, io) => {
 
 // TODO: Don't retrieve the whole message list after a message is deleted or edited - optimise it
 // Listen for message deletes and edits, and emit the updated message list to the relevant room
-const updateMessageListEvent = (socket, io) => {
+const updateMessageListEvent = (socket: Socket, io: Server) => {
   socket.on('message-list-update-event', async (room, updateType) => {
     try {
       const messages = await Message.retrieveMessageList(
@@ -117,7 +120,7 @@ const formatMessage = (message) => ({
   isEdited: message.is_edited,
 });
 
-const checkIfBlocked = async (chatId, senderId) => {
+const checkIfBlocked = async (chatId: number, senderId: number) => {
   try {
     await isSenderBlocked(chatId, senderId);
   } catch (error) {
@@ -128,58 +131,76 @@ const checkIfBlocked = async (chatId, senderId) => {
 // Handlers for chat-type-specific operations, allows for polymorphic behaviour at runtime
 const CHAT_HANDLERS = {
   chats: {
-    getMembers: async (room) => {
+    getMembers: async (room: string) => {
       try {
         const members = await PrivateChat.retrieveMembersByRoom(room);
         return Object.values(members);
       } catch (error) {
-        throw new Error('Unable to retrieve private chat members:', {
-          cause: error,
-        });
+        if (error instanceof Error) {
+          throw new Error(
+            `Unable to retrieve private chat members: ${error.message}`
+          );
+        }
       }
     },
-    postInsert: async (_senderId, newMessageId, chatId, room) => {
+    postInsert: async (
+      _senderId: number,
+      newMessageId: number,
+      chatId: number,
+      room: string
+    ) => {
       try {
         await PrivateChat.updateUserReadStatus(chatId, false, room);
         await PrivateChat.updateLastMessage(newMessageId, room);
       } catch (error) {
-        throw new Error('Unable to update private chat metadata:', {
-          cause: error,
-        });
+        if (error instanceof Error) {
+          throw new Error(
+            `Unable to update private chat metadata: ${error.message}`
+          );
+        }
       }
     },
   },
   groups: {
-    getMembers: async (room) => {
+    getMembers: async (room: string) => {
       try {
         const members = await GroupMember.retrieveMembersByRoom(room);
         return members.map((member) => member.user_id);
       } catch (error) {
-        throw new Error('Unable to retrieve group chat members', {
-          cause: error,
-        });
+        if (error instanceof Error) {
+          throw new Error(
+            `Unable to retrieve group chat members: ${error.message}`
+          );
+        }
       }
     },
-    postInsert: async (senderId, newMessageId, _chatId, room) => {
+    postInsert: async (
+      senderId: number,
+      newMessageId: number,
+      _chatId: number,
+      room: string
+    ) => {
       try {
         await Group.resetReadByList([senderId], room);
         await Group.updateLastMessage(newMessageId, room);
       } catch (error) {
-        throw new Error('Unable to update group chat metadata', {
-          cause: error,
-        });
+        if (error instanceof Error) {
+          throw new Error(
+            `Unable to update group chat metadata: ${error.message}`
+          );
+        }
       }
     },
   },
 };
 
 const saveMessageInDatabase = async (
-  message,
-  senderId,
-  chatId,
-  room,
-  chatType,
-  clientOffset
+  message: string,
+  senderId: number,
+  chatId: number,
+  room: string,
+  chatType: string,
+  clientOffset: string
 ) => {
   let newMessage;
 
@@ -210,18 +231,24 @@ const saveMessageInDatabase = async (
     if (newMessage) {
       await Message.deleteMessageById(newMessage.id);
     }
-    if (error.errno === 19) {
-      console.error(
-        'Message with this client offset already exists:',
-        clientOffset
-      );
+    if (error instanceof Error) {
+      if (error.errno === 19) {
+        console.error(
+          'Message with this client offset already exists:',
+          clientOffset
+        );
+      }
     }
     throw error;
   }
 };
 
 // Mark a chat as not deleted in the database on incoming message if it was previously marked as deleted
-const restoreChat = async (recipientId, room, chatType) => {
+const restoreChat = async (
+  recipientId: number,
+  room: string,
+  chatType: string
+) => {
   if (chatType === 'chats') {
     const isNotInChatList = await PrivateChat.retrieveChatDeletionStatus(
       recipientId,
@@ -239,13 +266,13 @@ const restoreChat = async (recipientId, room, chatType) => {
 };
 
 const broadcastMessage = (
-  io,
-  room,
-  username,
-  message,
-  senderId,
-  newMessage,
-  chatType
+  io: Server,
+  room: string,
+  username: string,
+  message: string,
+  senderId: number,
+  newMessage: string,
+  chatType: string
 ) => {
   io.to(room).emit('chat-message', {
     from: username,
@@ -259,7 +286,12 @@ const broadcastMessage = (
 };
 
 // Update the chat's preview info in the chat list for everyone in the room
-const broadcastChatListUpdate = (io, room, message, newMessage) => {
+const broadcastChatListUpdate = (
+  io: Server,
+  room: string,
+  message: string,
+  newMessage: string
+) => {
   io.to(room).emit('update-chat-list', {
     room: room,
     lastMessageContent: message,

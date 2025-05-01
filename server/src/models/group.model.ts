@@ -186,7 +186,6 @@ const Group = {
           if (err) {
             return reject(`Database error in groups table: ${err.message}`);
           }
-
           if (result.rows.length === 0) {
             return resolve(null);
           }

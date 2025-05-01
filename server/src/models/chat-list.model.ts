@@ -1,8 +1,9 @@
 import { pool } from '../../db/index.ts';
+import { Chat, ChatSchema } from '../schemas/chat.schema.ts';
 
 // Combine private and group chats to display them all in the user's chat list
 const Chat = {
-  retrieveAllChats: function (userId) {
+  retrieveAllChats: function (userId: number): Promise<Chat[]> {
     return new Promise((resolve, reject) => {
       pool.query(
         `
@@ -71,7 +72,17 @@ const Chat = {
           if (err) {
             return reject(`Database error: ${err.message}`);
           }
-          return resolve(result.rows);
+
+          try {
+            const chatList = result.rows.map((row) => ChatSchema.parse(row));
+            return resolve(chatList);
+          } catch (error) {
+            return reject(
+              `Error validating chat data: ${
+                error instanceof Error ? error.message : error
+              }`
+            );
+          }
         }
       );
     });

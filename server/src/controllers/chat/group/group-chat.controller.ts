@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { v4 as uuidv4 } from 'uuid';
 import {
   addUsersToGroup,
   addUserToReadList,
@@ -9,6 +10,48 @@ import {
   setLastMessageId,
   uploadGroupPicture,
 } from '../../../services/group.service.ts';
+import { createNewGroup } from '../../../services/group.service.ts';
+
+// Handle creating a group chat
+export const createGroupChat = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
+  try {
+    const io = req.app.get('io');
+    const ownerUserId = req.body.loggedInUserId;
+    const groupName = req.body.groupName;
+    const room = uuidv4();
+    const addedMembers = req.body.addedMembers;
+
+    const result = await createNewGroup(
+      io,
+      ownerUserId,
+      groupName,
+      room,
+      addedMembers
+    );
+
+    // Handle partial success or full success
+    // This ensures that the group is still created even if certain members could not be added
+    if (result.length > 0) {
+      return res.status(207).json({
+        message:
+          'Group created successfully but some members could not be added',
+        failedMembers: result,
+      });
+    }
+
+    return res.status(200).json({
+      message: 'Group created',
+    });
+  } catch (error) {
+    console.error('Error creating group chat:', error);
+    return res
+      .status(500)
+      .json({ error: 'Error creating group chat. Please try again.' });
+  }
+};
 
 export const retrieveGroupInfo = async (
   req: Request,

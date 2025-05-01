@@ -1,7 +1,7 @@
 import { pool } from '../../db/index.ts';
 
 const Session = {
-  createSessionsTable: function () {
+  createSessionsTable: function (): Promise<void> {
     return new Promise((resolve, reject) => {
       pool.query(
         `

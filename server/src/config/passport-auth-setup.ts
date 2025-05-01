@@ -2,13 +2,13 @@ import passport from 'passport';
 import { Strategy as LocalStrategy } from 'passport-local';
 import { pool } from '../../db/index.ts';
 import { authenticateUser } from '../services/auth.service.ts';
-import { User } from '../types/user.js';
+import { UserProfile } from '../types/user.js';
 
 export default function configurePassport() {
   passport.use(new LocalStrategy(authenticateUser));
 
   // Store user data in the session
-  passport.serializeUser(function (user: User, cb) {
+  passport.serializeUser(function (user: UserProfile, cb) {
     cb(null, user.user_id);
   });
 

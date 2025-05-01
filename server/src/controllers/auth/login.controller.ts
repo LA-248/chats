@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
+import { UserProfile } from '../../types/user.js';
 import passport from 'passport';
 
 export const handleUserLogin = (
@@ -6,7 +7,7 @@ export const handleUserLogin = (
   res: Response,
   next: NextFunction
 ) => {
-  passport.authenticate('local', (err, user) => {
+  passport.authenticate('local', (err: Error, user: UserProfile) => {
     if (!user) {
       return res
         .status(401)

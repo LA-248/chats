@@ -1,7 +1,17 @@
 import { pool } from '../../db/index.ts';
+import {
+  DeletedMessage,
+  DeletedMessageSchema,
+  LastMessageInfo,
+  LastMessageInfoSchema,
+  Message,
+  MessageSchema,
+  NewMessage,
+  NewMessageSchema,
+} from '../schemas/message.schema.ts';
 
 const Message = {
-  createMessagesTable: function () {
+  createMessagesTable: function (): Promise<void> {
     return new Promise((resolve, reject) => {
       pool.query(
         `
@@ -30,12 +40,12 @@ const Message = {
   // INSERT OPERATIONS
 
   insertNewMessage: function (
-    content,
-    senderId,
-    recipientId,
-    room,
-    clientOffset
-  ) {
+    content: string,
+    senderId: number,
+    recipientId: number,
+    room: string,
+    clientOffset: string
+  ): Promise<NewMessage> {
     return new Promise((resolve, reject) => {
       pool.query(
         `
@@ -55,10 +65,19 @@ const Message = {
             return reject(`Database error in messages table: ${err.message}`);
           }
 
-          return resolve({
-            id: result.rows[0].message_id,
-            event_time: result.rows[0].event_time,
-          });
+          try {
+            const newMessage = NewMessageSchema.parse({
+              id: result.rows[0].message_id,
+              event_time: result.rows[0].event_time,
+            });
+            return resolve(newMessage);
+          } catch (error) {
+            return reject(
+              `Error validating new message data: ${
+                error instanceof Error ? error.message : error
+              }`
+            );
+          }
         }
       );
     });
@@ -66,7 +85,10 @@ const Message = {
 
   // UPDATE OPERATIONS
 
-  editMessageContent: function (newMessage, messageId) {
+  editMessageContent: function (
+    newMessage: string,
+    messageId: number
+  ): Promise<void> {
     return new Promise((resolve, reject) => {
       pool.query(
         `
@@ -88,7 +110,10 @@ const Message = {
 
   // READ OPERATIONS
 
-  retrieveMessageList: function (serverOffset, room) {
+  retrieveMessageList: function (
+    serverOffset: string,
+    room: string
+  ): Promise<Message[]> {
     return new Promise((resolve, reject) => {
       pool.query(
         `
@@ -112,13 +137,24 @@ const Message = {
           if (err) {
             return reject(`Database error in messages table: ${err.message}`);
           }
-          return resolve(result.rows);
+          try {
+            const messageList = result.rows.map((row) =>
+              MessageSchema.parse(row)
+            );
+            return resolve(messageList);
+          } catch (error) {
+            return reject(
+              `Error validating message list data: ${
+                error instanceof Error ? error.message : error
+              }`
+            );
+          }
         }
       );
     });
   },
 
-  retrieveLastMessageInfo: function (room) {
+  retrieveLastMessageInfo: function (room: string): Promise<LastMessageInfo> {
     return new Promise((resolve, reject) => {
       pool.query(
         `
@@ -134,7 +170,16 @@ const Message = {
           if (err) {
             return reject(`Database error in messages table: ${err.message}`);
           }
-          return resolve(result.rows[0]);
+          try {
+            const lastMessageInfo = LastMessageInfoSchema.parse(result.rows[0]);
+            return resolve(lastMessageInfo);
+          } catch (error) {
+            return reject(
+              `Error validating last message data: ${
+                error instanceof Error ? error.message : error
+              }`
+            );
+          }
         }
       );
     });
@@ -142,7 +187,7 @@ const Message = {
 
   // DELETE OPERATIONS
 
-  deleteMessageById: function (messageId) {
+  deleteMessageById: function (messageId: number): Promise<DeletedMessage> {
     return new Promise((resolve, reject) => {
       pool.query(
         `DELETE FROM messages WHERE message_id = $1 RETURNING *`,
@@ -151,7 +196,17 @@ const Message = {
           if (err) {
             return reject(`Database error in messages table: ${err.message}`);
           }
-          return resolve(result.rows[0]);
+
+          try {
+            const deletedMessage = DeletedMessageSchema.parse(result.rows[0]);
+            return resolve(deletedMessage);
+          } catch (error) {
+            return reject(
+              `Error validating deleted message data: ${
+                error instanceof Error ? error.message : error
+              }`
+            );
+          }
         }
       );
     });

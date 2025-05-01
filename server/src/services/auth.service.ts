@@ -1,7 +1,12 @@
 import bcrypt from 'bcrypt';
-import { User } from '../../models/user.model.ts';
+import { User } from '../models/user.model.ts';
+import { User as UserInfo } from '../schemas/user.schema.ts';
 
-async function authenticateUser(username, password, cb) {
+async function authenticateUser(
+  username: string,
+  password: string,
+  cb: (err: any, user?: UserInfo | false, info?: { message: string }) => void
+) {
   try {
     const user = await User.getUserByUsername(username);
     if (!user) {
@@ -14,7 +19,11 @@ async function authenticateUser(username, password, cb) {
   }
 }
 
-function verifyPassword(password, user, cb) {
+function verifyPassword(
+  password: string,
+  user: UserInfo,
+  cb: (err: any, user?: User | false, info?: { message: string }) => void
+) {
   bcrypt.compare(password, user.hashed_password, (err, isMatch) => {
     if (err) {
       return cb(err);
