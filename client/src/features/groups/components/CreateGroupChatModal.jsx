@@ -104,7 +104,7 @@ export default function CreateGroupChatModal({
       errorMessage={errorMessage}
       setErrorMessage={setErrorMessage}
     >
-      <div className='modal-heading'>Create a new group chat</div>
+      <div className='modal-heading'>Create new group chat</div>
       <div className='set-group-name-container'>
         <input
           className='set-group-name-input'

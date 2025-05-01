@@ -26,7 +26,7 @@ export default function Logout() {
 
   return (
     <button className='logout-button' onClick={handleLogout}>
-      Logout
+      Log out
     </button>
   );
 }
