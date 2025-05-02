@@ -111,7 +111,7 @@ const Group = {
             return resolve(members);
           } catch (error) {
             return reject(
-              `Error validating group members data: ${
+              `Error validating group member data: ${
                 error instanceof Error ? error.message : error
               }`
             );

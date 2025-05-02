@@ -13,7 +13,7 @@ export type NewGroupChat = z.infer<typeof NewGroupChatSchema>;
 export const GroupMemberInfoSchema = z.object({
   user_id: z.number(),
   username: z.string(),
-  profile_picture: z.string(),
+  profile_picture: z.string().nullable(),
   role: z.string(),
 });
 export type GroupMemberInfo = z.infer<typeof GroupMemberInfoSchema>;
@@ -21,7 +21,7 @@ export type GroupMemberInfo = z.infer<typeof GroupMemberInfoSchema>;
 export const GroupInfoSchema = z.object({
   group_id: z.number(),
   name: z.string(),
-  group_picture: z.string(),
+  group_picture: z.string().nullable(),
 });
 export type GroupInfo = z.infer<typeof GroupInfoSchema>;
 

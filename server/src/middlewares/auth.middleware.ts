@@ -83,7 +83,7 @@ const groupChatRoomAuth = async (
       return;
     }
     if (groupChatMemberIds.includes(senderId)) {
-      next();
+      return next();
     }
 
     res.status(403).json({
@@ -91,6 +91,7 @@ const groupChatRoomAuth = async (
       message: 'You are not a member of this chat',
       redirectPath: '/',
     });
+    return;
   } catch (error) {
     console.error(error);
     res.status(500).json({

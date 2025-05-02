@@ -1,4 +1,3 @@
-import { Request } from 'express';
 import { S3Client } from '@aws-sdk/client-s3';
 import multer from 'multer';
 import multerS3 from 'multer-s3';
@@ -18,7 +17,7 @@ if (
   throw new Error('Missing AWS configuration environment variables');
 }
 
-const s3Client = new S3Client({
+export const s3Client = new S3Client({
   region: process.env.AWS_REGION,
   credentials: {
     accessKeyId: process.env.AWS_ACCESS_KEY_ID,
@@ -27,7 +26,7 @@ const s3Client = new S3Client({
 });
 
 // Stream file directly to S3 using multer-s3
-const s3Upload = multer({
+export const s3Upload = multer({
   storage: multerS3({
     s3: s3Client,
     bucket: process.env.BUCKET_NAME,
@@ -43,7 +42,7 @@ const s3Upload = multer({
 });
 
 // Delete object from S3 bucket
-const deleteS3Object = async (bucket: string, key: string): Promise<void> => {
+export const deleteS3Object = async (bucket: string, key: string): Promise<void> => {
   try {
     const command = new DeleteObjectCommand({
       Bucket: bucket,
@@ -58,7 +57,7 @@ const deleteS3Object = async (bucket: string, key: string): Promise<void> => {
 };
 
 // Create a presigned S3 URL for temporary access to the object
-const createPresignedUrl = (bucket: string, key: string) => {
+export const createPresignedUrl = (bucket: string, key: string): Promise<string> => {
   try {
     const command = new GetObjectCommand({ Bucket: bucket, Key: key });
     return getSignedUrl(s3Client, command, { expiresIn: 604800 });
@@ -72,7 +71,7 @@ const createPresignedUrl = (bucket: string, key: string) => {
 
 // For each chat in the chat list, generate a presigned S3 url using the recipient's profile picture file name
 // This url is required to display the recipient's profile picture in the chat list
-const generatePresignedUrlsForChatList = async (
+export const generatePresignedUrlsForChatList = async (
   chatList: Chat[]
 ): Promise<void> => {
   try {
@@ -102,12 +101,4 @@ const generatePresignedUrlsForChatList = async (
       throw error;
     }
   }
-};
-
-export {
-  s3Client,
-  s3Upload,
-  deleteS3Object,
-  createPresignedUrl,
-  generatePresignedUrlsForChatList,
 };

@@ -11,10 +11,7 @@ export const handleChatAddition = async (
   senderId: number,
   recipientId: number
 ): Promise<ChatItem[]> => {
-  const { room } = await PrivateChat.retrieveRoomByMembers(
-    senderId,
-    recipientId
-  );
+  const room = await PrivateChat.retrieveRoomByMembers(senderId, recipientId);
 
   // This check is needed to know whether to insert a new chat in the database and mark it as not deleted or to only do the latter
   // All chats are marked as deleted by default to prevent incorrectly displaying them in a user's chat list

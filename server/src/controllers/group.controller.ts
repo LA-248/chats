@@ -116,7 +116,7 @@ export const addMembers = async (
     io.to(room).emit('add-members', {
       addedUsersInfo,
     });
-    
+
     res.status(200).json({
       message: addedMembers.length > 1 ? 'Members added' : 'Member added',
     });

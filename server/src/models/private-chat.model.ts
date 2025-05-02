@@ -165,7 +165,7 @@ const PrivateChat = {
           }
 
           try {
-            const rooms = result.rows.map((row) => ChatRoomSchema.parse(row));
+            const rooms = result.rows.map((row) => ChatRoomSchema.parse(row.room));
             return resolve(rooms);
           } catch (error) {
             return reject(

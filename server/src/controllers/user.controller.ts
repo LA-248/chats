@@ -83,6 +83,7 @@ export const retrieveIdByUsername = async (
         'User does not exist. Make sure that the username is correct.'
       ) {
         res.status(404).json({ error: error.message });
+        return;
       }
     }
     console.error('Error retrieving user ID:', error);
@@ -155,8 +156,6 @@ export const updateBlockedUsers = async (
     res.status(200).json({ success: 'Block list successfully updated' });
   } catch (error) {
     console.error('Error blocking user:', error);
-    res
-      .status(500)
-      .json({ error: 'Error blocking user. Please try again.' });
+    res.status(500).json({ error: 'Error blocking user. Please try again.' });
   }
 };

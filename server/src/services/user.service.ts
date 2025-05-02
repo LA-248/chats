@@ -107,7 +107,7 @@ const updateProfilePictureForAllContacts = async (
   profilePicture: string
 ): Promise<void> => {
   const rooms = await PrivateChat.retrieveAllRoomsByUser(userId);
-  const roomIds = rooms.map((row) => row.room);
+  const roomIds = rooms.map((row) => row);
 
   for (let i = 0; i < roomIds.length; i++) {
     const room = roomIds[i];
@@ -126,7 +126,7 @@ const updateUsernameForAllContacts = async (
   newUsername: string
 ): Promise<void> => {
   const rooms = await PrivateChat.retrieveAllRoomsByUser(userId);
-  const roomIds = rooms.map((row) => row.room);
+  const roomIds = rooms.map((row) => row);
 
   for (let i = 0; i < roomIds.length; i++) {
     const room = roomIds[i];

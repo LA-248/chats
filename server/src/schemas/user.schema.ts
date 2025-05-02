@@ -19,7 +19,7 @@ export type User = z.infer<typeof UserSchema>;
 export const RecipientUserProfileSchema = z.object({
   user_id: z.number(),
   username: z.string(),
-  profile_picture: z.string(),
+  profile_picture: z.string().nullable(),
   blocked_users: z.array(z.number()),
 });
 export type RecipientUserProfile = z.infer<typeof RecipientUserProfileSchema>;
