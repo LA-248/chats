@@ -8,7 +8,7 @@ import {
   ChatRoomSchema,
   NewChat,
   NewChatSchema,
-} from '../schemas/chat.schema.ts';
+} from '../schemas/private-chat.schema.ts';
 
 const PrivateChat = {
   // CREATE OPERATIONS
@@ -118,7 +118,7 @@ const PrivateChat = {
   retrieveRoomByMembers: function (
     user1Id: number,
     user2Id: number
-  ): Promise<ChatRoom | null> {
+  ): Promise<ChatRoom> {
     return new Promise((resolve, reject) => {
       pool.query(
         `
@@ -132,9 +132,6 @@ const PrivateChat = {
             return reject(
               `Database error in private_chats table: ${err.message}`
             );
-          }
-          if (result.rows.length === 0) {
-            return resolve(null);
           }
 
           try {
@@ -152,9 +149,7 @@ const PrivateChat = {
     });
   },
 
-  retrieveAllRoomsByUser: function (
-    userId: number
-  ): Promise<ChatRoom[] | null> {
+  retrieveAllRoomsByUser: function (userId: number): Promise<ChatRoom[]> {
     return new Promise((resolve, reject) => {
       pool.query(
         `
@@ -167,9 +162,6 @@ const PrivateChat = {
             return reject(
               `Database error in private_chats table: ${err.message}`
             );
-          }
-          if (result.rows.length === 0) {
-            return resolve(null);
           }
 
           try {

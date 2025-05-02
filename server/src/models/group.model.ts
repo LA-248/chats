@@ -326,7 +326,7 @@ const Group = {
     });
   },
 
-  resetReadByList: function (userId: number, room: number): Promise<void> {
+  resetReadByList: function (userId: number[], room: string): Promise<void> {
     return new Promise((resolve, reject) => {
       pool.query(
         `

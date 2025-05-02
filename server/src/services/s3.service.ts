@@ -5,7 +5,7 @@ import multerS3 from 'multer-s3';
 import { DeleteObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { GetObjectCommand } from '@aws-sdk/client-s3';
-import { Chat } from '../schemas/chat.schema.ts';
+import { Chat } from '../schemas/private-chat.schema.ts';
 import NodeCache from 'node-cache';
 const profilePictureUrlCache = new NodeCache({ stdTTL: 604800 });
 
@@ -32,10 +32,10 @@ const s3Upload = multer({
     s3: s3Client,
     bucket: process.env.BUCKET_NAME,
     cacheControl: 'max-age=31536000', // Cache the uploaded image - reducing the need to re-fetch it from the database
-    metadata: function (req: Request, file: Express.MulterS3.File, cb) {
+    metadata: function (req, file, cb) {
       cb(null, { fieldName: file.fieldname });
     },
-    key: function (req: Request, file: Express.MulterS3.File, cb) {
+    key: function (req, file, cb) {
       cb(null, `${Date.now().toString()}-${file.originalname}`);
     },
   }),
@@ -70,12 +70,12 @@ const createPresignedUrl = (bucket: string, key: string) => {
   }
 };
 
+// For each chat in the chat list, generate a presigned S3 url using the recipient's profile picture file name
+// This url is required to display the recipient's profile picture in the chat list
 const generatePresignedUrlsForChatList = async (
   chatList: Chat[]
 ): Promise<void> => {
   try {
-    // For each chat in the chat list, generate a presigned S3 url using the recipient's profile picture file name
-    // This url is required to display the recipient's profile picture in the chat list
     for (const chat of chatList) {
       const fileName = chat.chat_picture;
       if (!fileName) {

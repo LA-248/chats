@@ -1,14 +1,14 @@
 import express from 'express';
 import { requireAuth } from '../middlewares/auth.middleware.ts';
 import {
-  deleteMessageById,
-  editMessageById,
-} from '../controllers/message/message.controller.ts';
+  deleteMessage,
+  editMessage,
+} from '../controllers/message.controller.ts';
 
 const messagesRouter = express.Router();
 messagesRouter.use(requireAuth);
 
-messagesRouter.put('/', editMessageById);
-messagesRouter.delete('/', deleteMessageById);
+messagesRouter.put('/', editMessage);
+messagesRouter.delete('/', deleteMessage);
 
 export default messagesRouter;

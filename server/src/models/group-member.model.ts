@@ -72,7 +72,9 @@ const GroupMember = {
 
   // READ OPERATIONS
 
-  retrieveMembersByRoom: function (room: string): Promise<GroupMembers | null> {
+  retrieveMembersByRoom: function (
+    room: string
+  ): Promise<GroupMembers[] | null> {
     return new Promise((resolve, reject) => {
       pool.query(
         `
@@ -94,7 +96,9 @@ const GroupMember = {
           }
 
           try {
-            const members = GroupMembersSchema.parse(result.rows);
+            const members = result.rows.map((row) =>
+              GroupMembersSchema.parse(row)
+            );
             return resolve(members);
           } catch (error) {
             return reject(

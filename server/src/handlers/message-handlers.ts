@@ -4,6 +4,10 @@ import { GroupMember } from '../models/group-member.model.ts';
 import { PrivateChat } from '../models/private-chat.model.ts';
 import { Message } from '../models/message.model.ts';
 import isSenderBlocked from '../utils/check-blocked-status.ts';
+import {
+  Message as MessageType,
+  NewMessage,
+} from '../schemas/message.schema.ts';
 
 const handleChatMessages = (socket: Socket, io: Server) => {
   socket.on('chat-message', async (data, clientOffset, callback) => {
@@ -111,7 +115,7 @@ const updateMessageListEvent = (socket: Socket, io: Server) => {
   });
 };
 
-const formatMessage = (message) => ({
+const formatMessage = (message: MessageType) => ({
   from: message.sender_username,
   content: message.content,
   eventTime: message.event_time,
@@ -131,16 +135,17 @@ const checkIfBlocked = async (chatId: number, senderId: number) => {
 // Handlers for chat-type-specific operations, allows for polymorphic behaviour at runtime
 const CHAT_HANDLERS = {
   chats: {
-    getMembers: async (room: string) => {
+    getMembers: async (room: string): Promise<number[]> => {
       try {
         const members = await PrivateChat.retrieveMembersByRoom(room);
-        return Object.values(members);
+        return members ? Object.values(members) : [];
       } catch (error) {
         if (error instanceof Error) {
           throw new Error(
             `Unable to retrieve private chat members: ${error.message}`
           );
         }
+        throw new Error('An unexpected error occurred');
       }
     },
     postInsert: async (
@@ -148,7 +153,7 @@ const CHAT_HANDLERS = {
       newMessageId: number,
       chatId: number,
       room: string
-    ) => {
+    ): Promise<void> => {
       try {
         await PrivateChat.updateUserReadStatus(chatId, false, room);
         await PrivateChat.updateLastMessage(newMessageId, room);
@@ -158,20 +163,22 @@ const CHAT_HANDLERS = {
             `Unable to update private chat metadata: ${error.message}`
           );
         }
+        throw new Error('An unexpected error occurred');
       }
     },
   },
   groups: {
-    getMembers: async (room: string) => {
+    getMembers: async (room: string): Promise<number[]> => {
       try {
         const members = await GroupMember.retrieveMembersByRoom(room);
-        return members.map((member) => member.user_id);
+        return members ? members.map((member) => member.user_id) : [];
       } catch (error) {
         if (error instanceof Error) {
           throw new Error(
             `Unable to retrieve group chat members: ${error.message}`
           );
         }
+        throw new Error('An unexpected error occurred');
       }
     },
     postInsert: async (
@@ -179,7 +186,7 @@ const CHAT_HANDLERS = {
       newMessageId: number,
       _chatId: number,
       room: string
-    ) => {
+    ): Promise<void> => {
       try {
         await Group.resetReadByList([senderId], room);
         await Group.updateLastMessage(newMessageId, room);
@@ -189,6 +196,7 @@ const CHAT_HANDLERS = {
             `Unable to update group chat metadata: ${error.message}`
           );
         }
+        throw new Error('An unexpected error occurred');
       }
     },
   },
@@ -199,9 +207,9 @@ const saveMessageInDatabase = async (
   senderId: number,
   chatId: number,
   room: string,
-  chatType: string,
+  chatType: keyof typeof CHAT_HANDLERS,
   clientOffset: string
-) => {
+): Promise<NewMessage> => {
   let newMessage;
 
   try {
@@ -232,14 +240,13 @@ const saveMessageInDatabase = async (
       await Message.deleteMessageById(newMessage.id);
     }
     if (error instanceof Error) {
-      if (error.errno === 19) {
-        console.error(
-          'Message with this client offset already exists:',
-          clientOffset
-        );
-      }
+      console.error(
+        'Message with this client offset already exists:',
+        clientOffset
+      );
+      throw error;
     }
-    throw error;
+    throw new Error('Unknown error occurred');
   }
 };
 
@@ -248,7 +255,7 @@ const restoreChat = async (
   recipientId: number,
   room: string,
   chatType: string
-) => {
+): Promise<void> => {
   if (chatType === 'chats') {
     const isNotInChatList = await PrivateChat.retrieveChatDeletionStatus(
       recipientId,
@@ -271,9 +278,9 @@ const broadcastMessage = (
   username: string,
   message: string,
   senderId: number,
-  newMessage: string,
+  newMessage: NewMessage,
   chatType: string
-) => {
+): void => {
   io.to(room).emit('chat-message', {
     from: username,
     content: message,
@@ -290,8 +297,8 @@ const broadcastChatListUpdate = (
   io: Server,
   room: string,
   message: string,
-  newMessage: string
-) => {
+  newMessage: NewMessage
+): void => {
   io.to(room).emit('update-chat-list', {
     room: room,
     lastMessageContent: message,

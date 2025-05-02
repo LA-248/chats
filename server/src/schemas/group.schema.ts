@@ -45,11 +45,9 @@ export const NewGroupMemberSchema = z.object({
 });
 export type NewGroupMember = z.infer<typeof NewGroupMemberSchema>;
 
-export const GroupMembersSchema = z.array(
-  z.object({
-    user_id: z.number(),
-  })
-);
+export const GroupMembersSchema = z.object({
+  user_id: z.number(),
+});
 export type GroupMembers = z.infer<typeof GroupMembersSchema>;
 
 export const RemovedGroupMemberSchema = z.number();

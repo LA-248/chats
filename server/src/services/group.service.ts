@@ -7,7 +7,7 @@ import {
 } from '../types/group.js';
 import createGroupPictureUrl from '../utils/create-group-picture-url.ts';
 import { createPresignedUrl, deleteS3Object } from './s3.service.ts';
-import { retrieveUserById } from '../controllers/user/get-user.controller.ts';
+import { retrieveUserById } from './user.service.ts';
 import { userSockets } from '../handlers/socket-handlers.ts';
 import { GroupMember } from '../models/group-member.model.ts';
 import {

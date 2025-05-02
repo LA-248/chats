@@ -5,22 +5,20 @@ import handleMulterError from '../middlewares/multer.middleware.ts';
 import {
   retrieveBlockListById,
   retrieveIdByUsername,
-  retrieveLoggedInUserDataById,
-} from '../controllers/user/get-user.controller.ts';
-import {
+  retrieveLoggedInUserData,
   updateBlockedUsers,
-  updateUsernameById,
+  updateUsername,
   uploadProfilePicture,
-} from '../controllers/user/update-user.controller.ts';
+} from '../controllers/user.controller.ts';
 
 const usersRouter = express.Router();
 usersRouter.use(requireAuth);
 
-usersRouter.get('/', retrieveLoggedInUserDataById);
+usersRouter.get('/', retrieveLoggedInUserData);
 usersRouter.get('/blocked', retrieveBlockListById);
 usersRouter.get('/:username', retrieveIdByUsername);
 
-usersRouter.put('/', updateUsernameById);
+usersRouter.put('/', updateUsername);
 usersRouter.put('/blocked', updateBlockedUsers);
 
 usersRouter.post(

@@ -1,4 +1,5 @@
 import { Socket } from 'socket.io';
+import '../types/session.d.ts';
 
 function initialiseChatRooms(socket: Socket) {
   let joinedRooms: string[] = [];

@@ -14,7 +14,7 @@ import {
   updateGroupPicture,
   updateLastMessageId,
   updateUserReadStatus,
-} from '../controllers/chat/group/group-chat.controller.ts';
+} from '../controllers/group.controller.ts';
 
 import { s3Upload } from '../services/s3.service.ts';
 
@@ -25,14 +25,14 @@ groupChatsRouter.post('/', createGroupChat);
 groupChatsRouter.post('/:room/members', groupChatRoomAuth, addMembers);
 groupChatsRouter.post(
   '/:room/picture',
+  groupChatRoomAuth,
   (req: Request, res: Response, next: NextFunction) => {
-    groupChatRoomAuth,
-      s3Upload.single('group-picture')(req, res, (err) => {
-        if (err) {
-          return handleMulterError(err, req, res, next);
-        }
-        next();
-      });
+    s3Upload.single('group-picture')(req, res, (err) => {
+      if (err) {
+        return handleMulterError(err, req, res, next);
+      }
+      next();
+    });
   },
   updateGroupPicture
 );

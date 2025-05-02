@@ -3,15 +3,14 @@ import {
   requireAuth,
   privateChatRoomAuth,
 } from '../middlewares/auth.middleware.ts';
-import { retrieveRecipientProfile } from '../controllers/user/get-user.controller.ts';
-
-import { getChatList } from '../controllers/chat/direct/get-chat.controller.ts';
-import { addChat } from '../controllers/chat/direct/create-chat.controller.ts';
 import {
+  addChat,
   deleteChat,
+  getChatList,
   updateChatReadStatus,
   updateLastMessageId,
-} from '../controllers/chat/direct/update-chat.controller.ts';
+} from '../controllers/chat.controller.ts';
+import { retrieveRecipientProfile } from '../controllers/user.controller.ts';
 
 const privateChatsRouter = express.Router();
 privateChatsRouter.use(requireAuth);

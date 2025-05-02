@@ -42,7 +42,7 @@ const Message = {
   insertNewMessage: function (
     content: string,
     senderId: number,
-    recipientId: number,
+    recipientId: number | null,
     room: string,
     clientOffset: string
   ): Promise<NewMessage> {
@@ -123,8 +123,7 @@ const Message = {
           m.content,
           m.event_time,
           m.is_edited,
-          u.username as sender_username,
-          u.profile_picture as profile_picture
+          u.username as sender_username
         FROM messages m
         JOIN users u
         ON m.sender_id = u.user_id

@@ -1,18 +1,12 @@
 import { Session } from 'express-session';
-import { Socket } from 'socket.io';
-
-export interface CustomSession extends Session {
-  passport?: {
-    user: number;
-  };
-}
+import { UserProfile } from '../schemas/user.schema.ts';
 
 declare module 'socket.io' {
   interface Handshake {
-    session: CustomSession;
-  }
-
-  interface Socket {
-    handshake: Handshake;
+    session: Session & {
+      passport?: {
+        user: UserProfile;
+      };
+    };
   }
 }

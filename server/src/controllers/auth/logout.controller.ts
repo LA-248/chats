@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 
-export const handleLogout = (req: Request, res: Response) => {
+export const handleLogout = (req: Request, res: Response): void => {
   req.logout((err: Error) => {
     if (err) {
       console.error('Logout error:', err);

@@ -13,7 +13,6 @@ export const MessageSchema = z.object({
   event_time: z.coerce.date(),
   is_edited: z.boolean(),
   sender_username: z.string(),
-  profile_picture: z.string(),
 });
 export type Message = z.infer<typeof MessageSchema>;
 

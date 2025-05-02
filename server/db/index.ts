@@ -2,13 +2,13 @@ import dotenv from 'dotenv';
 dotenv.config({ path: '../.env' });
 
 import pg from 'pg';
+import { User } from '../src/models/user.model.ts';
+import { PrivateChat } from '../src/models/private-chat.model.ts';
+import { Group } from '../src/models/group.model.ts';
+import { GroupMember } from '../src/models/group-member.model.ts';
+import { Message } from '../src/models/message.model.ts';
+import { Session } from '../src/models/session.model.ts';
 const { Pool } = pg;
-import { User } from '../src/models/user-model.js';
-import { Message } from '../src/models/message-model.js';
-import { Session } from '../src/models/session-model.js';
-import { PrivateChat } from '../src/models/private-chat-model.js';
-import { Group } from '../src/models/group-model.js';
-import { GroupMember } from '../src/models/group-member-model.js';
 
 // Initialize a connection pool
 const pool = new Pool({
@@ -16,10 +16,10 @@ const pool = new Pool({
   host: process.env.HOST,
   database: process.env.DATABASE_NAME,
   password: process.env.DATABASE_PASSWORD,
-  port: process.env.DATABASE_PORT,
+  port: Number(process.env.DATABASE_PORT),
 });
 
-async function createTables() {
+async function createTables(): Promise<void> {
   try {
     await User.createUsersTable();
     await PrivateChat.createPrivateChatsTable();

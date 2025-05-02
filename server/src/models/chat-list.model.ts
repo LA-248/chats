@@ -1,5 +1,5 @@
 import { pool } from '../../db/index.ts';
-import { Chat, ChatSchema } from '../schemas/chat.schema.ts';
+import { Chat, ChatSchema } from '../schemas/private-chat.schema.ts';
 
 // Combine private and group chats to display them all in the user's chat list
 const Chat = {

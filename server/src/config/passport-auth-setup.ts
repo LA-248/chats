@@ -2,7 +2,7 @@ import passport from 'passport';
 import { Strategy as LocalStrategy } from 'passport-local';
 import { pool } from '../../db/index.ts';
 import { authenticateUser } from '../services/auth.service.ts';
-import { UserProfile } from '../types/user.js';
+import { UserProfile } from '../schemas/user.schema.ts';
 
 export default function configurePassport() {
   passport.use(new LocalStrategy(authenticateUser));

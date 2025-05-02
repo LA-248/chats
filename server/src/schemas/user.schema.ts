@@ -3,7 +3,7 @@ import { z } from 'zod';
 export const UserProfileSchema = z.object({
   user_id: z.number(),
   username: z.string(),
-  profile_picture: z.string(),
+  profile_picture: z.string().nullable(),
 });
 export type UserProfile = z.infer<typeof UserProfileSchema>;
 
