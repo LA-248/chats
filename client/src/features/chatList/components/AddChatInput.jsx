@@ -52,7 +52,23 @@ export default function AddChatInput({
               setErrorMessage('');
             }}
           />
-          <button className='start-chat-button' style={{ marginLeft: '10px' }}>
+          <button
+            className='start-chat-button'
+            style={{
+              marginLeft: '10px',
+              opacity:
+                inputUsername.trim().length === 0 || inputUsername.includes(' ')
+                  ? '0.4'
+                  : null,
+              cursor:
+                inputUsername.trim().length === 0 || inputUsername.includes(' ')
+                  ? 'auto'
+                  : null,
+            }}
+            disabled={
+              inputUsername.trim().length === 0 || inputUsername.includes(' ')
+            }
+          >
             Start chat
           </button>
         </div>
