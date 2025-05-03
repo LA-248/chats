@@ -1,31 +1,31 @@
 import { NewGroupMember } from '../schemas/group.schema.ts';
 
-interface GroupInfo {
+export interface GroupInfo {
   group_id: number;
   name: string;
   group_picture: string | null;
 }
 
-interface GroupParticipant {
+export interface GroupParticipant {
   user_id: number;
   username: string;
   profile_picture: string | null;
   role: string;
 }
 
-interface GroupMemberToBeAdded {
+export interface GroupMemberToBeAdded {
   username: string;
   userId: number;
   role: string;
 }
 
-interface AddedUserInfo {
+export interface AddedUserInfo {
   user_id: number;
   username: string;
   profile_picture: string | null;
 }
 
-interface GroupInfoWithMembers {
+export interface GroupInfoWithMembers {
   info: {
     chatId: number;
     name: string;
@@ -34,17 +34,8 @@ interface GroupInfoWithMembers {
   members: GroupParticipant[];
 }
 
-interface GroupMemberInsertionResult {
+export interface GroupMemberInsertionResult {
   status: 'fulfilled' | 'rejected';
   value?: NewGroupMember;
   reason?: Error | string;
 }
-
-export {
-  GroupInfo,
-  GroupParticipant,
-  GroupMemberToBeAdded,
-  AddedUserInfo,
-  GroupInfoWithMembers,
-  GroupMemberInsertionResult,
-};
