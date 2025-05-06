@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { Server } from 'socket.io';
 import { v4 as uuidv4 } from 'uuid';
 import {
   addUsersToGroup,
@@ -11,6 +12,10 @@ import {
   uploadGroupPicture,
 } from '../services/group.service.ts';
 import { createNewGroup } from '../services/group.service.ts';
+import {
+  GroupMemberInsertionResult,
+  GroupMemberToBeAdded,
+} from '../types/group.js';
 
 // Handle creating a group chat
 export const createGroupChat = async (
@@ -18,12 +23,12 @@ export const createGroupChat = async (
   res: Response
 ): Promise<void> => {
   try {
-    const io = req.app.get('io');
-    const ownerUserId = req.body.loggedInUserId;
-    const groupName = req.body.groupName;
-    const room = uuidv4();
-    const addedMembers = req.body.addedMembers;
-    const result = await createNewGroup(
+    const io: Server = req.app.get('io');
+    const ownerUserId: number = req.body.loggedInUserId;
+    const groupName: string = req.body.groupName;
+    const room: string = uuidv4();
+    const addedMembers: GroupMemberToBeAdded[] = req.body.addedMembers;
+    const failedInsertions: GroupMemberInsertionResult[] = await createNewGroup(
       io,
       ownerUserId,
       groupName,
@@ -33,11 +38,11 @@ export const createGroupChat = async (
 
     // Handle partial success or full success
     // This ensures that the group is still created even if certain members could not be added
-    if (result.length > 0) {
+    if (failedInsertions.length > 0) {
       res.status(207).json({
         message:
           'Group created successfully but some members could not be added',
-        failedMembers: result,
+        failedMembers: failedInsertions,
       });
     }
 

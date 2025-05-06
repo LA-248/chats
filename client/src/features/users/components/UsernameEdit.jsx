@@ -81,7 +81,7 @@ export default function UsernameEdit({
               className='confirm-username-edit-button'
               style={{ marginTop: '20px' }}
             >
-              Done
+              Edit
             </button>
             <button
               type='button'
