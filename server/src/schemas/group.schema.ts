@@ -3,6 +3,13 @@ import { z } from 'zod';
 // Schema validations for database operations on the group and group member table
 
 // Group table
+export const InsertGroupChatSchema = z.object({
+  ownerUserId: z.number().int().positive(),
+  name: z.string().min(2).max(30),
+  room: z.string().uuid(),
+});
+export type InsertGroupChat = z.infer<typeof InsertGroupChatSchema>;
+
 export const NewGroupChatSchema = z.object({
   group_id: z.number(),
   room: z.string().uuid(),

@@ -10,6 +10,7 @@ import {
   GroupPictureSchema,
   GroupRoom,
   GroupRoomSchema,
+  InsertGroupChatSchema,
   NewGroupChat,
   NewGroupChatSchema,
 } from '../schemas/group.schema.ts';
@@ -49,6 +50,13 @@ const Group = {
     name: string,
     room: string
   ): Promise<NewGroupChat> {
+    const parsed = InsertGroupChatSchema.safeParse({ ownerUserId, name, room });
+
+    if (!parsed.success) {
+      console.error(parsed.error);
+      throw new Error('Error validating new group chat input data');
+    }
+
     return new Promise((resolve, reject) => {
       pool.query(
         `
@@ -56,7 +64,7 @@ const Group = {
           VALUES ($1, $2, $3)
           RETURNING group_id, room, name
         `,
-        [ownerUserId, name, room],
+        [parsed.data.ownerUserId, parsed.data.name, parsed.data.room],
         (err, result) => {
           if (err) {
             return reject(`Database error in groups table: ${err.message}`);
