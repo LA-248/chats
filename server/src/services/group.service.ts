@@ -65,6 +65,7 @@ export const getMemberUsernames = async (
   return groupMembersInfo.map((member: GroupParticipant) => member.username);
 };
 
+// Create new group chat
 export const createNewGroup = async (
   io: Server,
   ownerUserId: number,
@@ -226,7 +227,7 @@ const notifyAddedUsers = async (
   return addedUsersInfo;
 };
 
-// When a new group chat is created, add it to the chat list of the owner and all users added during creation
+// When a new group chat is created, add it to the chat lists of the creator and all users who were added during creation
 const broadcastGroupCreation = (
   io: Server,
   insertedGroupMembers: GroupMemberInsertionResult[],
@@ -237,6 +238,8 @@ const broadcastGroupCreation = (
       if (userSockets.has(member.value.user_id)) {
         const socketId = userSockets.get(member.value.user_id);
         if (socketId) {
+          // This structure is used as it mirrors the one returned when fetching a user's chats from the database to build their chat list
+          // Ensures uniform handling of chat items on the frontend chat list
           io.to(socketId).emit('add-group-to-chat-list', {
             chat_id: `g_${newGroupChat.group_id}`,
             chat_picture: null,

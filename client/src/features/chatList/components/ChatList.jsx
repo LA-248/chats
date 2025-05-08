@@ -113,7 +113,7 @@ export default function ChatList({ setChatName }) {
     'update-group-picture'
   );
 
-  // Update the profile picture of a private chat recipient when changed
+  // Update the profile picture of a private chat contact when changed
   useChatUpdates(
     socket,
     setChatList,

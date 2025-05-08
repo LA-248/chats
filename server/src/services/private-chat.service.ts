@@ -13,7 +13,7 @@ export const handleChatAddition = async (
 ): Promise<ChatItem[]> => {
   const room = await PrivateChat.retrieveRoomByMembers(senderId, recipientId);
 
-  // This check is needed to know whether to insert a new chat in the database and mark it as not deleted or to only do the latter
+  // This check is needed to know whether to insert a new chat in the database and mark it as not deleted, or to only do the latter
   // All chats are marked as deleted by default to prevent incorrectly displaying them in a user's chat list
   if (room === null) {
     const newRoom = uuidv4();
@@ -49,6 +49,7 @@ export const updateDeletionStatus = async (
   return await PrivateChat.updateChatDeletionStatus(userId, true, room);
 };
 
+// TODO: Move this function to a more general location - this handles retrieving all chats to construct a user's chat list
 export const getChatListByUser = async (
   userId: number
 ): Promise<ChatItem[]> => {
