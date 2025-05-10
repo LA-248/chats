@@ -2,6 +2,7 @@ import { pool } from '../../db/index.ts';
 import {
   DeletedMessage,
   DeletedMessageSchema,
+  InsertMessageSchema,
   LastMessageInfo,
   LastMessageInfoSchema,
   Message,
@@ -46,6 +47,19 @@ const Message = {
     room: string,
     clientOffset: string
   ): Promise<NewMessage> {
+    const parsed = InsertMessageSchema.safeParse({
+      content,
+      senderId,
+      recipientId,
+      room,
+      clientOffset,
+    });
+
+    if (!parsed.success) {
+      console.error('Error validating new message input data:', parsed.error);
+      throw new Error('Error validating new message input data');
+    }
+
     return new Promise((resolve, reject) => {
       pool.query(
         `

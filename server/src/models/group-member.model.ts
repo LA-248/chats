@@ -2,6 +2,7 @@ import { pool } from '../../db/index.ts';
 import {
   GroupMembers,
   GroupMembersSchema,
+  InsertGroupMemberSchema,
   NewGroupMember,
   NewGroupMemberSchema,
   RemovedGroupMember,
@@ -40,6 +41,16 @@ const GroupMember = {
     userId: number,
     role: string
   ): Promise<NewGroupMember> {
+    const parsed = InsertGroupMemberSchema.safeParse({ groupId, userId, role });
+
+    if (!parsed.success) {
+      console.error(
+        'Error validating new group member input data:',
+        parsed.error
+      );
+      throw new Error('Error validating new group member input data');
+    }
+
     return new Promise((resolve, reject) => {
       pool.query(
         `

@@ -44,6 +44,13 @@ export const GroupDeletedForListSchema = z.string().nullable().or(z.null());
 export type GroupDeletedForList = z.infer<typeof GroupDeletedForListSchema>;
 
 // Group member table
+export const InsertGroupMemberSchema = z.object({
+  groupId: z.number().int().positive(),
+  userId: z.number().int().positive(),
+  role: z.string(),
+});
+export type InsertGroupMember = z.infer<typeof InsertGroupMemberSchema>;
+
 export const NewGroupMemberSchema = z.object({
   group_id: z.number(),
   user_id: z.number(),

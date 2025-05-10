@@ -53,7 +53,10 @@ const Group = {
     const parsed = InsertGroupChatSchema.safeParse({ ownerUserId, name, room });
 
     if (!parsed.success) {
-      console.error(parsed.error);
+      console.error(
+        'Error validating new group chat input data:',
+        parsed.error
+      );
       throw new Error('Error validating new group chat input data');
     }
 
