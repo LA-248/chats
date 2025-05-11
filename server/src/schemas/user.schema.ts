@@ -1,5 +1,11 @@
 import { z } from 'zod';
 
+export const InsertUserSchema = z.object({
+  username: z.string().min(2).max(30),
+  hashedPassword: z.string(),
+});
+export type InsertUser = z.infer<typeof InsertUserSchema>;
+
 export const UserProfileSchema = z.object({
   user_id: z.number(),
   username: z.string(),

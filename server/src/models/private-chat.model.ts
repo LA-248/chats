@@ -6,6 +6,7 @@ import {
   ChatMembersSchema,
   ChatRoom,
   ChatRoomSchema,
+  InsertPrivateChatSchema,
   NewChat,
   NewChatSchema,
 } from '../schemas/private-chat.schema.ts';
@@ -51,6 +52,20 @@ const PrivateChat = {
     user2Id: number,
     room: string
   ): Promise<NewChat> {
+    const parsed = InsertPrivateChatSchema.safeParse({
+      user1Id,
+      user2Id,
+      room,
+    });
+
+    if (!parsed.success) {
+      console.error(
+        'Error validating new private chat input data:',
+        parsed.error
+      );
+      throw new Error('Error validating new private chat input data');
+    }
+
     return new Promise((resolve, reject) => {
       pool.query(
         `

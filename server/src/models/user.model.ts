@@ -1,5 +1,6 @@
 import { pool } from '../../db/index.ts';
 import {
+  InsertUserSchema,
   RecipientUserProfile,
   RecipientUserProfileSchema,
   User,
@@ -47,6 +48,16 @@ const User = {
     username: string,
     hashedPassword: string
   ): Promise<void> {
+    const parsed = InsertUserSchema.safeParse({
+      username,
+      hashedPassword,
+    });
+
+    if (!parsed.success) {
+      console.error('Error validating new user data:', parsed.error);
+      throw new Error('Error validating new user data');
+    }
+
     return new Promise((resolve, reject) => {
       pool.query(
         `INSERT INTO users (username, hashed_password) VALUES ($1, $2)`,

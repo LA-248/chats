@@ -1,5 +1,12 @@
 import { z } from 'zod';
 
+export const InsertPrivateChatSchema = z.object({
+  user1Id: z.number().int().positive(),
+  user2Id: z.number().int().positive(),
+  room: z.string().uuid(),
+});
+export type InsertPrivateChat = z.infer<typeof InsertPrivateChatSchema>;
+
 export const NewChatSchema = z.object({
   chat_id: z.number(),
   user1_id: z.number(),
