@@ -4,7 +4,7 @@ export const NewChatSchema = z.object({
   chat_id: z.number(),
   user1_id: z.number(),
   user2_id: z.number(),
-  last_message_id: z.number(),
+  last_message_id: z.number().nullable(),
   room: z.string(),
   created_at: z.coerce.date(),
   updated_at: z.coerce.date(),
@@ -21,7 +21,7 @@ export const ChatMembersSchema = z.object({
 });
 export type ChatMembers = z.infer<typeof ChatMembersSchema>;
 
-export const ChatRoomSchema = z.string().uuid();
+export const ChatRoomSchema = z.string().uuid().nullable();
 export type ChatRoom = z.infer<typeof ChatRoomSchema>;
 
 export const ChatDeletionStatusSchema = z.boolean();

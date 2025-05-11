@@ -40,7 +40,7 @@ export type GroupRoom = z.infer<typeof GroupRoomSchema>;
 export const GroupPictureSchema = z.string().nullable().or(z.null());
 export type GroupPicture = z.infer<typeof GroupPictureSchema>;
 
-export const GroupDeletedForListSchema = z.string().nullable().or(z.null());
+export const GroupDeletedForListSchema = z.array(z.number()).nullable();
 export type GroupDeletedForList = z.infer<typeof GroupDeletedForListSchema>;
 
 // Group member table

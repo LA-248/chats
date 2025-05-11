@@ -133,6 +133,9 @@ const PrivateChat = {
               `Database error in private_chats table: ${err.message}`
             );
           }
+          if (result.rowCount === 0) {
+            return resolve(null);
+          }
 
           try {
             const room = ChatRoomSchema.parse(result.rows[0].room);
@@ -165,7 +168,9 @@ const PrivateChat = {
           }
 
           try {
-            const rooms = result.rows.map((row) => ChatRoomSchema.parse(row.room));
+            const rooms = result.rows.map((row) =>
+              ChatRoomSchema.parse(row.room)
+            );
             return resolve(rooms);
           } catch (error) {
             return reject(
