@@ -111,11 +111,13 @@ const updateProfilePictureForAllContacts = async (
 
   for (let i = 0; i < roomIds.length; i++) {
     const room = roomIds[i];
-    io.to(room).emit('update-profile-picture-for-contacts', {
-      userId,
-      profilePicture,
-      room,
-    });
+    if (room) {
+      io.to(room).emit('update-profile-picture-for-contacts', {
+        userId,
+        profilePicture,
+        room,
+      });
+    }
   }
 };
 
@@ -130,10 +132,12 @@ const updateUsernameForAllContacts = async (
 
   for (let i = 0; i < roomIds.length; i++) {
     const room = roomIds[i];
-    io.to(room).emit('update-username-for-contacts', {
-      userId,
-      newUsername,
-      room,
-    });
+    if (room) {
+      io.to(room).emit('update-username-for-contacts', {
+        userId,
+        newUsername,
+        room,
+      });
+    }
   }
 };
