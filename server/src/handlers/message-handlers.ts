@@ -256,19 +256,25 @@ const restoreChat = async (
   room: string,
   chatType: string
 ): Promise<void> => {
-  if (chatType === 'chats') {
-    const isNotInChatList = await PrivateChat.retrieveChatDeletionStatus(
-      recipientId,
-      room
-    );
-    if (isNotInChatList === true) {
-      await PrivateChat.updateChatDeletionStatus(recipientId, false, room);
+  try {
+    if (chatType === 'chats') {
+      const isNotInChatList = await PrivateChat.retrieveChatDeletionStatus(
+        recipientId,
+        room
+      );
+      if (isNotInChatList) {
+        await PrivateChat.updateChatDeletionStatus(recipientId, false, room);
+      }
+    } else if (chatType === 'groups') {
+      const membersWhoDeletedChat = await Group.retrieveDeletedForList(room);
+      if (membersWhoDeletedChat !== null) {
+        await Group.restoreChat(room);
+      }
     }
-  } else if (chatType === 'groups') {
-    const membersWhoDeletedChat = await Group.retrieveDeletedForList(room);
-    if (membersWhoDeletedChat !== null) {
-      await Group.restoreChat(room);
-    }
+  } catch (error) {
+    // Here the error is swallowed, this is because we don't want to block the sender's message from being delivered if restoring -
+    // the chat for the recipient fails
+    console.error('Error restoring chat:', error);
   }
 };
 
