@@ -200,11 +200,11 @@ const notifyAddedUsers = async (
   const addedUsersInfo: AddedUserInfo[] = [];
 
   for (const member of insertedGroupMembers) {
-    const user = await retrieveUserById(member.user_id);
-    addedUsersInfo.push(user);
+    const addedUser = await retrieveUserById(member.user_id);
+    addedUsersInfo.push(addedUser);
 
-    if (userSockets.has(user.user_id)) {
-      const socketId = userSockets.get(user.user_id);
+    if (userSockets.has(addedUser.user_id)) {
+      const socketId = userSockets.get(addedUser.user_id);
       if (socketId) {
         io.to(socketId).emit('add-group-to-chat-list', {
           chat_id: `g_${groupData.group_id}`,
