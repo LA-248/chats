@@ -5,7 +5,7 @@ import { z } from 'zod';
 // Group table
 export const InsertGroupChatSchema = z.object({
   ownerUserId: z.number().int().positive(),
-  name: z.string().min(2).max(30),
+  name: z.string().min(1).max(50),
   room: z.string().uuid(),
 });
 export type InsertGroupChat = z.infer<typeof InsertGroupChatSchema>;
