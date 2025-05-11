@@ -1,7 +1,7 @@
 import { getBlockList } from '../../../api/user-api';
 
 export default function useBlockAndUnblock({
-  activeChat,
+  recipientUserId,
   updateBlockList,
   setIsBlocked,
   setErrorMessage,
@@ -9,7 +9,6 @@ export default function useBlockAndUnblock({
   const handleBlockAndUnblock = async () => {
     try {
       const currentUserBlockList = await getBlockList();
-      const recipientUserId = activeChat.userId;
 
       if (!currentUserBlockList.includes(recipientUserId)) {
         // Block user

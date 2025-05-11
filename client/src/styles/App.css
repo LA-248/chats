@@ -407,7 +407,7 @@ body {
   gap: 5px;
 }
 
-.group-chat-action-buttons {
+.chat-action-buttons {
   display: flex;
   gap: 10px;
 }
@@ -754,6 +754,7 @@ body {
 
 /* Add members section */
 
+.group-name-heading,
 .add-group-members-heading {
   font-size: 14px;
   font-weight: 600;

@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 import { useSocket } from '../../../hooks/useSocket';
 import { MessageContext } from '../../../contexts/MessageContext';
 import { useSocketErrorHandling } from '../../../hooks/useSocketErrorHandling';
@@ -8,8 +8,15 @@ import MessageList from './MessageList';
 import MessageInput from './MessageInput';
 import DeleteMessageModal from './DeleteMessageModal';
 import EditMessageModal from './EditMessageModal';
+import usePrivateChatInfo from '../hooks/usePrivateChatInfo';
+import useGroupChatInfo from '../../groups/hooks/useGroupChatInfo';
 
 function ChatView() {
+  const location = useLocation();
+  // Extract chat type from URL path
+  const pathSegments = location.pathname.split('/');
+  const chatType = pathSegments[1];
+
   const { setMessages } = useContext(MessageContext);
   const { room } = useParams();
   const socket = useSocket();
@@ -20,13 +27,15 @@ function ChatView() {
   const [hoveredIndex, setHoveredIndex] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
-  useSocketErrorHandling(socket, setErrorMessage);
+  const privateChatInfo = usePrivateChatInfo(room, chatType, setErrorMessage);
+  const groupChatInfo = useGroupChatInfo(room, chatType, setErrorMessage);
 
+  useSocketErrorHandling(socket, setErrorMessage);
+  
   useEffect(() => {
     const displayInitialMessages = (initialMessages) => {
       setMessages(initialMessages);
     };
-
     const handleMessageListUpdate = (messageListData) => {
       if (messageListData.room === room) {
         setMessages(messageListData.updatedMessageList);
@@ -47,10 +56,19 @@ function ChatView() {
 
   return (
     <div className='chat-view-container'>
-      <ContactHeader room={room} />
+      <ContactHeader
+        room={room}
+        chatType={chatType}
+        privateChatInfo={privateChatInfo}
+        groupChatInfo={groupChatInfo}
+      />
 
       <MessageList
         room={room}
+        chatType={chatType}
+        privateChatInfo={privateChatInfo}
+        groupChatInfo={groupChatInfo}
+        recipientUserId={privateChatInfo.userId}
         hoveredIndex={hoveredIndex}
         setHoveredIndex={setHoveredIndex}
         setIsEditModalOpen={setIsEditModalOpen}

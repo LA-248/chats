@@ -8,11 +8,12 @@ import { updateReadStatus } from '../../../api/private-chat-api';
 import { markUserAsRead } from '../../../api/group-chat-api';
 import ContactInfoModal from './ContactInfoModal';
 import formatDate from '../../../utils/DateTimeFormat';
-import { useGroupChatInfo } from '../../groups/hooks/useGroupChatInfo';
-import { useLocation } from 'react-router-dom';
 
 export default function MessageList({
   room,
+  chatType,
+  groupChatInfo,
+  recipientUserId,
   hoveredIndex,
   setHoveredIndex,
   setIsEditModalOpen,
@@ -20,15 +21,9 @@ export default function MessageList({
   setMessageId,
   setMessageIndex,
 }) {
-  const location = useLocation();
-  // Extract chat type from URL path
-  const pathSegments = location.pathname.split('/');
-  const chatType = pathSegments[1];
   const isPrivateChat = chatType === 'chats';
-
   const socket = useSocket();
-  const { activeChatInfo, recipientProfilePicture, chatName } =
-    useContext(ChatContext);
+  const { recipientProfilePicture, chatName } = useContext(ChatContext);
   const { loggedInUsername, loggedInUserId, profilePicture } =
     useContext(UserContext);
   const {
@@ -39,6 +34,7 @@ export default function MessageList({
   } = useContext(MessageContext);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const groupMembersInfo = groupChatInfo.members;
 
   useEffect(() => {
     if (socket) {
@@ -63,8 +59,6 @@ export default function MessageList({
     }
   }, [room, socket, setMessages]);
 
-  const groupMembersInfo = useGroupChatInfo(room, chatType, setErrorMessage);
-
   const getProfilePicture = (messageData) => {
     // Group chat
     if (!isPrivateChat) {
@@ -78,19 +72,15 @@ export default function MessageList({
     if (loggedInUserId === messageData.senderId) {
       return profilePicture;
     } else {
-      return (
-        recipientProfilePicture ||
-        activeChatInfo?.profilePicture ||
-        '/images/default-avatar.jpg'
-      );
+      return recipientProfilePicture || '/images/default-avatar.jpg';
     }
   };
 
   return (
     <>
-      {activeChatInfo && isModalOpen && (
+      {isModalOpen && (
         <ContactInfoModal
-          activeChat={activeChatInfo}
+          recipientUserId={recipientUserId}
           isModalOpen={isModalOpen}
           setIsModalOpen={setIsModalOpen}
           updateBlockList={updateBlockList}
@@ -114,13 +104,13 @@ export default function MessageList({
                   onMouseLeave={() => setHoveredIndex(null)}
                 >
                   <div className='message-container'>
-                    {activeChatInfo && (
+                    {
                       <img
                         className='message-profile-picture'
                         src={getProfilePicture(messageData)}
                         alt='Profile avatar'
                       />
-                    )}
+                    }
                     <div className='message-metadata'>
                       <div className='message-details'>
                         <div

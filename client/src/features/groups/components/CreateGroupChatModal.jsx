@@ -106,6 +106,7 @@ export default function CreateGroupChatModal({
     >
       <div className='modal-heading'>Create new group chat</div>
       <div className='set-group-name-container'>
+        <div className='group-name-heading'>Name</div>
         <input
           className='set-group-name-input'
           placeholder='Group name'

@@ -11,7 +11,7 @@ import Modal from '../../../components/ModalTemplate';
 export default function AddGroupMembers({
   isModalOpen,
   setIsModalOpen,
-  activeChatInfo,
+  groupId,
   loggedInUsername,
   loggedInUserId,
 }) {
@@ -26,7 +26,6 @@ export default function AddGroupMembers({
 
   const handleAddMember = async (event) => {
     event.preventDefault();
-    const groupId = activeChatInfo.info.chatId;
     const currentGroupMembers = await retrieveGroupMembersInfo(groupId);
 
     try {

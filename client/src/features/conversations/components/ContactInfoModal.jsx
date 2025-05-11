@@ -6,7 +6,7 @@ import useBlockAndUnblock from '../../users/hooks/useBlockAndUnblock';
 import Modal from '../../../components/ModalTemplate';
 
 export default function ContactInfoModal({
-  activeChat,
+  recipientUserId,
   isModalOpen,
   setIsModalOpen,
   updateBlockList,
@@ -21,7 +21,7 @@ export default function ContactInfoModal({
   const { chatName, recipientProfilePicture } = useContext(ChatContext);
   const { isBlocked, setIsBlocked } = useContext(UserContext);
   const { handleBlockAndUnblock } = useBlockAndUnblock({
-    activeChat: activeChat,
+    recipientUserId: recipientUserId,
     updateBlockList: updateBlockList,
     setIsBlocked: setIsBlocked,
     setErrorMessage: setErrorMessage,
@@ -54,7 +54,7 @@ export default function ContactInfoModal({
           className='chat-name-contact-info-modal'
           style={{ textDecoration: 'none', cursor: 'auto' }}
         >
-          {chatType === 'groups' ? activeChat.info.name : chatName}
+          {chatName}
         </div>
       </div>
 

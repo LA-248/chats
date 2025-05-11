@@ -1,12 +1,9 @@
 import { useContext, useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
 import { useSocket } from '../../../hooks/useSocket';
 import { ChatContext } from '../../../contexts/ChatContext';
 import { MessageContext } from '../../../contexts/MessageContext';
 import { UserContext } from '../../../contexts/UserContext';
 
-import { getRecipientInfo } from '../../../api/private-chat-api';
-import { getGroupChatInfo } from '../../../api/group-chat-api';
 import { getBlockList, updateBlockList } from '../../../api/user-api';
 import MessageSearch from './MessageSearch';
 import ContactInfoModal from './ContactInfoModal';
@@ -15,11 +12,13 @@ import useClearErrorMessage from '../../../hooks/useClearErrorMessage';
 import useMembersListUpdate from '../../groups/hooks/useMembersListUpdate';
 import AddGroupMembers from '../../groups/components/AddGroupMembers';
 
-export default function ContactHeader({ room }) {
+export default function ContactHeader({
+  room,
+  chatType,
+  privateChatInfo,
+  groupChatInfo,
+}) {
   const socket = useSocket();
-  const navigate = useNavigate();
-  const location = useLocation();
-  const chatType = location.pathname.split('/')[1];
   const isPrivateChat = chatType === 'chats';
 
   const { setIsBlocked } = useContext(UserContext);
@@ -35,41 +34,36 @@ export default function ContactHeader({ room }) {
     membersList,
     setMembersList,
   } = useContext(ChatContext);
-  const { activeChatInfo, setActiveChatInfo, setActiveChatRoom } =
-    useContext(ChatContext);
+  const { setActiveChatRoom } = useContext(ChatContext);
   const { messages, setFilteredMessages } = useContext(MessageContext);
   const { loggedInUsername, loggedInUserId } = useContext(UserContext);
-  const [groupInfo, setGroupInfo] = useState([]);
+  const [recipientUserId, setRecipientUserId] = useState(null);
   const [isChatInfoModalOpen, setIsChatInfoModalOpen] = useState(false);
   const [isAddMembersModalOpen, setIsAddMembersModalOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
   useClearErrorMessage(errorMessage, setErrorMessage);
 
+  // Handles fetching the info of private and group chats
   useEffect(() => {
     const fetchChatInfo = async () => {
       try {
-        const chatInfo = isPrivateChat
-          ? await getRecipientInfo(room, navigate)
-          : await getGroupChatInfo(room, navigate);
-
-        const loggedInUserBlockList = await getBlockList();
-        setIsBlocked(
-          isPrivateChat ? loggedInUserBlockList.includes(chatInfo.userId) : null
-        );
-
-        setActiveChatInfo(chatInfo);
-        setChatName(isPrivateChat ? chatInfo.username : chatInfo.info.name);
-        setChatId(isPrivateChat ? chatInfo.userId : chatInfo.info.chatId);
-        setActiveChatRoom(room);
-
-        isPrivateChat
-          ? setRecipientProfilePicture(chatInfo.profilePicture)
-          : setGroupPicture(chatInfo.info.groupPicture);
-        if (!isPrivateChat) {
-          setGroupInfo(chatInfo);
-          setMembersList(chatInfo.members);
+        if (isPrivateChat) {
+          setRecipientUserId(privateChatInfo.userId);
+          const blockList = await getBlockList();
+          setIsBlocked(blockList.includes(privateChatInfo.userId));
+          setChatId(privateChatInfo.userId);
+          setRecipientProfilePicture(privateChatInfo.profilePicture);
+        } else {
+          setChatId(groupChatInfo.info.chatId);
+          setGroupPicture(groupChatInfo.info.groupPicture);
+          setMembersList(groupChatInfo.members);
         }
+
+        setChatName(
+          isPrivateChat ? privateChatInfo.username : groupChatInfo.info.name
+        );
+        setActiveChatRoom(room);
       } catch (error) {
         setErrorMessage(error.message);
       }
@@ -78,17 +72,16 @@ export default function ContactHeader({ room }) {
     fetchChatInfo();
   }, [
     room,
-    chatType,
-    navigate,
+    isPrivateChat,
+    privateChatInfo,
+    groupChatInfo,
     setIsBlocked,
-    setActiveChatInfo,
     setChatId,
-    setActiveChatRoom,
+    setChatName,
     setRecipientProfilePicture,
     setGroupPicture,
-    setChatName,
     setMembersList,
-    isPrivateChat,
+    setActiveChatRoom,
   ]);
 
   useMembersListUpdate(socket, setMembersList);
@@ -114,7 +107,7 @@ export default function ContactHeader({ room }) {
               >
                 {chatName}
               </div>
-              {chatType === 'groups' && groupInfo.members ? (
+              {chatType === 'groups' && groupChatInfo.members ? (
                 <div className='group-member-list'>
                   {membersList
                     .map((member) => {
@@ -128,7 +121,7 @@ export default function ContactHeader({ room }) {
             </div>
           </div>
 
-          <div className='group-chat-action-buttons'>
+          <div className='chat-action-buttons'>
             {chatType === 'groups' ? (
               <button
                 className='add-group-members-button'
@@ -148,8 +141,7 @@ export default function ContactHeader({ room }) {
       <AddGroupMembers
         isModalOpen={isAddMembersModalOpen}
         setIsModalOpen={setIsAddMembersModalOpen}
-        activeChatInfo={activeChatInfo}
-        setActiveChatInfo={setActiveChatInfo}
+        groupId={groupChatInfo.info.chatId}
         loggedInUsername={loggedInUsername}
         loggedInUserId={loggedInUserId}
         setChatList={setChatList}
@@ -157,7 +149,7 @@ export default function ContactHeader({ room }) {
 
       {isChatInfoModalOpen && chatType === 'chats' && (
         <ContactInfoModal
-          activeChat={activeChatInfo}
+          recipientUserId={recipientUserId}
           isModalOpen={isChatInfoModalOpen}
           setIsModalOpen={setIsChatInfoModalOpen}
           updateBlockList={updateBlockList}
@@ -167,7 +159,7 @@ export default function ContactHeader({ room }) {
       )}
       {isChatInfoModalOpen && chatType === 'groups' && (
         <GroupInfoModal
-          group={groupInfo}
+          group={groupChatInfo}
           membersList={membersList}
           loggedInUserId={loggedInUserId}
           loggedInUsername={loggedInUsername}
