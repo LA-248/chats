@@ -4,18 +4,15 @@ import { useSocket } from '../../../hooks/useSocket';
 import { ChatContext } from '../../../contexts/ChatContext';
 import {
   getChatListByUserId,
-  deletePrivateChat,
   updateReadStatus,
 } from '../../../api/private-chat-api';
 import ChatItem from './ChatItem';
 import useClearErrorMessage from '../../../hooks/useClearErrorMessage';
 import useChatUpdates from '../../conversations/hooks/useChatUpdates';
 import useAddGroupToChatList from '../hooks/useAddGroupToChatList';
+import { useChatDelete } from '../hooks/useChatDelete';
 import { useSocketErrorHandling } from '../../../hooks/useSocketErrorHandling';
-import {
-  deleteGroupChat,
-  markUserAsRead,
-} from '../../../api/group-chat-api';
+import { markUserAsRead } from '../../../api/group-chat-api';
 import useChatListUpdate from '../hooks/useChatListUpdate';
 
 export default function ChatList({ setChatName }) {
@@ -53,34 +50,6 @@ export default function ChatList({ setChatName }) {
     }
   };
 
-  // Remove a conversation from the chat list
-  const handleChatDelete = async (event, chat) => {
-    event.stopPropagation();
-    try {
-      // TODO: this is dogshit logic, clean it up
-      if (chat.chat_id.includes('p')) {
-        await deletePrivateChat(chat.room);
-      } else {
-        await deleteGroupChat(chat.room);
-      }
-      // Mark chat as deleted in local chat list state
-      const updatedChatList = chatList.map((chatItem) => {
-        if (chatItem.room === chat.room) {
-          return { ...chatItem, deleted: true };
-        }
-        return chatItem;
-      });
-      setChatList(updatedChatList);
-      setChatSearchInputText('');
-      if (activeChatRoom === chat.room) {
-        setActiveChatRoom(null);
-        navigate('/');
-      }
-    } catch (error) {
-      setErrorMessage(error.message);
-    }
-  };
-
   // Retrieve the user's chat list for display
   useEffect(() => {
     const displayChatList = async () => {
@@ -95,6 +64,14 @@ export default function ChatList({ setChatName }) {
     displayChatList();
   }, [setChatList]);
 
+  const handleChatDelete = useChatDelete(
+    setChatList,
+    setChatSearchInputText,
+    activeChatRoom,
+    setActiveChatRoom,
+    setErrorMessage
+  );
+  
   useChatListUpdate(socket, setChatList, activeChatRoom);
 
   // When a user is added to a group chat, notify them and add it to their chat list
