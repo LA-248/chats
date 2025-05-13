@@ -267,7 +267,7 @@ const Group = {
     });
   },
 
-  updateLastMessage: function (
+  setLastMessage: function (
     messageId: number,
     room: string
   ): Promise<void | null> {
@@ -289,6 +289,33 @@ const Group = {
           }
           if (!result.rows[0]) {
             return resolve(null);
+          }
+          return resolve();
+        }
+      );
+    });
+  },
+
+  // Handle updating last message after most recent message is deleted
+  updateLastMessage: function (messageId: number, room: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      pool.query(
+        `
+        UPDATE groups
+        SET
+          last_message_id = $1,
+          updated_at = m.event_time
+        FROM messages m
+        WHERE groups.room = $2
+          AND m.message_id = $1
+          AND m.room = $2
+        `,
+        [messageId, room],
+        (err) => {
+          if (err) {
+            return reject(
+              `Error updating last message in private_chats database table: ${err.message}`
+            );
           }
           return resolve();
         }

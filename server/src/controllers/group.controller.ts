@@ -8,7 +8,7 @@ import {
   markGroupAsDeleted,
   removeMember,
   retrieveGroupInfoWithMembers,
-  setLastMessageId,
+  updateLastGroupMessage,
   uploadGroupPicture,
 } from '../services/group.service.ts';
 import { createNewGroup } from '../services/group.service.ts';
@@ -206,7 +206,6 @@ export const updateUserReadStatus = async (
   }
 };
 
-// Update the last message id for a group chat, used when last message is deleted
 export const updateLastMessageId = async (
   req: Request,
   res: Response
@@ -214,7 +213,7 @@ export const updateLastMessageId = async (
   try {
     const newLastMessageId = req.body.messageId;
     const room = req.params.room;
-    await setLastMessageId(newLastMessageId, room);
+    await updateLastGroupMessage(newLastMessageId, room);
 
     res.status(200).json({ success: 'Last message successfully updated' });
   } catch (error) {

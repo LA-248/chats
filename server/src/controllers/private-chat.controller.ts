@@ -70,7 +70,6 @@ export const getChatList = async (
   }
 };
 
-// Update the last message id for a chat, used when last message is deleted
 export const updateLastMessageId = async (
   req: Request,
   res: Response

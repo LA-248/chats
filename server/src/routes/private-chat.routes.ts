@@ -9,7 +9,7 @@ import {
   getChatList,
   updateChatReadStatus,
   updateLastMessageId,
-} from '../controllers/chat.controller.ts';
+} from '../controllers/private-chat.controller.ts';
 import { retrieveRecipientProfile } from '../controllers/user.controller.ts';
 
 const privateChatsRouter = express.Router();

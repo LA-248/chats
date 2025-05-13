@@ -20,8 +20,8 @@ const PrivateChat = {
         `
           CREATE TABLE IF NOT EXISTS private_chats (
             chat_id SERIAL PRIMARY KEY,
-            user1_id INTEGER REFERENCES users(user_id) ON DELETE CASCADE,
-            user2_id INTEGER REFERENCES users(user_id) ON DELETE CASCADE,
+            user1_id INTEGER REFERENCES users(user_id) ON DELETE SET NULL,
+            user2_id INTEGER REFERENCES users(user_id) ON DELETE SET NULL,
             last_message_id INTEGER REFERENCES messages(message_id) ON DELETE SET NULL,
             room UUID UNIQUE NOT NULL,
             created_at TIMESTAMPTZ DEFAULT NOW(),
@@ -244,10 +244,7 @@ const PrivateChat = {
 
   // UPDATE OPERATIONS
 
-  updateLastMessage: function (
-    messageId: number,
-    room: string
-  ): Promise<void | null> {
+  setLastMessage: function (messageId: number, room: string): Promise<void> {
     return new Promise((resolve, reject) => {
       pool.query(
         `
@@ -258,14 +255,41 @@ const PrivateChat = {
         WHERE room = $2
         `,
         [messageId, room],
-        (err, result) => {
+        (err) => {
+          if (err) {
+            return reject(
+              `Error setting last message in private_chats database table: ${err.message}`
+            );
+          }
+          return resolve();
+        }
+      );
+    });
+  },
+
+  // Handle updating last message after most recent message is deleted
+  updateLastMessage: function (
+    messageId: number,
+    room: string
+  ): Promise<void> {
+    return new Promise((resolve, reject) => {
+      pool.query(
+        `
+        UPDATE private_chats
+        SET
+          last_message_id = $1,
+          updated_at = m.event_time
+        FROM messages m
+        WHERE private_chats.room = $2
+          AND m.message_id = $1
+          AND m.room = $2
+        `,
+        [messageId, room],
+        (err) => {
           if (err) {
             return reject(
               `Error updating last message in private_chats database table: ${err.message}`
             );
-          }
-          if (!result.rows[0]) {
-            return resolve(null);
           }
           return resolve();
         }

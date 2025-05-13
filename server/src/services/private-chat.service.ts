@@ -27,10 +27,11 @@ export const handleChatAddition = async (
   return await getChatListByUser(senderId);
 };
 
+// Update the last message for a chat, used when most recent message is deleted
 export const updateLastMessage = async (
   newLastMessageId: number,
   room: string
-): Promise<void | null> => {
+): Promise<void> => {
   return await PrivateChat.updateLastMessage(newLastMessageId, room);
 };
 

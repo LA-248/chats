@@ -160,7 +160,8 @@ export const addUserToReadList = async (
   return await Group.markUserAsRead(userId, room);
 };
 
-export const setLastMessageId = async (
+// Update the last message in a group chat, used when the most recent message is deleted
+export const updateLastGroupMessage = async (
   newLastMessageId: number,
   room: string
 ): Promise<void | null> => {
@@ -239,7 +240,7 @@ const broadcastGroupCreation = (
         const socketId = userSockets.get(member.value.user_id);
         if (socketId) {
           // This structure is used as it mirrors the one returned when fetching a user's chats from the database to build their chat list
-          // Ensures uniform handling of chat items on the frontend chat list
+          // Ensures uniform handling of chat items in the frontend chat list
           io.to(socketId).emit('add-group-to-chat-list', {
             chat_id: `g_${newGroupChat.group_id}`,
             chat_picture: null,

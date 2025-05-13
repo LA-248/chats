@@ -3,11 +3,12 @@ import { Group } from '../models/group.model.ts';
 import { GroupMember } from '../models/group-member.model.ts';
 import { PrivateChat } from '../models/private-chat.model.ts';
 import { Message } from '../models/message.model.ts';
-import isSenderBlocked from '../utils/check-blocked-status.ts';
 import {
   Message as MessageType,
   NewMessage,
 } from '../schemas/message.schema.ts';
+import { ChatHandler, ChatType } from '../types/chat.js';
+import isSenderBlocked from '../utils/check-blocked-status.ts';
 
 const handleChatMessages = (socket: Socket, io: Server) => {
   socket.on('chat-message', async (data, clientOffset, callback) => {
@@ -133,8 +134,9 @@ const checkIfBlocked = async (chatId: number, senderId: number) => {
 };
 
 // Handlers for chat-type-specific operations, allows for polymorphic behaviour at runtime
-const CHAT_HANDLERS = {
+const CHAT_HANDLERS: Record<ChatType, ChatHandler> = {
   chats: {
+    // Get private chat members, this is then used in an authorisation check
     getMembers: async (room: string): Promise<number[]> => {
       try {
         const members = await PrivateChat.retrieveMembersByRoom(room);
@@ -156,7 +158,7 @@ const CHAT_HANDLERS = {
     ): Promise<void> => {
       try {
         await PrivateChat.updateUserReadStatus(chatId, false, room);
-        await PrivateChat.updateLastMessage(newMessageId, room);
+        await PrivateChat.setLastMessage(newMessageId, room);
       } catch (error) {
         if (error instanceof Error) {
           throw new Error(
@@ -168,6 +170,7 @@ const CHAT_HANDLERS = {
     },
   },
   groups: {
+    // Get all members of a group chat, this is then used in an authorisation check
     getMembers: async (room: string): Promise<number[]> => {
       try {
         const members = await GroupMember.retrieveMembersByRoom(room);
@@ -189,7 +192,7 @@ const CHAT_HANDLERS = {
     ): Promise<void> => {
       try {
         await Group.resetReadByList([senderId], room);
-        await Group.updateLastMessage(newMessageId, room);
+        await Group.setLastMessage(newMessageId, room);
       } catch (error) {
         if (error instanceof Error) {
           throw new Error(
@@ -215,11 +218,7 @@ const saveMessageInDatabase = async (
   try {
     const chatHandler = CHAT_HANDLERS[chatType];
 
-    // Prevent unauthorised users from sending messages to chat rooms they are not a part of
-    const memberIds = await chatHandler.getMembers(room);
-    if (!memberIds.includes(senderId)) {
-      throw new Error('User is not authorised to send messages in this chat');
-    }
+    authoriseChatMessage(chatHandler, room, senderId);
 
     newMessage = await Message.insertNewMessage(
       message,
@@ -311,6 +310,19 @@ const broadcastChatListUpdate = (
     lastMessageTime: newMessage.event_time,
     deleted: false,
   });
+};
+
+// Prevent unauthorised users from sending messages to chat rooms they are not a part of
+// This check is needed because messages do not go through middleware since they are handled via sockets and not HTTP routes
+const authoriseChatMessage = async (
+  chatHandler: ChatHandler,
+  room: string,
+  senderId: number
+) => {
+  const memberIds = await chatHandler.getMembers(room);
+  if (!memberIds.includes(senderId)) {
+    throw new Error('User is not authorised to send messages in this chat');
+  }
 };
 
 export {
