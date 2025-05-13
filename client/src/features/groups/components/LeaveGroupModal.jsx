@@ -2,7 +2,6 @@ import { useNavigate } from 'react-router-dom';
 import { useContext, useState } from 'react';
 import { toast } from 'sonner';
 import { removeGroupMember } from '../../../api/group-chat-api';
-import { getChatListByUserId } from '../../../api/private-chat-api';
 import { ChatContext } from '../../../contexts/ChatContext';
 import Modal from '../../../components/ModalTemplate';
 
@@ -13,18 +12,14 @@ export default function LeaveGroupModal({
   setIsModalOpen,
 }) {
   const navigate = useNavigate();
-  const { setActiveChatRoom, setChatList } = useContext(ChatContext);
+  const { setActiveChatRoom } = useContext(ChatContext);
   const [errorMessage, setErrorMessage] = useState('');
 
   const handleLeavingGroup = async () => {
     try {
       const groupId = group.info.chatId;
       const result = await removeGroupMember(groupId, loggedInUserId);
-
-      // Fetch updated chat list after leaving group to reflect changes
-      const updatedList = await getChatListByUserId();
-      setChatList(updatedList);
-
+      
       toast.success(result);
       setActiveChatRoom(null);
       navigate('/');

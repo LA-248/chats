@@ -16,6 +16,7 @@ import {
   GroupMemberInsertionResult,
   GroupMemberToBeAdded,
 } from '../types/group.js';
+import { userSockets } from '../handlers/socket-handlers.ts';
 
 // Handle creating a group chat
 export const createGroupChat = async (
@@ -140,12 +141,17 @@ export const removeGroupMember = async (
     const io = req.app.get('io');
     const groupId = Number(req.params.groupId);
     const userId = Number(req.params.userId);
+    const socketId = userSockets.get(userId);
     const { room, removedUser } = await removeMember(groupId, userId);
 
-    // Send the user id of the removed member to the frontend through a socket event
+    // Send the user id of the removed member to the frontend
     // This allows for the members list to be updated in real-time for all group chat participants
     io.to(room).emit('remove-member', {
       removedUserId: removedUser,
+    });
+    // After a member leaves or is removed, send the room to the frontend so the group can be filtered out of their chat list
+    io.to(socketId).emit('remove-group-chat', {
+      room: room,
     });
 
     res.status(200).json({ message: 'You successfully left the group chat' });

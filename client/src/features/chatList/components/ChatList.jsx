@@ -64,6 +64,35 @@ export default function ChatList({ setChatName }) {
     displayChatList();
   }, [setChatList]);
 
+  // Remove a group chat that a user left or was kicked out of from their chat list
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleGroupChatRemoval = (data) => {
+      setChatList((prevChatList) =>
+        prevChatList.filter((group) => group.room !== data.room)
+      );
+    };
+
+    socket.on('remove-group-chat', handleGroupChatRemoval);
+
+    return () => {
+      socket.off('remove-group-chat', handleGroupChatRemoval);
+    };
+  }, [socket, setChatList]);
+
+  // Filter chat list based on search input
+  useEffect(() => {
+    if (chatSearchInputText) {
+      const filtered = chatList.filter((chat) =>
+        chat.name.toLowerCase().includes(chatSearchInputText.toLowerCase())
+      );
+      setFilteredChats(filtered);
+    } else {
+      setFilteredChats(chatList);
+    }
+  }, [chatSearchInputText, chatList]);
+
   const handleChatDelete = useChatDelete(
     setChatList,
     setChatSearchInputText,
@@ -71,7 +100,7 @@ export default function ChatList({ setChatName }) {
     setActiveChatRoom,
     setErrorMessage
   );
-  
+
   useChatListUpdate(socket, setChatList, activeChatRoom);
 
   // When a user is added to a group chat, notify them and add it to their chat list
@@ -89,7 +118,6 @@ export default function ChatList({ setChatName }) {
     setGroupPicture,
     'update-group-picture'
   );
-
   // Update the profile picture of a private chat contact when changed
   useChatUpdates(
     socket,
@@ -102,7 +130,6 @@ export default function ChatList({ setChatName }) {
     setRecipientProfilePicture,
     'update-profile-picture-for-contacts'
   );
-
   // Update the username of a private chat contact when changed
   useChatUpdates(
     socket,
@@ -115,19 +142,6 @@ export default function ChatList({ setChatName }) {
     setChatName,
     'update-username-for-contacts'
   );
-
-  // Filter chat list based on search input
-  useEffect(() => {
-    if (chatSearchInputText) {
-      const filtered = chatList.filter((chat) =>
-        chat.name.toLowerCase().includes(chatSearchInputText.toLowerCase())
-      );
-      setFilteredChats(filtered);
-    } else {
-      setFilteredChats(chatList);
-    }
-  }, [chatSearchInputText, chatList]);
-
   useSocketErrorHandling(socket, setErrorMessage);
   useClearErrorMessage(errorMessage, setErrorMessage);
 
