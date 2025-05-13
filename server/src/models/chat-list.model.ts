@@ -1,9 +1,11 @@
 import { pool } from '../../db/index.ts';
 import { Chat, ChatSchema } from '../schemas/private-chat.schema.ts';
 
+
+// TODO: Add database indexes for faster lookups
 // Combine private and group chats to display them all in the user's chat list
 const Chat = {
-  retrieveAllChats: function (userId: number): Promise<Chat[]> {
+  retrieveAllChatsByUser: function (userId: number): Promise<Chat[]> {
     return new Promise((resolve, reject) => {
       pool.query(
         `

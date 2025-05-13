@@ -23,7 +23,7 @@ export const handleChatAddition = async (
     await PrivateChat.updateChatDeletionStatus(senderId, false, room);
   }
   // TODO: Find a more optimised way to update the chat list with the added chat,
-  // rather than retrieving the whole chat list each time
+  // rather than retrieving the whole chat list each time (use sockets)
   return await getChatListByUser(senderId);
 };
 
@@ -54,7 +54,7 @@ export const getChatListByUser = async (
   userId: number
 ): Promise<ChatItem[]> => {
   try {
-    const chatList = await Chat.retrieveAllChats(userId);
+    const chatList = await Chat.retrieveAllChatsByUser(userId);
     await generatePresignedUrlsForChatList(chatList);
     return chatList;
   } catch (error) {

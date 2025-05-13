@@ -1,10 +1,10 @@
 import { S3Client } from '@aws-sdk/client-s3';
-import multer from 'multer';
-import multerS3 from 'multer-s3';
 import { DeleteObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { GetObjectCommand } from '@aws-sdk/client-s3';
 import { Chat } from '../schemas/private-chat.schema.ts';
+import multer from 'multer';
+import multerS3 from 'multer-s3';
 import NodeCache from 'node-cache';
 const profilePictureUrlCache = new NodeCache({ stdTTL: 604800 });
 
@@ -42,7 +42,10 @@ export const s3Upload = multer({
 });
 
 // Delete object from S3 bucket
-export const deleteS3Object = async (bucket: string, key: string): Promise<void> => {
+export const deleteS3Object = async (
+  bucket: string,
+  key: string
+): Promise<void> => {
   try {
     const command = new DeleteObjectCommand({
       Bucket: bucket,
@@ -57,7 +60,10 @@ export const deleteS3Object = async (bucket: string, key: string): Promise<void>
 };
 
 // Create a presigned S3 URL for temporary access to the object
-export const createPresignedUrl = (bucket: string, key: string): Promise<string> => {
+export const createPresignedUrl = (
+  bucket: string,
+  key: string
+): Promise<string> => {
   try {
     const command = new GetObjectCommand({ Bucket: bucket, Key: key });
     return getSignedUrl(s3Client, command, { expiresIn: 604800 });
