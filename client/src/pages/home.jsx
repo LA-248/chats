@@ -1,12 +1,11 @@
 import { io } from 'https://cdn.socket.io/4.7.5/socket.io.esm.min.js';
 import { createContext, useEffect, useState, useContext } from 'react';
-import { Link, Outlet, useLocation } from 'react-router-dom';
+import { Link, Outlet } from 'react-router-dom';
 
 import { ChatContext } from '../contexts/ChatContext.jsx';
 import { UserContext } from '../contexts/UserContext.jsx';
 import { getLoggedInUserData } from '../api/user-api.js';
 import Sidebar from '../components/Sidebar.jsx';
-import ChatWindowPlaceholder from '../features/conversations/components/ChatWindowPlaceholder.jsx';
 
 export const SocketContext = createContext();
 
@@ -20,7 +19,6 @@ export default function Home() {
   } = useContext(UserContext);
   const [socket, setSocket] = useState(null);
   const [errorMessage, setErrorMessage] = useState('');
-  const location = useLocation();
 
   useEffect(() => {
     // Retrieve data for logged in user
@@ -89,7 +87,7 @@ export default function Home() {
             <Sidebar />
           </div>
           <div className='chat-window-container'>
-            {location.pathname === '/' ? <ChatWindowPlaceholder /> : <Outlet />}
+            <Outlet />
           </div>
         </div>
       </SocketContext.Provider>
