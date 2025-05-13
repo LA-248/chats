@@ -34,7 +34,7 @@ export type LastMessageInfo = z.infer<typeof LastMessageInfoSchema>;
 export const DeletedMessageSchema = z.object({
   message_id: z.number(),
   sender_id: z.number(),
-  recipient_id: z.number(),
+  recipient_id: z.number().nullable(),
   client_offset: z.string(),
   room: z.string().uuid(),
   content: z.string(),
