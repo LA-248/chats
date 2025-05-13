@@ -40,7 +40,7 @@ export default function Home() {
 
   useEffect(() => {
     if (loggedInUserId) {
-      // Create a new socket connection
+      // Connect to socket server running on the backend
       const socketInstance = io('http://localhost:8080', {
         auth: {
           serverOffset: 0,
@@ -54,7 +54,7 @@ export default function Home() {
     }
   }, [loggedInUserId]);
 
-  // Join the user to all rooms in their chat list, ensures real-time updates
+  // Join the user to all rooms in they are a part of when they connect, ensures real-time updates
   useEffect(() => {
     if (loggedInUserId && socket) {
       socket.emit('initialise-chat-rooms', chatList);

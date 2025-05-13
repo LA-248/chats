@@ -31,7 +31,7 @@ function ChatView() {
   const groupChatInfo = useGroupChatInfo(room, chatType, setErrorMessage);
 
   useSocketErrorHandling(socket, setErrorMessage);
-  
+
   useEffect(() => {
     const displayInitialMessages = (initialMessages) => {
       setMessages(initialMessages);
@@ -43,8 +43,10 @@ function ChatView() {
     };
 
     socket.emit('open-chat', room);
+
     // Display all messages on load when opening a chat
     socket.on('initial-messages', displayInitialMessages);
+
     // Update chat message list for everyone in a room after a message is deleted or edited
     socket.on('message-list-update-event', handleMessageListUpdate);
 
