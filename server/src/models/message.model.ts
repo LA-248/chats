@@ -1,7 +1,5 @@
 import { pool } from '../../db/index.ts';
 import {
-  DeletedMessage,
-  DeletedMessageSchema,
   InsertMessageSchema,
   LastMessageInfo,
   LastMessageInfoSchema,
@@ -101,6 +99,7 @@ const Message = {
 
   editMessageContent: function (
     newMessage: string,
+    senderId: number,
     messageId: number
   ): Promise<void> {
     return new Promise((resolve, reject) => {
@@ -110,11 +109,14 @@ const Message = {
         SET
           content = $1,
           is_edited = true
-        WHERE message_id = $2`,
-        [newMessage, messageId],
-        (err) => {
+        WHERE sender_id = $2 AND message_id = $3`,
+        [newMessage, senderId, messageId],
+        (err, result) => {
           if (err) {
             return reject(`Database error in messages table: ${err.message}`);
+          }
+          if (result.rowCount === 0) {
+            return reject('No message found or unauthorised edit');
           }
           return resolve();
         }
@@ -200,26 +202,22 @@ const Message = {
 
   // DELETE OPERATIONS
 
-  deleteMessageById: function (messageId: number): Promise<DeletedMessage> {
+  deleteMessageById: function (
+    senderId: number,
+    messageId: number
+  ): Promise<void> {
     return new Promise((resolve, reject) => {
       pool.query(
-        `DELETE FROM messages WHERE message_id = $1 RETURNING *`,
-        [messageId],
+        `DELETE FROM messages WHERE sender_id = $1 AND message_id = $2`,
+        [senderId, messageId],
         (err, result) => {
           if (err) {
             return reject(`Database error in messages table: ${err.message}`);
           }
-
-          try {
-            const deletedMessage = DeletedMessageSchema.parse(result.rows[0]);
-            return resolve(deletedMessage);
-          } catch (error) {
-            return reject(
-              `Error validating deleted message data: ${
-                error instanceof Error ? error.message : error
-              }`
-            );
+          if (result.rowCount === 0) {
+            return reject('No message found or unauthorised delete');
           }
+          return resolve();
         }
       );
     });

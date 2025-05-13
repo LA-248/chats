@@ -30,15 +30,3 @@ export const LastMessageInfoSchema = z.object({
   event_time: z.coerce.date(),
 });
 export type LastMessageInfo = z.infer<typeof LastMessageInfoSchema>;
-
-export const DeletedMessageSchema = z.object({
-  message_id: z.number(),
-  sender_id: z.number(),
-  recipient_id: z.number().nullable(),
-  client_offset: z.string(),
-  room: z.string().uuid(),
-  content: z.string(),
-  event_time: z.coerce.date(),
-  is_edited: z.boolean(),
-});
-export type DeletedMessage = z.infer<typeof DeletedMessageSchema>;
