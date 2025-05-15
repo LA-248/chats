@@ -4,5 +4,5 @@ export default {
   transform: {
     '^.+.tsx?$': ['ts-jest', {}],
   },
-  setupFiles: ['dotenv/config'],
+  setupFiles: ['./jest.setup.env.ts'],
 };
