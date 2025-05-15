@@ -1,5 +1,7 @@
 import dotenv from 'dotenv';
-dotenv.config({ path: '../.env' });
+dotenv.config({
+  path: process.env.NODE_ENV === 'test' ? '../.env.test' : '../.env',
+});
 
 import pg from 'pg';
 import { User } from '../src/models/user.model.ts';
@@ -10,12 +12,12 @@ import { Message } from '../src/models/message.model.ts';
 import { Session } from '../src/models/session.model.ts';
 const { Pool } = pg;
 
-// Initialize a connection pool
+// Initialise a connection pool
 const pool = new Pool({
   user: process.env.USERNAME,
   host: process.env.HOST,
   database: process.env.DATABASE_NAME,
-  password: process.env.DATABASE_PASSWORD,
+  password: process.env.PASSWORD,
   port: Number(process.env.DATABASE_PORT),
 });
 

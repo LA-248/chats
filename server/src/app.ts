@@ -19,7 +19,7 @@ import privateChatsRouter from './routes/private-chat.routes.ts';
 import groupChatsRouter from './routes/group-chat.routes.ts';
 import messagesRouter from './routes/message.routes.ts';
 
-const app = express();
+export const app = express();
 const server = createServer(app);
 const port = process.env.PORT || 4000;
 
