@@ -37,10 +37,6 @@ const socketHandlers = (io: Server) => {
       socket.on('open-chat', (room: string) => {
         displayChatMessages(socket, room);
       });
-
-      socket.on('leave-room', (room: string) => {
-        socket.leave(room);
-      });
     } else {
       socket.disconnect();
     }
