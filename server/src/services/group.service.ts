@@ -4,7 +4,7 @@ import {
   GroupInfoWithMembers,
   GroupMemberInsertionResult,
   GroupParticipant,
-} from '../types/group.js';
+} from '../types/group.ts';
 import createGroupPictureUrl from '../utils/create-group-picture-url.ts';
 import { createPresignedUrl, deleteS3Object } from './s3.service.ts';
 import { retrieveUserById } from './user.service.ts';
@@ -16,7 +16,7 @@ import {
   NewGroupMember,
   RemovedGroupMember,
 } from '../schemas/group.schema.ts';
-import { AddedUserInfo, GroupMemberToBeAdded } from '../types/group.js';
+import { AddedUserInfo, GroupMemberToBeAdded } from '../types/group.ts';
 
 export const retrieveGroupInfoWithMembers = async (
   room: string

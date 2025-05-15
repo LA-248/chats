@@ -3,7 +3,7 @@ import handleMulterError from '../middlewares/multer.middleware.ts';
 import {
   groupChatRoomAuth,
   requireAuth,
-} from '../middlewares/auth.middleware.js';
+} from '../middlewares/auth.middleware.ts';
 import {
   addMembers,
   createGroupChat,
