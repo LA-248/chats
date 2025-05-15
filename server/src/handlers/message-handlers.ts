@@ -7,13 +7,13 @@ import {
   Message as MessageType,
   NewMessage,
 } from '../schemas/message.schema.ts';
-import { ChatHandler, ChatType } from '../types/chat.js';
+import { ChatHandler, ChatType } from '../types/chat.ts';
 import isSenderBlocked from '../utils/check-blocked-status.ts';
 
 const handleChatMessages = (socket: Socket, io: Server) => {
   socket.on('chat-message', async (data, clientOffset, callback) => {
     const { username, chatId, message, room, chatType } = data;
-    const senderId = socket.handshake.session.passport.user;
+    const senderId = (socket.handshake as any).session.passport.user;
 
     try {
       // Check if sender is blocked
@@ -236,7 +236,7 @@ const saveMessageInDatabase = async (
     return newMessage;
   } catch (error) {
     if (newMessage) {
-      await Message.deleteMessageById(newMessage.id);
+      await Message.deleteMessageById(senderId, newMessage.id);
     }
     if (error instanceof Error) {
       console.error(

@@ -8,7 +8,7 @@ export default function configurePassport() {
   passport.use(new LocalStrategy(authenticateUser));
 
   // Store user data in the session
-  passport.serializeUser(function (user: UserProfile, cb) {
+  passport.serializeUser(function (user: any, cb) {
     cb(null, user.user_id);
   });
 

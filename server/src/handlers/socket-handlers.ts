@@ -15,14 +15,14 @@ const userSockets = new Map<number, string>();
 // Listen for new client connections to the server and set up client-specific socket event handlers
 const socketHandlers = (io: Server) => {
   io.on('connection', (socket) => {
-    console.log(socket.handshake.session);
+    console.log((socket.handshake as any).session.passport.user);
 
     // Check if user is authenticated
     if (
-      socket.handshake.session.passport &&
-      socket.handshake.session.passport.user
+      (socket.handshake as any).session.passport.user &&
+      (socket.handshake as any).session.passport.user
     ) {
-      const userId = socket.handshake.session.passport.user;
+      const userId = (socket.handshake as any).session.passport.user;
       console.log(`User connected`);
       console.log(`User ID: ${userId}`);
       console.log(socket.rooms);

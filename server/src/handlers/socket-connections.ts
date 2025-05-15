@@ -1,5 +1,5 @@
 import { Socket } from 'socket.io';
-import '../types/session.d.ts';
+import '../types/socket.d.ts';
 
 function initialiseChatRooms(socket: Socket) {
   let joinedRooms: string[] = [];
@@ -27,7 +27,8 @@ function manageSocketConnections(
   socket: Socket,
   userSockets: Map<number, string>
 ) {
-  const userId = socket.handshake.session.passport.user;
+  // Use type assertion to inform TypeScript about the session property
+  const userId = (socket.handshake as any).session.passport.user;
   userSockets.set(userId, socket.id);
 
   socket.on('disconnect', () => {
