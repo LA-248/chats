@@ -169,7 +169,9 @@ const Message = {
     });
   },
 
-  retrieveLastMessageInfo: function (room: string): Promise<LastMessageInfo> {
+  retrieveLastMessageInfo: function (
+    room: string
+  ): Promise<LastMessageInfo | null> {
     return new Promise((resolve, reject) => {
       pool.query(
         `
@@ -185,6 +187,10 @@ const Message = {
           if (err) {
             return reject(`Database error in messages table: ${err.message}`);
           }
+          if (result.rowCount === 0) {
+            resolve(null);
+          }
+
           try {
             const lastMessageInfo = LastMessageInfoSchema.parse(result.rows[0]);
             return resolve(lastMessageInfo);
