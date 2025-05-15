@@ -1,5 +1,7 @@
 import dotenv from 'dotenv';
-dotenv.config({ path: '../.env' });
+dotenv.config({
+  path: process.env.NODE_ENV === 'test' ? '../.env.test' : '../.env',
+});
 
 import express from 'express';
 import cors from 'cors';
@@ -59,10 +61,10 @@ io.use(sharedSession(sessionMiddleware, { autoSave: true }));
 app.set('io', io);
 socketHandlers(io);
 
-if (process.env.NODE_ENV !== 'production') {
-  createTables();
-}
+createTables();
 
-server.listen(port, () => {
-  console.log(`Server running at http://localhost:${port}`);
-});
+if (process.env.NODE_ENV === 'development') {
+  server.listen(port, () => {
+    console.log(`Server running at http://localhost:${port}`);
+  });
+}
