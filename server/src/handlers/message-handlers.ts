@@ -1,4 +1,5 @@
 import { Socket, Server } from 'socket.io';
+import { User } from '../models/user.model.ts';
 import { Group } from '../models/group.model.ts';
 import { GroupMember } from '../models/group-member.model.ts';
 import { PrivateChat } from '../models/private-chat.model.ts';
@@ -8,7 +9,6 @@ import {
   NewMessage,
 } from '../schemas/message.schema.ts';
 import { ChatHandler, ChatType } from '../types/chat.ts';
-import isSenderBlocked from '../utils/check-blocked-status.ts';
 
 const handleChatMessages = (socket: Socket, io: Server) => {
   socket.on('chat-message', async (data, clientOffset, callback) => {
@@ -17,7 +17,7 @@ const handleChatMessages = (socket: Socket, io: Server) => {
 
     try {
       // Check if sender is blocked
-      await checkIfBlocked(chatId, senderId);
+      await isBlocked(chatId, senderId);
 
       const newMessage = await saveMessageInDatabase(
         message,
@@ -125,9 +125,17 @@ const formatMessage = (message: MessageType) => ({
   isEdited: message.is_edited,
 });
 
-const checkIfBlocked = async (chatId: number, senderId: number) => {
+const isBlocked = async (
+  recipientId: number,
+  senderId: number
+): Promise<void> => {
   try {
-    await isSenderBlocked(chatId, senderId);
+    const recipientBlockList = await User.getBlockListById(recipientId);
+    if (recipientBlockList !== null) {
+      if (recipientBlockList.includes(senderId)) {
+        throw new Error('Sender is blocked by the recipient');
+      }
+    }
   } catch (error) {
     throw error;
   }
@@ -318,7 +326,7 @@ const authoriseChatMessage = async (
   chatHandler: ChatHandler,
   room: string,
   senderId: number
-) => {
+): Promise<void> => {
   const memberIds = await chatHandler.getMembers(room);
   if (!memberIds.includes(senderId)) {
     throw new Error('User is not authorised to send messages in this chat');
