@@ -3,7 +3,6 @@ import { createContext, useState } from 'react';
 const MessageContext = createContext();
 
 const MessageProvider = ({ children }) => {
-  const [message, setMessage] = useState('');
   const [messages, setMessages] = useState([]);
   const [currentMessage, setCurrentMessage] = useState('');
   const [filteredMessages, setFilteredMessages] = useState([]);
@@ -13,8 +12,6 @@ const MessageProvider = ({ children }) => {
   return (
     <MessageContext.Provider
       value={{
-        message,
-        setMessage,
         messages,
         setMessages,
         currentMessage,
