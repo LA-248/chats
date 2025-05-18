@@ -249,7 +249,7 @@ const saveMessageInDatabase = async (
       // This error happens because the recipient id in the messages table references the users table,
       // when sending messages in a group chat, the group id is used as the recipient id which does not exist in the user's table
       // TODO: Create distinct tables for private and group chat messages
-      chatType === 'chats' ? chatId : null,
+      chatType === ChatType.PRIVATE ? chatId : null,
       room,
       clientOffset
     );
@@ -287,7 +287,7 @@ const restoreChat = async (
   chatType: string
 ): Promise<void> => {
   try {
-    if (chatType === 'chats') {
+    if (chatType === ChatType.PRIVATE) {
       const isNotInChatList = await PrivateChat.retrieveChatDeletionStatus(
         recipientId,
         room
@@ -295,7 +295,7 @@ const restoreChat = async (
       if (isNotInChatList) {
         await PrivateChat.updateChatDeletionStatus(recipientId, false, room);
       }
-    } else if (chatType === 'groups') {
+    } else if (chatType === ChatType.GROUP) {
       const membersWhoDeletedChat = await Group.retrieveDeletedForList(room);
       if (membersWhoDeletedChat !== null) {
         await Group.restoreChat(room);

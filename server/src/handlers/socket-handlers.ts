@@ -3,7 +3,7 @@ import {
   displayChatMessages,
   handleChatMessages,
   updateMostRecentMessage,
-  updateMessageListEvent,
+  updateMessageList,
 } from './message-handlers.ts';
 import {
   initialiseChatRooms,
@@ -15,8 +15,6 @@ const userSockets = new Map<number, string>();
 // Listen for new client connections to the server and set up client-specific socket event handlers
 const socketHandlers = (io: Server) => {
   io.on('connection', (socket) => {
-    console.log((socket.handshake as any).session.passport.user);
-
     // Check if user is authenticated
     if (
       (socket.handshake as any).session.passport.user &&
@@ -32,8 +30,9 @@ const socketHandlers = (io: Server) => {
 
       handleChatMessages(socket, io);
       updateMostRecentMessage(socket, io);
-      updateMessageListEvent(socket, io);
+      updateMessageList(socket, io);
 
+      // Recipient data could also potentially be fetched here instead of doing it in a separate HTTP request
       socket.on('open-chat', (room: string) => {
         displayChatMessages(socket, room);
       });
