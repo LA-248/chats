@@ -17,7 +17,7 @@ export default function useChatListUpdate(socket, setChatList, activeChatRoom) {
                     ...chat,
                     last_message_content: chatListData.lastMessageContent,
                     last_message_time: chatListData.lastMessageTime,
-                    updated_at: chatListData.lastMessageTime,
+                    updated_at: chatListData.updatedAt,
                     // Only add deleted if the eventType is update-chat-list
                     ...(eventType === 'update-chat-list' && {
                       deleted: chatListData.deleted,

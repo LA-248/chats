@@ -84,6 +84,7 @@ function ChatView() {
       </div>
 
       <DeleteMessageModal
+        chatType={chatType}
         messageId={messageId}
         messageIndex={messageIndex}
         isModalOpen={isDeleteModalOpen}
@@ -93,6 +94,7 @@ function ChatView() {
       />
 
       <EditMessageModal
+        chatType={chatType}
         messageId={messageId}
         messageIndex={messageIndex}
         isModalOpen={isEditModalOpen}

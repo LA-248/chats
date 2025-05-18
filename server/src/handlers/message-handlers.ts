@@ -10,7 +10,7 @@ import {
 } from '../schemas/message.schema.ts';
 import { ChatHandler, ChatType } from '../types/chat.ts';
 
-const handleChatMessages = (socket: Socket, io: Server) => {
+const handleChatMessages = (socket: Socket, io: Server): void => {
   socket.on('chat-message', async (data, clientOffset, callback) => {
     const { username, chatId, message, room, chatType } = data;
     const senderId = (socket.handshake as any).session.passport.user;
@@ -19,7 +19,7 @@ const handleChatMessages = (socket: Socket, io: Server) => {
       // Check if sender is blocked
       await isBlocked(chatId, senderId);
 
-      const newMessage = await saveMessageInDatabase(
+      const { newMessage, updatedAt } = await saveMessageInDatabase(
         message,
         senderId,
         chatId,
@@ -38,7 +38,8 @@ const handleChatMessages = (socket: Socket, io: Server) => {
         newMessage,
         chatType
       );
-      broadcastChatListUpdate(io, room, message, newMessage);
+      broadcastChatListUpdate(io, room, message, newMessage, updatedAt);
+      return;
     } catch (error: unknown) {
       console.error('Error handling chat message:', error);
       if (error instanceof Error) {
@@ -54,7 +55,10 @@ const handleChatMessages = (socket: Socket, io: Server) => {
 };
 
 // Load all messages of a chat when opened
-const displayChatMessages = async (socket: Socket, room: string) => {
+const displayChatMessages = async (
+  socket: Socket,
+  room: string
+): Promise<void> => {
   if (!socket.recovered) {
     try {
       // Get messages from database for display, filtered by room
@@ -73,15 +77,21 @@ const displayChatMessages = async (socket: Socket, room: string) => {
   }
 };
 
-// Handle sending updated last message info for the chat list after a delete or edit
-const updateMostRecentMessage = (socket: Socket, io: Server) => {
-  socket.on('last-message-updated', async (room) => {
+// Send updated message info for the chat list after the last remaining message in a chat is deleted or edited
+const updateMostRecentMessage = (socket: Socket, io: Server): void => {
+  socket.on('last-message-updated', async (data) => {
+    const { room, chatType } = data;
     try {
       const lastMessageInfo = await Message.retrieveLastMessageInfo(room);
+      const updatedAt =
+        chatType === ChatType.PRIVATE
+          ? await PrivateChat.retrieveUpdatedAtDate(room)
+          : await Group.retrieveUpdatedAtDate(room);
       io.to(room).emit('last-message-updated', {
         room: room,
         lastMessageContent: lastMessageInfo ? lastMessageInfo.content : null,
         lastMessageTime: lastMessageInfo ? lastMessageInfo.event_time : null,
+        updatedAt: updatedAt,
       });
     } catch (error) {
       console.error('Error updating chat list:', error);
@@ -95,7 +105,7 @@ const updateMostRecentMessage = (socket: Socket, io: Server) => {
 
 // TODO: Don't retrieve the whole message list after a message is deleted or edited - optimise it
 // Listen for message deletes and edits, and emit the updated message list to the relevant room
-const updateMessageListEvent = (socket: Socket, io: Server) => {
+const updateMessageList = (socket: Socket, io: Server): void => {
   socket.on('message-list-update-event', async (room, updateType) => {
     try {
       const messages = await Message.retrieveMessageList(
@@ -131,7 +141,7 @@ const isBlocked = async (
 ): Promise<void> => {
   try {
     const recipientBlockList = await User.getBlockListById(recipientId);
-    if (recipientBlockList !== null) {
+    if (recipientBlockList) {
       if (recipientBlockList.includes(senderId)) {
         throw new Error('Sender is blocked by the recipient');
       }
@@ -141,10 +151,10 @@ const isBlocked = async (
   }
 };
 
-// Handlers for chat-type-specific operations, allows for polymorphic behaviour at runtime
+// Handlers for chat type specific operations, allows for polymorphic behaviour at runtime
 const CHAT_HANDLERS: Record<ChatType, ChatHandler> = {
-  chats: {
-    // Get private chat members, this is then used in an authorisation check
+  [ChatType.PRIVATE]: {
+    // Get private chat members, this is then used for an authorisation check in the authoriseChatMessage function
     getMembers: async (room: string): Promise<number[]> => {
       try {
         const members = await PrivateChat.retrieveMembersByRoom(room);
@@ -163,10 +173,12 @@ const CHAT_HANDLERS: Record<ChatType, ChatHandler> = {
       newMessageId: number,
       chatId: number,
       room: string
-    ): Promise<void> => {
+    ): Promise<Date> => {
       try {
         await PrivateChat.updateUserReadStatus(chatId, false, room);
-        await PrivateChat.setLastMessage(newMessageId, room);
+        // After setting the last message, fetch the new updated_at date which is equal to the time at which the message was sent
+        const updatedAt = await PrivateChat.setLastMessage(newMessageId, room);
+        return updatedAt;
       } catch (error) {
         if (error instanceof Error) {
           throw new Error(
@@ -177,8 +189,8 @@ const CHAT_HANDLERS: Record<ChatType, ChatHandler> = {
       }
     },
   },
-  groups: {
-    // Get all members of a group chat, this is then used in an authorisation check
+  [ChatType.GROUP]: {
+    // Get all members of a group chat, this is then used for an authorisation check in the authoriseChatMessage function
     getMembers: async (room: string): Promise<number[]> => {
       try {
         const members = await GroupMember.retrieveMembersByRoom(room);
@@ -197,10 +209,12 @@ const CHAT_HANDLERS: Record<ChatType, ChatHandler> = {
       newMessageId: number,
       _chatId: number,
       room: string
-    ): Promise<void> => {
+    ): Promise<Date> => {
       try {
         await Group.resetReadByList([senderId], room);
-        await Group.setLastMessage(newMessageId, room);
+        // After setting the last message, fetch the new updated_at date which is equal to the time at which the message was sent
+        const updatedAt = await Group.setLastMessage(newMessageId, room);
+        return updatedAt;
       } catch (error) {
         if (error instanceof Error) {
           throw new Error(
@@ -220,8 +234,8 @@ const saveMessageInDatabase = async (
   room: string,
   chatType: keyof typeof CHAT_HANDLERS,
   clientOffset: string
-): Promise<NewMessage> => {
-  let newMessage;
+): Promise<{ newMessage: NewMessage; updatedAt: Date }> => {
+  let newMessage: NewMessage | undefined;
 
   try {
     const chatHandler = CHAT_HANDLERS[chatType];
@@ -240,8 +254,17 @@ const saveMessageInDatabase = async (
       clientOffset
     );
 
-    await chatHandler.postInsert(senderId, newMessage.id, chatId, room);
-    return newMessage;
+    // Retrieve the updated_at value of the newly inserted message - it is needed to correctly sort a user's chat list
+    // The updated_at value differs from last_message_time in that it will always be populated with the date of the latest chat activity (e.g. message, chat creation, etc),
+    // whereas the last_message_time can be null if no messages exist in a chat
+    const updatedAt = await chatHandler.postInsert(
+      senderId,
+      newMessage.id,
+      chatId,
+      room
+    );
+
+    return { newMessage, updatedAt };
   } catch (error) {
     if (newMessage) {
       await Message.deleteMessageById(senderId, newMessage.id);
@@ -310,18 +333,20 @@ const broadcastChatListUpdate = (
   io: Server,
   room: string,
   message: string,
-  newMessage: NewMessage
+  newMessage: NewMessage,
+  updatedAt: Date
 ): void => {
   io.to(room).emit('update-chat-list', {
     room: room,
     lastMessageContent: message,
     lastMessageTime: newMessage.event_time,
+    updatedAt: updatedAt,
     deleted: false,
   });
 };
 
-// Prevent unauthorised users from sending messages to chat rooms they are not a part of
-// This check is needed because messages do not go through middleware since they are handled via sockets and not HTTP routes
+// Prevent users from sending messages to chat rooms they are not a part of
+// This check is needed because messages do not go through the existing auth middleware since they are handled via sockets and not HTTP routes
 const authoriseChatMessage = async (
   chatHandler: ChatHandler,
   room: string,
@@ -337,5 +362,5 @@ export {
   handleChatMessages,
   displayChatMessages,
   updateMostRecentMessage,
-  updateMessageListEvent,
+  updateMessageList,
 };

@@ -10,6 +10,7 @@ import {
   GroupPictureSchema,
   GroupRoom,
   GroupRoomSchema,
+  GroupUpdatedAtSchema,
   InsertGroupChatSchema,
   NewGroupChat,
   NewGroupChatSchema,
@@ -250,6 +251,33 @@ const Group = {
     });
   },
 
+  retrieveUpdatedAtDate: function (room: string) {
+    return new Promise((resolve, reject) => {
+      pool.query(
+        `SELECT updated_at FROM groups WHERE room = $1`,
+        [room],
+        (err, result) => {
+          if (err) {
+            return reject(`Database error in groups table: ${err.message}`);
+          }
+
+          try {
+            const updatedAt = GroupUpdatedAtSchema.parse(
+              result.rows[0].updated_at
+            );
+            return resolve(updatedAt);
+          } catch (error) {
+            return reject(
+              `Error validating group chat updated at value: ${
+                error instanceof Error ? error.message : error
+              }`
+            );
+          }
+        }
+      );
+    });
+  },
+
   // UPDATE OPERATIONS
 
   updatePicture: function (fileName: string, room: string): Promise<void> {
@@ -267,10 +295,7 @@ const Group = {
     });
   },
 
-  setLastMessage: function (
-    messageId: number,
-    room: string
-  ): Promise<void | null> {
+  setLastMessage: function (messageId: number, room: string): Promise<Date> {
     return new Promise((resolve, reject) => {
       pool.query(
         `
@@ -279,6 +304,7 @@ const Group = {
           last_message_id = $1,
           updated_at = NOW()
         WHERE room = $2
+        RETURNING updated_at
         `,
         [messageId, room],
         (err, result) => {
@@ -287,10 +313,8 @@ const Group = {
               `Error updating last message in groups database table: ${err.message}`
             );
           }
-          if (!result.rows[0]) {
-            return resolve(null);
-          }
-          return resolve();
+          const updatedAt = result.rows[0].updated_at;
+          return resolve(updatedAt);
         }
       );
     });

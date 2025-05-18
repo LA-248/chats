@@ -1,4 +1,7 @@
-export type ChatType = keyof typeof CHAT_HANDLERS;
+export enum ChatType {
+  PRIVATE = 'chats',
+  GROUP = 'groups',
+}
 
 export interface ChatHandler {
   getMembers: (room: string) => Promise<number[]>;
@@ -7,5 +10,5 @@ export interface ChatHandler {
     newMessageId: number,
     chatId: number,
     room: string
-  ) => Promise<void>;
+  ) => Promise<Date>;
 }

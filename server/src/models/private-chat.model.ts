@@ -6,6 +6,7 @@ import {
   ChatMembersSchema,
   ChatRoom,
   ChatRoomSchema,
+  ChatUpdatedAtSchema,
   InsertPrivateChatSchema,
   NewChat,
   NewChatSchema,
@@ -242,9 +243,38 @@ const PrivateChat = {
     });
   },
 
+  retrieveUpdatedAtDate: function (room: string) {
+    return new Promise((resolve, reject) => {
+      pool.query(
+        `SELECT updated_at FROM private_chats WHERE room = $1`,
+        [room],
+        (err, result) => {
+          if (err) {
+            return reject(
+              `Database error in private_chats table: ${err.message}`
+            );
+          }
+
+          try {
+            const updatedAt = ChatUpdatedAtSchema.parse(
+              result.rows[0].updated_at
+            );
+            return resolve(updatedAt);
+          } catch (error) {
+            return reject(
+              `Error validating private chat updated at value: ${
+                error instanceof Error ? error.message : error
+              }`
+            );
+          }
+        }
+      );
+    });
+  },
+
   // UPDATE OPERATIONS
 
-  setLastMessage: function (messageId: number, room: string): Promise<void> {
+  setLastMessage: function (messageId: number, room: string): Promise<Date> {
     return new Promise((resolve, reject) => {
       pool.query(
         `
@@ -253,25 +283,24 @@ const PrivateChat = {
           last_message_id = $1,
           updated_at = NOW()
         WHERE room = $2
+        RETURNING updated_at
         `,
         [messageId, room],
-        (err) => {
+        (err, result) => {
           if (err) {
             return reject(
               `Error setting last message in private_chats database table: ${err.message}`
             );
           }
-          return resolve();
+          const updatedAt = result.rows[0].updated_at;
+          return resolve(updatedAt);
         }
       );
     });
   },
 
   // Handle updating last message after most recent message is deleted
-  updateLastMessage: function (
-    messageId: number,
-    room: string
-  ): Promise<void> {
+  updateLastMessage: function (messageId: number, room: string): Promise<void> {
     return new Promise((resolve, reject) => {
       pool.query(
         `

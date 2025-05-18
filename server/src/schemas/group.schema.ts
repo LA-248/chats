@@ -43,6 +43,9 @@ export type GroupPicture = z.infer<typeof GroupPictureSchema>;
 export const GroupDeletedForListSchema = z.array(z.number()).nullable();
 export type GroupDeletedForList = z.infer<typeof GroupDeletedForListSchema>;
 
+export const GroupUpdatedAtSchema = z.coerce.date();
+export type GroupUpdatedAt = z.infer<typeof GroupUpdatedAtSchema>;
+
 // Group member table
 export const InsertGroupMemberSchema = z.object({
   groupId: z.number().int().positive(),

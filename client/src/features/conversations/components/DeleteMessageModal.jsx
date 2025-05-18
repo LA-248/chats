@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import { useLocation, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { deleteMessageById } from '../../../api/message-api';
 import { useSocket } from '../../../hooks/useSocket';
 import { MessageContext } from '../../../contexts/MessageContext';
@@ -8,6 +8,7 @@ import { updateLastGroupMessageId } from '../../../api/group-chat-api';
 import Modal from '../../../components/ModalTemplate';
 
 export default function DeleteMessageModal({
+  chatType,
   messageId,
   messageIndex,
   isModalOpen,
@@ -16,9 +17,6 @@ export default function DeleteMessageModal({
   setErrorMessage,
 }) {
   const socket = useSocket();
-  const location = useLocation();
-  const pathSegments = location.pathname.split('/');
-  const chatType = pathSegments[1];
   const { room } = useParams();
   const { filteredMessages } = useContext(MessageContext);
 
@@ -32,8 +30,10 @@ export default function DeleteMessageModal({
       // Update chat list in real-time after most recent message is deleted
       // If last remaining message is deleted, ensure last message id in private chat table is null
       if (messageList.length === 1) {
-        await updateLastMessageId(null, room);
-        socket.emit('last-message-updated', room);
+        chatType === 'chats'
+          ? await updateLastMessageId(null, room)
+          : await updateLastGroupMessageId(null, room);
+        socket.emit('last-message-updated', { room, chatType });
       }
       if (isLastMessage && messageList.length > 1) {
         const newLastMessageIndex = messageList.length - 2;
@@ -44,7 +44,7 @@ export default function DeleteMessageModal({
           ? await updateLastMessageId(newLastMessageId, room)
           : await updateLastGroupMessageId(newLastMessageId, room);
 
-        socket.emit('last-message-updated', room);
+        socket.emit('last-message-updated', { room, chatType });
       }
       // Emit event to notify the server of message deletion and update the message list for everyone in the room
       socket.emit('message-list-update-event', room, 'deleting');

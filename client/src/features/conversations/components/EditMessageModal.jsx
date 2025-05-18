@@ -8,6 +8,7 @@ import data from '@emoji-mart/data';
 import Picker from '@emoji-mart/react';
 
 export default function EditMessageModal({
+  chatType,
   messageId,
   messageIndex,
   isModalOpen,
@@ -33,7 +34,7 @@ export default function EditMessageModal({
       const messageList = [...filteredMessages];
       const isLastMessage = messageIndex === messageList.length - 1;
       if (isLastMessage) {
-        socket.emit('last-message-updated', room);
+        socket.emit('last-message-updated', { room, chatType });
       }
       // Emit event to notify the server of message deletion and update the message list for everyone in the room
       socket.emit('message-list-update-event', room, 'editing');
