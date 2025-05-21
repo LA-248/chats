@@ -20,8 +20,8 @@ export function usePictureUpload(
     const uploadPromise = async () => {
       const response = await fetch(
         chatType === 'groups'
-          ? `http://localhost:8080/groups/${room}/picture`
-          : `http://localhost:8080/users/picture`,
+          ? `http://localhost:8080/groups/${room}/pictures`
+          : `http://localhost:8080/users/pictures`,
         {
           method: 'POST',
           body: formData,

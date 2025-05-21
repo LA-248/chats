@@ -26,7 +26,7 @@ groupChatsRouter.use(requireAuth);
 groupChatsRouter.post('/', createGroupChat);
 groupChatsRouter.post('/:room/members', groupChatRoomAuth, addMembers);
 groupChatsRouter.post(
-  '/:room/picture',
+  '/:room/pictures',
   groupChatRoomAuth,
   (req: Request, res: Response, next: NextFunction) => {
     s3Upload.single('group-picture')(req, res, (err) => {

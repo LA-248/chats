@@ -22,7 +22,7 @@ usersRouter.put('/', updateUsername);
 usersRouter.put('/blocked', updateBlockedUsers);
 
 usersRouter.post(
-  '/picture',
+  '/pictures',
   (req: Request, res: Response, next: NextFunction) => {
     s3Upload.single('profile-picture')(req, res, (err) => {
       if (err) {
