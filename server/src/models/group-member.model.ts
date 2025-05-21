@@ -90,7 +90,8 @@ const GroupMember = {
       pool.query(
         `
         SELECT
-          gm.user_id
+          gm.user_id,
+          gm.role
         FROM group_members gm
         JOIN groups g ON g.group_id = gm.group_id
         WHERE g.room = $1

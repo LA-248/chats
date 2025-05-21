@@ -4,6 +4,9 @@ export default function MembersList({
   membersList,
   loggedInUsername,
   loggedInUserId,
+  setIsRemoveMemberModalOpen,
+  setMemberId,
+  setMemberName,
 }) {
   let isMemberAdmin;
 
@@ -40,10 +43,18 @@ export default function MembersList({
               </div>
 
               {isMemberAdmin ? (
+                // Displays the kick button next to every member that is not the group owner
                 member.role !== 'owner' ? (
-                  <div className='remove-member-button'>
+                  <button
+                    className='remove-member-button'
+                    onClick={() => {
+                      setIsRemoveMemberModalOpen(true);
+                      setMemberId(member.user_id);
+                      setMemberName(member.username);
+                    }}
+                  >
                     <PersonRemoveAlt1RoundedIcon fontSize='small' />
-                  </div>
+                  </button>
                 ) : null
               ) : null}
             </div>

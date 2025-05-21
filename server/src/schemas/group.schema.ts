@@ -32,9 +32,7 @@ export const GroupInfoSchema = z.object({
 });
 export type GroupInfo = z.infer<typeof GroupInfoSchema>;
 
-export const GroupRoomSchema = z.object({
-  room: z.string().uuid(),
-});
+export const GroupRoomSchema = z.string().uuid();
 export type GroupRoom = z.infer<typeof GroupRoomSchema>;
 
 export const GroupPictureSchema = z.string().nullable().or(z.null());
@@ -64,6 +62,7 @@ export type NewGroupMember = z.infer<typeof NewGroupMemberSchema>;
 
 export const GroupMembersSchema = z.object({
   user_id: z.number(),
+  role: z.string(),
 });
 export type GroupMembers = z.infer<typeof GroupMembersSchema>;
 

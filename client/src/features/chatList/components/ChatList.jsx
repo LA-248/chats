@@ -72,6 +72,8 @@ export default function ChatList({ setChatName }) {
       setChatList((prevChatList) =>
         prevChatList.filter((group) => group.room !== data.room)
       );
+      setActiveChatRoom(null);
+      navigate(data.redirectPath);
     };
 
     socket.on('remove-group-chat', handleGroupChatRemoval);
@@ -79,7 +81,7 @@ export default function ChatList({ setChatName }) {
     return () => {
       socket.off('remove-group-chat', handleGroupChatRemoval);
     };
-  }, [socket, setChatList]);
+  }, [socket, setChatList, navigate, setActiveChatRoom]);
 
   // Filter chat list based on search input
   useEffect(() => {

@@ -3,6 +3,7 @@ import Modal from '../../../components/ModalTemplate';
 import LeaveGroupModal from './LeaveGroupModal';
 import GroupPicture from './GroupPicture';
 import MembersList from './MembersList';
+import RemoveMemberModal from './RemoveMemberModal';
 
 function GroupInfoHeader({ group, setIsLeaveModalOpen }) {
   return (
@@ -37,6 +38,9 @@ export default function GroupInfoModal({
   setErrorMessage,
 }) {
   const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false);
+  const [isRemoveMemberModalOpen, setIsRemoveMemberModalOpen] = useState(false);
+  const [memberId, setMemberId] = useState(null);
+  const [memberName, setMemberName] = useState('');
 
   return (
     <Modal
@@ -59,6 +63,9 @@ export default function GroupInfoModal({
           membersList={membersList}
           loggedInUsername={loggedInUsername}
           loggedInUserId={loggedInUserId}
+          setIsRemoveMemberModalOpen={setIsRemoveMemberModalOpen}
+          setMemberId={setMemberId}
+          setMemberName={setMemberName}
         />
       </div>
 
@@ -74,9 +81,16 @@ export default function GroupInfoModal({
 
       <LeaveGroupModal
         group={group}
-        loggedInUserId={loggedInUserId}
         isModalOpen={isLeaveModalOpen}
         setIsModalOpen={setIsLeaveModalOpen}
+      />
+
+      <RemoveMemberModal
+        group={group}
+        isModalOpen={isRemoveMemberModalOpen}
+        setIsModalOpen={setIsRemoveMemberModalOpen}
+        memberId={memberId}
+        memberName={memberName}
       />
     </Modal>
   );

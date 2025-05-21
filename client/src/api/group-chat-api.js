@@ -1,4 +1,4 @@
-async function createGroupChat(loggedInUserId, groupName, addedMembers) {
+export async function createGroupChat(loggedInUserId, groupName, addedMembers) {
   try {
     if (groupName) {
       const response = await fetch('http://localhost:8080/groups', {
@@ -31,7 +31,7 @@ async function createGroupChat(loggedInUserId, groupName, addedMembers) {
   }
 }
 
-async function addMembers(room, addedMembers) {
+export async function addMembers(room, addedMembers) {
   try {
     const response = await fetch(
       `http://localhost:8080/groups/${room}/members`,
@@ -58,7 +58,7 @@ async function addMembers(room, addedMembers) {
   }
 }
 
-async function getGroupChatInfo(room, navigate) {
+export async function getGroupChatInfo(room, navigate) {
   try {
     const response = await fetch(`http://localhost:8080/groups/${room}`, {
       method: 'GET',
@@ -88,7 +88,7 @@ async function getGroupChatInfo(room, navigate) {
   }
 }
 
-async function retrieveGroupMembersInfo(groupId) {
+export async function retrieveGroupMembersInfo(groupId) {
   try {
     const response = await fetch(
       `http://localhost:8080/groups/${groupId}/members`,
@@ -113,7 +113,7 @@ async function retrieveGroupMembersInfo(groupId) {
 
 // Needed for when the most recent message in a group chat is deleted
 // Ensures the correct latest message is shown in the chat list
-async function updateLastGroupMessageId(messageId, room) {
+export async function updateLastGroupMessageId(messageId, room) {
   try {
     const response = await fetch(
       `http://localhost:8080/groups/${room}/last_message`,
@@ -136,7 +136,7 @@ async function updateLastGroupMessageId(messageId, room) {
   }
 }
 
-async function markUserAsRead(room) {
+export async function markUserAsRead(room) {
   try {
     const response = await fetch(`http://localhost:8080/groups/${room}`, {
       method: 'PUT',
@@ -155,7 +155,7 @@ async function markUserAsRead(room) {
   }
 }
 
-async function deleteGroupChat(room) {
+export async function deleteGroupChat(room) {
   try {
     const response = await fetch(`http://localhost:8080/groups/${room}`, {
       method: 'DELETE',
@@ -174,7 +174,29 @@ async function deleteGroupChat(room) {
   }
 }
 
-async function removeGroupMember(groupId, userId) {
+export async function leaveGroup(groupId) {
+  try {
+    const response = await fetch(`http://localhost:8080/groups/${groupId}`, {
+      method: 'DELETE',
+      headers: {
+        Accept: 'application/json',
+      },
+      credentials: 'include',
+    });
+    const data = await response.json();
+
+    if (!response.ok) {
+      const errorResponse = await response.json();
+      throw new Error(errorResponse.error);
+    }
+
+    return data.message;
+  } catch (error) {
+    throw error;
+  }
+}
+
+export async function removeGroupMember(groupId, userId) {
   try {
     const response = await fetch(
       `http://localhost:8080/groups/${groupId}/${userId}`,
@@ -198,14 +220,3 @@ async function removeGroupMember(groupId, userId) {
     throw error;
   }
 }
-
-export {
-  createGroupChat,
-  addMembers,
-  getGroupChatInfo,
-  retrieveGroupMembersInfo,
-  updateLastGroupMessageId,
-  markUserAsRead,
-  deleteGroupChat,
-  removeGroupMember,
-};

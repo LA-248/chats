@@ -2,12 +2,14 @@ import express, { NextFunction, Request, Response } from 'express';
 import handleMulterError from '../middlewares/multer.middleware.ts';
 import {
   groupChatRoomAuth,
+  groupMemberRemovalAuth,
   requireAuth,
 } from '../middlewares/auth.middleware.ts';
 import {
   addMembers,
   createGroupChat,
-  deleteGroupChat,
+  leaveGroup,
+  markGroupChatAsDeleted,
   removeGroupMember,
   retrieveGroupInfo,
   retrieveMemberUsernames,
@@ -41,9 +43,14 @@ groupChatsRouter.get('/:room', groupChatRoomAuth, retrieveGroupInfo);
 // FIXME: Group chat auth middleware doesn't work for this route because the group ID is used instead of the room for retrieval of data
 groupChatsRouter.get('/:groupId/members', retrieveMemberUsernames);
 
-groupChatsRouter.delete('/:room', groupChatRoomAuth, deleteGroupChat);
-// TODO: Add authorisation middleware to this route to ensure not anyone can remove a member from a group
-groupChatsRouter.delete('/:groupId/:userId', removeGroupMember);
+groupChatsRouter.delete(
+  '/:groupId/:userId',
+  groupChatRoomAuth,
+  groupMemberRemovalAuth,
+  removeGroupMember
+);
+groupChatsRouter.delete('/:groupId', groupChatRoomAuth, leaveGroup);
+groupChatsRouter.delete('/:room', groupChatRoomAuth, markGroupChatAsDeleted);
 
 groupChatsRouter.put('/:room', groupChatRoomAuth, updateUserReadStatus);
 groupChatsRouter.put(

@@ -175,7 +175,7 @@ const Group = {
           }
 
           try {
-            const validated = GroupRoomSchema.parse(result.rows[0]);
+            const validated = GroupRoomSchema.parse(result.rows[0].room);
             return resolve(validated);
           } catch (error) {
             return reject(

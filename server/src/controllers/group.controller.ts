@@ -86,12 +86,12 @@ export const retrieveMemberUsernames = async (
   }
 };
 
-export const deleteGroupChat = async (
+export const markGroupChatAsDeleted = async (
   req: Request,
   res: Response
 ): Promise<void> => {
   try {
-    const userId = req.user?.user_id;
+    const userId = Number(req.user?.user_id);
     const room = req.params.room;
 
     if (!userId) {
@@ -99,7 +99,7 @@ export const deleteGroupChat = async (
       return;
     }
 
-    await markGroupAsDeleted(Number(userId), room);
+    await markGroupAsDeleted(userId, room);
     res.status(200).json({ message: 'Chat deleted successfully' });
   } catch (error) {
     console.error('Error deleting chat:', error);
@@ -132,7 +132,41 @@ export const addMembers = async (
   }
 };
 
-// Used when a user voluntarily leaves a group chat
+// Handle a user voluntarily leaving a group chat
+export const leaveGroup = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const io = req.app.get('io');
+    const groupId = Number(req.params.groupId);
+    const userId = Number(req.user?.user_id);
+    const socketId = userSockets.get(userId);
+    const { room, removedUser } = await removeMember(groupId, userId);
+
+    // Send the user id of the removed member to the frontend
+    // This allows for the members list to be updated in real-time for all group chat participants
+    io.to(room).emit('remove-member', {
+      removedUserId: removedUser,
+    });
+    // After a member leaves or is removed, send the room to the frontend so the group can be filtered out of their chat list
+    io.to(socketId).emit('remove-group-chat', {
+      room: room,
+      redirectPath: '/',
+    });
+
+    res.status(200).json({
+      message: 'You successfully left the group chat',
+    });
+  } catch (error) {
+    console.error('Error leaving group chat:', error);
+    res
+      .status(500)
+      .json({ error: 'Error leaving group chat. Please try again.' });
+  }
+};
+
+// Used when the group owner removes a member
 export const removeGroupMember = async (
   req: Request,
   res: Response
@@ -152,14 +186,17 @@ export const removeGroupMember = async (
     // After a member leaves or is removed, send the room to the frontend so the group can be filtered out of their chat list
     io.to(socketId).emit('remove-group-chat', {
       room: room,
+      redirectPath: '/',
     });
 
-    res.status(200).json({ message: 'You successfully left the group chat' });
+    res.status(200).json({
+      message: 'Member successfully removed',
+    });
   } catch (error) {
-    console.error('Error leaving group chat:', error);
-    res
-      .status(500)
-      .json({ error: 'Error leaving group chat. Please try again.' });
+    console.error('Error removing member from group chat:', error);
+    res.status(500).json({
+      error: 'Error removing member from group chat. Please try again.',
+    });
   }
 };
 

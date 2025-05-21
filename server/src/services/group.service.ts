@@ -120,11 +120,15 @@ export const removeMember = async (
   groupId: number,
   userId: number
 ): Promise<{ room: string; removedUser: RemovedGroupMember }> => {
-  const { room } = await Group.retrieveRoomByGroupId(groupId);
-  const removedUser = await GroupMember.removeGroupMember(groupId, userId);
-  await Group.removeUserFromReadList(userId, room);
+  try {
+    const room = await Group.retrieveRoomByGroupId(groupId);
+    const removedUser = await GroupMember.removeGroupMember(groupId, userId);
+    await Group.removeUserFromReadList(userId, room);
 
-  return { room, removedUser };
+    return { room, removedUser };
+  } catch (error) {
+    throw error;
+  }
 };
 
 export const uploadGroupPicture = async (
@@ -172,7 +176,11 @@ export const markGroupAsDeleted = async (
   userId: number,
   room: string
 ): Promise<void> => {
-  return await Group.updateDeletedForList(userId, room);
+  try {
+    return await Group.updateDeletedForList(userId, room);
+  } catch (error) {
+    throw error;
+  }
 };
 
 // Update the picture of a group for all its members in real-time

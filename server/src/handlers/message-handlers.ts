@@ -240,7 +240,7 @@ const saveMessageInDatabase = async (
   try {
     const chatHandler = CHAT_HANDLERS[chatType];
 
-    authoriseChatMessage(chatHandler, room, senderId);
+    await authoriseChatMessage(chatHandler, room, senderId);
 
     newMessage = await Message.insertNewMessage(
       message,
@@ -270,10 +270,14 @@ const saveMessageInDatabase = async (
       await Message.deleteMessageById(senderId, newMessage.id);
     }
     if (error instanceof Error) {
-      console.error(
-        'Message with this client offset already exists:',
-        clientOffset
-      );
+      if (
+        error.message !== 'User is not authorised to send messages in this chat'
+      ) {
+        console.error(
+          'Message with this client offset already exists:',
+          clientOffset
+        );
+      }
       throw error;
     }
     throw new Error('Unknown error occurred');
@@ -352,9 +356,13 @@ const authoriseChatMessage = async (
   room: string,
   senderId: number
 ): Promise<void> => {
-  const memberIds = await chatHandler.getMembers(room);
-  if (!memberIds.includes(senderId)) {
-    throw new Error('User is not authorised to send messages in this chat');
+  try {
+    const memberIds = await chatHandler.getMembers(room);
+    if (!memberIds.includes(senderId)) {
+      throw new Error('User is not authorised to send messages in this chat');
+    }
+  } catch (error) {
+    throw error;
   }
 };
 
