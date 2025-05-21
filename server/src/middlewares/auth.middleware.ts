@@ -1,10 +1,16 @@
 import { NextFunction, Request, Response } from 'express';
 import { GroupMember } from '../models/group-member.model.ts';
 import { PrivateChat } from '../models/private-chat.model.ts';
+import { Group } from '../models/group.model.ts';
+import { GroupInfo, GroupMembers } from '../schemas/group.schema.ts';
 
-const requireAuth = (req: Request, res: Response, next: NextFunction): void => {
+export const requireAuth = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): void => {
   if (req.isAuthenticated()) {
-    next();
+    return next();
   } else {
     res.status(401).json({
       error: 'Unauthorised',
@@ -15,7 +21,7 @@ const requireAuth = (req: Request, res: Response, next: NextFunction): void => {
 
 // Room-specific authorisation middleware
 // Check if a room exists and/or if the user is a member of it
-const privateChatRoomAuth = async (
+export const privateChatRoomAuth = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -36,8 +42,7 @@ const privateChatRoomAuth = async (
 
     if (senderId) {
       if (Object.values(privateChatMembers).includes(senderId)) {
-        next();
-        return;
+        return next();
       } else {
         res.status(403).json({
           error: 'Unauthorised',
@@ -56,13 +61,15 @@ const privateChatRoomAuth = async (
   }
 };
 
-const groupChatRoomAuth = async (
+export const groupChatRoomAuth = async (
   req: Request,
   res: Response,
   next: NextFunction
 ): Promise<void> => {
   const senderId = Number(req.user?.user_id);
-  const room = req.params.room;
+  const groupId = Number(req.params.groupId);
+  // FIXME: doesn't work for leaveGroup or removeGroupMember since they don't pass the room as a route parameter
+  const room = req.params.room ?? (await Group.retrieveRoomByGroupId(groupId));
 
   try {
     const groupChatMembers = await GroupMember.retrieveMembersByRoom(room);
@@ -84,14 +91,14 @@ const groupChatRoomAuth = async (
     }
     if (groupChatMemberIds.includes(senderId)) {
       return next();
+    } else {
+      res.status(403).json({
+        error: 'Unauthorised',
+        message: 'You are not a member of this chat',
+        redirectPath: '/',
+      });
+      return;
     }
-
-    res.status(403).json({
-      error: 'Unauthorised',
-      message: 'You are not a member of this chat',
-      redirectPath: '/',
-    });
-    return;
   } catch (error) {
     console.error(error);
     res.status(500).json({
@@ -102,4 +109,53 @@ const groupChatRoomAuth = async (
   }
 };
 
-export { requireAuth, privateChatRoomAuth, groupChatRoomAuth };
+export const groupMemberRemovalAuth = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  const loggedInUserId = Number(req.user?.user_id);
+  const groupId = Number(req.params.groupId);
+  const userToBeRemoved = Number(req.params.userId);
+  const room = await Group.retrieveRoomByGroupId(groupId);
+
+  try {
+    const groupChatMembers: GroupMembers[] | null =
+      await GroupMember.retrieveMembersByRoom(room);
+    if (!groupChatMembers) {
+      res.status(404).json({
+        error: 'Not found',
+        message: 'This chat does not exist',
+        redirectPath: '/',
+      });
+      return;
+    }
+
+    if (!loggedInUserId || !userToBeRemoved) {
+      res.status(401).json({ error: 'Invalid ID' });
+      return;
+    }
+
+    const isOwner = groupChatMembers.some(
+      (member) => member.user_id === loggedInUserId && member.role === 'owner'
+    );
+
+    if (isOwner) {
+      return next();
+    } else {
+      res.status(403).json({
+        error: 'Unauthorised',
+        message: 'You may not perform this action',
+        redirectPath: '/',
+      });
+      return;
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      error: 'Internal server error',
+      message: 'An unexpected error occurred',
+      redirectPath: '/',
+    });
+  }
+};
