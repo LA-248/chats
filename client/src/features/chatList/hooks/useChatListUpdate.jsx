@@ -8,7 +8,7 @@ import { useEffect } from 'react';
 export default function useChatListUpdate(socket, setChatList, activeChatRoom) {
   useEffect(() => {
     if (socket) {
-      const handleChatListUpdate = (chatListData, eventType) => {
+      const handleChatListUpdate = (chatListData) => {
         setChatList((prevChatList) =>
           prevChatList
             .map((chat) =>
@@ -18,11 +18,29 @@ export default function useChatListUpdate(socket, setChatList, activeChatRoom) {
                     last_message_content: chatListData.lastMessageContent,
                     last_message_time: chatListData.lastMessageTime,
                     updated_at: chatListData.updatedAt,
-                    // Only add deleted if the eventType is update-chat-list
-                    ...(eventType === 'update-chat-list' && {
-                      deleted: chatListData.deleted,
-                      read: activeChatRoom !== chat.room ? false : true,
-                    }),
+                    deleted: false,
+                    read: activeChatRoom !== chat.room ? false : true,
+                  }
+                : chat
+            )
+            .sort((a, b) => {
+              const timeA = a.updated_at ? new Date(a.updated_at) : null;
+              const timeB = b.updated_at ? new Date(b.updated_at) : null;
+              return timeB - timeA;
+            })
+        );
+      };
+
+      const handleLastMessageUpdate = (lastMessageData) => {
+        setChatList((prevChatList) =>
+          prevChatList
+            .map((chat) =>
+              chat.room === lastMessageData.room
+                ? {
+                    ...chat,
+                    last_message_content: lastMessageData.lastMessageContent,
+                    last_message_time: lastMessageData.lastMessageTime,
+                    updated_at: lastMessageData.updatedAt,
                   }
                 : chat
             )
@@ -38,7 +56,7 @@ export default function useChatListUpdate(socket, setChatList, activeChatRoom) {
         handleChatListUpdate(data, 'update-chat-list')
       );
       socket.on('last-message-updated', (data) =>
-        handleChatListUpdate(data, 'last-message-updated')
+        handleLastMessageUpdate(data, 'last-message-updated')
       );
 
       return () => {

@@ -345,7 +345,6 @@ const broadcastChatListUpdate = (
     lastMessageContent: message,
     lastMessageTime: newMessage.event_time,
     updatedAt: updatedAt,
-    deleted: false,
   });
 };
 

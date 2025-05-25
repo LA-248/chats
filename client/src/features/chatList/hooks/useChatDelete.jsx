@@ -25,9 +25,11 @@ export function useChatDelete(
           await deleteGroupChat(groupId, deletedChat.room);
         }
 
-        // Filter out deleted chat from list
-        setChatList((list) =>
-          list.filter((chat) => chat.room !== deletedChat.room)
+        // Set deleted flag as true
+        setChatList((chatList) =>
+          chatList.map((chat) =>
+            chat.room === deletedChat.room ? { ...chat, deleted: true } : chat
+          )
         );
 
         setChatSearchInputText('');
