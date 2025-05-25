@@ -29,18 +29,20 @@ export default function AddGroupMembers({
     const currentGroupMembers = await retrieveGroupMembersInfo(groupId);
 
     try {
-      if (!inputUsername) {
+      const sanitizedUsername = inputUsername.replace(/[\\/]/g, '');
+
+      if (!sanitizedUsername) {
         throw new Error('Please enter a username');
       }
       if (addedMembers.length >= 10) {
         throw new Error('You may only add up to 10 members');
       }
-      if (inputUsername === loggedInUsername) {
+      if (sanitizedUsername === loggedInUsername) {
         throw new Error('You are already in the group');
       }
 
       const exists = addedMembers.some(
-        (member) => member.username === inputUsername
+        (member) => member.username === sanitizedUsername
       );
       if (exists) {
         throw new Error('This user has already been selected to be added');
@@ -49,17 +51,19 @@ export default function AddGroupMembers({
         throw new Error('Groups have a limit of 10 members');
       }
       // Check if the user being added exists in the database, if they do, their user id is returned
-      const memberUserId = await getRecipientUserIdByUsername(inputUsername);
+      const memberUserId = await getRecipientUserIdByUsername(
+        sanitizedUsername
+      );
 
       // This checks if the user trying to be added is already a member
-      if (currentGroupMembers.includes(inputUsername)) {
+      if (currentGroupMembers.includes(sanitizedUsername)) {
         throw new Error('This user is already a member of this group');
       }
 
       // Store the username, id, and group role of each added member, this is needed to add them as a group member in the database
       setAddedMembers((prevMembers) => [
         ...prevMembers,
-        { username: inputUsername, userId: memberUserId, role: 'member' },
+        { username: sanitizedUsername, userId: memberUserId, role: 'member' },
       ]);
       setInputUsername('');
     } catch (error) {
