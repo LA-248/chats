@@ -1,10 +1,10 @@
 import { useEffect } from 'react';
 
 /* 
-  Update chat list with latest content and time info on incoming messages, and sort it
-  Also mark the chat as not deleted, which ensures the chat is added for the -
-  recipient if they had it marked as deleted
-  */
+Update chat list with latest content and time info on incoming messages, and sort it
+Also mark the chat as not deleted, which ensures the chat is added for the -
+recipient if they had it marked as deleted
+*/
 export default function useChatListUpdate(socket, setChatList, activeChatRoom) {
   useEffect(() => {
     if (socket) {

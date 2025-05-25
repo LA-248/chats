@@ -23,7 +23,6 @@ const socketHandlers = (io: Server) => {
       const userId = (socket.handshake as any).session.passport.user;
       console.log(`User connected`);
       console.log(`User ID: ${userId}`);
-      console.log(socket.rooms);
 
       initialiseChatRooms(socket);
       manageSocketConnections(socket, userSockets);

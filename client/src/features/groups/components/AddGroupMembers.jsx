@@ -26,9 +26,9 @@ export default function AddGroupMembers({
 
   const handleAddMember = async (event) => {
     event.preventDefault();
-    const currentGroupMembers = await retrieveGroupMembersInfo(groupId);
 
     try {
+      const currentGroupMembers = await retrieveGroupMembersInfo(groupId);
       const sanitizedUsername = inputUsername.replace(/[\\/]/g, '');
 
       if (!sanitizedUsername) {

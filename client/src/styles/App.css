@@ -34,7 +34,7 @@ body {
 }
 
 .chat-icon {
-  height: 140px;
+  height: 120px;
   width: auto;
 }
 
@@ -971,6 +971,8 @@ body {
 
 .remove-member-button {
   color: red;
+  background: none;
+  border: none;
 }
 
 .remove-member-button:hover {
