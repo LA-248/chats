@@ -21,11 +21,14 @@ export function useChatDelete(
         if (deletedChat.chat_id.includes('p')) {
           await deletePrivateChat(deletedChat.room);
         } else {
-          await deleteGroupChat(deletedChat.room);
+          const groupId = deletedChat.chat_id.replace('g_', '');
+          await deleteGroupChat(groupId, deletedChat.room);
         }
 
         // Filter out deleted chat from list
-        setChatList((list) => list.filter((chat) => chat.room !== deletedChat.room));
+        setChatList((list) =>
+          list.filter((chat) => chat.room !== deletedChat.room)
+        );
 
         setChatSearchInputText('');
         if (activeChatRoom === deletedChat.room) {

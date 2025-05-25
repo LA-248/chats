@@ -50,7 +50,11 @@ groupChatsRouter.delete(
   removeGroupMember
 );
 groupChatsRouter.delete('/:groupId', groupChatRoomAuth, leaveGroup);
-groupChatsRouter.delete('/:room', groupChatRoomAuth, markGroupChatAsDeleted);
+groupChatsRouter.delete(
+  '/:groupId/rooms/:room',
+  groupChatRoomAuth,
+  markGroupChatAsDeleted
+);
 
 groupChatsRouter.put('/:room', groupChatRoomAuth, updateUserReadStatus);
 groupChatsRouter.put(

@@ -155,15 +155,18 @@ export async function markUserAsRead(room) {
   }
 }
 
-export async function deleteGroupChat(room) {
+export async function deleteGroupChat(groupId, room) {
   try {
-    const response = await fetch(`http://localhost:8080/groups/${room}`, {
-      method: 'DELETE',
-      headers: {
-        Accept: 'application/json',
-      },
-      credentials: 'include',
-    });
+    const response = await fetch(
+      `http://localhost:8080/groups/${groupId}/rooms/${room}`,
+      {
+        method: 'DELETE',
+        headers: {
+          Accept: 'application/json',
+        },
+        credentials: 'include',
+      }
+    );
 
     if (!response.ok) {
       const errorResponse = await response.json();

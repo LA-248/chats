@@ -68,10 +68,10 @@ export const groupChatRoomAuth = async (
 ): Promise<void> => {
   const senderId = Number(req.user?.user_id);
   const groupId = Number(req.params.groupId);
-  // FIXME: doesn't work for leaveGroup or removeGroupMember since they don't pass the room as a route parameter
-  const room = req.params.room ?? (await Group.retrieveRoomByGroupId(groupId));
 
   try {
+    const room =
+      req.params.room ?? (await Group.retrieveRoomByGroupId(groupId));
     const groupChatMembers = await GroupMember.retrieveMembersByRoom(room);
     if (!groupChatMembers) {
       res.status(404).json({

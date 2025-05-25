@@ -36,7 +36,9 @@ const Group = {
         `,
         (err) => {
           if (err) {
-            return reject(`Database error in groups table: ${err.message}`);
+            return reject(
+              `Database error creating groups table: ${err.message}`
+            );
           }
           return resolve();
         }
@@ -71,7 +73,9 @@ const Group = {
         [parsed.data.ownerUserId, parsed.data.name, parsed.data.room],
         (err, result) => {
           if (err) {
-            return reject(`Database error in groups table: ${err.message}`);
+            return reject(
+              `Database error when inserting new group chat in groups table: ${err.message}`
+            );
           }
 
           try {
@@ -140,7 +144,9 @@ const Group = {
         [room],
         (err, result) => {
           if (err) {
-            return reject(`Database error in groups table: ${err.message}`);
+            return reject(
+              `Error retrieving group info by room in groups database table: ${err.message}`
+            );
           }
           if (result.rows.length === 0) {
             return reject(`No group found for room: ${room}`);
@@ -168,7 +174,9 @@ const Group = {
         [groupId],
         (err, result) => {
           if (err) {
-            return reject(`Database error in groups table: ${err.message}`);
+            return reject(
+              `Error retrieving room by group ID in groups database table: ${err.message}`
+            );
           }
           if (result.rows.length === 0) {
             return reject(`No group found for group ID: ${groupId}`);
@@ -196,7 +204,9 @@ const Group = {
         [room],
         (err, result) => {
           if (err) {
-            return reject(`Database error in groups table: ${err.message}`);
+            return reject(
+              `Error retrieving picture in groups database table: ${err.message}`
+            );
           }
           if (result.rows.length === 0) {
             return resolve(null);
@@ -228,7 +238,9 @@ const Group = {
         [room],
         (err, result) => {
           if (err) {
-            return reject(`Database error in groups table: ${err.message}`);
+            return reject(
+              `Error retrieving deleted for list in groups database table: ${err.message}`
+            );
           }
           if (result.rows.length === 0) {
             return resolve(null);
@@ -258,7 +270,9 @@ const Group = {
         [room],
         (err, result) => {
           if (err) {
-            return reject(`Database error in groups table: ${err.message}`);
+            return reject(
+              `Error retrieving updated_at value in groups database table: ${err.message}`
+            );
           }
 
           try {
@@ -287,7 +301,9 @@ const Group = {
         [fileName, room],
         (err) => {
           if (err) {
-            return reject(`Database error in groups table: ${err.message}`);
+            return reject(
+              `Error updating picture in groups database table: ${err.message}`
+            );
           }
           return resolve();
         }
@@ -338,7 +354,7 @@ const Group = {
         (err) => {
           if (err) {
             return reject(
-              `Error updating last message in private_chats database table: ${err.message}`
+              `Error updating last message in groups database table: ${err.message}`
             );
           }
           return resolve();
@@ -358,7 +374,9 @@ const Group = {
         [userId, room],
         (err) => {
           if (err) {
-            return reject(`Database error in groups table: ${err.message}`);
+            return reject(
+              `Error updating group member read status in groups database table: ${err.message}`
+            );
           }
           return resolve();
         }
@@ -380,7 +398,9 @@ const Group = {
         [userId, room],
         (err) => {
           if (err) {
-            return reject(`Database error in groups table: ${err.message}`);
+            return reject(
+              `Error removing group member from read list in groups database table: ${err.message}`
+            );
           }
           return resolve();
         }
@@ -400,7 +420,7 @@ const Group = {
         (err) => {
           if (err) {
             return reject(
-              `Error removing members from read list in groups database table: ${err.message}`
+              `Error resetting read by list in groups database table: ${err.message}`
             );
           }
           return resolve();
@@ -420,7 +440,9 @@ const Group = {
         [userId, room],
         (err) => {
           if (err) {
-            return reject(`Database error in groups table: ${err.message}`);
+            return reject(
+              `Error updating deleted_for list in groups database table: ${err.message}`
+            );
           }
           return resolve();
         }
@@ -439,7 +461,9 @@ const Group = {
         [room],
         (err) => {
           if (err) {
-            return reject(`Database error in groups table: ${err.message}`);
+            return reject(
+              `Error restoring group chat in groups database table: ${err.message}`
+            );
           }
           return resolve();
         }
