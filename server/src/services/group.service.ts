@@ -1,4 +1,4 @@
-import { Server, Socket } from 'socket.io';
+import { Server } from 'socket.io';
 import { Group } from '../models/group.model.ts';
 import {
   GroupInfoWithMembers,
@@ -101,7 +101,7 @@ export const createNewGroup = async (
 };
 
 export const addUsersToGroup = async (
-  socket: Socket,
+  io: Server,
   room: string,
   addedMembers: GroupMemberToBeAdded[]
 ): Promise<AddedUserInfo[]> => {
@@ -113,7 +113,7 @@ export const addUsersToGroup = async (
   );
   const insertedGroupMembers = await Promise.all(insertGroupMembers);
 
-  return await notifyAddedUsers(socket, insertedGroupMembers, groupInfo, room);
+  return await notifyAddedUsers(io, insertedGroupMembers, groupInfo, room);
 };
 
 export const removeMember = async (
@@ -197,7 +197,7 @@ const emitGroupPictureUpdate = async (
 
 // Retrieve the info of each added user and notify them that they were added
 const notifyAddedUsers = async (
-  socket: Socket,
+  io: Server,
   insertedGroupMembers: NewGroupMember[],
   groupData: GroupInfo | NewGroupChat,
   room: string
@@ -215,7 +215,7 @@ const notifyAddedUsers = async (
     if (userSockets.has(addedUser.user_id)) {
       const socketId = userSockets.get(addedUser.user_id);
       if (socketId) {
-        socket.to(socketId).emit('add-group-to-chat-list', {
+        io.to(socketId).emit('add-group-to-chat-list', {
           chat_id: `g_${groupData.group_id}`,
           chat_picture: groupPictureUrl,
           chat_type: 'group',

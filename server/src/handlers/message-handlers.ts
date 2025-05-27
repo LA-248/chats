@@ -30,7 +30,7 @@ const handleChatMessages = (socket: Socket, io: Server): void => {
 
       restoreChat(chatId, room, chatType);
       broadcastMessage(
-        socket,
+        io,
         room,
         username,
         message,
@@ -313,7 +313,7 @@ const restoreChat = async (
 };
 
 const broadcastMessage = (
-  socket: Socket,
+  io: Server,
   room: string,
   username: string,
   message: string,
@@ -321,7 +321,7 @@ const broadcastMessage = (
   newMessage: NewMessage,
   chatType: string
 ): void => {
-  socket.to(room).emit('chat-message', {
+  io.to(room).emit('chat-message', {
     from: username,
     content: message,
     room: room,
