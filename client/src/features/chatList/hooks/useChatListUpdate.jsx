@@ -31,6 +31,7 @@ export default function useChatListUpdate(socket, setChatList, activeChatRoom) {
         );
       };
 
+      // Update chat list when the last remaining message in a chat is deleted or edited
       const handleLastMessageUpdate = (lastMessageData) => {
         setChatList((prevChatList) =>
           prevChatList

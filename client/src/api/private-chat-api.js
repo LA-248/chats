@@ -79,7 +79,7 @@ async function addChat(inputUsername) {
       }
 
       const data = await response.json();
-      return data;
+      return data.addedChat;
     }
   } catch (error) {
     throw error;

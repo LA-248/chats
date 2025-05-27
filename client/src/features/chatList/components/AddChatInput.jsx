@@ -26,8 +26,15 @@ export default function AddChatInput({
           throw new Error('Please enter a username');
         }
 
-        const response = await addChat(inputUsername);
-        setChatList(response.updatedChatList);
+        const addedChat = await addChat(inputUsername);
+        setChatList((prevChatList) => {
+          const updatedList = [addedChat, ...prevChatList];
+          // Sorting must be done here for when chats are restored,
+          // since a re-added chat might not be the most recently updated
+          return updatedList.sort(
+            (a, b) => new Date(b.updated_at) - new Date(a.updated_at)
+          );
+        });
         setInputUsername('');
       } catch (error) {
         setErrorMessage(error.message);

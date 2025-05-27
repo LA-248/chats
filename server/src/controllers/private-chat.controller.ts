@@ -14,8 +14,8 @@ import {
 export const addChat = async (req: Request, res: Response): Promise<void> => {
   try {
     const { senderId, recipientId } = await getChatRoomData(req);
-    const updatedChatList = await handleChatAddition(senderId, recipientId);
-    res.status(200).json({ updatedChatList: updatedChatList });
+    const addedChat = await handleChatAddition(senderId, recipientId);
+    res.status(200).json({ addedChat });
   } catch (error: unknown) {
     if (error instanceof Error) {
       if (

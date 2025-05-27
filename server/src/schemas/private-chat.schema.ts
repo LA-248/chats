@@ -28,7 +28,7 @@ export const ChatMembersSchema = z.object({
 });
 export type ChatMembers = z.infer<typeof ChatMembersSchema>;
 
-export const ChatRoomSchema = z.string().uuid().nullable();
+export const ChatRoomSchema = z.string().uuid();
 export type ChatRoom = z.infer<typeof ChatRoomSchema>;
 
 export const ChatDeletionStatusSchema = z.boolean();
