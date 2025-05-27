@@ -1,7 +1,7 @@
 import bcrypt from 'bcrypt';
 import request from 'supertest';
-import { app } from '../app.ts';
-import { createTables, pool } from '../../db/index.ts';
+import { app } from '../../app.ts';
+import { createTables, pool } from '../../../db/index.ts';
 
 beforeAll(async () => {
   await createTables();
