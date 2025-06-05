@@ -4,6 +4,8 @@ import { Group } from '../models/group.model.ts';
 import { GroupMember } from '../models/group-member.model.ts';
 import { PrivateChat } from '../models/private-chat.model.ts';
 import { Message } from '../models/message.model.ts';
+import { getChat } from '../services/private-chat.service.ts';
+import { userSockets } from './socket-handlers.ts';
 import {
   Message as MessageType,
   NewMessage,
@@ -19,6 +21,19 @@ const handleChatMessages = (socket: Socket, io: Server): void => {
       // Check if sender is blocked
       await isBlocked(chatId, senderId);
 
+      // Determine if the recipient has ever had messages in this chat
+      let isFirstMessage = false;
+      if (chatType === ChatType.PRIVATE) {
+        try {
+          const chatInfo = await PrivateChat.retrieveChat(chatId, room);
+          if (chatInfo.last_message_id === null) {
+            isFirstMessage = true;
+          }
+        } catch (error) {
+          console.error('Error retrieving chat info:', error);
+        }
+      }
+
       const { newMessage, updatedAt } = await saveMessageInDatabase(
         message,
         senderId,
@@ -28,7 +43,7 @@ const handleChatMessages = (socket: Socket, io: Server): void => {
         clientOffset
       );
 
-      restoreChat(chatId, room, chatType);
+      restoreChat(io, chatId, room, chatType, isFirstMessage);
       broadcastMessage(
         io,
         room,
@@ -286,18 +301,27 @@ const saveMessageInDatabase = async (
 
 // Mark a chat as not deleted in the database on incoming message if it was previously marked as deleted
 const restoreChat = async (
+  io: Server,
   recipientId: number,
   room: string,
-  chatType: string
+  chatType: string,
+  isFirstMessage: boolean
 ): Promise<void> => {
   try {
     if (chatType === ChatType.PRIVATE) {
-      const isNotInChatList = await PrivateChat.retrieveChatDeletionStatus(
+      const isDeleted = await PrivateChat.retrieveChatDeletionStatus(
         recipientId,
         room
       );
-      if (isNotInChatList) {
+      if (isDeleted) {
         await PrivateChat.updateChatDeletionStatus(recipientId, false, room);
+        if (isFirstMessage) {
+          const chat = await getChat(recipientId, room);
+          const socketId = userSockets.get(recipientId);
+          if (socketId) {
+            io.to(socketId).emit('add-private-chat-to-chat-list', chat);
+          }
+        }
       }
     } else if (chatType === ChatType.GROUP) {
       const membersWhoDeletedChat = await Group.retrieveDeletedForList(room);

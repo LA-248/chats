@@ -10,6 +10,7 @@ import ChatItem from './ChatItem';
 import useClearErrorMessage from '../../../hooks/useClearErrorMessage';
 import useChatUpdates from '../../conversations/hooks/useChatUpdates';
 import useAddGroupToChatList from '../hooks/useAddGroupToChatList';
+import useAddPrivateChatToChatList from '../hooks/useAddPrivateChatToChatList';
 import { useChatDelete } from '../hooks/useChatDelete';
 import { useSocketErrorHandling } from '../../../hooks/useSocketErrorHandling';
 import { markUserAsRead } from '../../../api/group-chat-api';
@@ -107,6 +108,8 @@ export default function ChatList({ setChatName }) {
 
   // When a user is added to a group chat, notify them and add it to their chat list
   useAddGroupToChatList(socket, setChatList);
+  // When a user receives their first message from another user, add the chat in real-time
+  useAddPrivateChatToChatList(socket, setChatList);
 
   // Update the picture of a group for all its members in real-time
   useChatUpdates(
