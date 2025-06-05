@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from 'zod/v4';
 
 export const InsertPrivateChatSchema = z.object({
   user1Id: z.number().int().positive(),
