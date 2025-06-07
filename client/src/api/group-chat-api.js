@@ -202,7 +202,7 @@ export async function leaveGroup(groupId) {
 export async function removeGroupMember(groupId, userId) {
   try {
     const response = await fetch(
-      `http://localhost:8080/groups/${groupId}/${userId}`,
+      `http://localhost:8080/groups/${groupId}/members/${userId}`,
       {
         method: 'DELETE',
         headers: {

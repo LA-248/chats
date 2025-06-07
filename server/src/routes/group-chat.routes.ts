@@ -44,7 +44,7 @@ groupChatsRouter.get('/:room', groupChatRoomAuth, retrieveGroupInfo);
 groupChatsRouter.get('/:groupId/members', retrieveMemberUsernames);
 
 groupChatsRouter.delete(
-  '/:groupId/:userId',
+  '/:groupId/members/:userId',
   groupChatRoomAuth,
   groupMemberRemovalAuth,
   removeGroupMember
