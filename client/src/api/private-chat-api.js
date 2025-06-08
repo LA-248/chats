@@ -72,13 +72,12 @@ async function addChat(inputUsername) {
         }),
         credentials: 'include',
       });
+      const data = await response.json();
 
       if (!response.ok) {
-        const errorResponse = await response.json();
-        throw new Error(errorResponse.error);
+        throw new Error(data.error);
       }
 
-      const data = await response.json();
       return data.addedChat;
     }
   } catch (error) {

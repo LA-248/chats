@@ -223,7 +223,7 @@ export const permanentlyDeleteGroup = async (
   } catch (error) {
     console.error('Error deleting group chat:', error);
     res.status(500).json({
-      error: 'Error deleting group chat. Please try again.',
+      message: 'Error deleting group chat. Please try again.',
     });
   }
 };

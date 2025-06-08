@@ -144,7 +144,7 @@ export const authoriseGroupAdminAction = async (
     } else {
       res.status(403).json({
         error: 'Unauthorised',
-        message: 'You may not perform this action',
+        message: 'You are unauthorised to perform this action',
         redirectPath: '/',
       });
       return;
