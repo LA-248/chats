@@ -470,6 +470,19 @@ const Group = {
       );
     });
   },
+
+  // DELETE OPERATIONS
+
+  permanentlyDelete: function (groupId: number): Promise<void> {
+    return new Promise((resolve, reject) => {
+      pool.query(`DELETE FROM groups WHERE group_id = $1`, [groupId], (err) => {
+        if (err) {
+          return reject(`Error deleting group chat: ${err.message}`);
+        }
+        return resolve();
+      });
+    });
+  },
 };
 
 export { Group };

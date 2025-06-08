@@ -8,12 +8,14 @@ import {
 } from '../../../api/private-chat-api';
 import ChatItem from './ChatItem';
 import useClearErrorMessage from '../../../hooks/useClearErrorMessage';
+import useChatListUpdate from '../hooks/useChatListUpdate';
 import useChatUpdates from '../../conversations/hooks/useChatUpdates';
 import useAddGroupToChatList from '../hooks/useAddGroupToChatList';
+import useAddPrivateChatToChatList from '../../conversations/hooks/useAddPrivateChat';
 import { useChatDelete } from '../hooks/useChatDelete';
 import { useSocketErrorHandling } from '../../../hooks/useSocketErrorHandling';
 import { markUserAsRead } from '../../../api/group-chat-api';
-import useChatListUpdate from '../hooks/useChatListUpdate';
+import useRemoveGroupChat from '../hooks/useRemoveGroupChat';
 
 export default function ChatList({ setChatName }) {
   const socket = useSocket();
@@ -64,25 +66,6 @@ export default function ChatList({ setChatName }) {
     displayChatList();
   }, [setChatList]);
 
-  // Remove a group chat that a user left or was kicked out of from their chat list
-  useEffect(() => {
-    if (!socket) return;
-
-    const handleGroupChatRemoval = (data) => {
-      setChatList((prevChatList) =>
-        prevChatList.filter((group) => group.room !== data.room)
-      );
-      setActiveChatRoom(null);
-      navigate(data.redirectPath);
-    };
-
-    socket.on('remove-group-chat', handleGroupChatRemoval);
-
-    return () => {
-      socket.off('remove-group-chat', handleGroupChatRemoval);
-    };
-  }, [socket, setChatList, navigate, setActiveChatRoom]);
-
   // Filter chat list based on search input
   useEffect(() => {
     if (chatSearchInputText) {
@@ -107,6 +90,8 @@ export default function ChatList({ setChatName }) {
 
   // When a user is added to a group chat, notify them and add it to their chat list
   useAddGroupToChatList(socket, setChatList);
+  useRemoveGroupChat(socket, setChatList, setActiveChatRoom, navigate);
+  useAddPrivateChatToChatList(socket, setChatList);
 
   // Update the picture of a group for all its members in real-time
   useChatUpdates(

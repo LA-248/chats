@@ -6,6 +6,7 @@ import {
   addUserToReadList,
   getMemberUsernames,
   markGroupAsDeleted,
+  permanentlyDeleteGroupChat,
   removeMember,
   retrieveGroupInfoWithMembers,
   updateLastGroupMessage,
@@ -196,6 +197,33 @@ export const removeGroupMember = async (
     console.error('Error removing member from group chat:', error);
     res.status(500).json({
       error: 'Error removing member from group chat. Please try again.',
+    });
+  }
+};
+
+export const permanentlyDeleteGroup = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const io = req.app.get('io');
+    const groupId = Number(req.params.groupId);
+    const { room, memberSocketIds } = await permanentlyDeleteGroupChat(groupId);
+
+    // After a group is permanently deleted, send the room to the frontend so it can be filtered out of each member's chat list
+    for (let i = 0; i < memberSocketIds.length; i++) {
+      const socketId = memberSocketIds[i];
+      io.to(socketId).emit('remove-group-chat', {
+        room: room,
+        redirectPath: '/',
+      });
+    }
+
+    res.status(200).json({ message: 'Group successfully deleted' });
+  } catch (error) {
+    console.error('Error deleting group chat:', error);
+    res.status(500).json({
+      error: 'Error deleting group chat. Please try again.',
     });
   }
 };

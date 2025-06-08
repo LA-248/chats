@@ -981,6 +981,25 @@ body {
   opacity: 0.9;
 }
 
+.delete-group-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+  font-size: 13px;
+  font-weight: 400;
+  border-radius: 25px;
+  height: 35px;
+  color: white;
+  background-color: red;
+  border: none;
+}
+
+.delete-group-button:hover {
+  cursor: pointer;
+  opacity: 0.9;
+}
+
 /* SETTINGS */
 
 .username-heading {

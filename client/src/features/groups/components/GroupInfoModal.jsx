@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import Modal from '../../../components/ModalTemplate';
 import LeaveGroupModal from './LeaveGroupModal';
 import GroupPicture from './GroupPicture';
 import MembersList from './MembersList';
 import RemoveMemberModal from './RemoveMemberModal';
+import DeleteGroupModal from './DeleteGroupModal';
 
 function GroupInfoHeader({ group, setIsLeaveModalOpen }) {
   return (
@@ -38,9 +39,16 @@ export default function GroupInfoModal({
   setErrorMessage,
 }) {
   const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isRemoveMemberModalOpen, setIsRemoveMemberModalOpen] = useState(false);
   const [memberId, setMemberId] = useState(null);
   const [memberName, setMemberName] = useState('');
+
+  const isMemberAdmin = useMemo(() => {
+    return membersList.some(
+      (member) => member.user_id === loggedInUserId && member.role === 'owner'
+    );
+  }, [membersList, loggedInUserId]);
 
   return (
     <Modal
@@ -69,6 +77,18 @@ export default function GroupInfoModal({
         />
       </div>
 
+      {isMemberAdmin ? (
+        <div className='delete-group-container'>
+          <button
+            className='delete-group-button'
+            onClick={() => setIsDeleteModalOpen(true)}
+            style={{ width: '100%' }}
+          >
+            Delete
+          </button>
+        </div>
+      ) : null}
+
       <div className='modal-action-buttons-container'>
         <button
           className='close-modal-button'
@@ -83,6 +103,12 @@ export default function GroupInfoModal({
         group={group}
         isModalOpen={isLeaveModalOpen}
         setIsModalOpen={setIsLeaveModalOpen}
+      />
+
+      <DeleteGroupModal
+        group={group}
+        isModalOpen={isDeleteModalOpen}
+        setIsModalOpen={setIsDeleteModalOpen}
       />
 
       <RemoveMemberModal

@@ -179,7 +179,7 @@ export async function deleteGroupChat(groupId, room) {
 
 export async function leaveGroup(groupId) {
   try {
-    const response = await fetch(`http://localhost:8080/groups/${groupId}`, {
+    const response = await fetch(`http://localhost:8080/groups/${groupId}/members/me`, {
       method: 'DELETE',
       headers: {
         Accept: 'application/json',
@@ -203,6 +203,32 @@ export async function removeGroupMember(groupId, userId) {
   try {
     const response = await fetch(
       `http://localhost:8080/groups/${groupId}/members/${userId}`,
+      {
+        method: 'DELETE',
+        headers: {
+          Accept: 'application/json',
+        },
+        credentials: 'include',
+      }
+    );
+    const data = await response.json();
+
+    if (!response.ok) {
+      const errorResponse = await response.json();
+      throw new Error(errorResponse.error);
+    }
+
+    return data.message;
+  } catch (error) {
+    throw error;
+  }
+}
+
+export async function permanentlyDeleteGroup(groupId) {
+  try {
+    const response = await fetch(
+      // TODO: Rename route to avoid conflict with existing one
+      `http://localhost:8080/groups/${groupId}`,
       {
         method: 'DELETE',
         headers: {

@@ -1,8 +1,8 @@
 import express, { NextFunction, Request, Response } from 'express';
 import handleMulterError from '../middlewares/multer.middleware.ts';
 import {
+  authoriseGroupAdminAction,
   groupChatRoomAuth,
-  groupMemberRemovalAuth,
   requireAuth,
 } from '../middlewares/auth.middleware.ts';
 import {
@@ -10,6 +10,7 @@ import {
   createGroupChat,
   leaveGroup,
   markGroupChatAsDeleted,
+  permanentlyDeleteGroup,
   removeGroupMember,
   retrieveGroupInfo,
   retrieveMemberUsernames,
@@ -46,10 +47,16 @@ groupChatsRouter.get('/:groupId/members', retrieveMemberUsernames);
 groupChatsRouter.delete(
   '/:groupId/members/:userId',
   groupChatRoomAuth,
-  groupMemberRemovalAuth,
+  authoriseGroupAdminAction,
   removeGroupMember
 );
-groupChatsRouter.delete('/:groupId', groupChatRoomAuth, leaveGroup);
+groupChatsRouter.delete('/:groupId/members/me', groupChatRoomAuth, leaveGroup);
+groupChatsRouter.delete(
+  '/:groupId',
+  groupChatRoomAuth,
+  authoriseGroupAdminAction,
+  permanentlyDeleteGroup
+);
 groupChatsRouter.delete(
   '/:groupId/rooms/:room',
   groupChatRoomAuth,

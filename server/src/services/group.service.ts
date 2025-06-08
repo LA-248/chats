@@ -131,6 +131,32 @@ export const removeMember = async (
   }
 };
 
+export const permanentlyDeleteGroupChat = async (
+  groupId: number
+): Promise<{ room: string; memberSocketIds: string[] }> => {
+  try {
+    const membersInfo = await Group.retrieveMembersInfo(groupId);
+    const memberUserIds = membersInfo.map((member) => member.user_id);
+    const room = await Group.retrieveRoomByGroupId(groupId);
+    let memberSocketIds = [];
+
+    // Get the socket IDs of each group member
+    for (let i = 0; i < memberUserIds.length; i++) {
+      const memberUserId = memberUserIds[i];
+      const socketId = userSockets.get(memberUserId);
+      if (socketId) {
+        memberSocketIds.push(socketId);
+      }
+    }
+
+    await Group.permanentlyDelete(groupId);
+
+    return { room, memberSocketIds };
+  } catch (error) {
+    throw error;
+  }
+};
+
 export const uploadGroupPicture = async (
   room: string,
   file: Express.MulterS3.File,

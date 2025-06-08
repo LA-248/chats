@@ -109,14 +109,13 @@ export const groupChatRoomAuth = async (
   }
 };
 
-export const groupMemberRemovalAuth = async (
+export const authoriseGroupAdminAction = async (
   req: Request,
   res: Response,
   next: NextFunction
 ): Promise<void> => {
   const loggedInUserId = Number(req.user?.user_id);
   const groupId = Number(req.params.groupId);
-  const userToBeRemoved = Number(req.params.userId);
   const room = await Group.retrieveRoomByGroupId(groupId);
 
   try {
@@ -131,7 +130,7 @@ export const groupMemberRemovalAuth = async (
       return;
     }
 
-    if (!loggedInUserId || !userToBeRemoved) {
+    if (!loggedInUserId) {
       res.status(401).json({ error: 'Invalid ID' });
       return;
     }

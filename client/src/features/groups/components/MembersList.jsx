@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import PersonRemoveAlt1RoundedIcon from '@mui/icons-material/PersonRemoveAlt1Rounded';
 
 export default function MembersList({
@@ -8,16 +9,12 @@ export default function MembersList({
   setMemberId,
   setMemberName,
 }) {
-  let isMemberAdmin;
-
   // Check if current logged in user is the group admin
-  for (let member of membersList) {
-    if (member.user_id === loggedInUserId) {
-      member.role === 'owner'
-        ? (isMemberAdmin = true)
-        : (isMemberAdmin = false);
-    }
-  }
+  const isMemberAdmin = useMemo(() => {
+    return membersList.some(
+      (member) => member.user_id === loggedInUserId && member.role === 'owner'
+    );
+  }, [membersList, loggedInUserId]);
 
   return (
     <>
