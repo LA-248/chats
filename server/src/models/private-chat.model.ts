@@ -360,8 +360,30 @@ const PrivateChat = {
   // Handle updating last message after most recent message is deleted
   updateLastMessage: function (messageId: number, room: string): Promise<void> {
     return new Promise((resolve, reject) => {
-      pool.query(
-        `
+      // When the last remaining message in a chat is deleted, the last_message_id is set to null,
+      // otherwise set it to the message id of the new last message
+      if (messageId === null) {
+        pool.query(
+          `
+          UPDATE private_chats
+          SET 
+            last_message_id = NULL,
+            updated_at = NOW()
+          WHERE room = $1
+          `,
+          [room],
+          (err) => {
+            if (err) {
+              return reject(
+                `Error updating last message in private_chats database table: ${err.message}`
+              );
+            }
+            return resolve();
+          }
+        );
+      } else {
+        pool.query(
+          `
         UPDATE private_chats
         SET
           last_message_id = $1,
@@ -371,16 +393,17 @@ const PrivateChat = {
           AND m.message_id = $1
           AND m.room = $2
         `,
-        [messageId, room],
-        (err) => {
-          if (err) {
-            return reject(
-              `Error updating last message in private_chats database table: ${err.message}`
-            );
+          [messageId, room],
+          (err) => {
+            if (err) {
+              return reject(
+                `Error updating last message in private_chats database table: ${err.message}`
+              );
+            }
+            return resolve();
           }
-          return resolve();
-        }
-      );
+        );
+      }
     });
   },
 
