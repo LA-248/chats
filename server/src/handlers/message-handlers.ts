@@ -22,7 +22,7 @@ const handleChatMessages = (socket: Socket, io: Server): void => {
       await isBlocked(chatId, senderId);
 
       if (chatType === ChatType.PRIVATE) {
-        addNewPrivateChat(socket, chatId, room);
+        await addNewPrivateChat(socket, chatId, room);
       }
 
       const { newMessage, updatedAt } = await saveMessageInDatabase(

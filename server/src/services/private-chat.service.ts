@@ -80,8 +80,6 @@ export const addNewPrivateChat = async (
     const lastMessageId = await PrivateChat.retrieveLastMessageId(room);
     const socketId = userSockets.get(recipientId);
 
-    console.log('LAST MESSAGE ID', lastMessageId);
-
     if (socketId && lastMessageId === null) {
       const chatList = await getChatListByUser(recipientId);
       socket.to(socketId).emit('add-private-chat-to-chat-list', chatList);
