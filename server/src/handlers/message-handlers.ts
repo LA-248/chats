@@ -9,15 +9,21 @@ import {
   NewMessage,
 } from '../schemas/message.schema.ts';
 import { ChatHandler, ChatType } from '../types/chat.ts';
+import { addNewPrivateChat } from '../services/private-chat.service.ts';
 
 const handleChatMessages = (socket: Socket, io: Server): void => {
   socket.on('chat-message', async (data, clientOffset, callback) => {
+    // In the context of private chats, chatId equals the ID of the recipient
     const { username, chatId, message, room, chatType } = data;
     const senderId = (socket.handshake as any).session.passport.user;
 
     try {
       // Check if sender is blocked
       await isBlocked(chatId, senderId);
+
+      if (chatType === ChatType.PRIVATE) {
+        addNewPrivateChat(socket, chatId, room);
+      }
 
       const { newMessage, updatedAt } = await saveMessageInDatabase(
         message,
@@ -292,11 +298,11 @@ const restoreChat = async (
 ): Promise<void> => {
   try {
     if (chatType === ChatType.PRIVATE) {
-      const isNotInChatList = await PrivateChat.retrieveChatDeletionStatus(
+      const isDeleted = await PrivateChat.retrieveChatDeletionStatus(
         recipientId,
         room
       );
-      if (isNotInChatList) {
+      if (isDeleted) {
         await PrivateChat.updateChatDeletionStatus(recipientId, false, room);
       }
     } else if (chatType === ChatType.GROUP) {

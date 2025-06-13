@@ -1,3 +1,4 @@
+import { Socket } from 'socket.io';
 import { Chat } from '../models/chat-list.model.ts';
 import { PrivateChat } from '../models/private-chat.model.ts';
 import { v4 as uuidv4 } from 'uuid';
@@ -9,6 +10,7 @@ import {
   ChatDeletionStatus,
   Chat as ChatItem,
 } from '../schemas/private-chat.schema.ts';
+import { userSockets } from '../handlers/socket-handlers.ts';
 
 export const handleChatAddition = async (
   senderId: number,
@@ -64,6 +66,31 @@ export const getChat = async (
   addedChat.chat_picture = profilePictureUrl;
 
   return addedChat;
+};
+
+// When a user receives a message from someone for the first time, add the chat to their chat list in real-time
+// TODO: To achieve this, currently the entire chat list is being retrieved, but ideally a socket event should be -
+// used instead to send only the new private chat to the recipient
+export const addNewPrivateChat = async (
+  socket: Socket,
+  recipientId: number,
+  room: string
+): Promise<void> => {
+  try {
+    const lastMessageId = await PrivateChat.retrieveLastMessageId(room);
+    const socketId = userSockets.get(recipientId);
+
+    console.log('LAST MESSAGE ID', lastMessageId);
+
+    if (socketId && lastMessageId === null) {
+      const chatList = await getChatListByUser(recipientId);
+      socket.to(socketId).emit('add-private-chat-to-chat-list', chatList);
+    }
+  } catch (error) {
+    // Here the error is swallowed, this is because we don't want to block the sender's message from being delivered if adding -
+    // the new chat for the recipient fails
+    console.error('Error adding new private chat:', error);
+  }
 };
 
 // TODO: Move this function to a more general location - this handles retrieving all chats to construct a user's chat list

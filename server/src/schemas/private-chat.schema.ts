@@ -37,6 +37,9 @@ export type ChatDeletionStatus = z.infer<typeof ChatDeletionStatusSchema>;
 export const ChatUpdatedAtSchema = z.coerce.date();
 export type ChatUpdatedAt = z.infer<typeof ChatUpdatedAtSchema>;
 
+export const ChatLastMessageSchema = z.number().nullable();
+export type ChatLastMessage = z.infer<typeof ChatLastMessageSchema>;
+
 // TODO: This schema applies to both private and group chats, so it should be moved to a different file
 export const ChatSchema = z.object({
   chat_id: z.string(),

@@ -3,11 +3,14 @@ import {
   Chat,
   ChatDeletionStatus,
   ChatDeletionStatusSchema,
+  ChatLastMessage,
+  ChatLastMessageSchema,
   ChatMembers,
   ChatMembersSchema,
   ChatRoom,
   ChatRoomSchema,
   ChatSchema,
+  ChatUpdatedAt,
   ChatUpdatedAtSchema,
   InsertPrivateChatSchema,
   NewChat,
@@ -301,7 +304,7 @@ const PrivateChat = {
     });
   },
 
-  retrieveUpdatedAtDate: function (room: string) {
+  retrieveUpdatedAtDate: function (room: string): Promise<ChatUpdatedAt> {
     return new Promise((resolve, reject) => {
       pool.query(
         `SELECT updated_at FROM private_chats WHERE room = $1`,
@@ -321,6 +324,35 @@ const PrivateChat = {
           } catch (error) {
             return reject(
               `Error validating private chat updated at value: ${
+                error instanceof Error ? error.message : error
+              }`
+            );
+          }
+        }
+      );
+    });
+  },
+
+  retrieveLastMessageId: function (room: string): Promise<ChatLastMessage> {
+    return new Promise((resolve, reject) => {
+      pool.query(
+        `SELECT last_message_id FROM private_chats WHERE room = $1`,
+        [room],
+        (err, result) => {
+          if (err) {
+            return reject(
+              `Error retrieving last message in private_chats database table: ${err.message}`
+            );
+          }
+
+          try {
+            const lastMessageId = ChatLastMessageSchema.parse(
+              result.rows[0].last_message_id
+            );
+            return resolve(lastMessageId);
+          } catch (error) {
+            return reject(
+              `Error validating private chat last message id value: ${
                 error instanceof Error ? error.message : error
               }`
             );
@@ -384,14 +416,14 @@ const PrivateChat = {
       } else {
         pool.query(
           `
-        UPDATE private_chats
-        SET
-          last_message_id = $1,
-          updated_at = m.event_time
-        FROM messages m
-        WHERE private_chats.room = $2
-          AND m.message_id = $1
-          AND m.room = $2
+          UPDATE private_chats
+          SET
+            last_message_id = $1,
+            updated_at = m.event_time
+          FROM messages m
+          WHERE private_chats.room = $2
+            AND m.message_id = $1
+            AND m.room = $2
         `,
           [messageId, room],
           (err) => {
