@@ -3,8 +3,8 @@ import { useEffect } from 'react';
 export default function useAddPrivateChatToChatList(socket, setChatList) {
   useEffect(() => {
     if (socket) {
-      const handleChatAddition = (chatList) => {
-        setChatList(chatList);
+      const handleChatAddition = (newChat) => {
+        setChatList((prevChatList) => [newChat, ...prevChatList]);
       };
       socket.on('add-private-chat-to-chat-list', (data) =>
         handleChatAddition(data, 'add-private-chat-to-chat-list')

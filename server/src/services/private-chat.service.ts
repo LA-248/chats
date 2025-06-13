@@ -81,8 +81,8 @@ export const addNewPrivateChat = async (
     const socketId = userSockets.get(recipientId);
 
     if (socketId && lastMessageId === null) {
-      const chatList = await getChatListByUser(recipientId);
-      socket.to(socketId).emit('add-private-chat-to-chat-list', chatList);
+      const newChat = await getChat(recipientId, room);
+      socket.to(socketId).emit('add-private-chat-to-chat-list', newChat);
     }
   } catch (error) {
     // Here the error is swallowed, this is because we don't want to block the sender's message from being delivered if adding -
