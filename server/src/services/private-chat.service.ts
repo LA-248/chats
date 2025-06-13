@@ -69,8 +69,6 @@ export const getChat = async (
 };
 
 // When a user receives a message from someone for the first time, add the chat to their chat list in real-time
-// TODO: To achieve this, currently the entire chat list is being retrieved, but ideally a socket event should be -
-// used instead to send only the new private chat to the recipient
 export const addNewPrivateChat = async (
   socket: Socket,
   recipientId: number,
@@ -80,6 +78,8 @@ export const addNewPrivateChat = async (
     const lastMessageId = await PrivateChat.retrieveLastMessageId(room);
     const socketId = userSockets.get(recipientId);
 
+    // If lastMessageId is null it means it's the first message being sent in the chat, which should -
+    // trigger the chat to be added to the recipient's chat list
     if (socketId && lastMessageId === null) {
       const newChat = await getChat(recipientId, room);
       socket.to(socketId).emit('add-private-chat-to-chat-list', newChat);
