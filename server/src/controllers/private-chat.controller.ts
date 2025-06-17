@@ -9,12 +9,17 @@ import {
   updateLastMessage,
   updateReadStatus,
 } from '../services/private-chat.service.ts';
+import { userSockets } from '../handlers/socket-handlers.ts';
 
 // Handle adding a chat (new or previously added but deleted) to a user's chat list
 export const addChat = async (req: Request, res: Response): Promise<void> => {
   try {
     const { senderId, recipientId } = await getChatRoomData(req);
-    const addedChat = await handleChatAddition(senderId, recipientId);
+    const io = req.app.get('io');
+    // Retrieve specific socket instance by socket ID
+    const socket = io.sockets.sockets.get(userSockets.get(senderId));
+
+    const addedChat = await handleChatAddition(socket, senderId, recipientId);
     res.status(200).json({ addedChat });
   } catch (error: unknown) {
     if (error instanceof Error) {

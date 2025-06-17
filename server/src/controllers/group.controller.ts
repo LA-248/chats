@@ -143,12 +143,12 @@ export const leaveGroup = async (
     const groupId = Number(req.params.groupId);
     const userId = Number(req.user?.user_id);
     const socketId = userSockets.get(userId);
-    const { room, removedUser } = await removeMember(groupId, userId);
+    const { room, removedUserId } = await removeMember(io, groupId, userId);
 
     // Send the user id of the removed member to the frontend
     // This allows for the members list to be updated in real-time for all group chat participants
     io.to(room).emit('remove-member', {
-      removedUserId: removedUser,
+      removedUserId,
     });
     // After a member leaves or is removed, send the room to the frontend so the group can be filtered out of their chat list
     io.to(socketId).emit('remove-group-chat', {
@@ -177,12 +177,12 @@ export const removeGroupMember = async (
     const groupId = Number(req.params.groupId);
     const userId = Number(req.params.userId);
     const socketId = userSockets.get(userId);
-    const { room, removedUser } = await removeMember(groupId, userId);
+    const { room, removedUserId } = await removeMember(io, groupId, userId);
 
     // Send the user id of the removed member to the frontend
     // This allows for the members list to be updated in real-time for all group chat participants
     io.to(room).emit('remove-member', {
-      removedUserId: removedUser,
+      removedUserId,
     });
     // After a member leaves or is removed, send the room to the frontend so the group can be filtered out of their chat list
     io.to(socketId).emit('remove-group-chat', {

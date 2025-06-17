@@ -10,7 +10,7 @@ import Sidebar from '../components/Sidebar.jsx';
 export const SocketContext = createContext();
 
 export default function Home() {
-  const { chatList, setActiveChatRoom } = useContext(ChatContext);
+  const { setActiveChatRoom } = useContext(ChatContext);
   const {
     loggedInUserId,
     setLoggedInUserId,
@@ -57,9 +57,9 @@ export default function Home() {
   // Join the user to all rooms in they are a part of when they connect, ensures real-time updates
   useEffect(() => {
     if (loggedInUserId && socket) {
-      socket.emit('initialise-chat-rooms', chatList);
+      socket.emit('initialise-chat-rooms');
     }
-  }, [loggedInUserId, socket, chatList]);
+  }, [loggedInUserId, socket]);
 
   return (
     // Render child components only if the socket is initialised

@@ -117,15 +117,24 @@ export const addUsersToGroup = async (
 };
 
 export const removeMember = async (
+  io: Server,
   groupId: number,
   userId: number
-): Promise<{ room: string; removedUser: RemovedGroupMember }> => {
+): Promise<{ room: string; removedUserId: RemovedGroupMember }> => {
   try {
+    const socketId = userSockets.get(userId);
+
     const room = await Group.retrieveRoomByGroupId(groupId);
-    const removedUser = await GroupMember.removeGroupMember(groupId, userId);
+    const removedUserId = await GroupMember.removeGroupMember(groupId, userId);
     await Group.removeUserFromReadList(userId, room);
 
-    return { room, removedUser };
+    // Remove socket of removed member from the room
+    if (socketId) {
+      const memberSocket = io.sockets.sockets.get(socketId);
+      memberSocket?.leave(room);
+    }
+
+    return { room, removedUserId };
   } catch (error) {
     throw error;
   }
@@ -255,6 +264,8 @@ const notifyAddedUsers = async (
           room,
           updated_at: new Date(),
         });
+        const memberSocket = io.sockets.sockets.get(socketId);
+        memberSocket?.join(room);
       }
     }
   }
@@ -292,6 +303,8 @@ const broadcastGroupCreation = (
             room: newGroupChat.room,
             updated_at: new Date(),
           });
+          const memberSocket = io.sockets.sockets.get(socketId);
+          memberSocket?.join(newGroupChat.room);
         }
       }
     }

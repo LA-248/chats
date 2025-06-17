@@ -1,18 +1,20 @@
 import { Socket } from 'socket.io';
+import { Chat } from '../models/chat-list.model.ts';
 import '../types/socket.d.ts';
 
-function initialiseChatRooms(socket: Socket) {
+async function initialiseChatRooms(socket: Socket) {
   let joinedRooms: string[] = [];
 
-  socket.on('initialise-chat-rooms', (chatListData) => {
-    for (let i = 0; i < chatListData.length; i++) {
-      const room = chatListData[i].room;
-      if (!joinedRooms.includes(room)) {
-        joinedRooms.push(room);
-        socket.join(room);
-      }
+  const userId = (socket.handshake as any).session.passport.user;
+  const chatList = await Chat.retrieveAllChatsByUser(userId);
+
+  for (let i = 0; i < chatList.length; i++) {
+    const room = chatList[i].room;
+    if (!joinedRooms.includes(room)) {
+      joinedRooms.push(room);
+      socket.join(room);
     }
-  });
+  }
 
   socket.on('disconnect', () => {
     for (let i = 0; i < joinedRooms.length; i++) {

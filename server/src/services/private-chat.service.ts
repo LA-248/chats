@@ -1,4 +1,4 @@
-import { Socket } from 'socket.io';
+import { Server, Socket } from 'socket.io';
 import { Chat } from '../models/chat-list.model.ts';
 import { PrivateChat } from '../models/private-chat.model.ts';
 import { v4 as uuidv4 } from 'uuid';
@@ -13,6 +13,7 @@ import {
 import { userSockets } from '../handlers/socket-handlers.ts';
 
 export const handleChatAddition = async (
+  socket: Socket,
   senderId: number,
   recipientId: number
 ): Promise<ChatItem> => {
@@ -24,6 +25,7 @@ export const handleChatAddition = async (
     const newRoom = uuidv4();
     await PrivateChat.insertNewChat(senderId, recipientId, newRoom);
     await PrivateChat.updateChatDeletionStatus(senderId, false, newRoom);
+    socket.join(newRoom);
     return await getChat(senderId, newRoom); // Retrieve newly inserted/created chat for addition
   } else {
     await PrivateChat.updateChatDeletionStatus(senderId, false, room);
@@ -70,6 +72,7 @@ export const getChat = async (
 
 // When a user receives a message from someone for the first time, add the chat to their chat list in real-time
 export const addNewPrivateChat = async (
+  io: Server,
   socket: Socket,
   recipientId: number,
   room: string
@@ -82,6 +85,8 @@ export const addNewPrivateChat = async (
     // trigger the chat to be added to the recipient's chat list
     if (socketId && lastMessageId === null) {
       const newChat = await getChat(recipientId, room);
+      const recipientSocket = io.sockets.sockets.get(socketId);
+      recipientSocket?.join(room);
       socket.to(socketId).emit('add-private-chat-to-chat-list', newChat);
     }
   } catch (error) {
