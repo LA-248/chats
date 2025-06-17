@@ -44,13 +44,13 @@ groupChatsRouter.get('/:room', groupChatRoomAuth, retrieveGroupInfo);
 // FIXME: Group chat auth middleware doesn't work for this route because the group ID is used instead of the room for retrieval of data
 groupChatsRouter.get('/:groupId/members', retrieveMemberUsernames);
 
+groupChatsRouter.delete('/:groupId/members/me', groupChatRoomAuth, leaveGroup);
 groupChatsRouter.delete(
   '/:groupId/members/:userId',
   groupChatRoomAuth,
   authoriseGroupAdminAction,
   removeGroupMember
 );
-groupChatsRouter.delete('/:groupId/members/me', groupChatRoomAuth, leaveGroup);
 groupChatsRouter.delete(
   '/:groupId',
   groupChatRoomAuth,
