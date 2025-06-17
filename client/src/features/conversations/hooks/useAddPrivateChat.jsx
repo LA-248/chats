@@ -6,6 +6,7 @@ export default function useAddPrivateChatToChatList(socket, setChatList) {
     if (socket) {
       const handleChatAddition = (newChat) => {
         setChatList((prevChatList) => {
+          // Only add chat if it does not already exist
           if (!prevChatList.some((chat) => chat.chat_id === newChat.chat_id)) {
             return [newChat, ...prevChatList];
           } else {

@@ -30,7 +30,7 @@ export default function AddChatInput({
         setChatList((prevChatList) => {
           const updatedList = [addedChat, ...prevChatList];
           // Sorting must be done here for when chats are restored,
-          // since a re-added chat might not be the most recently updated
+          // since a re-added chat might not be the most recently updated one
           return updatedList.sort(
             (a, b) => new Date(b.updated_at) - new Date(a.updated_at)
           );
