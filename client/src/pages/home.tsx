@@ -1,4 +1,4 @@
-import { io } from 'https://cdn.socket.io/4.7.5/socket.io.esm.min.js';
+import { io, Socket } from 'socket.io-client';
 import { createContext, useEffect, useState, useContext } from 'react';
 import { Link, Outlet } from 'react-router-dom';
 
@@ -7,22 +7,32 @@ import { UserContext } from '../contexts/UserContext';
 import { getLoggedInUserData } from '../api/user-api';
 import Sidebar from '../components/Sidebar';
 
-export const SocketContext = createContext();
+export const SocketContext = createContext<Socket | null>(null);
 
 export default function Home() {
-  const { setActiveChatRoom } = useContext(ChatContext);
+  const chatContext = useContext(ChatContext);
+  if (!chatContext) {
+    throw new Error();
+  }
+  const { setActiveChatRoom } = chatContext;
+
+  const userContext = useContext(UserContext);
+  if (!userContext) {
+    throw new Error();
+  }
   const {
     loggedInUserId,
     setLoggedInUserId,
     setLoggedInUsername,
     setProfilePicture,
-  } = useContext(UserContext);
-  const [socket, setSocket] = useState(null);
-  const [errorMessage, setErrorMessage] = useState('');
+  } = userContext;
+
+  const [socket, setSocket] = useState<Socket | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string>('');
 
   useEffect(() => {
     // Retrieve data for logged in user
-    const fetchUserData = async () => {
+    const fetchUserData = async (): Promise<void> => {
       try {
         const userData = await getLoggedInUserData();
         setLoggedInUserId(userData.userId);
@@ -32,7 +42,10 @@ export default function Home() {
           userData.profilePicture || '/images/default-avatar.jpg'
         );
       } catch (error) {
-        setErrorMessage(error.message);
+        if (error instanceof Error) {
+          setErrorMessage(error.message);
+        }
+        setErrorMessage('An unexpected error occurred');
       }
     };
     fetchUserData();
@@ -50,7 +63,9 @@ export default function Home() {
       });
       setSocket(socketInstance);
 
-      return () => socketInstance.disconnect();
+      return () => {
+        socketInstance.disconnect();
+      };
     }
   }, [loggedInUserId]);
 

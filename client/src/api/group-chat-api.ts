@@ -1,37 +1,48 @@
-export async function createGroupChat(loggedInUserId, groupName, addedMembers) {
+import { GroupInfoWithMembers, GroupMemberToBeAdded } from '../types/group';
+
+export async function createGroupChat(
+  loggedInUserId: number,
+  groupName: string,
+  addedMembers: GroupMemberToBeAdded[]
+): Promise<string | { message: string }> {
   try {
-    if (groupName) {
-      const response = await fetch('http://localhost:8080/groups', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-        },
-        body: JSON.stringify({
-          loggedInUserId: loggedInUserId,
-          groupName: groupName,
-          addedMembers: addedMembers,
-        }),
-        credentials: 'include',
-      });
-      const data = await response.json();
+    if (!groupName) {
+      throw new Error('Group name is required');
+    }
 
-      if (!response.ok) {
-        throw new Error(data.error);
-      }
+    const response = await fetch('http://localhost:8080/groups', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      body: JSON.stringify({
+        loggedInUserId: loggedInUserId,
+        groupName: groupName,
+        addedMembers: addedMembers,
+      }),
+      credentials: 'include',
+    });
+    const data = await response.json();
 
-      if (response.status === 207) {
-        return data.message;
-      } else {
-        return data;
-      }
+    if (!response.ok) {
+      throw new Error(data.error);
+    }
+
+    if (response.status === 207) {
+      return data.message;
+    } else {
+      return data;
     }
   } catch (error) {
     throw error;
   }
 }
 
-export async function addMembers(room, addedMembers) {
+export async function addMembers(
+  room: string,
+  addedMembers: GroupMemberToBeAdded[]
+): Promise<{ message: string }> {
   try {
     const response = await fetch(
       `http://localhost:8080/groups/${room}/members`,
@@ -58,7 +69,10 @@ export async function addMembers(room, addedMembers) {
   }
 }
 
-export async function getGroupChatInfo(room, navigate) {
+export async function getGroupChatInfo(
+  room: string,
+  navigate: (path: string) => void
+): Promise<GroupInfoWithMembers> {
   try {
     const response = await fetch(`http://localhost:8080/groups/${room}`, {
       method: 'GET',
@@ -88,7 +102,9 @@ export async function getGroupChatInfo(room, navigate) {
   }
 }
 
-export async function retrieveGroupMembersInfo(groupId) {
+export async function retrieveGroupMembersInfo(
+  groupId: number
+): Promise<string[]> {
   try {
     const response = await fetch(
       `http://localhost:8080/groups/${groupId}/members`,
@@ -113,7 +129,10 @@ export async function retrieveGroupMembersInfo(groupId) {
 
 // Needed for when the most recent message in a group chat is deleted
 // Ensures the correct latest message is shown in the chat list
-export async function updateLastGroupMessageId(messageId, room) {
+export async function updateLastGroupMessageId(
+  messageId: number,
+  room: string
+): Promise<void> {
   try {
     const response = await fetch(
       `http://localhost:8080/groups/${room}/last_message`,
@@ -136,7 +155,7 @@ export async function updateLastGroupMessageId(messageId, room) {
   }
 }
 
-export async function markUserAsRead(room) {
+export async function markUserAsRead(room: string): Promise<void> {
   try {
     const response = await fetch(`http://localhost:8080/groups/${room}`, {
       method: 'PUT',
@@ -155,7 +174,10 @@ export async function markUserAsRead(room) {
   }
 }
 
-export async function deleteGroupChat(groupId, room) {
+export async function deleteGroupChat(
+  groupId: number,
+  room: string
+): Promise<void> {
   try {
     const response = await fetch(
       `http://localhost:8080/groups/${groupId}/rooms/${room}`,
@@ -177,7 +199,7 @@ export async function deleteGroupChat(groupId, room) {
   }
 }
 
-export async function leaveGroup(groupId) {
+export async function leaveGroup(groupId: number): Promise<string> {
   try {
     const response = await fetch(
       `http://localhost:8080/groups/${groupId}/members/me`,
@@ -201,7 +223,10 @@ export async function leaveGroup(groupId) {
   }
 }
 
-export async function removeGroupMember(groupId, userId) {
+export async function removeGroupMember(
+  groupId: number,
+  userId: number
+): Promise<string> {
   try {
     const response = await fetch(
       `http://localhost:8080/groups/${groupId}/members/${userId}`,
@@ -225,7 +250,7 @@ export async function removeGroupMember(groupId, userId) {
   }
 }
 
-export async function permanentlyDeleteGroup(groupId) {
+export async function permanentlyDeleteGroup(groupId: number): Promise<string> {
   try {
     const response = await fetch(
       // TODO: Rename route to avoid conflict with existing one

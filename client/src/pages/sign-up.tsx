@@ -3,12 +3,14 @@ import { Link, useNavigate } from 'react-router-dom';
 import '../styles/SignUp.css';
 
 export default function SignUp() {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
+  const [username, setUsername] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+  const [errorMessage, setErrorMessage] = useState<string>('');
 
-  const handleFormSubmission = async (event) => {
+  const handleFormSubmission = async (
+    event: React.FormEvent<HTMLFormElement>
+  ): Promise<void> => {
     event.preventDefault();
 
     try {
@@ -45,7 +47,10 @@ export default function SignUp() {
       const data = await response.json();
       navigate(data.redirectPath);
     } catch (error) {
-      setErrorMessage(error.message);
+      if (error instanceof Error) {
+        setErrorMessage(error.message);
+      }
+      setErrorMessage('An unexpected error occurred');
     }
   };
 

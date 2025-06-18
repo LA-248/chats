@@ -4,13 +4,14 @@ import '../styles/Login.css';
 
 export default function Login() {
   const navigate = useNavigate();
-
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
+  const [username, setUsername] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+  const [errorMessage, setErrorMessage] = useState<string>('');
 
   // Handle the submission of the login form
-  const handleSubmit = async (event) => {
+  const handleSubmit = async (
+    event: React.FormEvent<HTMLFormElement>
+  ): Promise<void> => {
     event.preventDefault();
 
     try {
@@ -35,7 +36,10 @@ export default function Login() {
       // If the login was successful, redirect the user to the URL provided by the backend
       navigate(data.redirectPath);
     } catch (error) {
-      setErrorMessage(error.message);
+      if (error instanceof Error) {
+        setErrorMessage(error.message);
+      }
+      setErrorMessage('An unexpected error occurred');
     }
   };
 

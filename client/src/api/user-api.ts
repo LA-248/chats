@@ -1,4 +1,6 @@
-async function getLoggedInUserData() {
+import { UserInfo } from '../types/user';
+
+async function getLoggedInUserData(): Promise<UserInfo> {
   try {
     const response = await fetch('http://localhost:8080/users', {
       method: 'GET',
@@ -21,7 +23,7 @@ async function getLoggedInUserData() {
 }
 
 // Retrieve the ID of a message recipient from the database using their username
-async function getRecipientUserIdByUsername(username) {
+async function getRecipientUserIdByUsername(username: string): Promise<number> {
   try {
     const response = await fetch(`http://localhost:8080/users/${username}`, {
       method: 'GET',
@@ -44,7 +46,7 @@ async function getRecipientUserIdByUsername(username) {
 }
 
 // Retrieve the block list of the logged in user
-async function getBlockList() {
+async function getBlockList(): Promise<number[] | null> {
   try {
     const response = await fetch('http://localhost:8080/users/blocked', {
       method: 'GET',
@@ -66,7 +68,7 @@ async function getBlockList() {
   }
 }
 
-async function updateUsername(username) {
+async function updateUsername(username: string): Promise<string> {
   try {
     const response = await fetch('http://localhost:8080/users', {
       method: 'PUT',
@@ -91,7 +93,7 @@ async function updateUsername(username) {
 }
 
 // Update a user's block list with the ID of who they want blocked
-async function updateBlockList(userIds) {
+async function updateBlockList(userIds: number[]): Promise<void> {
   try {
     const response = await fetch('http://localhost:8080/users/blocked', {
       method: 'PUT',

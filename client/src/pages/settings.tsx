@@ -4,8 +4,8 @@ import UsernameEdit from '../features/users/components/UsernameEdit';
 import '../styles/Settings.css';
 
 export default function Settings() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string>('');
 
   return (
     <div className='settings-main-container'>

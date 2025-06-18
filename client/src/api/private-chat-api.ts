@@ -1,7 +1,9 @@
+import { Chat } from '../types/chat';
+import { UserInfo } from '../types/user';
 import { getRecipientUserIdByUsername } from './user-api';
 
 // Fetch the chat list of a specific user
-async function getChatListByUserId() {
+async function getChatListByUserId(): Promise<Chat[]> {
   try {
     const response = await fetch('http://localhost:8080/chats', {
       method: 'GET',
@@ -23,7 +25,10 @@ async function getChatListByUserId() {
   }
 }
 
-async function getRecipientInfo(room, navigate) {
+async function getRecipientInfo(
+  room: string,
+  navigate: (path: string) => void
+): Promise<UserInfo> {
   try {
     const response = await fetch(`http://localhost:8080/chats/${room}`, {
       method: 'GET',
@@ -54,32 +59,34 @@ async function getRecipientInfo(room, navigate) {
 }
 
 // Add a chat to the user's chat list
-async function addChat(inputUsername) {
+async function addChat(inputUsername: string): Promise<Chat> {
   try {
     const recipientId = await getRecipientUserIdByUsername(inputUsername);
 
-    if (inputUsername) {
-      const response = await fetch('http://localhost:8080/chats', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-        },
-        // Send the username entered to the backend to ensure that it exists in the database
-        body: JSON.stringify({
-          recipientName: inputUsername,
-          recipientId: recipientId,
-        }),
-        credentials: 'include',
-      });
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error);
-      }
-
-      return data.addedChat;
+    if (!inputUsername) {
+      throw new Error('Username is required');
     }
+
+    const response = await fetch('http://localhost:8080/chats', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      // Send the username entered to the backend to ensure that it exists in the database
+      body: JSON.stringify({
+        recipientName: inputUsername,
+        recipientId: recipientId,
+      }),
+      credentials: 'include',
+    });
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error);
+    }
+
+    return data.addedChat;
   } catch (error) {
     throw error;
   }
@@ -87,7 +94,10 @@ async function addChat(inputUsername) {
 
 // Needed for when the most recent message in a chat is deleted
 // Ensures the correct latest message is shown in the chat list
-async function updateLastMessageId(messageId, room) {
+async function updateLastMessageId(
+  messageId: number,
+  room: string
+): Promise<void> {
   try {
     const response = await fetch(
       `http://localhost:8080/chats/${room}/last_message`,
@@ -110,7 +120,7 @@ async function updateLastMessageId(messageId, room) {
   }
 }
 
-async function updateReadStatus(read, room) {
+async function updateReadStatus(read: boolean, room: string): Promise<void> {
   try {
     const response = await fetch(
       `http://localhost:8080/chats/${room}/read_status`,
@@ -134,7 +144,7 @@ async function updateReadStatus(read, room) {
 }
 
 // Delete a chat from the user's chat list
-async function deletePrivateChat(room) {
+async function deletePrivateChat(room: string): Promise<void> {
   try {
     const response = await fetch(`http://localhost:8080/chats/${room}`, {
       method: 'DELETE',
