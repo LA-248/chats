@@ -1,12 +1,12 @@
 import { Routes, Route } from 'react-router-dom';
 
-import Home from '../../pages/home.jsx';
-import SignUp from '../../pages/sign-up.jsx';
-import Login from '../../pages/login.jsx';
-import Settings from '../../pages/settings.jsx';
-import ProtectedRoutes from './ProtectedRoutes.jsx';
-import ChatWindowPlaceholder from '../../features/conversations/components/ChatWindowPlaceholder.jsx';
-import { ChatView } from '../../features/conversations/components/ChatView.jsx';
+import Home from '../../pages/home';
+import SignUp from '../../pages/sign-up';
+import Login from '../../pages/login';
+import Settings from '../../pages/settings';
+import ProtectedRoutes from './ProtectedRoutes';
+import ChatWindowPlaceholder from '../../features/conversations/components/ChatWindowPlaceholder';
+import { ChatView } from '../../features/conversations/components/ChatView';
 
 export default function AppRoutes() {
   return (

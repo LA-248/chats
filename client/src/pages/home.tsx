@@ -2,10 +2,10 @@ import { io } from 'https://cdn.socket.io/4.7.5/socket.io.esm.min.js';
 import { createContext, useEffect, useState, useContext } from 'react';
 import { Link, Outlet } from 'react-router-dom';
 
-import { ChatContext } from '../contexts/ChatContext.jsx';
-import { UserContext } from '../contexts/UserContext.jsx';
-import { getLoggedInUserData } from '../api/user-api.js';
-import Sidebar from '../components/Sidebar.jsx';
+import { ChatContext } from '../contexts/ChatContext';
+import { UserContext } from '../contexts/UserContext';
+import { getLoggedInUserData } from '../api/user-api';
+import Sidebar from '../components/Sidebar';
 
 export const SocketContext = createContext();
 
