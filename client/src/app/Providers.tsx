@@ -1,7 +1,7 @@
 import { BrowserRouter as Router } from 'react-router-dom';
-import { UserProvider } from '../contexts/UserContext.jsx';
-import { ChatProvider } from '../contexts/ChatContext.jsx';
-import { MessageProvider } from '../contexts/MessageContext.jsx';
+import { UserProvider } from '../contexts/UserContext';
+import { ChatProvider } from '../contexts/ChatContext';
+import { MessageProvider } from '../contexts/MessageContext';
 import { Toaster } from 'sonner';
 
 export default function Providers({ children }) {
