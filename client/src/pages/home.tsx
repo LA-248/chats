@@ -35,7 +35,7 @@ export default function Home() {
     const fetchUserData = async (): Promise<void> => {
       try {
         const userData = await getLoggedInUserData();
-        setLoggedInUserId(userData.userId);
+        setLoggedInUserId(Number(userData.userId));
         setLoggedInUsername(userData.username);
 
         setProfilePicture(
@@ -45,7 +45,6 @@ export default function Home() {
         if (error instanceof Error) {
           setErrorMessage(error.message);
         }
-        setErrorMessage('An unexpected error occurred');
       }
     };
     fetchUserData();

@@ -1,4 +1,15 @@
+import { Chat } from '../../../types/chat';
 import formatDate from '../../../utils/DateTimeFormat';
+
+interface ChatItemProps {
+  chat: Chat;
+  isActive: boolean;
+  isHovered: boolean;
+  onMouseEnter: React.MouseEventHandler<HTMLDivElement>;
+  onMouseLeave: React.MouseEventHandler<HTMLDivElement>;
+  onClick: React.MouseEventHandler<HTMLDivElement>;
+  onDeleteClick: React.MouseEventHandler<HTMLButtonElement>;
+}
 
 export default function ChatItem({
   chat,
@@ -8,7 +19,7 @@ export default function ChatItem({
   onMouseLeave,
   onClick,
   onDeleteClick,
-}) {
+}: ChatItemProps) {
   return (
     <div className='chat-item-container'>
       <div
@@ -41,7 +52,7 @@ export default function ChatItem({
             <div className='chat-utilities'>
               {isHovered && (
                 <button onClick={onDeleteClick} className='chat-delete-button'>
-                  Delete
+                  Remove
                 </button>
               )}
             </div>

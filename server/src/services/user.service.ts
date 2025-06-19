@@ -59,7 +59,7 @@ export const retrieveUserIdByUsername = async (
 
 export const retrieveBlockList = async (
   userId: number
-): Promise<UserBlockList | null> => {
+): Promise<UserBlockList> => {
   return await User.getBlockListById(userId);
 };
 

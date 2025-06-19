@@ -7,6 +7,18 @@ import {
   retrieveGroupMembersInfo,
 } from '../../../api/group-chat-api';
 import Modal from '../../../components/ModalTemplate';
+import {
+  GroupMemberToBeAdded,
+  GroupMemberToRemove,
+} from '../../../types/group';
+
+interface AddGroupMembersProps {
+  isModalOpen: boolean;
+  setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  groupId: number;
+  loggedInUsername: string;
+  loggedInUserId: number;
+}
 
 export default function AddGroupMembers({
   isModalOpen,
@@ -14,17 +26,19 @@ export default function AddGroupMembers({
   groupId,
   loggedInUsername,
   loggedInUserId,
-}) {
+}: AddGroupMembersProps) {
   const { room } = useParams();
-  const [inputUsername, setInputUsername] = useState('');
-  const [addedMembers, setAddedMembers] = useState([]);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [inputUsername, setInputUsername] = useState<string>('');
+  const [addedMembers, setAddedMembers] = useState<GroupMemberToBeAdded[]>([]);
+  const [errorMessage, setErrorMessage] = useState<string>('');
 
   useEffect(() => {
     setAddedMembers([]);
   }, [loggedInUserId, loggedInUsername]);
 
-  const handleAddMember = async (event) => {
+  const handleAddMember = async (
+    event: React.FormEvent<HTMLFormElement>
+  ): Promise<void> => {
     event.preventDefault();
 
     try {
@@ -67,17 +81,21 @@ export default function AddGroupMembers({
       ]);
       setInputUsername('');
     } catch (error) {
-      setErrorMessage(error.message);
+      if (error instanceof Error) {
+        setErrorMessage(error.message);
+      }
     }
   };
 
-  const removeMember = (memberToRemove) => {
+  const removeMember = (memberToRemove: GroupMemberToRemove): void => {
     setAddedMembers(
       addedMembers.filter((member) => member.userId !== memberToRemove.userId)
     );
   };
 
-  const handleAddMembers = async (event) => {
+  const handleAddMembers = async (
+    event: React.FormEvent<HTMLFormElement>
+  ): Promise<void> => {
     event.preventDefault();
 
     if (addedMembers.length === 0) {
@@ -85,13 +103,15 @@ export default function AddGroupMembers({
     }
 
     try {
-      const result = await addMembers(room, addedMembers);
+      const result = await addMembers(room!, addedMembers);
       toast.success(result.message);
       setAddedMembers([]);
       setIsModalOpen(false);
     } catch (error) {
       setIsModalOpen(true);
-      setErrorMessage(error.message);
+      if (error instanceof Error) {
+        setErrorMessage(error.message);
+      }
     }
   };
 
@@ -149,8 +169,8 @@ export default function AddGroupMembers({
             className='confirm-action-button'
             disabled={addedMembers.length === 0}
             style={{
-              opacity: addedMembers.length === 0 ? '0.6' : null,
-              cursor: addedMembers.length === 0 && 'auto',
+              opacity: addedMembers.length === 0 ? '0.6' : undefined,
+              cursor: addedMembers.length === 0 ? 'auto' : 'pointer',
             }}
           >
             Add

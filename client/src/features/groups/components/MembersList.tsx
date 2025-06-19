@@ -1,5 +1,15 @@
 import { useMemo } from 'react';
+import { GroupMember } from '../../../types/group';
 import PersonRemoveAlt1RoundedIcon from '@mui/icons-material/PersonRemoveAlt1Rounded';
+
+interface MembersListProps {
+  membersList: GroupMember[];
+  loggedInUsername: string;
+  loggedInUserId: number;
+  setIsRemoveMemberModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  setMemberId: React.Dispatch<React.SetStateAction<number>>;
+  setMemberName: React.Dispatch<React.SetStateAction<string>>;
+}
 
 export default function MembersList({
   membersList,
@@ -8,7 +18,7 @@ export default function MembersList({
   setIsRemoveMemberModalOpen,
   setMemberId,
   setMemberName,
-}) {
+}: MembersListProps) {
   // Check if current logged in user is the group admin
   const isMemberAdmin = useMemo(() => {
     return membersList.some(

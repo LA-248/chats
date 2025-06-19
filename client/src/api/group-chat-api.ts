@@ -4,7 +4,7 @@ export async function createGroupChat(
   loggedInUserId: number,
   groupName: string,
   addedMembers: GroupMemberToBeAdded[]
-): Promise<string | { message: string }> {
+): Promise<string> {
   try {
     if (!groupName) {
       throw new Error('Group name is required');
@@ -29,11 +29,7 @@ export async function createGroupChat(
       throw new Error(data.error);
     }
 
-    if (response.status === 207) {
-      return data.message;
-    } else {
-      return data;
-    }
+    return data.message;
   } catch (error) {
     throw error;
   }
@@ -130,7 +126,7 @@ export async function retrieveGroupMembersInfo(
 // Needed for when the most recent message in a group chat is deleted
 // Ensures the correct latest message is shown in the chat list
 export async function updateLastGroupMessageId(
-  messageId: number,
+  messageId: number | null,
   room: string
 ): Promise<void> {
   try {

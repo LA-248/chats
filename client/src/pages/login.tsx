@@ -39,7 +39,6 @@ export default function Login() {
       if (error instanceof Error) {
         setErrorMessage(error.message);
       }
-      setErrorMessage('An unexpected error occurred');
     }
   };
 

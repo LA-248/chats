@@ -7,24 +7,39 @@ import { ChatContext } from '../../../contexts/ChatContext';
 import useClearErrorMessage from '../../../hooks/useClearErrorMessage';
 import data from '@emoji-mart/data';
 import Picker from '@emoji-mart/react';
+import { ReactFormState } from 'react-dom/client';
 
 export default function MessageInput() {
   const socket = useSocket();
   const location = useLocation();
   const pathSegments = location.pathname.split('/');
   const chatType = pathSegments[1];
-
   const { room } = useParams();
-  const { chatId } = useContext(ChatContext);
-  const { loggedInUsername, isBlocked } = useContext(UserContext);
-  const [message, setMessage] = useState('');
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
+
+  const chatContext = useContext(ChatContext);
+  if (!chatContext) {
+    throw new Error();
+  }
+  const { chatId } = chatContext;
+
+  const userContext = useContext(UserContext);
+  if (!userContext) {
+    throw new Error();
+  }
+  const { loggedInUsername, isBlocked } = userContext;
+
+  const [message, setMessage] = useState<string>('');
+  const [showEmojiPicker, setShowEmojiPicker] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string>('');
   const username = loggedInUsername;
 
-  const handleChatMessageSubmission = (event) => {
+  const handleChatMessageSubmission = (
+    event: React.FormEvent<HTMLFormElement>
+  ): void => {
     event.preventDefault();
     if (message) {
+      if (!socket) return;
+
       // Compute a unique offset
       const clientOffset = uuidv4();
       // Send the message and its metadata to the server
@@ -32,7 +47,7 @@ export default function MessageInput() {
         'chat-message',
         { username, chatId, message, room, chatType },
         clientOffset,
-        (response) => {
+        (response: string) => {
           if (response) {
             setErrorMessage(response);
           }
@@ -43,7 +58,7 @@ export default function MessageInput() {
   };
 
   // Add the emoji(s) to the existing message
-  const handleAddEmoji = (emoji) => {
+  const handleAddEmoji = (emoji: { native: string }): void => {
     setMessage((prevMessage) => prevMessage + emoji.native);
   };
 
@@ -92,8 +107,8 @@ export default function MessageInput() {
             }}
             disabled={isBlocked}
             style={{
-              opacity: isBlocked ? '0.5' : null,
-              cursor: isBlocked && 'auto',
+              opacity: isBlocked ? '0.5' : undefined,
+              cursor: isBlocked ? 'auto' : 'pointer',
             }}
           >
             Emojis

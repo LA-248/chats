@@ -1,4 +1,4 @@
-export default function formatDate(timestamp) {
+export default function formatDate(timestamp: string | number | Date) {
   const date = new Date(timestamp);
 
   const formattedDate = new Intl.DateTimeFormat('en-GB', {

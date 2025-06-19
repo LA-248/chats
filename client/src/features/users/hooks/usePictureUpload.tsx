@@ -1,25 +1,31 @@
 import { toast } from 'sonner';
+import { ChatType } from '../../../types/chat';
 
 export function usePictureUpload(
-  fileInputRef,
-  formRef,
-  setPicture,
-  chatType,
-  room
+  fileInputRef: React.RefObject<HTMLInputElement | null>,
+  formRef: React.RefObject<HTMLFormElement | null>,
+  setPicture: React.Dispatch<React.SetStateAction<string>>,
+  chatType: string,
+  room: string
 ) {
   // Use the reference to the file picker input to open it when clicking on the upload button
   const handleFileInputClick = () => {
-    fileInputRef.current.click();
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
   };
 
-  const handlePictureUpload = async (event) => {
+  const handlePictureUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ): Promise<void> => {
     event.preventDefault();
     // Use formData to package the file to then be sent to the server
+    if (!formRef.current) return;
     const formData = new FormData(formRef.current);
 
     const uploadPromise = async () => {
       const response = await fetch(
-        chatType === 'groups'
+        chatType === ChatType.GROUP
           ? `http://localhost:8080/groups/${room}/pictures`
           : `http://localhost:8080/users/pictures`,
         {
@@ -36,7 +42,6 @@ export function usePictureUpload(
 
       const data = await response.json();
       setPicture(data.fileUrl);
-      return data;
     };
 
     toast.promise(uploadPromise(), {

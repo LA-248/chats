@@ -1,20 +1,34 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getGroupChatInfo } from '../../../api/group-chat-api';
+import { GroupInfoWithMembers } from '../../../types/group';
 
-export default function useGroupChatInfo(room, chatType, setErrorMessage) {
+export default function useGroupChatInfo(
+  room: string,
+  chatType: string,
+  setErrorMessage: React.Dispatch<React.SetStateAction<string>>
+) {
   const navigate = useNavigate();
-  const [groupInfo, setGroupInfo] = useState({ info: [], members: [] });
+  const [groupInfo, setGroupInfo] = useState<GroupInfoWithMembers>({
+    info: {
+      chatId: 0,
+      name: '',
+      groupPicture: null,
+    },
+    members: [],
+  });
 
   useEffect(() => {
-    const fetchGroupInfo = async () => {
+    const fetchGroupInfo = async (): Promise<void> => {
       try {
         if (chatType === 'groups') {
           const groupChatInfo = await getGroupChatInfo(room, navigate);
           setGroupInfo(groupChatInfo);
         }
       } catch (error) {
-        setErrorMessage(error.message);
+        if (error instanceof Error) {
+          setErrorMessage(error.message);
+        }
       }
     };
 

@@ -19,3 +19,14 @@ export interface GroupInfoWithMembers {
   };
   members: GroupParticipant[];
 }
+
+export interface RemovedGroupChat {
+  room: string;
+  redirectPath: string;
+}
+
+export interface GroupMemberToRemove {
+  username: string;
+  userId: number;
+  role: string;
+}

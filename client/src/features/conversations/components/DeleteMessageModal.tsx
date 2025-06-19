@@ -7,6 +7,16 @@ import { updateLastMessageId } from '../../../api/private-chat-api';
 import { updateLastGroupMessageId } from '../../../api/group-chat-api';
 import Modal from '../../../components/ModalTemplate';
 
+interface DeleteMessageModalProps {
+  chatType: string;
+  messageId: number | null;
+  messageIndex: number | null;
+  isModalOpen: boolean;
+  setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  errorMessage: string;
+  setErrorMessage: React.Dispatch<React.SetStateAction<string>>;
+}
+
 export default function DeleteMessageModal({
   chatType,
   messageId,
@@ -15,13 +25,22 @@ export default function DeleteMessageModal({
   setIsModalOpen,
   errorMessage,
   setErrorMessage,
-}) {
+}: DeleteMessageModalProps) {
   const socket = useSocket();
   const { room } = useParams();
-  const { filteredMessages } = useContext(MessageContext);
+  const messageContext = useContext(MessageContext);
+  if (!messageContext) {
+    throw new Error();
+  }
+  const { filteredMessages } = messageContext;
 
-  const handleMessageDelete = async (messageId, messageIndex) => {
+  const handleMessageDelete = async (
+    messageId: number | null,
+    messageIndex: number | null
+  ): Promise<void> => {
     try {
+      if (!socket || !room) return;
+
       const messageList = [...filteredMessages];
       const isLastMessage = messageIndex === messageList.length - 1;
 
@@ -52,7 +71,9 @@ export default function DeleteMessageModal({
       setIsModalOpen(false);
     } catch (error) {
       setIsModalOpen(true);
-      setErrorMessage(error.message);
+      if (error instanceof Error) {
+        setErrorMessage(error.message);
+      }
     }
   };
 

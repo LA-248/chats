@@ -2,6 +2,7 @@ import { useContext, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useSocket } from '../../../hooks/useSocket';
 import { ChatContext } from '../../../contexts/ChatContext';
+import { Chat } from '../../../types/chat';
 import {
   getChatListByUserId,
   updateReadStatus,
@@ -17,9 +18,20 @@ import { useSocketErrorHandling } from '../../../hooks/useSocketErrorHandling';
 import { markUserAsRead } from '../../../api/group-chat-api';
 import useRemoveGroupChat from '../hooks/useRemoveGroupChat';
 
-export default function ChatList({ setChatName }) {
+export default function ChatList({
+  setChatName,
+}: {
+  setChatName: React.Dispatch<React.SetStateAction<string>>;
+}) {
   const socket = useSocket();
   const { room } = useParams();
+
+  if (!socket) return;
+
+  const chatContext = useContext(ChatContext);
+  if (!chatContext) {
+    throw new Error();
+  }
   const {
     chatSearchInputText,
     setChatSearchInputText,
@@ -29,13 +41,14 @@ export default function ChatList({ setChatName }) {
     setActiveChatRoom,
     setRecipientProfilePicture,
     setGroupPicture,
-  } = useContext(ChatContext);
-  const [filteredChats, setFilteredChats] = useState([]);
-  const [hoverChatId, setHoverChatId] = useState(null);
-  const [errorMessage, setErrorMessage] = useState('');
+  } = chatContext;
+
+  const [filteredChats, setFilteredChats] = useState<Chat[]>([]);
+  const [hoverChatId, setHoverChatId] = useState<number | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string>('');
   const navigate = useNavigate();
 
-  const handleChatClick = async (chat) => {
+  const handleChatClick = async (chat: Chat): Promise<void> => {
     setActiveChatRoom(chat.room);
     setChatName(chat.name);
 
@@ -54,12 +67,14 @@ export default function ChatList({ setChatName }) {
 
   // Retrieve the user's chat list for display
   useEffect(() => {
-    const displayChatList = async () => {
+    const displayChatList = async (): Promise<void> => {
       try {
         const result = await getChatListByUserId();
         setChatList(result);
       } catch (error) {
-        setErrorMessage(error.message);
+        if (error instanceof Error) {
+          setErrorMessage(error.message);
+        }
       }
     };
 
@@ -93,42 +108,44 @@ export default function ChatList({ setChatName }) {
   useRemoveGroupChat(socket, setChatList, setActiveChatRoom, navigate);
   useAddPrivateChatToChatList(socket, setChatList);
 
-  // Update the picture of a group for all its members in real-time
-  useChatUpdates(
-    socket,
-    setChatList,
-    'room',
-    'room',
-    'chat_picture',
-    'groupPicture',
-    room,
-    setGroupPicture,
-    'update-group-picture'
-  );
-  // Update the profile picture of a private chat contact when changed
-  useChatUpdates(
-    socket,
-    setChatList,
-    'recipient_user_id',
-    'userId',
-    'chat_picture',
-    'profilePicture',
-    room,
-    setRecipientProfilePicture,
-    'update-profile-picture-for-contacts'
-  );
-  // Update the username of a private chat contact when changed
-  useChatUpdates(
-    socket,
-    setChatList,
-    'recipient_user_id',
-    'userId',
-    'name',
-    'newUsername',
-    room,
-    setChatName,
-    'update-username-for-contacts'
-  );
+  if (room) {
+    // Update the picture of a group for all its members in real-time
+    useChatUpdates(
+      socket,
+      setChatList,
+      'room',
+      'room',
+      'chat_picture',
+      'groupPicture',
+      room,
+      setGroupPicture,
+      'update-group-picture'
+    );
+    // Update the profile picture of a private chat contact when changed
+    useChatUpdates(
+      socket,
+      setChatList,
+      'recipient_user_id',
+      'userId',
+      'chat_picture',
+      'profilePicture',
+      room,
+      setRecipientProfilePicture,
+      'update-profile-picture-for-contacts'
+    );
+    // Update the username of a private chat contact when changed
+    useChatUpdates(
+      socket,
+      setChatList,
+      'recipient_user_id',
+      'userId',
+      'name',
+      'newUsername',
+      room,
+      setChatName,
+      'update-username-for-contacts'
+    );
+  }
   useSocketErrorHandling(socket, setErrorMessage);
   useClearErrorMessage(errorMessage, setErrorMessage);
 
@@ -149,8 +166,8 @@ export default function ChatList({ setChatName }) {
               key={chat.chat_id}
               chat={chat}
               isActive={chat.room === activeChatRoom}
-              isHovered={hoverChatId === chat.chat_id}
-              onMouseEnter={() => setHoverChatId(chat.chat_id)}
+              isHovered={hoverChatId === Number(chat.chat_id)}
+              onMouseEnter={() => setHoverChatId(Number(chat.chat_id))}
               onMouseLeave={() => setHoverChatId(null)}
               onClick={() => handleChatClick(chat)}
               onDeleteClick={(event) => handleChatDelete(event, chat)}

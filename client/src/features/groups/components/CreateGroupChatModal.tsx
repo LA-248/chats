@@ -3,18 +3,28 @@ import { getRecipientUserIdByUsername } from '../../../api/user-api';
 import { createGroupChat } from '../../../api/group-chat-api';
 import { toast } from 'sonner';
 import Modal from '../../../components/ModalTemplate';
+import {
+  GroupMemberToBeAdded,
+  GroupMemberToRemove,
+} from '../../../types/group';
+
+interface CreateGroupChatModalProps {
+  isModalOpen: boolean;
+  setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  loggedInUsername: string;
+  loggedInUserId: number;
+}
 
 export default function CreateGroupChatModal({
   isModalOpen,
   setIsModalOpen,
   loggedInUsername,
   loggedInUserId,
-  setChatList,
-}) {
-  const [groupName, setGroupName] = useState('');
-  const [inputUsername, setInputUsername] = useState('');
-  const [addedMembers, setAddedMembers] = useState([]);
-  const [errorMessage, setErrorMessage] = useState('');
+}: CreateGroupChatModalProps) {
+  const [groupName, setGroupName] = useState<string>('');
+  const [inputUsername, setInputUsername] = useState<string>('');
+  const [addedMembers, setAddedMembers] = useState<GroupMemberToBeAdded[]>([]);
+  const [errorMessage, setErrorMessage] = useState<string>('');
 
   useEffect(() => {
     // Automatically add group creator to added members list
@@ -23,7 +33,9 @@ export default function CreateGroupChatModal({
     ]);
   }, [loggedInUserId, loggedInUsername]);
 
-  const handleAddMember = async (event) => {
+  const handleAddMember = async (
+    event: React.FormEvent<HTMLFormElement>
+  ): Promise<void> => {
     event.preventDefault();
 
     try {
@@ -57,17 +69,21 @@ export default function CreateGroupChatModal({
       ]);
       setInputUsername('');
     } catch (error) {
-      setErrorMessage(error.message);
+      if (error instanceof Error) {
+        setErrorMessage(error.message);
+      }
     }
   };
 
-  const removeMember = (memberToRemove) => {
+  const removeMember = (memberToRemove: GroupMemberToRemove): void => {
     setAddedMembers(
       addedMembers.filter((member) => member.userId !== memberToRemove.userId)
     );
   };
 
-  const handleCreateGroup = async (event) => {
+  const handleCreateGroup = async (
+    event: React.FormEvent<HTMLFormElement>
+  ): Promise<void> => {
     event.preventDefault();
 
     try {
@@ -89,7 +105,7 @@ export default function CreateGroupChatModal({
         groupName,
         addedMembers
       );
-      toast.success(response.message);
+      toast.success(response);
       setGroupName('');
       setAddedMembers([
         { username: loggedInUsername, userId: loggedInUserId, role: 'owner' },
@@ -97,7 +113,9 @@ export default function CreateGroupChatModal({
       setIsModalOpen(false);
     } catch (error) {
       setIsModalOpen(true);
-      setErrorMessage(error.message);
+      if (error instanceof Error) {
+        setErrorMessage(error.message);
+      }
     }
   };
 

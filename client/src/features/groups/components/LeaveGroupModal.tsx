@@ -2,22 +2,31 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 import { leaveGroup } from '../../../api/group-chat-api';
 import Modal from '../../../components/ModalTemplate';
+import { GroupInfoWithMembers } from '../../../types/group';
+
+interface LeaveGroupModalProps {
+  group: GroupInfoWithMembers;
+  isModalOpen: boolean;
+  setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
+}
 
 export default function LeaveGroupModal({
   group,
   isModalOpen,
   setIsModalOpen,
-}) {
-  const [errorMessage, setErrorMessage] = useState('');
+}: LeaveGroupModalProps) {
+  const [errorMessage, setErrorMessage] = useState<string>('');
 
-  const handleLeavingGroup = async () => {
+  const handleLeavingGroup = async (): Promise<void> => {
     try {
       const groupId = group.info.chatId;
       const result = await leaveGroup(groupId);
       toast.success(result);
     } catch (error) {
       setIsModalOpen(true);
-      setErrorMessage(error.message);
+      if (error instanceof Error) {
+        setErrorMessage(error.message);
+      }
     }
   };
 

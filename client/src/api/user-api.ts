@@ -46,7 +46,7 @@ async function getRecipientUserIdByUsername(username: string): Promise<number> {
 }
 
 // Retrieve the block list of the logged in user
-async function getBlockList(): Promise<number[] | null> {
+async function getBlockList(): Promise<number[]> {
   try {
     const response = await fetch('http://localhost:8080/users/blocked', {
       method: 'GET',

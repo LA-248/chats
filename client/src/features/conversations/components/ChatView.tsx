@@ -2,6 +2,7 @@ import { useContext, useEffect, useState } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 import { useSocket } from '../../../hooks/useSocket';
 import { MessageContext } from '../../../contexts/MessageContext';
+import { Message } from '../../../types/message';
 import { useSocketErrorHandling } from '../../../hooks/useSocketErrorHandling';
 import ContactHeader from './ContactHeader';
 import MessageList from './MessageList';
@@ -17,26 +18,36 @@ function ChatView() {
   const pathSegments = location.pathname.split('/');
   const chatType = pathSegments[1];
 
-  const { setMessages } = useContext(MessageContext);
+  const messageContext = useContext(MessageContext);
+  if (!messageContext) {
+    throw new Error();
+  }
+  const { setMessages } = messageContext;
+
   const { room } = useParams();
   const socket = useSocket();
-  const [messageId, setMessageId] = useState(null);
-  const [messageIndex, setMessageIndex] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [hoveredIndex, setHoveredIndex] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [messageId, setMessageId] = useState<number | null>(null);
+  const [messageIndex, setMessageIndex] = useState<number | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string>('');
 
-  const privateChatInfo = usePrivateChatInfo(room, chatType, setErrorMessage);
-  const groupChatInfo = useGroupChatInfo(room, chatType, setErrorMessage);
+  const privateChatInfo = usePrivateChatInfo(room!, chatType, setErrorMessage);
+  const groupChatInfo = useGroupChatInfo(room!, chatType, setErrorMessage);
+
+  if (!socket) return;
 
   useSocketErrorHandling(socket, setErrorMessage);
 
   useEffect(() => {
-    const displayInitialMessages = (initialMessages) => {
+    const displayInitialMessages = (initialMessages: Message[]): void => {
       setMessages(initialMessages);
     };
-    const handleMessageListUpdate = (messageListData) => {
+    const handleMessageListUpdate = (messageListData: {
+      room: string;
+      updatedMessageList: Message[];
+    }): void => {
       if (messageListData.room === room) {
         setMessages(messageListData.updatedMessageList);
       }
@@ -59,18 +70,17 @@ function ChatView() {
   return (
     <div className='chat-view-container'>
       <ContactHeader
-        room={room}
+        room={room!}
         chatType={chatType}
         privateChatInfo={privateChatInfo}
         groupChatInfo={groupChatInfo}
       />
 
       <MessageList
-        room={room}
+        room={room!}
         chatType={chatType}
-        privateChatInfo={privateChatInfo}
         groupChatInfo={groupChatInfo}
-        recipientUserId={privateChatInfo.userId}
+        recipientUserId={Number(privateChatInfo.userId)}
         hoveredIndex={hoveredIndex}
         setHoveredIndex={setHoveredIndex}
         setIsEditModalOpen={setIsEditModalOpen}

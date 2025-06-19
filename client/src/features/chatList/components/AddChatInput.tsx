@@ -1,18 +1,26 @@
 import { useCallback, useState } from 'react';
 import { addChat } from '../../../api/private-chat-api';
 import useClearErrorMessage from '../../../hooks/useClearErrorMessage';
+import { Chat } from '../../../types/chat';
+
+interface AddChatInputProps {
+  chatList: Chat[];
+  setChatList: React.Dispatch<React.SetStateAction<Chat[]>>;
+  errorMessage: string;
+  setErrorMessage: React.Dispatch<React.SetStateAction<string>>;
+}
 
 export default function AddChatInput({
   chatList,
   setChatList,
   errorMessage,
   setErrorMessage,
-}) {
-  const [inputUsername, setInputUsername] = useState('');
+}: AddChatInputProps) {
+  const [inputUsername, setInputUsername] = useState<string>('');
 
   // Adds a new chat to the sidebar
   const handleAddChat = useCallback(
-    async (event) => {
+    async (event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault();
 
       try {
@@ -32,12 +40,16 @@ export default function AddChatInput({
           // Sorting must be done here for when chats are restored,
           // since a re-added chat might not be the most recently updated one
           return updatedList.sort(
-            (a, b) => new Date(b.updated_at) - new Date(a.updated_at)
+            (a, b) =>
+              new Date(b.updated_at).getTime() -
+              new Date(a.updated_at).getTime()
           );
         });
         setInputUsername('');
       } catch (error) {
-        setErrorMessage(error.message);
+        if (error instanceof Error) {
+          setErrorMessage(error.message);
+        }
       }
     },
     [chatList, setChatList, inputUsername, setErrorMessage]
@@ -66,11 +78,11 @@ export default function AddChatInput({
               opacity:
                 inputUsername.trim().length === 0 || inputUsername.includes(' ')
                   ? '0.4'
-                  : null,
+                  : undefined,
               cursor:
                 inputUsername.trim().length === 0 || inputUsername.includes(' ')
                   ? 'auto'
-                  : null,
+                  : undefined,
             }}
             disabled={
               inputUsername.trim().length === 0 || inputUsername.includes(' ')

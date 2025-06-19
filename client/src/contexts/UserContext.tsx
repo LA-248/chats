@@ -1,23 +1,23 @@
 import { createContext, ReactNode, useState } from 'react';
 
 export interface UserContextType {
-  loggedInUserId: number | null;
-  setLoggedInUserId: React.Dispatch<React.SetStateAction<number | null>>;
+  loggedInUserId: number;
+  setLoggedInUserId: React.Dispatch<React.SetStateAction<number>>;
   loggedInUsername: string;
   setLoggedInUsername: React.Dispatch<React.SetStateAction<string>>;
-  profilePicture: string | null;
-  setProfilePicture: React.Dispatch<React.SetStateAction<string | null>>;
-  isBlocked: boolean | null;
-  setIsBlocked: React.Dispatch<React.SetStateAction<boolean | null>>;
+  profilePicture: string;
+  setProfilePicture: React.Dispatch<React.SetStateAction<string>>;
+  isBlocked: boolean;
+  setIsBlocked: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 const UserProvider = ({ children }: { children: ReactNode }) => {
-  const [loggedInUserId, setLoggedInUserId] = useState<number | null>(null);
+  const [loggedInUserId, setLoggedInUserId] = useState<number>(0);
   const [loggedInUsername, setLoggedInUsername] = useState<string>('');
-  const [profilePicture, setProfilePicture] = useState<string | null>(null);
-  const [isBlocked, setIsBlocked] = useState<boolean | null>(null);
+  const [profilePicture, setProfilePicture] = useState<string>('');
+  const [isBlocked, setIsBlocked] = useState<boolean>(false);
 
   return (
     <UserContext.Provider

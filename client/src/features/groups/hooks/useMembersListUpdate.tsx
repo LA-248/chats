@@ -1,10 +1,15 @@
 import { useEffect } from 'react';
+import { Socket } from 'socket.io-client';
+import { GroupMember } from '../../../types/group';
 
-export default function useMembersListUpdate(socket, setMembersList) {
+export default function useMembersListUpdate(
+  socket: Socket,
+  setMembersList: React.Dispatch<React.SetStateAction<GroupMember[]>>
+) {
   useEffect(() => {
     if (!socket) return;
 
-    const handleMemberRemoval = (data) => {
+    const handleMemberRemoval = (data: { removedUserId: number }) => {
       setMembersList((prevMembersList) =>
         prevMembersList.filter(
           (member) => member.user_id !== data.removedUserId
@@ -12,7 +17,7 @@ export default function useMembersListUpdate(socket, setMembersList) {
       );
     };
 
-    const handleMemberAddition = (data) => {
+    const handleMemberAddition = (data: { addedUsersInfo: GroupMember[] }) => {
       setMembersList((prevMembersList) =>
         prevMembersList.concat(data.addedUsersInfo)
       );

@@ -4,20 +4,25 @@ import { ChatContext } from '../../../contexts/ChatContext';
 import { usePictureUpload } from '../../users/hooks/usePictureUpload';
 
 export default function GroupPicture() {
-  const fileInputRef = useRef(null);
-  const formRef = useRef(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
   const { room } = useParams();
   const location = useLocation();
   const pathSegments = location.pathname.split('/');
   const chatType = pathSegments[1];
-  const { groupPicture, setGroupPicture } = useContext(ChatContext);
+
+  const chatContext = useContext(ChatContext);
+  if (!chatContext) {
+    throw new Error();
+  }
+  const { groupPicture, setGroupPicture } = chatContext;
 
   const { handleFileInputClick, handlePictureUpload } = usePictureUpload(
     fileInputRef,
     formRef,
     setGroupPicture,
     chatType,
-    room
+    room!
   );
 
   return (
@@ -42,7 +47,7 @@ export default function GroupPicture() {
         />
       </form>
       <button
-        type='file'
+        type='button'
         className='upload-group-picture-button'
         onClick={handleFileInputClick}
       >

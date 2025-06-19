@@ -2,15 +2,22 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 import { permanentlyDeleteGroup } from '../../../api/group-chat-api';
 import Modal from '../../../components/ModalTemplate';
+import { GroupInfoWithMembers } from '../../../types/group';
+
+interface DeleteGroupModalProps {
+  group: GroupInfoWithMembers;
+  isModalOpen: boolean;
+  setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
+}
 
 export default function DeleteGroupModal({
   group,
   isModalOpen,
   setIsModalOpen,
-}) {
-  const [errorMessage, setErrorMessage] = useState('');
+}: DeleteGroupModalProps) {
+  const [errorMessage, setErrorMessage] = useState<string>('');
 
-  const handleGroupDeletion = async () => {
+  const handleGroupDeletion = async (): Promise<void> => {
     try {
       const groupId = group.info.chatId;
       const result = await permanentlyDeleteGroup(groupId);
@@ -18,7 +25,9 @@ export default function DeleteGroupModal({
       setIsModalOpen(false);
     } catch (error) {
       setIsModalOpen(true);
-      setErrorMessage(error.message);
+      if (error instanceof Error) {
+        setErrorMessage(error.message);
+      }
     }
   };
 

@@ -1,24 +1,31 @@
 import { useEffect, useState } from 'react';
 import { getRecipientInfo } from '../../../api/private-chat-api';
 import { useNavigate } from 'react-router-dom';
+import { UserInfo } from '../../../types/user';
 
-export default function usePrivateChatInfo(room, chatType, setErrorMessage) {
+export default function usePrivateChatInfo(
+  room: string,
+  chatType: string,
+  setErrorMessage: React.Dispatch<React.SetStateAction<string>>
+) {
   const navigate = useNavigate();
-  const [privateChatInfo, setPrivateChatInfo] = useState({
+  const [privateChatInfo, setPrivateChatInfo] = useState<UserInfo>({
     userId: '',
     username: '',
     profilePicture: '',
   });
 
   useEffect(() => {
-    const fetchPrivateChatInfo = async () => {
+    const fetchPrivateChatInfo = async (): Promise<void> => {
       try {
         if (chatType === 'chats') {
           const chatInfo = await getRecipientInfo(room, navigate);
           setPrivateChatInfo(chatInfo);
         }
       } catch (error) {
-        setErrorMessage(error.message);
+        if (error instanceof Error) {
+          setErrorMessage(error.message);
+        }
       }
     };
 

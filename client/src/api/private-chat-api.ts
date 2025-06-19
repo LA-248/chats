@@ -95,7 +95,7 @@ async function addChat(inputUsername: string): Promise<Chat> {
 // Needed for when the most recent message in a chat is deleted
 // Ensures the correct latest message is shown in the chat list
 async function updateLastMessageId(
-  messageId: number,
+  messageId: number | null,
   room: string
 ): Promise<void> {
   try {

@@ -1,11 +1,17 @@
 import { Link } from 'react-router-dom';
 import Logout from './UserLogout';
 
+interface UserProfileProps {
+  profilePicture: string;
+  loggedInUsername: string;
+  setActiveChatRoom: React.Dispatch<React.SetStateAction<string | null>>;
+}
+
 export default function UserProfile({
   profilePicture,
   loggedInUsername,
   setActiveChatRoom,
-}) {
+}: UserProfileProps) {
   return (
     <div className='profile-settings-container'>
       <div className='user-profile-info'>

@@ -3,10 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { ChatContext } from '../../../contexts/ChatContext';
 
 export default function Logout() {
-  const { setActiveChatRoom } = useContext(ChatContext);
+  const chatContext = useContext(ChatContext);
+  if (!chatContext) {
+    throw new Error();
+  }
+  const { setActiveChatRoom } = chatContext;
   const navigate = useNavigate();
 
-  const handleLogout = async () => {
+  const handleLogout = async (): Promise<void> => {
     try {
       const response = await fetch('http://localhost:8080/auth/logout', {
         method: 'POST',

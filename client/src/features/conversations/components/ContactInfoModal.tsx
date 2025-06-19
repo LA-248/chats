@@ -5,6 +5,15 @@ import { ChatContext } from '../../../contexts/ChatContext';
 import useBlockAndUnblock from '../../users/hooks/useBlockAndUnblock';
 import Modal from '../../../components/ModalTemplate';
 
+interface ContactInfoModalProps {
+  recipientUserId: number;
+  isModalOpen: boolean;
+  setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  updateBlockList: (userIds: number[]) => void;
+  errorMessage: string;
+  setErrorMessage: React.Dispatch<React.SetStateAction<string>>;
+}
+
 export default function ContactInfoModal({
   recipientUserId,
   isModalOpen,
@@ -12,20 +21,30 @@ export default function ContactInfoModal({
   updateBlockList,
   errorMessage,
   setErrorMessage,
-}) {
+}: ContactInfoModalProps) {
   const location = useLocation();
   // Extract chat type from URL path
   const pathSegments = location.pathname.split('/');
   const chatType = pathSegments[1];
 
-  const { chatName, recipientProfilePicture } = useContext(ChatContext);
-  const { isBlocked, setIsBlocked } = useContext(UserContext);
-  const { handleBlockAndUnblock } = useBlockAndUnblock({
-    recipientUserId: recipientUserId,
-    updateBlockList: updateBlockList,
-    setIsBlocked: setIsBlocked,
-    setErrorMessage: setErrorMessage,
-  });
+  const chatContext = useContext(ChatContext);
+  if (!chatContext) {
+    throw new Error();
+  }
+  const { chatName, recipientProfilePicture } = chatContext;
+
+  const userContext = useContext(UserContext);
+  if (!userContext) {
+    throw new Error();
+  }
+  const { isBlocked, setIsBlocked } = userContext;
+
+  const handleBlockAndUnblock = useBlockAndUnblock(
+    recipientUserId,
+    updateBlockList,
+    setIsBlocked,
+    setErrorMessage
+  );
 
   return (
     <Modal
@@ -67,7 +86,7 @@ export default function ContactInfoModal({
         <button
           className='close-modal-button'
           onClick={() => setIsModalOpen(false)}
-          style={{ width: chatType === 'groups' && '100%' }}
+          style={{ width: chatType === 'groups' ? '100%' : undefined }}
         >
           Close
         </button>

@@ -1,21 +1,28 @@
 import { useContext, useRef } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 import { UserContext } from '../../../contexts/UserContext';
 import { usePictureUpload } from '../hooks/usePictureUpload';
 
 export default function ProfilePicture() {
+  const { room } = useParams();
   const fileInputRef = useRef(null);
   const formRef = useRef(null);
   const location = useLocation();
   const pathSegments = location.pathname.split('/');
   const chatType = pathSegments[1];
-  const { profilePicture, setProfilePicture } = useContext(UserContext);
+
+  const userContext = useContext(UserContext);
+  if (!userContext) {
+    throw new Error();
+  }
+  const { profilePicture, setProfilePicture } = userContext;
 
   const { handleFileInputClick, handlePictureUpload } = usePictureUpload(
     fileInputRef,
     formRef,
     setProfilePicture,
-    chatType
+    chatType,
+    room!
   );
 
   return (
@@ -23,7 +30,7 @@ export default function ProfilePicture() {
       <img
         className='profile-picture'
         alt='Profile avatar'
-        src={profilePicture}
+        src={profilePicture ?? undefined}
       ></img>
       <form
         ref={formRef}
@@ -40,7 +47,7 @@ export default function ProfilePicture() {
         />
       </form>
       <button
-        type='file'
+        type='button'
         className='upload-profile-picture-button'
         onClick={handleFileInputClick}
       >

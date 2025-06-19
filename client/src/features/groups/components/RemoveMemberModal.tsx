@@ -2,6 +2,15 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 import { removeGroupMember } from '../../../api/group-chat-api';
 import Modal from '../../../components/ModalTemplate';
+import { GroupInfoWithMembers } from '../../../types/group';
+
+interface RemoveMemberModalProps {
+  group: GroupInfoWithMembers;
+  isModalOpen: boolean;
+  setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  memberId: number;
+  memberName: string;
+}
 
 export default function RemoveMemberModal({
   group,
@@ -9,10 +18,10 @@ export default function RemoveMemberModal({
   setIsModalOpen,
   memberId,
   memberName,
-}) {
-  const [errorMessage, setErrorMessage] = useState('');
+}: RemoveMemberModalProps) {
+  const [errorMessage, setErrorMessage] = useState<string>('');
 
-  const handleMemberRemoval = async () => {
+  const handleMemberRemoval = async (): Promise<void> => {
     try {
       const groupId = group.info.chatId;
       const result = await removeGroupMember(groupId, memberId);
@@ -20,7 +29,9 @@ export default function RemoveMemberModal({
       setIsModalOpen(false);
     } catch (error) {
       setIsModalOpen(true);
-      setErrorMessage(error.message);
+      if (error instanceof Error) {
+        setErrorMessage(error.message);
+      }
     }
   };
 

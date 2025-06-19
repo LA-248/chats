@@ -2,8 +2,11 @@ import { useContext } from 'react';
 import { ChatContext } from '../../../contexts/ChatContext';
 
 export default function ChatSearch() {
-  const { chatSearchInputText, setChatSearchInputText } =
-    useContext(ChatContext);
+  const chatContext = useContext(ChatContext);
+  if (!chatContext) {
+    throw new Error();
+  }
+  const { chatSearchInputText, setChatSearchInputText } = chatContext;
 
   return (
     <div className='chat-search-input-container'>

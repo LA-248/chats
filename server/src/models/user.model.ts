@@ -291,7 +291,7 @@ const User = {
     });
   },
 
-  getBlockListById: function (userId: number): Promise<UserBlockList | null> {
+  getBlockListById: function (userId: number): Promise<UserBlockList> {
     return new Promise((resolve, reject) => {
       pool.query(
         `SELECT blocked_users FROM users WHERE user_id = $1`,
@@ -299,9 +299,6 @@ const User = {
         (err, result) => {
           if (err) {
             return reject(`Database error in users table: ${err.message}`);
-          }
-          if (result.rows.length === 0) {
-            return resolve(null);
           }
 
           try {

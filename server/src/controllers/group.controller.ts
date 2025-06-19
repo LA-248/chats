@@ -240,7 +240,6 @@ export const updateGroupPicture = async (
 
     res.status(200).json({
       fileUrl: groupPictureUrl,
-      message: 'Group picture successfully updated',
     });
   } catch (error) {
     console.error('Error uploading group picture:', error);

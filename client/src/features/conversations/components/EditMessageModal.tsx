@@ -7,6 +7,16 @@ import Modal from '../../../components/ModalTemplate';
 import data from '@emoji-mart/data';
 import Picker from '@emoji-mart/react';
 
+interface EditMessageModalProps {
+  chatType: string;
+  messageId: number | null;
+  messageIndex: number | null;
+  isModalOpen: boolean;
+  setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  errorMessage: string;
+  setErrorMessage: React.Dispatch<React.SetStateAction<string>>;
+}
+
 export default function EditMessageModal({
   chatType,
   messageId,
@@ -15,15 +25,25 @@ export default function EditMessageModal({
   setIsModalOpen,
   errorMessage,
   setErrorMessage,
-}) {
+}: EditMessageModalProps) {
   const socket = useSocket();
   const { room } = useParams();
-  const { currentMessage, filteredMessages, newMessage, setNewMessage } =
-    useContext(MessageContext);
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
-  const handleMessageEdit = async (messageId, messageIndex) => {
+  const messageContext = useContext(MessageContext);
+  if (!messageContext) {
+    throw new Error();
+  }
+  const { currentMessage, filteredMessages, newMessage, setNewMessage } =
+    messageContext;
+  const [showEmojiPicker, setShowEmojiPicker] = useState<boolean>(false);
+
+  const handleMessageEdit = async (
+    messageId: number | null,
+    messageIndex: number | null
+  ): Promise<void> => {
     try {
+      if (!socket) return;
+
       if (!newMessage) {
         setIsModalOpen(false);
         return;
@@ -43,11 +63,13 @@ export default function EditMessageModal({
       setIsModalOpen(false);
     } catch (error) {
       setIsModalOpen(true);
-      setErrorMessage(error.message);
+      if (error instanceof Error) {
+        setErrorMessage(error.message);
+      }
     }
   };
 
-  const handleAddEmoji = (emoji) => {
+  const handleAddEmoji = (emoji: { native: string }): void => {
     setNewMessage((prevMessage) => prevMessage + emoji.native);
   };
 
@@ -63,7 +85,6 @@ export default function EditMessageModal({
         <div>
           <textarea
             autoFocus
-            type='text'
             id='message-edit-textarea'
             placeholder={currentMessage}
             value={newMessage}

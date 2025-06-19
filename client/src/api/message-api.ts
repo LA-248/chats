@@ -1,6 +1,6 @@
 async function editMessageById(
   newMessage: string,
-  messageId: number
+  messageId: number | null
 ): Promise<void> {
   try {
     const response = await fetch('http://localhost:8080/messages', {
@@ -21,7 +21,7 @@ async function editMessageById(
   }
 }
 
-async function deleteMessageById(messageId: number): Promise<void> {
+async function deleteMessageById(messageId: number | null): Promise<void> {
   try {
     const response = await fetch('http://localhost:8080/messages', {
       method: 'DELETE',

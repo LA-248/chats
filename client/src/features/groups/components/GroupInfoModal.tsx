@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { GroupInfoWithMembers, GroupMember } from '../../../types/group';
 import Modal from '../../../components/ModalTemplate';
 import LeaveGroupModal from './LeaveGroupModal';
 import GroupPicture from './GroupPicture';
@@ -6,7 +7,12 @@ import MembersList from './MembersList';
 import RemoveMemberModal from './RemoveMemberModal';
 import DeleteGroupModal from './DeleteGroupModal';
 
-function GroupInfoHeader({ group, setIsLeaveModalOpen }) {
+interface GroupInfoHeaderProps {
+  group: GroupInfoWithMembers;
+  setIsLeaveModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+function GroupInfoHeader({ group, setIsLeaveModalOpen }: GroupInfoHeaderProps) {
   return (
     <>
       <GroupPicture />
@@ -28,6 +34,17 @@ function GroupInfoHeader({ group, setIsLeaveModalOpen }) {
   );
 }
 
+interface GroupInfoModalProps {
+  group: GroupInfoWithMembers;
+  membersList: GroupMember[];
+  loggedInUserId: number;
+  loggedInUsername: string;
+  isModalOpen: boolean;
+  setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  errorMessage: string;
+  setErrorMessage: React.Dispatch<React.SetStateAction<string>>;
+}
+
 export default function GroupInfoModal({
   group,
   membersList,
@@ -37,12 +54,13 @@ export default function GroupInfoModal({
   setIsModalOpen,
   errorMessage,
   setErrorMessage,
-}) {
-  const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [isRemoveMemberModalOpen, setIsRemoveMemberModalOpen] = useState(false);
-  const [memberId, setMemberId] = useState(null);
-  const [memberName, setMemberName] = useState('');
+}: GroupInfoModalProps) {
+  const [isLeaveModalOpen, setIsLeaveModalOpen] = useState<boolean>(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
+  const [isRemoveMemberModalOpen, setIsRemoveMemberModalOpen] =
+    useState<boolean>(false);
+  const [memberId, setMemberId] = useState<number>(0);
+  const [memberName, setMemberName] = useState<string>('');
 
   const isMemberAdmin = useMemo(() => {
     return membersList.some(

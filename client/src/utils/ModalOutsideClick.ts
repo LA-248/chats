@@ -1,10 +1,14 @@
 export default function handleModalOutsideClick(
-  modalRef,
-  setIsModalOpen,
-  isModalOpen
+  modalRef: React.RefObject<HTMLElement | null>,
+  setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>,
+  isModalOpen: boolean
 ) {
-  const handleOutsideClick = (event) => {
-    if (modalRef.current && !modalRef.current.contains(event.target)) {
+  const handleOutsideClick = (event: MouseEvent) => {
+    if (
+      modalRef.current &&
+      event.target instanceof Node &&
+      !modalRef.current.contains(event.target)
+    ) {
       setIsModalOpen(false);
     }
   };

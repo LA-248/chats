@@ -4,16 +4,29 @@ import { updateUsername } from '../../../api/user-api';
 import { toast } from 'sonner';
 import Modal from '../../../components/ModalTemplate';
 
+interface UsernameEditProps {
+  isModalOpen: boolean;
+  setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  errorMessage: string;
+  setErrorMessage: React.Dispatch<React.SetStateAction<string>>;
+}
+
 export default function UsernameEdit({
   isModalOpen,
   setIsModalOpen,
   errorMessage,
   setErrorMessage,
-}) {
-  const { loggedInUsername, setLoggedInUsername } = useContext(UserContext);
-  const [usernameInput, setUsernameInput] = useState('');
+}: UsernameEditProps) {
+  const userContext = useContext(UserContext);
+  if (!userContext) {
+    throw new Error();
+  }
+  const { loggedInUsername, setLoggedInUsername } = userContext;
+  const [usernameInput, setUsernameInput] = useState<string>('');
 
-  const handleFormSubmit = async (event) => {
+  const handleFormSubmit = async (
+    event: React.FormEvent<HTMLFormElement>
+  ): Promise<void> => {
     event.preventDefault();
 
     if (!usernameInput) {

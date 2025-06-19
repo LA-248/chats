@@ -11,20 +11,33 @@ import GroupInfoModal from '../../groups/components/GroupInfoModal';
 import useClearErrorMessage from '../../../hooks/useClearErrorMessage';
 import useMembersListUpdate from '../../groups/hooks/useMembersListUpdate';
 import AddGroupMembers from '../../groups/components/AddGroupMembers';
+import { UserInfo } from '../../../types/user';
+import { GroupInfoWithMembers } from '../../../types/group';
+
+interface ContactHeaderProps {
+  room: string;
+  chatType: string;
+  privateChatInfo: UserInfo;
+  groupChatInfo: GroupInfoWithMembers;
+}
 
 export default function ContactHeader({
   room,
   chatType,
   privateChatInfo,
   groupChatInfo,
-}) {
+}: ContactHeaderProps) {
   const socket = useSocket();
   const isPrivateChat = chatType === 'chats';
 
-  const { setIsBlocked } = useContext(UserContext);
+  if (!socket) return;
+
+  const chatContext = useContext(ChatContext);
+  if (!chatContext) {
+    throw new Error();
+  }
   const {
     setChatId,
-    setChatList,
     recipientProfilePicture,
     setRecipientProfilePicture,
     groupPicture,
@@ -33,26 +46,42 @@ export default function ContactHeader({
     setChatName,
     membersList,
     setMembersList,
-  } = useContext(ChatContext);
-  const { setActiveChatRoom } = useContext(ChatContext);
-  const { messages, setFilteredMessages } = useContext(MessageContext);
-  const { loggedInUsername, loggedInUserId } = useContext(UserContext);
-  const [recipientUserId, setRecipientUserId] = useState(null);
-  const [isChatInfoModalOpen, setIsChatInfoModalOpen] = useState(false);
-  const [isAddMembersModalOpen, setIsAddMembersModalOpen] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
+    setActiveChatRoom,
+  } = chatContext;
+
+  const messageContext = useContext(MessageContext);
+  if (!messageContext) {
+    throw new Error();
+  }
+  const { messages, setFilteredMessages } = messageContext;
+
+  const userContext = useContext(UserContext);
+  if (!userContext) {
+    throw new Error();
+  }
+  const { loggedInUsername, loggedInUserId, setIsBlocked } = userContext;
+
+  const [recipientUserId, setRecipientUserId] = useState<number>(0);
+  const [isChatInfoModalOpen, setIsChatInfoModalOpen] =
+    useState<boolean>(false);
+  const [isAddMembersModalOpen, setIsAddMembersModalOpen] =
+    useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string>('');
 
   useClearErrorMessage(errorMessage, setErrorMessage);
 
   // Handles fetching the info of private and group chats
   useEffect(() => {
-    const fetchChatInfo = async () => {
+    const fetchChatInfo = async (): Promise<void> => {
       try {
         if (isPrivateChat) {
-          setRecipientUserId(privateChatInfo.userId);
           const blockList = await getBlockList();
-          setIsBlocked(blockList.includes(privateChatInfo.userId));
-          setChatId(privateChatInfo.userId);
+          const recipientId = privateChatInfo.userId;
+          if (typeof recipientId === 'number') {
+            setRecipientUserId(recipientId);
+            setIsBlocked(blockList.includes(recipientId));
+            setChatId(recipientId);
+          }
           setRecipientProfilePicture(privateChatInfo.profilePicture);
         } else {
           setChatId(groupChatInfo.info.chatId);
@@ -65,7 +94,9 @@ export default function ContactHeader({
         );
         setActiveChatRoom(room);
       } catch (error) {
-        setErrorMessage(error.message);
+        if (error instanceof Error) {
+          setErrorMessage(error.message);
+        }
       }
     };
 
@@ -144,7 +175,6 @@ export default function ContactHeader({
         groupId={groupChatInfo.info.chatId}
         loggedInUsername={loggedInUsername}
         loggedInUserId={loggedInUserId}
-        setChatList={setChatList}
       />
 
       {isChatInfoModalOpen && chatType === 'chats' && (

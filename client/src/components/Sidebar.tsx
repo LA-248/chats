@@ -8,12 +8,20 @@ import CreateGroupChatModal from '../features/groups/components/CreateGroupChatM
 import UserProfile from '../features/users/components/UserProfile';
 
 export default function Sidebar() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [errorMessage, setErrorMessage] = useState(null);
-  const { profilePicture, loggedInUsername, loggedInUserId } =
-    useContext(UserContext);
-  const { chatList, setChatName, setChatList, setActiveChatRoom } =
-    useContext(ChatContext);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string>('');
+
+  const userContext = useContext(UserContext);
+  if (!userContext) {
+    throw new Error();
+  }
+  const { profilePicture, loggedInUsername, loggedInUserId } = userContext;
+
+  const chatContext = useContext(ChatContext);
+  if (!chatContext) {
+    throw new Error();
+  }
+  const { chatList, setChatName, setChatList, setActiveChatRoom } = chatContext;
 
   return (
     <div className='sidebar'>
@@ -37,7 +45,6 @@ export default function Sidebar() {
         setIsModalOpen={setIsModalOpen}
         loggedInUsername={loggedInUsername}
         loggedInUserId={loggedInUserId}
-        setChatList={setChatList}
       />
 
       {chatList.length > 0 ? (

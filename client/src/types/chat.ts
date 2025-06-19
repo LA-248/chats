@@ -1,5 +1,5 @@
 export interface Chat {
-  chat_id: number;
+  chat_id: string;
   chat_picture: string | null;
   chat_type: string;
   deleted: boolean;
@@ -12,6 +12,13 @@ export interface Chat {
   room: string;
   updated_at: Date;
   created_at: Date;
+}
+
+export interface ChatMetadata {
+  room: string;
+  lastMessageContent: string;
+  lastMessageTime: Date;
+  updatedAt: Date;
 }
 
 export enum ChatType {

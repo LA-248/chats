@@ -1,6 +1,14 @@
-import { useEffect, useRef } from 'react';
+import { ReactNode, useEffect, useRef } from 'react';
 import handleModalOutsideClick from '../utils/ModalOutsideClick';
 import useClearErrorMessage from '../hooks/useClearErrorMessage';
+
+interface ModalProps {
+  isModalOpen: boolean;
+  setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  errorMessage: string;
+  setErrorMessage: React.Dispatch<React.SetStateAction<string>>;
+  children: ReactNode;
+}
 
 export default function Modal({
   isModalOpen,
@@ -8,8 +16,8 @@ export default function Modal({
   errorMessage,
   setErrorMessage,
   children,
-}) {
-  const modalRef = useRef();
+}: ModalProps) {
+  const modalRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     handleModalOutsideClick(modalRef, setIsModalOpen, isModalOpen);

@@ -1,16 +1,19 @@
 import { useEffect } from 'react';
+import { Socket } from 'socket.io-client';
+import { Chat } from '../../../types/chat';
+import { RemovedGroupChat } from '../../../types/group';
 
 export default function useRemoveGroupChat(
-  socket,
-  setChatList,
-  setActiveChatRoom,
-  navigate
+  socket: Socket,
+  setChatList: React.Dispatch<React.SetStateAction<Chat[]>>,
+  setActiveChatRoom: React.Dispatch<React.SetStateAction<string | null>>,
+  navigate: (path: string) => void
 ) {
   // Remove a group chat that a user left or was kicked out of from their chat list
   useEffect(() => {
     if (!socket) return;
 
-    const handleGroupChatRemoval = (data) => {
+    const handleGroupChatRemoval = (data: RemovedGroupChat) => {
       setChatList((prevChatList) =>
         prevChatList.filter((group) => group.room !== data.room)
       );
