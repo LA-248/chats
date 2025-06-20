@@ -2,12 +2,12 @@ import passport from 'passport';
 import { Strategy as LocalStrategy } from 'passport-local';
 import { pool } from '../../db/index.ts';
 import { authenticateUser } from '../services/auth.service.ts';
-import { UserProfile } from '../schemas/user.schema.ts';
 
 export default function configurePassport() {
   passport.use(new LocalStrategy(authenticateUser));
 
   // Store user data in the session
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   passport.serializeUser(function (user: any, cb) {
     cb(null, user.user_id);
   });

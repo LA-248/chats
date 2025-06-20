@@ -7,7 +7,6 @@ import { ChatContext } from '../../../contexts/ChatContext';
 import useClearErrorMessage from '../../../hooks/useClearErrorMessage';
 import data from '@emoji-mart/data';
 import Picker from '@emoji-mart/react';
-import { ReactFormState } from 'react-dom/client';
 
 export default function MessageInput() {
   const socket = useSocket();

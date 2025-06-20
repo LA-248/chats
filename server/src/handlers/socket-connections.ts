@@ -1,9 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Socket } from 'socket.io';
 import { Chat } from '../models/chat-list.model.ts';
 import '../types/socket.d.ts';
 
 async function initialiseChatRooms(socket: Socket) {
-  let joinedRooms: string[] = [];
+  const joinedRooms: string[] = [];
 
   const userId = (socket.handshake as any).session.passport.user;
   const chatList = await Chat.retrieveAllChatsByUser(userId);

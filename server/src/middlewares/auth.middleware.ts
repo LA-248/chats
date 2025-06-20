@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import { GroupMember } from '../models/group-member.model.ts';
 import { PrivateChat } from '../models/private-chat.model.ts';
 import { Group } from '../models/group.model.ts';
-import { GroupInfo, GroupMembers } from '../schemas/group.schema.ts';
+import { GroupMembers } from '../schemas/group.schema.ts';
 
 export const requireAuth = (
   req: Request,
@@ -52,7 +52,7 @@ export const privateChatRoomAuth = async (
         return;
       }
     }
-  } catch (error) {
+  } catch {
     res.status(500).json({
       error: 'Internal server error',
       message: 'An unexpected error occurred',

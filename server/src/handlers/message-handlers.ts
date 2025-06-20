@@ -15,6 +15,7 @@ const handleChatMessages = (socket: Socket, io: Server): void => {
   socket.on('chat-message', async (data, clientOffset, callback) => {
     // In the context of private chats, chatId equals the ID of the recipient
     const { username, chatId, message, room, chatType } = data;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const senderId = (socket.handshake as any).session.passport.user;
 
     try {
