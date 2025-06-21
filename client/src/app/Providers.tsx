@@ -3,7 +3,7 @@ import { UserProvider } from '../contexts/UserContext';
 import { ChatProvider } from '../contexts/ChatContext';
 import { MessageProvider } from '../contexts/MessageContext';
 import { Toaster } from 'sonner';
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 
 export default function Providers({ children }: { children: ReactNode }) {
   return (
