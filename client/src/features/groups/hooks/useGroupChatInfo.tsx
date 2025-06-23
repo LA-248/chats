@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getGroupChatInfo } from '../../../api/group-chat-api';
 import type { GroupInfoWithMembers } from '../../../types/group';
+import { ChatType } from '../../../types/chat';
 
 export default function useGroupChatInfo(
   room: string,
@@ -13,7 +14,7 @@ export default function useGroupChatInfo(
     info: {
       chatId: 0,
       name: '',
-      groupPicture: null,
+      groupPicture: '',
     },
     members: [],
   });
@@ -21,7 +22,7 @@ export default function useGroupChatInfo(
   useEffect(() => {
     const fetchGroupInfo = async (): Promise<void> => {
       try {
-        if (chatType === 'groups') {
+        if (chatType === ChatType.GROUP) {
           const groupChatInfo = await getGroupChatInfo(room, navigate);
           setGroupInfo(groupChatInfo);
         }

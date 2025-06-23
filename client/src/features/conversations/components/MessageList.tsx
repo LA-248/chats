@@ -8,8 +8,9 @@ import { updateReadStatus } from '../../../api/private-chat-api';
 import { markUserAsRead } from '../../../api/group-chat-api';
 import ContactInfoModal from './ContactInfoModal';
 import formatDate from '../../../utils/DateTimeFormat';
-import { GroupInfoWithMembers } from '../../../types/group';
-import { Message } from '../../../types/message';
+import type { GroupInfoWithMembers } from '../../../types/group';
+import type { Message } from '../../../types/message';
+import { ChatType } from '../../../types/chat';
 
 interface MessageListProps {
   room: string;
@@ -36,7 +37,7 @@ export default function MessageList({
   setMessageId,
   setMessageIndex,
 }: MessageListProps) {
-  const isPrivateChat = chatType === 'chats';
+  const isPrivateChat = chatType === ChatType.PRIVATE;
   const socket = useSocket();
 
   const { recipientProfilePicture, chatName } = useContext(ChatContext);
@@ -63,9 +64,9 @@ export default function MessageList({
               prevMessages.concat(messageData)
             );
             // If a message is received while the user has the chat open, this is needed to automatically mark the chat as read
-            if (messageData.chatType === 'chats') {
+            if (messageData.chatType === ChatType.PRIVATE) {
               await updateReadStatus(true, room);
-            } else if (messageData.chatType === 'groups') {
+            } else if (messageData.chatType === ChatType.GROUP) {
               await markUserAsRead(room);
             }
           }

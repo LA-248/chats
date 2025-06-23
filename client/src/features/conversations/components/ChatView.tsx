@@ -2,7 +2,7 @@ import { useContext, useEffect, useState } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 import { useSocket } from '../../../hooks/useSocket';
 import { MessageContext } from '../../../contexts/MessageContext';
-import { Message } from '../../../types/message';
+import type { Message } from '../../../types/message';
 import { useSocketErrorHandling } from '../../../hooks/useSocketErrorHandling';
 import ContactHeader from './ContactHeader';
 import MessageList from './MessageList';
@@ -19,7 +19,7 @@ function ChatView() {
   const chatType = pathSegments[1];
 
   const { setMessages } = useContext(MessageContext);
-  
+
   const { room } = useParams();
   const socket = useSocket();
   const [messageId, setMessageId] = useState<number | null>(null);
@@ -32,11 +32,11 @@ function ChatView() {
   const privateChatInfo = usePrivateChatInfo(room!, chatType, setErrorMessage);
   const groupChatInfo = useGroupChatInfo(room!, chatType, setErrorMessage);
 
-  if (!socket) return;
-
   useSocketErrorHandling(socket, setErrorMessage);
 
   useEffect(() => {
+    if (!socket) return;
+
     const displayInitialMessages = (initialMessages: Message[]): void => {
       setMessages(initialMessages);
     };

@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { deleteGroupChat } from '../../../api/group-chat-api';
 import { deletePrivateChat } from '../../../api/private-chat-api';
-import { Chat } from '../../../types/chat';
+import type { Chat } from '../../../types/chat';
 
 export function useChatDelete(
   setChatList: React.Dispatch<React.SetStateAction<Chat[]>>,

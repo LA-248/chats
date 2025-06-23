@@ -11,8 +11,9 @@ import GroupInfoModal from '../../groups/components/GroupInfoModal';
 import useClearErrorMessage from '../../../hooks/useClearErrorMessage';
 import useMembersListUpdate from '../../groups/hooks/useMembersListUpdate';
 import AddGroupMembers from '../../groups/components/AddGroupMembers';
-import { UserInfo } from '../../../types/user';
-import { GroupInfoWithMembers } from '../../../types/group';
+import type { UserInfo } from '../../../types/user';
+import type { GroupInfoWithMembers } from '../../../types/group';
+import { ChatType } from '../../../types/chat';
 
 interface ContactHeaderProps {
   room: string;
@@ -28,9 +29,7 @@ export default function ContactHeader({
   groupChatInfo,
 }: ContactHeaderProps) {
   const socket = useSocket();
-  const isPrivateChat = chatType === 'chats';
-
-  if (!socket) return;
+  const isPrivateChat = chatType === ChatType.PRIVATE;
 
   const {
     setChatId,
@@ -125,7 +124,7 @@ export default function ContactHeader({
               >
                 {chatName}
               </div>
-              {chatType === 'groups' && groupChatInfo.members ? (
+              {chatType === ChatType.GROUP && groupChatInfo.members ? (
                 <div className='group-member-list'>
                   {membersList
                     .map((member) => {
@@ -140,7 +139,7 @@ export default function ContactHeader({
           </div>
 
           <div className='chat-action-buttons'>
-            {chatType === 'groups' ? (
+            {chatType === ChatType.GROUP ? (
               <button
                 className='add-group-members-button'
                 onClick={() => setIsAddMembersModalOpen(true)}
@@ -164,7 +163,7 @@ export default function ContactHeader({
         loggedInUserId={loggedInUserId}
       />
 
-      {isChatInfoModalOpen && chatType === 'chats' && (
+      {isChatInfoModalOpen && chatType === ChatType.PRIVATE && (
         <ContactInfoModal
           recipientUserId={recipientUserId}
           isModalOpen={isChatInfoModalOpen}
@@ -174,7 +173,7 @@ export default function ContactHeader({
           setErrorMessage={setErrorMessage}
         />
       )}
-      {isChatInfoModalOpen && chatType === 'groups' && (
+      {isChatInfoModalOpen && chatType === ChatType.GROUP && (
         <GroupInfoModal
           group={groupChatInfo}
           membersList={membersList}

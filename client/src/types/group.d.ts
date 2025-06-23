@@ -15,7 +15,7 @@ export interface GroupInfoWithMembers {
   info: {
     chatId: number;
     name: string;
-    groupPicture: string | null;
+    groupPicture: string;
   };
   members: GroupParticipant[];
 }

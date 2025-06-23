@@ -3,7 +3,7 @@ import { Socket } from 'socket.io-client';
 import type { GroupMember } from '../../../types/group';
 
 export default function useMembersListUpdate(
-  socket: Socket,
+  socket: Socket | null,
   setMembersList: React.Dispatch<React.SetStateAction<GroupMember[]>>
 ) {
   useEffect(() => {

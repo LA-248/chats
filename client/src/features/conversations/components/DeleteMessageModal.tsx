@@ -6,6 +6,7 @@ import { MessageContext } from '../../../contexts/MessageContext';
 import { updateLastMessageId } from '../../../api/private-chat-api';
 import { updateLastGroupMessageId } from '../../../api/group-chat-api';
 import Modal from '../../../components/ModalTemplate';
+import { ChatType } from '../../../types/chat';
 
 interface DeleteMessageModalProps {
   chatType: string;
@@ -45,9 +46,11 @@ export default function DeleteMessageModal({
       // Update chat list in real-time after most recent message is deleted
       // If last remaining message is deleted, ensure last message id in private chat table is null
       if (messageList.length === 1) {
-        chatType === 'chats'
-          ? await updateLastMessageId(null, room)
-          : await updateLastGroupMessageId(null, room);
+        if (ChatType.PRIVATE) {
+          await updateLastMessageId(null, room);
+        } else {
+          await updateLastGroupMessageId(null, room);
+        }
         socket.emit('last-message-updated', { room, chatType });
       }
       if (isLastMessage && messageList.length > 1) {
@@ -55,9 +58,11 @@ export default function DeleteMessageModal({
         const newLastMessageId = messageList[newLastMessageIndex].id;
 
         // Update the private or group chat table to reflect the correct ID of the last sent message after deletion
-        chatType === 'chats'
-          ? await updateLastMessageId(newLastMessageId, room)
-          : await updateLastGroupMessageId(newLastMessageId, room);
+        if (ChatType.PRIVATE) {
+          await updateLastMessageId(newLastMessageId, room);
+        } else {
+          await updateLastGroupMessageId(newLastMessageId, room);
+        }
 
         socket.emit('last-message-updated', { room, chatType });
       }

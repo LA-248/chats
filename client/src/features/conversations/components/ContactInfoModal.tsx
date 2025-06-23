@@ -4,6 +4,7 @@ import { UserContext } from '../../../contexts/UserContext';
 import { ChatContext } from '../../../contexts/ChatContext';
 import useBlockAndUnblock from '../../users/hooks/useBlockAndUnblock';
 import Modal from '../../../components/ModalTemplate';
+import { ChatType } from '../../../types/chat';
 
 interface ContactInfoModalProps {
   recipientUserId: number;
@@ -45,7 +46,7 @@ export default function ContactInfoModal({
       setErrorMessage={setErrorMessage}
     >
       <div className='modal-heading'>
-        {chatType === 'groups' ? 'Group info' : 'Contact info'}
+        {chatType === ChatType.GROUP ? 'Group info' : 'Contact info'}
       </div>
       {isBlocked ? (
         <div className='blocked-status' style={{ marginTop: '-15px' }}>
@@ -69,7 +70,7 @@ export default function ContactInfoModal({
       </div>
 
       <div className='modal-action-buttons-container'>
-        {chatType === 'chats' ? (
+        {chatType === ChatType.PRIVATE ? (
           <button className='block-user-button' onClick={handleBlockAndUnblock}>
             {isBlocked ? 'Unblock' : 'Block'}
           </button>
@@ -77,7 +78,7 @@ export default function ContactInfoModal({
         <button
           className='close-modal-button'
           onClick={() => setIsModalOpen(false)}
-          style={{ width: chatType === 'groups' ? '100%' : undefined }}
+          style={{ width: chatType === ChatType.GROUP ? '100%' : undefined }}
         >
           Close
         </button>
