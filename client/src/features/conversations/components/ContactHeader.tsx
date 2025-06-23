@@ -32,10 +32,6 @@ export default function ContactHeader({
 
   if (!socket) return;
 
-  const chatContext = useContext(ChatContext);
-  if (!chatContext) {
-    throw new Error();
-  }
   const {
     setChatId,
     recipientProfilePicture,
@@ -47,19 +43,10 @@ export default function ContactHeader({
     membersList,
     setMembersList,
     setActiveChatRoom,
-  } = chatContext;
-
-  const messageContext = useContext(MessageContext);
-  if (!messageContext) {
-    throw new Error();
-  }
-  const { messages, setFilteredMessages } = messageContext;
-
-  const userContext = useContext(UserContext);
-  if (!userContext) {
-    throw new Error();
-  }
-  const { loggedInUsername, loggedInUserId, setIsBlocked } = userContext;
+  } = useContext(ChatContext);
+  const { messages, setFilteredMessages } = useContext(MessageContext);
+  const { loggedInUsername, loggedInUserId, setIsBlocked } =
+    useContext(UserContext);
 
   const [recipientUserId, setRecipientUserId] = useState<number>(0);
   const [isChatInfoModalOpen, setIsChatInfoModalOpen] =

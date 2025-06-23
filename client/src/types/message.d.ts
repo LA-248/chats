@@ -8,3 +8,16 @@ export interface Message {
   chatType?: string;
   room?: string;
 }
+
+export interface MessageContextType {
+  messages: Message[];
+  setMessages: React.Dispatch<React.SetStateAction<Message[]>>;
+  currentMessage: string;
+  setCurrentMessage: React.Dispatch<React.SetStateAction<string>>;
+  filteredMessages: Message[];
+  setFilteredMessages: React.Dispatch<React.SetStateAction<Message[]>>;
+  newMessage: string;
+  setNewMessage: React.Dispatch<React.SetStateAction<string>>;
+  messageSearchValueText: string;
+  setMessageSearchValueText: React.Dispatch<React.SetStateAction<string>>;
+}

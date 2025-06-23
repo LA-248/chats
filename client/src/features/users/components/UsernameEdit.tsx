@@ -17,11 +17,7 @@ export default function UsernameEdit({
   errorMessage,
   setErrorMessage,
 }: UsernameEditProps) {
-  const userContext = useContext(UserContext);
-  if (!userContext) {
-    throw new Error();
-  }
-  const { loggedInUsername, setLoggedInUsername } = userContext;
+  const { loggedInUsername, setLoggedInUsername } = useContext(UserContext);
   const [usernameInput, setUsernameInput] = useState<string>('');
 
   const handleFormSubmit = async (

@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { GroupInfoWithMembers, GroupMember } from '../../../types/group';
+import type { GroupInfoWithMembers, GroupMember } from '../../../types/group';
 import Modal from '../../../components/ModalTemplate';
 import LeaveGroupModal from './LeaveGroupModal';
 import GroupPicture from './GroupPicture';

@@ -28,11 +28,7 @@ export default function DeleteMessageModal({
 }: DeleteMessageModalProps) {
   const socket = useSocket();
   const { room } = useParams();
-  const messageContext = useContext(MessageContext);
-  if (!messageContext) {
-    throw new Error();
-  }
-  const { filteredMessages } = messageContext;
+  const { filteredMessages } = useContext(MessageContext);
 
   const handleMessageDelete = async (
     messageId: number | null,

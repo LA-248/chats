@@ -28,13 +28,8 @@ export default function EditMessageModal({
 }: EditMessageModalProps) {
   const socket = useSocket();
   const { room } = useParams();
-
-  const messageContext = useContext(MessageContext);
-  if (!messageContext) {
-    throw new Error();
-  }
   const { currentMessage, filteredMessages, newMessage, setNewMessage } =
-    messageContext;
+    useContext(MessageContext);
   const [showEmojiPicker, setShowEmojiPicker] = useState<boolean>(false);
 
   const handleMessageEdit = async (

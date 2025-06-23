@@ -146,15 +146,11 @@ const isBlocked = async (
   recipientId: number,
   senderId: number
 ): Promise<void> => {
-  try {
-    const recipientBlockList = await User.getBlockListById(recipientId);
-    if (recipientBlockList) {
-      if (recipientBlockList.includes(senderId)) {
-        throw new Error('Sender is blocked by the recipient');
-      }
+  const recipientBlockList = await User.getBlockListById(recipientId);
+  if (recipientBlockList) {
+    if (recipientBlockList.includes(senderId)) {
+      throw new Error('Sender is blocked by the recipient');
     }
-  } catch (error) {
-    throw error;
   }
 };
 
@@ -362,13 +358,9 @@ const authoriseChatMessage = async (
   room: string,
   senderId: number
 ): Promise<void> => {
-  try {
-    const memberIds = await chatHandler.getMembers(room);
-    if (!memberIds.includes(senderId)) {
-      throw new Error('User is not authorised to send messages in this chat');
-    }
-  } catch (error) {
-    throw error;
+  const memberIds = await chatHandler.getMembers(room);
+  if (!memberIds.includes(senderId)) {
+    throw new Error('User is not authorised to send messages in this chat');
   }
 };
 

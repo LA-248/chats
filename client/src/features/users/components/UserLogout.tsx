@@ -3,11 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ChatContext } from '../../../contexts/ChatContext';
 
 export default function Logout() {
-  const chatContext = useContext(ChatContext);
-  if (!chatContext) {
-    throw new Error();
-  }
-  const { setActiveChatRoom } = chatContext;
+  const { setActiveChatRoom } = useContext(ChatContext);
   const navigate = useNavigate();
 
   const handleLogout = async (): Promise<void> => {

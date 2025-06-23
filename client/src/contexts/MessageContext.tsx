@@ -1,20 +1,20 @@
-import { createContext, ReactNode, useState } from 'react';
-import { Message } from '../types/message';
+import { createContext, type ReactNode, useState } from 'react';
+import type { Message, MessageContextType } from '../types/message';
 
-export interface MessageContextType {
-  messages: Message[];
-  setMessages: React.Dispatch<React.SetStateAction<Message[]>>;
-  currentMessage: string;
-  setCurrentMessage: React.Dispatch<React.SetStateAction<string>>;
-  filteredMessages: Message[];
-  setFilteredMessages: React.Dispatch<React.SetStateAction<Message[]>>;
-  newMessage: string;
-  setNewMessage: React.Dispatch<React.SetStateAction<string>>;
-  messageSearchValueText: string;
-  setMessageSearchValueText: React.Dispatch<React.SetStateAction<string>>;
-}
+const defaultMessageContext: MessageContextType = {
+  messages: [],
+  setMessages: () => {},
+  currentMessage: '',
+  setCurrentMessage: () => {},
+  filteredMessages: [],
+  setFilteredMessages: () => {},
+  newMessage: '',
+  setNewMessage: () => {},
+  messageSearchValueText: '',
+  setMessageSearchValueText: () => {},
+};
 
-const MessageContext = createContext<MessageContextType | undefined>(undefined);
+const MessageContext = createContext<MessageContextType>(defaultMessageContext);
 
 const MessageProvider = ({ children }: { children: ReactNode }) => {
   const [messages, setMessages] = useState<Message[]>([]);

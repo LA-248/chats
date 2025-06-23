@@ -2,10 +2,12 @@ import { useEffect } from 'react';
 import { Socket } from 'socket.io-client';
 
 export const useSocketErrorHandling = (
-  socket: Socket,
+  socket: Socket | null,
   setErrorMessage: React.Dispatch<React.SetStateAction<string>>
 ) => {
   useEffect(() => {
+    if (!socket) return;
+
     const handleCustomError = (errorResponse: { error: string }) => {
       setErrorMessage(errorResponse.error);
     };

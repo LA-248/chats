@@ -1,29 +1,27 @@
-import { createContext, ReactNode, useState } from 'react';
-import { Chat } from '../types/chat';
-import { GroupMember } from '../types/group';
+import { createContext, type ReactNode, useState } from 'react';
+import type { Chat, ChatContextType } from '../types/chat';
+import type { GroupMember } from '../types/group';
 
-export interface ChatContextType {
-  chatList: Chat[];
-  setChatList: React.Dispatch<React.SetStateAction<Chat[]>>;
-  activeChatRoom: string | null;
-  setActiveChatRoom: React.Dispatch<React.SetStateAction<string | null>>;
-  chatSearchInputText: string;
-  setChatSearchInputText: React.Dispatch<React.SetStateAction<string>>;
-  chatId: number | null;
-  setChatId: React.Dispatch<React.SetStateAction<number | null>>;
-  chatName: string;
-  setChatName: React.Dispatch<React.SetStateAction<string>>;
-  recipientProfilePicture: string | null;
-  setRecipientProfilePicture: React.Dispatch<
-    React.SetStateAction<string | null>
-  >;
-  groupPicture: string | null;
-  setGroupPicture: React.Dispatch<React.SetStateAction<string | null>>;
-  membersList: GroupMember[];
-  setMembersList: React.Dispatch<React.SetStateAction<GroupMember[]>>;
-}
+const defaultChatContext: ChatContextType = {
+  chatList: [],
+  setChatList: () => {},
+  activeChatRoom: null,
+  setActiveChatRoom: () => {},
+  chatSearchInputText: '',
+  setChatSearchInputText: () => {},
+  chatId: null,
+  setChatId: () => {},
+  chatName: '',
+  setChatName: () => {},
+  recipientProfilePicture: null,
+  setRecipientProfilePicture: () => {},
+  groupPicture: null,
+  setGroupPicture: () => {},
+  membersList: [],
+  setMembersList: () => {},
+};
 
-const ChatContext = createContext<ChatContextType | undefined>(undefined);
+const ChatContext = createContext<ChatContextType>(defaultChatContext);
 
 const ChatProvider = ({ children }: { children: ReactNode }) => {
   const [chatList, setChatList] = useState<Chat[]>([]);
@@ -34,7 +32,7 @@ const ChatProvider = ({ children }: { children: ReactNode }) => {
   const [recipientProfilePicture, setRecipientProfilePicture] = useState<
     string | null
   >(null);
-  const [groupPicture, setGroupPicture] = useState<string | null>(null);
+  const [groupPicture, setGroupPicture] = useState<string>('');
   const [membersList, setMembersList] = useState<GroupMember[]>([]);
 
   return (

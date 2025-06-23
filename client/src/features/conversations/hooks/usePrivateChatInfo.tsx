@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { getRecipientInfo } from '../../../api/private-chat-api';
 import { useNavigate } from 'react-router-dom';
-import { UserInfo } from '../../../types/user';
+import type { UserInfo } from '../../../types/user';
 
 export default function usePrivateChatInfo(
   room: string,

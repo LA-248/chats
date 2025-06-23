@@ -100,11 +100,7 @@ export const addNewPrivateChat = async (
 export const getChatListByUser = async (
   userId: number
 ): Promise<ChatItem[]> => {
-  try {
-    const chatList = await Chat.retrieveAllChatsByUser(userId);
-    await generatePresignedUrlsForChatList(chatList);
-    return chatList;
-  } catch (error) {
-    throw error;
-  }
+  const chatList = await Chat.retrieveAllChatsByUser(userId);
+  await generatePresignedUrlsForChatList(chatList);
+  return chatList;
 };

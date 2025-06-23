@@ -1,10 +1,10 @@
 import { useEffect } from 'react';
-import { Chat } from '../../../types/chat';
+import type { Chat } from '../../../types/chat';
 import { Socket } from 'socket.io-client';
 
 // Add private chat to the recipient's chat list in real-time on first time message
 export default function useAddPrivateChatToChatList(
-  socket: Socket,
+  socket: Socket | null,
   setChatList: React.Dispatch<React.SetStateAction<Chat[]>>
 ) {
   useEffect(() => {

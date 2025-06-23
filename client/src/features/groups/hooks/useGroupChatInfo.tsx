@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getGroupChatInfo } from '../../../api/group-chat-api';
-import { GroupInfoWithMembers } from '../../../types/group';
+import type { GroupInfoWithMembers } from '../../../types/group';
 
 export default function useGroupChatInfo(
   room: string,

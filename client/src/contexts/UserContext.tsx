@@ -1,17 +1,18 @@
-import { createContext, ReactNode, useState } from 'react';
+import { createContext, type ReactNode, useState } from 'react';
+import type { UserContextType } from '../types/user';
 
-export interface UserContextType {
-  loggedInUserId: number;
-  setLoggedInUserId: React.Dispatch<React.SetStateAction<number>>;
-  loggedInUsername: string;
-  setLoggedInUsername: React.Dispatch<React.SetStateAction<string>>;
-  profilePicture: string;
-  setProfilePicture: React.Dispatch<React.SetStateAction<string>>;
-  isBlocked: boolean;
-  setIsBlocked: React.Dispatch<React.SetStateAction<boolean>>;
-}
+const defaultUserContext: UserContextType = {
+  loggedInUserId: 0,
+  setLoggedInUserId: () => {},
+  loggedInUsername: '',
+  setLoggedInUsername: () => {},
+  profilePicture: '',
+  setProfilePicture: () => {},
+  isBlocked: false,
+  setIsBlocked: () => {},
+};
 
-const UserContext = createContext<UserContextType | undefined>(undefined);
+const UserContext = createContext<UserContextType>(defaultUserContext);
 
 const UserProvider = ({ children }: { children: ReactNode }) => {
   const [loggedInUserId, setLoggedInUserId] = useState<number>(0);

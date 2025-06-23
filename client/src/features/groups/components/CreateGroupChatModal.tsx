@@ -3,7 +3,7 @@ import { getRecipientUserIdByUsername } from '../../../api/user-api';
 import { createGroupChat } from '../../../api/group-chat-api';
 import { toast } from 'sonner';
 import Modal from '../../../components/ModalTemplate';
-import {
+import type {
   GroupMemberToBeAdded,
   GroupMemberToRemove,
 } from '../../../types/group';

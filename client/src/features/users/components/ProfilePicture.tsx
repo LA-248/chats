@@ -10,12 +10,7 @@ export default function ProfilePicture() {
   const location = useLocation();
   const pathSegments = location.pathname.split('/');
   const chatType = pathSegments[1];
-
-  const userContext = useContext(UserContext);
-  if (!userContext) {
-    throw new Error();
-  }
-  const { profilePicture, setProfilePicture } = userContext;
+  const { profilePicture, setProfilePicture } = useContext(UserContext);
 
   const { handleFileInputClick, handlePictureUpload } = usePictureUpload(
     fileInputRef,

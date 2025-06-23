@@ -39,28 +39,15 @@ export default function MessageList({
   const isPrivateChat = chatType === 'chats';
   const socket = useSocket();
 
-  const chatContext = useContext(ChatContext);
-  if (!chatContext) {
-    throw new Error();
-  }
-  const { recipientProfilePicture, chatName } = chatContext;
-
-  const userContext = useContext(UserContext);
-  if (!userContext) {
-    throw new Error();
-  }
-  const { loggedInUsername, loggedInUserId, profilePicture } = userContext;
-
-  const messageContext = useContext(MessageContext);
-  if (!messageContext) {
-    throw new Error();
-  }
+  const { recipientProfilePicture, chatName } = useContext(ChatContext);
+  const { loggedInUsername, loggedInUserId, profilePicture } =
+    useContext(UserContext);
   const {
     setMessages,
     setCurrentMessage,
     messageSearchValueText,
     filteredMessages,
-  } = messageContext;
+  } = useContext(MessageContext);
 
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>('');

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 import { removeGroupMember } from '../../../api/group-chat-api';
 import Modal from '../../../components/ModalTemplate';
-import { GroupInfoWithMembers } from '../../../types/group';
+import type { GroupInfoWithMembers } from '../../../types/group';
 
 interface RemoveMemberModalProps {
   group: GroupInfoWithMembers;

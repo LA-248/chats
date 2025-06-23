@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { GroupMember } from '../../../types/group';
+import type { GroupMember } from '../../../types/group';
 import PersonRemoveAlt1RoundedIcon from '@mui/icons-material/PersonRemoveAlt1Rounded';
 
 interface MembersListProps {

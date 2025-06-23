@@ -1,95 +1,83 @@
-import { Chat } from '../types/chat';
-import { UserInfo } from '../types/user';
+import type { Chat } from '../types/chat';
+import type { UserInfo } from '../types/user';
 import { getRecipientUserIdByUsername } from './user-api';
 
 // Fetch the chat list of a specific user
 async function getChatListByUserId(): Promise<Chat[]> {
-  try {
-    const response = await fetch('http://localhost:8080/chats', {
-      method: 'GET',
-      headers: {
-        Accept: 'application/json',
-      },
-      credentials: 'include',
-    });
+  const response = await fetch('http://localhost:8080/chats', {
+    method: 'GET',
+    headers: {
+      Accept: 'application/json',
+    },
+    credentials: 'include',
+  });
 
-    if (!response.ok) {
-      const errorResponse = await response.json();
-      throw new Error(errorResponse.error);
-    }
-
-    const data = await response.json();
-    return data.chatList;
-  } catch (error) {
-    throw error;
+  if (!response.ok) {
+    const errorResponse = await response.json();
+    throw new Error(errorResponse.error);
   }
+
+  const data = await response.json();
+  return data.chatList;
 }
 
 async function getRecipientInfo(
   room: string,
   navigate: (path: string) => void
 ): Promise<UserInfo> {
-  try {
-    const response = await fetch(`http://localhost:8080/chats/${room}`, {
-      method: 'GET',
-      headers: {
-        Accept: 'application/json',
-      },
-      credentials: 'include',
-    });
-    const data = await response.json();
+  const response = await fetch(`http://localhost:8080/chats/${room}`, {
+    method: 'GET',
+    headers: {
+      Accept: 'application/json',
+    },
+    credentials: 'include',
+  });
+  const data = await response.json();
 
-    // Redirect user to homepage if they try to access a chat via the URL with a user that does not exist
-    // or they try to access a room that they are not a part of
-    if (
-      response.status === 403 ||
-      response.status === 404 ||
-      response.status === 500
-    ) {
-      navigate(data.redirectPath);
-    }
-    if (!response.ok) {
-      throw new Error(data.error);
-    }
-
-    return data;
-  } catch (error) {
-    throw error;
+  // Redirect user to homepage if they try to access a chat via the URL with a user that does not exist
+  // or they try to access a room that they are not a part of
+  if (
+    response.status === 403 ||
+    response.status === 404 ||
+    response.status === 500
+  ) {
+    navigate(data.redirectPath);
   }
+  if (!response.ok) {
+    throw new Error(data.error);
+  }
+
+  return data;
 }
 
 // Add a chat to the user's chat list
 async function addChat(inputUsername: string): Promise<Chat> {
-  try {
-    const recipientId = await getRecipientUserIdByUsername(inputUsername);
+  const recipientId = await getRecipientUserIdByUsername(inputUsername);
 
-    if (!inputUsername) {
-      throw new Error('Username is required');
-    }
-
-    const response = await fetch('http://localhost:8080/chats', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      },
-      // Send the username entered to the backend to ensure that it exists in the database
-      body: JSON.stringify({
-        recipientName: inputUsername,
-        recipientId: recipientId,
-      }),
-      credentials: 'include',
-    });
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.error);
-    }
-
-    return data.addedChat;
-  } catch (error) {
-    throw error;
+  if (!inputUsername) {
+    throw new Error('Username is required');
   }
+
+  const response = await fetch('http://localhost:8080/chats', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+    },
+    // Send the username entered to the backend to ensure that it exists in the database
+    body: JSON.stringify({
+      recipientName: inputUsername,
+      recipientId: recipientId,
+    }),
+    credentials: 'include',
+  });
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.error);
+  }
+
+  return data.addedChat;
 }
 
 // Needed for when the most recent message in a chat is deleted
@@ -98,68 +86,56 @@ async function updateLastMessageId(
   messageId: number | null,
   room: string
 ): Promise<void> {
-  try {
-    const response = await fetch(
-      `http://localhost:8080/chats/${room}/last_message`,
-      {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ messageId: messageId }),
-        credentials: 'include',
-      }
-    );
-
-    if (!response.ok) {
-      const errorResponse = await response.json();
-      throw new Error(errorResponse.error);
+  const response = await fetch(
+    `http://localhost:8080/chats/${room}/last_message`,
+    {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ messageId: messageId }),
+      credentials: 'include',
     }
-  } catch (error) {
-    throw error;
+  );
+
+  if (!response.ok) {
+    const errorResponse = await response.json();
+    throw new Error(errorResponse.error);
   }
 }
 
 async function updateReadStatus(read: boolean, room: string): Promise<void> {
-  try {
-    const response = await fetch(
-      `http://localhost:8080/chats/${room}/read_status`,
-      {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ read }),
-        credentials: 'include',
-      }
-    );
-
-    if (!response.ok) {
-      const errorResponse = await response.json();
-      throw new Error(errorResponse.error);
+  const response = await fetch(
+    `http://localhost:8080/chats/${room}/read_status`,
+    {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ read }),
+      credentials: 'include',
     }
-  } catch (error) {
-    throw error;
+  );
+
+  if (!response.ok) {
+    const errorResponse = await response.json();
+    throw new Error(errorResponse.error);
   }
 }
 
 // Delete a chat from the user's chat list
 async function deletePrivateChat(room: string): Promise<void> {
-  try {
-    const response = await fetch(`http://localhost:8080/chats/${room}`, {
-      method: 'DELETE',
-      headers: {
-        Accept: 'application/json',
-      },
-      credentials: 'include',
-    });
+  const response = await fetch(`http://localhost:8080/chats/${room}`, {
+    method: 'DELETE',
+    headers: {
+      Accept: 'application/json',
+    },
+    credentials: 'include',
+  });
 
-    if (!response.ok) {
-      const errorResponse = await response.json();
-      throw new Error(errorResponse.error);
-    }
-  } catch (error) {
-    throw error;
+  if (!response.ok) {
+    const errorResponse = await response.json();
+    throw new Error(errorResponse.error);
   }
 }
 

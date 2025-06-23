@@ -1,6 +1,6 @@
 import { useContext, useEffect } from 'react';
 import { MessageContext } from '../../../contexts/MessageContext';
-import { Message } from '../../../types/message';
+import type { Message } from '../../../types/message';
 
 interface MessageSearchProps {
   messages: Message[];
@@ -11,11 +11,8 @@ export default function MessageSearch({
   messages,
   setFilteredMessages,
 }: MessageSearchProps) {
-  const messageContext = useContext(MessageContext);
-  if (!messageContext) {
-    throw new Error();
-  }
-  const { messageSearchValueText, setMessageSearchValueText } = messageContext;
+  const { messageSearchValueText, setMessageSearchValueText } =
+    useContext(MessageContext);
 
   useEffect(() => {
     if (messageSearchValueText) {

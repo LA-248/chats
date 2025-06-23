@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import bcrypt from 'bcrypt';
 import { User } from '../models/user.model.ts';
 import { User as UserInfo } from '../schemas/user.schema.ts';

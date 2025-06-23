@@ -39,22 +39,18 @@ export const addChat = async (req: Request, res: Response): Promise<void> => {
 const getChatRoomData = async (
   req: Request
 ): Promise<{ senderId: number; recipientId: number }> => {
-  try {
-    const username = req.body.recipientName;
-    const user = await retrieveUserIdByUsername(username);
-    // If there are no rows, the user does not exist
-    if (!user) {
-      throw new Error(
-        'User does not exist. Make sure that the username is correct.'
-      );
-    }
-    const senderId = Number(req.user?.user_id);
-    const recipientId = req.body.recipientId;
-
-    return { senderId, recipientId };
-  } catch (error) {
-    throw error;
+  const username = req.body.recipientName;
+  const user = await retrieveUserIdByUsername(username);
+  // If there are no rows, the user does not exist
+  if (!user) {
+    throw new Error(
+      'User does not exist. Make sure that the username is correct.'
+    );
   }
+  const senderId = Number(req.user?.user_id);
+  const recipientId = req.body.recipientId;
+
+  return { senderId, recipientId };
 };
 
 // Fetch the chat list of a specific user

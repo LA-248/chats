@@ -121,49 +121,41 @@ export const removeMember = async (
   groupId: number,
   userId: number
 ): Promise<{ room: string; removedUserId: RemovedGroupMember }> => {
-  try {
-    const socketId = userSockets.get(userId);
+  const socketId = userSockets.get(userId);
 
-    const room = await Group.retrieveRoomByGroupId(groupId);
-    const removedUserId = await GroupMember.removeGroupMember(groupId, userId);
-    await Group.removeUserFromReadList(userId, room);
+  const room = await Group.retrieveRoomByGroupId(groupId);
+  const removedUserId = await GroupMember.removeGroupMember(groupId, userId);
+  await Group.removeUserFromReadList(userId, room);
 
-    // Remove socket of removed member from the room
-    if (socketId) {
-      const memberSocket = io.sockets.sockets.get(socketId);
-      memberSocket?.leave(room);
-    }
-
-    return { room, removedUserId };
-  } catch (error) {
-    throw error;
+  // Remove socket of removed member from the room
+  if (socketId) {
+    const memberSocket = io.sockets.sockets.get(socketId);
+    memberSocket?.leave(room);
   }
+
+  return { room, removedUserId };
 };
 
 export const permanentlyDeleteGroupChat = async (
   groupId: number
 ): Promise<{ room: string; memberSocketIds: string[] }> => {
-  try {
-    const membersInfo = await Group.retrieveMembersInfo(groupId);
-    const memberUserIds = membersInfo.map((member) => member.user_id);
-    const room = await Group.retrieveRoomByGroupId(groupId);
-    let memberSocketIds = [];
+  const membersInfo = await Group.retrieveMembersInfo(groupId);
+  const memberUserIds = membersInfo.map((member) => member.user_id);
+  const room = await Group.retrieveRoomByGroupId(groupId);
+  const memberSocketIds = [];
 
-    // Get the socket IDs of each group member
-    for (let i = 0; i < memberUserIds.length; i++) {
-      const memberUserId = memberUserIds[i];
-      const socketId = userSockets.get(memberUserId);
-      if (socketId) {
-        memberSocketIds.push(socketId);
-      }
+  // Get the socket IDs of each group member
+  for (let i = 0; i < memberUserIds.length; i++) {
+    const memberUserId = memberUserIds[i];
+    const socketId = userSockets.get(memberUserId);
+    if (socketId) {
+      memberSocketIds.push(socketId);
     }
-
-    await Group.permanentlyDelete(groupId);
-
-    return { room, memberSocketIds };
-  } catch (error) {
-    throw error;
   }
+
+  await Group.permanentlyDelete(groupId);
+
+  return { room, memberSocketIds };
 };
 
 export const uploadGroupPicture = async (
@@ -211,11 +203,7 @@ export const markGroupAsDeleted = async (
   userId: number,
   room: string
 ): Promise<void> => {
-  try {
-    return await Group.updateDeletedForList(userId, room);
-  } catch (error) {
-    throw error;
-  }
+  return await Group.updateDeletedForList(userId, room);
 };
 
 // Update the picture of a group for all its members in real-time

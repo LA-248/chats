@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useRef } from 'react';
+import { type ReactNode, useEffect, useRef } from 'react';
 import handleModalOutsideClick from '../utils/ModalOutsideClick';
 import useClearErrorMessage from '../hooks/useClearErrorMessage';
 

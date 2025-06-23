@@ -10,18 +10,10 @@ import UserProfile from '../features/users/components/UserProfile';
 export default function Sidebar() {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>('');
-
-  const userContext = useContext(UserContext);
-  if (!userContext) {
-    throw new Error();
-  }
-  const { profilePicture, loggedInUsername, loggedInUserId } = userContext;
-
-  const chatContext = useContext(ChatContext);
-  if (!chatContext) {
-    throw new Error();
-  }
-  const { chatList, setChatName, setChatList, setActiveChatRoom } = chatContext;
+  const { profilePicture, loggedInUsername, loggedInUserId } =
+    useContext(UserContext);
+  const { chatList, setChatName, setChatList, setActiveChatRoom } =
+    useContext(ChatContext);
 
   return (
     <div className='sidebar'>

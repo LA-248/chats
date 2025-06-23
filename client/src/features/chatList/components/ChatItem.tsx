@@ -1,4 +1,4 @@
-import { Chat } from '../../../types/chat';
+import type { Chat } from '../../../types/chat';
 import formatDate from '../../../utils/DateTimeFormat';
 
 interface ChatItemProps {

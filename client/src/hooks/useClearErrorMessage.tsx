@@ -5,11 +5,7 @@ export default function useClearErrorMessage(
   errorMessage: string,
   setErrorMessage: React.Dispatch<React.SetStateAction<string>>
 ) {
-  const chatContext = useContext(ChatContext);
-  if (!chatContext) {
-    throw new Error();
-  }
-  const { chatId } = chatContext;
+  const { chatId } = useContext(ChatContext);
 
   useEffect(() => {
     if (errorMessage) {

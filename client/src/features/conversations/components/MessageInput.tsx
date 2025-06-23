@@ -15,17 +15,8 @@ export default function MessageInput() {
   const chatType = pathSegments[1];
   const { room } = useParams();
 
-  const chatContext = useContext(ChatContext);
-  if (!chatContext) {
-    throw new Error();
-  }
-  const { chatId } = chatContext;
-
-  const userContext = useContext(UserContext);
-  if (!userContext) {
-    throw new Error();
-  }
-  const { loggedInUsername, isBlocked } = userContext;
+  const { chatId } = useContext(ChatContext);
+  const { loggedInUsername, isBlocked } = useContext(UserContext);
 
   const [message, setMessage] = useState<string>('');
   const [showEmojiPicker, setShowEmojiPicker] = useState<boolean>(false);

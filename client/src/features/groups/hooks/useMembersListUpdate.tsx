@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { Socket } from 'socket.io-client';
-import { GroupMember } from '../../../types/group';
+import type { GroupMember } from '../../../types/group';
 
 export default function useMembersListUpdate(
   socket: Socket,

@@ -2,7 +2,7 @@ import { useContext, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useSocket } from '../../../hooks/useSocket';
 import { ChatContext } from '../../../contexts/ChatContext';
-import { Chat } from '../../../types/chat';
+import type { Chat } from '../../../types/chat';
 import {
   getChatListByUserId,
   updateReadStatus,
@@ -24,14 +24,12 @@ export default function ChatList({
   setChatName: React.Dispatch<React.SetStateAction<string>>;
 }) {
   const socket = useSocket();
+  const navigate = useNavigate();
   const { room } = useParams();
 
-  if (!socket) return;
-
-  const chatContext = useContext(ChatContext);
-  if (!chatContext) {
-    throw new Error();
-  }
+  const [filteredChats, setFilteredChats] = useState<Chat[]>([]);
+  const [hoverChatId, setHoverChatId] = useState<number | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string>('');
   const {
     chatSearchInputText,
     setChatSearchInputText,
@@ -41,12 +39,7 @@ export default function ChatList({
     setActiveChatRoom,
     setRecipientProfilePicture,
     setGroupPicture,
-  } = chatContext;
-
-  const [filteredChats, setFilteredChats] = useState<Chat[]>([]);
-  const [hoverChatId, setHoverChatId] = useState<number | null>(null);
-  const [errorMessage, setErrorMessage] = useState<string>('');
-  const navigate = useNavigate();
+  } = useContext(ChatContext);
 
   const handleChatClick = async (chat: Chat): Promise<void> => {
     setActiveChatRoom(chat.room);
@@ -54,12 +47,12 @@ export default function ChatList({
 
     if (chat.chat_type === 'private_chat') {
       navigate(`/chats/${chat.room}`);
-      if (chat.read === false) {
+      if (!chat.read) {
         await updateReadStatus(true, chat.room);
       }
     } else {
       navigate(`/groups/${chat.room}`);
-      if (chat.read === false) {
+      if (!chat.read) {
         await markUserAsRead(chat.room);
       }
     }
@@ -108,44 +101,42 @@ export default function ChatList({
   useRemoveGroupChat(socket, setChatList, setActiveChatRoom, navigate);
   useAddPrivateChatToChatList(socket, setChatList);
 
-  if (room) {
-    // Update the picture of a group for all its members in real-time
-    useChatUpdates(
-      socket,
-      setChatList,
-      'room',
-      'room',
-      'chat_picture',
-      'groupPicture',
-      room,
-      setGroupPicture,
-      'update-group-picture'
-    );
-    // Update the profile picture of a private chat contact when changed
-    useChatUpdates(
-      socket,
-      setChatList,
-      'recipient_user_id',
-      'userId',
-      'chat_picture',
-      'profilePicture',
-      room,
-      setRecipientProfilePicture,
-      'update-profile-picture-for-contacts'
-    );
-    // Update the username of a private chat contact when changed
-    useChatUpdates(
-      socket,
-      setChatList,
-      'recipient_user_id',
-      'userId',
-      'name',
-      'newUsername',
-      room,
-      setChatName,
-      'update-username-for-contacts'
-    );
-  }
+  // Update the picture of a group for all its members in real-time
+  useChatUpdates(
+    socket,
+    setChatList,
+    'room',
+    'room',
+    'chat_picture',
+    'groupPicture',
+    room!,
+    setGroupPicture,
+    'update-group-picture'
+  );
+  // Update the profile picture of a private chat contact when changed
+  useChatUpdates(
+    socket,
+    setChatList,
+    'recipient_user_id',
+    'userId',
+    'chat_picture',
+    'profilePicture',
+    room!,
+    setRecipientProfilePicture,
+    'update-profile-picture-for-contacts'
+  );
+  // Update the username of a private chat contact when changed
+  useChatUpdates(
+    socket,
+    setChatList,
+    'recipient_user_id',
+    'userId',
+    'name',
+    'newUsername',
+    room!,
+    setChatName,
+    'update-username-for-contacts'
+  );
   useSocketErrorHandling(socket, setErrorMessage);
   useClearErrorMessage(errorMessage, setErrorMessage);
 

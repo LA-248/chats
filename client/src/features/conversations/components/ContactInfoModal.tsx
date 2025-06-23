@@ -27,17 +27,8 @@ export default function ContactInfoModal({
   const pathSegments = location.pathname.split('/');
   const chatType = pathSegments[1];
 
-  const chatContext = useContext(ChatContext);
-  if (!chatContext) {
-    throw new Error();
-  }
-  const { chatName, recipientProfilePicture } = chatContext;
-
-  const userContext = useContext(UserContext);
-  if (!userContext) {
-    throw new Error();
-  }
-  const { isBlocked, setIsBlocked } = userContext;
+  const { chatName, recipientProfilePicture } = useContext(ChatContext);
+  const { isBlocked, setIsBlocked } = useContext(UserContext);
 
   const handleBlockAndUnblock = useBlockAndUnblock(
     recipientUserId,

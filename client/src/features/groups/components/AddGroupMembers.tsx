@@ -7,7 +7,7 @@ import {
   retrieveGroupMembersInfo,
 } from '../../../api/group-chat-api';
 import Modal from '../../../components/ModalTemplate';
-import {
+import type {
   GroupMemberToBeAdded,
   GroupMemberToRemove,
 } from '../../../types/group';

@@ -1,31 +1,21 @@
 import { io, Socket } from 'socket.io-client';
-import { createContext, useEffect, useState, useContext } from 'react';
+import { useEffect, useState, useContext } from 'react';
 import { Link, Outlet } from 'react-router-dom';
 
 import { ChatContext } from '../contexts/ChatContext';
 import { UserContext } from '../contexts/UserContext';
+import { SocketContext } from '../contexts/SocketContext';
 import { getLoggedInUserData } from '../api/user-api';
 import Sidebar from '../components/Sidebar';
 
-export const SocketContext = createContext<Socket | null>(null);
-
 export default function Home() {
-  const chatContext = useContext(ChatContext);
-  if (!chatContext) {
-    throw new Error();
-  }
-  const { setActiveChatRoom } = chatContext;
-
-  const userContext = useContext(UserContext);
-  if (!userContext) {
-    throw new Error();
-  }
+  const { setActiveChatRoom } = useContext(ChatContext);
   const {
     loggedInUserId,
     setLoggedInUserId,
     setLoggedInUsername,
     setProfilePicture,
-  } = userContext;
+  } = useContext(UserContext);
 
   const [socket, setSocket] = useState<Socket | null>(null);
   const [errorMessage, setErrorMessage] = useState<string>('');

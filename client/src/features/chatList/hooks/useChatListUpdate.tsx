@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { Socket } from 'socket.io-client';
-import { Chat, ChatMetadata } from '../../../types/chat';
+import type { Chat, ChatMetadata } from '../../../types/chat';
 
 /* 
 Update chat list with latest content and time info on incoming messages, and sort it
@@ -8,7 +8,7 @@ Also mark the chat as not deleted, which ensures the chat is added for the -
 recipient if they had it marked as deleted
 */
 export default function useChatListUpdate(
-  socket: Socket,
+  socket: Socket | null,
   setChatList: React.Dispatch<React.SetStateAction<Chat[]>>,
   activeChatRoom: string | null
 ) {

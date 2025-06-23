@@ -1,10 +1,10 @@
 import { useEffect } from 'react';
 import { Socket } from 'socket.io-client';
-import { Chat } from '../../../types/chat';
-import { RemovedGroupChat } from '../../../types/group';
+import type { Chat } from '../../../types/chat';
+import type { RemovedGroupChat } from '../../../types/group';
 
 export default function useRemoveGroupChat(
-  socket: Socket,
+  socket: Socket | null,
   setChatList: React.Dispatch<React.SetStateAction<Chat[]>>,
   setActiveChatRoom: React.Dispatch<React.SetStateAction<string | null>>,
   navigate: (path: string) => void

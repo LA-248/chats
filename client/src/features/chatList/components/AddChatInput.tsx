@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react';
 import { addChat } from '../../../api/private-chat-api';
 import useClearErrorMessage from '../../../hooks/useClearErrorMessage';
-import { Chat } from '../../../types/chat';
+import type { Chat } from '../../../types/chat';
 
 interface AddChatInputProps {
   chatList: Chat[];

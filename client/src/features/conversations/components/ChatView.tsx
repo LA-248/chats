@@ -18,12 +18,8 @@ function ChatView() {
   const pathSegments = location.pathname.split('/');
   const chatType = pathSegments[1];
 
-  const messageContext = useContext(MessageContext);
-  if (!messageContext) {
-    throw new Error();
-  }
-  const { setMessages } = messageContext;
-
+  const { setMessages } = useContext(MessageContext);
+  
   const { room } = useParams();
   const socket = useSocket();
   const [messageId, setMessageId] = useState<number | null>(null);

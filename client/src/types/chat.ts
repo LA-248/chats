@@ -1,3 +1,5 @@
+import type { GroupMember } from './group';
+
 export interface Chat {
   chat_id: string;
   chat_picture: string | null;
@@ -24,4 +26,25 @@ export interface ChatMetadata {
 export enum ChatType {
   PRIVATE = 'chats',
   GROUP = 'groups',
+}
+
+export interface ChatContextType {
+  chatList: Chat[];
+  setChatList: React.Dispatch<React.SetStateAction<Chat[]>>;
+  activeChatRoom: string | null;
+  setActiveChatRoom: React.Dispatch<React.SetStateAction<string | null>>;
+  chatSearchInputText: string;
+  setChatSearchInputText: React.Dispatch<React.SetStateAction<string>>;
+  chatId: number | null;
+  setChatId: React.Dispatch<React.SetStateAction<number | null>>;
+  chatName: string;
+  setChatName: React.Dispatch<React.SetStateAction<string>>;
+  recipientProfilePicture: string | null;
+  setRecipientProfilePicture: React.Dispatch<
+    React.SetStateAction<string | null>
+  >;
+  groupPicture: string | null;
+  setGroupPicture: React.Dispatch<React.SetStateAction<string>>;
+  membersList: GroupMember[];
+  setMembersList: React.Dispatch<React.SetStateAction<GroupMember[]>>;
 }
