@@ -317,6 +317,7 @@ body {
   width: 350px;
   background-color: #212121;
   gap: 10px;
+  border-top: 1px solid rgb(75, 73, 73);
 }
 
 .user-profile-info {
@@ -493,8 +494,8 @@ body {
 
 .message-form-container {
   padding: 20px;
+  padding-top: 0px;
   background-color: #212121;
-  border-top: 1px solid rgb(75, 73, 73);
 }
 
 .message-container {
