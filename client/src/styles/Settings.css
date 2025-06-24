@@ -106,7 +106,7 @@ body {
   gap: 10px;
 }
 
-.username-display,
+#username-display,
 .username-input {
   display: flex;
   justify-content: center;

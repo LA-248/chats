@@ -53,7 +53,7 @@ export default function UsernameEdit({
         <div className='username-heading'>Username</div>
         <div className='username-input-wrapper'>
           <input
-            className='username-display'
+            id='username-display'
             placeholder={loggedInUsername}
             disabled={true}
           />
