@@ -63,11 +63,11 @@ groupChatsRouter.delete(
   markGroupChatAsDeleted
 );
 
-groupChatsRouter.put('/:room', groupChatRoomAuth, updateUserReadStatus);
 groupChatsRouter.put(
   '/:room/last_message',
   groupChatRoomAuth,
   updateLastMessageId
 );
+groupChatsRouter.put('/:room', groupChatRoomAuth, updateUserReadStatus);
 
 export default groupChatsRouter;

@@ -58,7 +58,7 @@ export default function DeleteMessageModal({
         const newLastMessageId = messageList[newLastMessageIndex].id;
 
         // Update the private or group chat table to reflect the correct ID of the last sent message after deletion
-        if (ChatType.PRIVATE) {
+        if (chatType === ChatType.PRIVATE) {
           await updateLastMessageId(newLastMessageId, room);
         } else {
           await updateLastGroupMessageId(newLastMessageId, room);
