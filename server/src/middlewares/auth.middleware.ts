@@ -2,7 +2,8 @@ import { NextFunction, Request, Response } from 'express';
 import { GroupMember } from '../models/group-member.model.ts';
 import { PrivateChat } from '../models/private-chat.model.ts';
 import { Group } from '../models/group.model.ts';
-import { GroupMembers } from '../schemas/group.schema.ts';
+import { GroupMemberPartialInfo } from '../schemas/group.schema.ts';
+import { GroupMemberRole } from '../types/group.ts';
 
 export const requireAuth = (
   req: Request,
@@ -119,7 +120,7 @@ export const authoriseGroupAdminAction = async (
   const room = await Group.retrieveRoomByGroupId(groupId);
 
   try {
-    const groupChatMembers: GroupMembers[] | null =
+    const groupChatMembers: GroupMemberPartialInfo[] | null =
       await GroupMember.retrieveMembersByRoom(room);
     if (!groupChatMembers) {
       res.status(404).json({
@@ -136,7 +137,9 @@ export const authoriseGroupAdminAction = async (
     }
 
     const isOwner = groupChatMembers.some(
-      (member) => member.user_id === loggedInUserId && member.role === 'owner'
+      (member) =>
+        member.user_id === loggedInUserId &&
+        member.role === GroupMemberRole.OWNER
     );
 
     if (isOwner) {

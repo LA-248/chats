@@ -60,11 +60,16 @@ export const NewGroupMemberSchema = z.object({
 });
 export type NewGroupMember = z.infer<typeof NewGroupMemberSchema>;
 
-export const GroupMembersSchema = z.object({
+export const GroupMemberPartialInfoSchema = z.object({
   user_id: z.number(),
   role: z.string(),
 });
-export type GroupMembers = z.infer<typeof GroupMembersSchema>;
+export type GroupMemberPartialInfo = z.infer<
+  typeof GroupMemberPartialInfoSchema
+>;
 
-export const RemovedGroupMemberSchema = z.number();
+export const RemovedGroupMemberSchema = z.object({
+  user_id: z.number(),
+  role: z.string(),
+});
 export type RemovedGroupMember = z.infer<typeof RemovedGroupMemberSchema>;

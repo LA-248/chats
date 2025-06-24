@@ -39,3 +39,8 @@ export interface GroupMemberInsertionResult {
   value?: NewGroupMember;
   reason?: Error | string;
 }
+
+export enum GroupMemberRole {
+  OWNER = 'owner',
+  MEMBER = 'member',
+}

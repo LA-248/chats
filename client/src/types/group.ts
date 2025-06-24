@@ -17,7 +17,7 @@ export interface GroupInfoWithMembers {
     name: string;
     groupPicture: string;
   };
-  members: GroupParticipant[];
+  members: GroupMember[];
 }
 
 export interface RemovedGroupChat {
@@ -29,4 +29,14 @@ export interface GroupMemberToRemove {
   username: string;
   userId: number;
   role: string;
+}
+
+export interface GroupMemberPartialInfo {
+  user_id: number;
+  role: string;
+}
+
+export enum GroupMemberRole {
+  OWNER = 'owner',
+  MEMBER = 'member',
 }

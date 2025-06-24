@@ -471,6 +471,31 @@ const Group = {
     });
   },
 
+  updateOwner: function (
+    userId: number,
+    groupId: number,
+    room: string
+  ): Promise<void> {
+    return new Promise((resolve, reject) => {
+      pool.query(
+        `
+        UPDATE groups
+        SET owner_user_id = $1
+        WHERE group_id = $2 AND room = $3
+        `,
+        [userId, groupId, room],
+        (err) => {
+          if (err) {
+            return reject(
+              `Database error updating group owner user ID in groups table: ${err.message}`
+            );
+          }
+          return resolve();
+        }
+      );
+    });
+  },
+
   // DELETE OPERATIONS
 
   permanentlyDelete: function (groupId: number): Promise<void> {

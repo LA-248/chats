@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { Socket } from 'socket.io-client';
-import type { GroupMember } from '../../../types/group';
+import type { GroupMember, GroupMemberPartialInfo } from '../../../types/group';
 
 export default function useMembersListUpdate(
   socket: Socket | null,
@@ -23,12 +23,28 @@ export default function useMembersListUpdate(
       );
     };
 
+    const handleNewGroupOwnerAssignment = (data: {
+      newGroupOwner: GroupMemberPartialInfo;
+    }) => {
+      setMembersList((prevMembersList) =>
+        prevMembersList.map((member) => {
+          if (member.user_id === data.newGroupOwner.user_id) {
+            return { ...member, role: data.newGroupOwner.role };
+          } else {
+            return member;
+          }
+        })
+      );
+    };
+
     socket.on('remove-member', handleMemberRemoval);
     socket.on('add-members', handleMemberAddition);
+    socket.on('assign-new-group-owner', handleNewGroupOwnerAssignment);
 
     return () => {
-      socket.off('remove-member', handleMemberRemoval);
-      socket.off('add-members', handleMemberAddition);
+      socket.off('remove-member');
+      socket.off('add-members');
+      socket.off('assign-new-group-owner');
     };
   }, [socket, setMembersList]);
 }

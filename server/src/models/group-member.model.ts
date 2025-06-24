@@ -1,7 +1,7 @@
 import { pool } from '../../db/index.ts';
 import {
-  GroupMembers,
-  GroupMembersSchema,
+  GroupMemberPartialInfo,
+  GroupMemberPartialInfoSchema,
   InsertGroupMemberSchema,
   NewGroupMember,
   NewGroupMemberSchema,
@@ -85,7 +85,7 @@ const GroupMember = {
 
   retrieveMembersByRoom: function (
     room: string
-  ): Promise<GroupMembers[] | null> {
+  ): Promise<GroupMemberPartialInfo[] | null> {
     return new Promise((resolve, reject) => {
       pool.query(
         `
@@ -109,7 +109,7 @@ const GroupMember = {
 
           try {
             const members = result.rows.map((row) =>
-              GroupMembersSchema.parse(row)
+              GroupMemberPartialInfoSchema.parse(row)
             );
             return resolve(members);
           } catch (error) {
@@ -119,6 +119,69 @@ const GroupMember = {
               }`
             );
           }
+        }
+      );
+    });
+  },
+
+  retrieveMember: function (
+    room: string,
+    groupId: number
+  ): Promise<GroupMemberPartialInfo> {
+    return new Promise((resolve, reject) => {
+      pool.query(
+        `
+        SELECT gm.user_id, gm.role
+        FROM group_members gm
+        JOIN groups g ON g.group_id = gm.group_id
+        WHERE g.room = $1 AND g.group_id = $2
+        LIMIT 1
+        `,
+        [room, groupId],
+        (err, result) => {
+          if (err) {
+            return reject(
+              `Database error in group_members table: ${err.message}`
+            );
+          }
+
+          try {
+            const member = GroupMemberPartialInfoSchema.parse(result.rows[0]);
+            return resolve(member);
+          } catch (error) {
+            return reject(
+              `Error validating group member data: ${
+                error instanceof Error ? error.message : error
+              }`
+            );
+          }
+        }
+      );
+    });
+  },
+
+  // UPDATE OPERATIONS
+
+  updateRole: function (
+    groupId: number,
+    userId: number
+  ): Promise<GroupMemberPartialInfo> {
+    return new Promise((resolve, reject) => {
+      pool.query(
+        `
+        UPDATE group_members 
+        SET role = 'owner'
+        WHERE group_id = $1 AND user_id = $2
+        RETURNING user_id, role
+        `,
+        [groupId, userId],
+        (err, result) => {
+          if (err) {
+            return reject(
+              `Database error updating group member role in group_members table: ${err.message}`
+            );
+          }
+          return resolve(result.rows[0]);
         }
       );
     });
@@ -135,7 +198,7 @@ const GroupMember = {
         `
         DELETE FROM group_members 
         WHERE group_id = $1 AND user_id = $2
-        RETURNING user_id
+        RETURNING user_id, role
         `,
         [groupId, userId],
         (err, result) => {
@@ -149,9 +212,7 @@ const GroupMember = {
           }
 
           try {
-            const removedUser = RemovedGroupMemberSchema.parse(
-              result.rows[0].user_id
-            );
+            const removedUser = RemovedGroupMemberSchema.parse(result.rows[0]);
             return resolve(removedUser);
           } catch (error) {
             return reject(

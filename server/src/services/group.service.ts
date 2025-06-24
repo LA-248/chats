@@ -4,6 +4,7 @@ import {
   GroupInfoWithMembers,
   GroupMemberInsertionResult,
   GroupParticipant,
+  GroupMemberRole,
 } from '../types/group.ts';
 import createGroupPictureUrl from '../utils/create-group-picture-url.ts';
 import { createPresignedUrl, deleteS3Object } from './s3.service.ts';
@@ -12,6 +13,7 @@ import { userSockets } from '../handlers/socket-handlers.ts';
 import { GroupMember } from '../models/group-member.model.ts';
 import {
   GroupInfo,
+  GroupMemberPartialInfo,
   NewGroupChat,
   NewGroupMember,
   RemovedGroupMember,
@@ -116,15 +118,15 @@ export const addUsersToGroup = async (
   return await notifyAddedUsers(io, insertedGroupMembers, groupInfo, room);
 };
 
-export const removeMember = async (
+export const removeKickedMember = async (
   io: Server,
   groupId: number,
   userId: number
-): Promise<{ room: string; removedUserId: RemovedGroupMember }> => {
+): Promise<{ room: string; removedUser: RemovedGroupMember }> => {
   const socketId = userSockets.get(userId);
 
   const room = await Group.retrieveRoomByGroupId(groupId);
-  const removedUserId = await GroupMember.removeGroupMember(groupId, userId);
+  const removedUser = await GroupMember.removeGroupMember(groupId, userId);
   await Group.removeUserFromReadList(userId, room);
 
   // Remove socket of removed member from the room
@@ -133,7 +135,41 @@ export const removeMember = async (
     memberSocket?.leave(room);
   }
 
-  return { room, removedUserId };
+  return { room, removedUser };
+};
+
+export const removeMember = async (
+  io: Server,
+  groupId: number,
+  userId: number
+): Promise<{
+  room: string;
+  removedUser: RemovedGroupMember;
+  newGroupOwner: GroupMemberPartialInfo;
+}> => {
+  const socketId = userSockets.get(userId);
+  let newGroupOwner: GroupMemberPartialInfo = { user_id: 0, role: '' };
+
+  const room = await Group.retrieveRoomByGroupId(groupId);
+  const removedUser = await GroupMember.removeGroupMember(groupId, userId);
+  await Group.removeUserFromReadList(userId, room);
+
+  // If the user who left the group was the owner, randomly assign another member as the new owner
+  if (removedUser.role === GroupMemberRole.OWNER) {
+    const groupMemberInfo = await GroupMember.retrieveMember(room, groupId);
+    const groupMemberUserId = groupMemberInfo.user_id;
+
+    newGroupOwner = await GroupMember.updateRole(groupId, groupMemberUserId);
+    await Group.updateOwner(newGroupOwner.user_id, groupId, room);
+  }
+
+  if (socketId) {
+    // Remove socket of removed member from the room
+    const memberSocket = io.sockets.sockets.get(socketId);
+    memberSocket?.leave(room);
+  }
+
+  return { room, removedUser, newGroupOwner };
 };
 
 export const permanentlyDeleteGroupChat = async (
@@ -280,7 +316,7 @@ const broadcastGroupCreation = (
             chat_type: 'group',
             deleted: false,
             last_message_content:
-              member.value.role === 'owner'
+              member.value.role === GroupMemberRole.OWNER
                 ? `You created ${newGroupChat.name}`
                 : 'You were added',
             last_message_id: null,

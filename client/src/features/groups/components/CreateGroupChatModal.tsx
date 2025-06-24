@@ -3,9 +3,10 @@ import { getRecipientUserIdByUsername } from '../../../api/user-api';
 import { createGroupChat } from '../../../api/group-chat-api';
 import { toast } from 'sonner';
 import Modal from '../../../components/ModalTemplate';
-import type {
-  GroupMemberToBeAdded,
-  GroupMemberToRemove,
+import {
+  GroupMemberRole,
+  type GroupMemberToBeAdded,
+  type GroupMemberToRemove,
 } from '../../../types/group';
 
 interface CreateGroupChatModalProps {
@@ -29,7 +30,11 @@ export default function CreateGroupChatModal({
   useEffect(() => {
     // Automatically add group creator to added members list
     setAddedMembers([
-      { username: loggedInUsername, userId: loggedInUserId, role: 'owner' },
+      {
+        username: loggedInUsername,
+        userId: loggedInUserId,
+        role: GroupMemberRole.OWNER,
+      },
     ]);
   }, [loggedInUserId, loggedInUsername]);
 
@@ -65,7 +70,11 @@ export default function CreateGroupChatModal({
       // Store the username, id, and group role of each added member, this is needed to add them as a group member in the database
       setAddedMembers((prevMembers) => [
         ...prevMembers,
-        { username: sanitizedUsername, userId: memberUserId, role: 'member' },
+        {
+          username: sanitizedUsername,
+          userId: memberUserId,
+          role: GroupMemberRole.MEMBER,
+        },
       ]);
       setInputUsername('');
     } catch (error) {
@@ -108,7 +117,11 @@ export default function CreateGroupChatModal({
       toast.success(response);
       setGroupName('');
       setAddedMembers([
-        { username: loggedInUsername, userId: loggedInUserId, role: 'owner' },
+        {
+          username: loggedInUsername,
+          userId: loggedInUserId,
+          role: GroupMemberRole.OWNER,
+        },
       ]);
       setIsModalOpen(false);
     } catch (error) {
@@ -164,9 +177,11 @@ export default function CreateGroupChatModal({
               <div className='added-group-member' key={index}>
                 <div className='added-member-username-container'>
                   <div>{addedMember.username}</div>
-                  {addedMember.role === 'owner' ? <div>(You)</div> : null}
+                  {addedMember.role === GroupMemberRole.OWNER ? (
+                    <div>(You)</div>
+                  ) : null}
                 </div>
-                {addedMember.role === 'member' ? (
+                {addedMember.role === GroupMemberRole.MEMBER ? (
                   <div
                     className='remove-group-member-button'
                     onClick={() => removeMember(addedMember)}

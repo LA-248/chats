@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import type { GroupMember } from '../../../types/group';
+import { GroupMemberRole, type GroupMember } from '../../../types/group';
 import PersonRemoveAlt1RoundedIcon from '@mui/icons-material/PersonRemoveAlt1Rounded';
 
 interface MembersListProps {
@@ -22,7 +22,9 @@ export default function MembersList({
   // Check if current logged in user is the group admin
   const isMemberAdmin = useMemo(() => {
     return membersList.some(
-      (member) => member.user_id === loggedInUserId && member.role === 'owner'
+      (member) =>
+        member.user_id === loggedInUserId &&
+        member.role === GroupMemberRole.OWNER
     );
   }, [membersList, loggedInUserId]);
 
@@ -46,12 +48,14 @@ export default function MembersList({
                 </div>
               </div>
               <div className='group-member-role'>
-                <div>{member.role === 'owner' ? 'Admin' : null}</div>
+                <div>
+                  {member.role === GroupMemberRole.OWNER ? 'Admin' : null}
+                </div>
               </div>
 
               {isMemberAdmin ? (
                 // Displays the kick button next to every member that is not the group owner
-                member.role !== 'owner' ? (
+                member.role !== GroupMemberRole.OWNER ? (
                   <button
                     className='remove-member-button'
                     onClick={() => {

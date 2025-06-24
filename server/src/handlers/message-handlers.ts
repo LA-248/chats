@@ -19,10 +19,8 @@ const handleChatMessages = (socket: Socket, io: Server): void => {
     const senderId = (socket.handshake as any).session.passport.user;
 
     try {
-      // Check if sender is blocked
-      await isBlocked(chatId, senderId);
-
       if (chatType === ChatType.PRIVATE) {
+        await isBlocked(chatId, senderId); // Check if sender is blocked
         await addNewPrivateChat(io, socket, chatId, room);
       }
 

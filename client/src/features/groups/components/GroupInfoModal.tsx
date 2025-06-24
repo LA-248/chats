@@ -1,5 +1,9 @@
 import { useMemo, useState } from 'react';
-import type { GroupInfoWithMembers, GroupMember } from '../../../types/group';
+import {
+  GroupMemberRole,
+  type GroupInfoWithMembers,
+  type GroupMember,
+} from '../../../types/group';
 import Modal from '../../../components/ModalTemplate';
 import LeaveGroupModal from './LeaveGroupModal';
 import GroupPicture from './GroupPicture';
@@ -64,7 +68,9 @@ export default function GroupInfoModal({
 
   const isMemberAdmin = useMemo(() => {
     return membersList.some(
-      (member) => member.user_id === loggedInUserId && member.role === 'owner'
+      (member) =>
+        member.user_id === loggedInUserId &&
+        member.role === GroupMemberRole.OWNER
     );
   }, [membersList, loggedInUserId]);
 

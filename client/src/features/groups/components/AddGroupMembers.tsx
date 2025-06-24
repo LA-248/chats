@@ -7,9 +7,10 @@ import {
   retrieveGroupMembersInfo,
 } from '../../../api/group-chat-api';
 import Modal from '../../../components/ModalTemplate';
-import type {
-  GroupMemberToBeAdded,
-  GroupMemberToRemove,
+import {
+  GroupMemberRole,
+  type GroupMemberToBeAdded,
+  type GroupMemberToRemove,
 } from '../../../types/group';
 
 interface AddGroupMembersProps {
@@ -77,7 +78,11 @@ export default function AddGroupMembers({
       // Store the username, id, and group role of each added member, this is needed to add them as a group member in the database
       setAddedMembers((prevMembers) => [
         ...prevMembers,
-        { username: sanitizedUsername, userId: memberUserId, role: 'member' },
+        {
+          username: sanitizedUsername,
+          userId: memberUserId,
+          role: GroupMemberRole.MEMBER,
+        },
       ]);
       setInputUsername('');
     } catch (error) {
@@ -147,9 +152,11 @@ export default function AddGroupMembers({
               <div className='added-group-member' key={index}>
                 <div className='added-member-username-container'>
                   <div>{addedMember.username}</div>
-                  {addedMember.role === 'owner' ? <div>(You)</div> : null}
+                  {addedMember.role === GroupMemberRole.OWNER ? (
+                    <div>(You)</div>
+                  ) : null}
                 </div>
-                {addedMember.role === 'member' ? (
+                {addedMember.role === GroupMemberRole.MEMBER ? (
                   <div
                     className='remove-group-member-button'
                     onClick={() => removeMember(addedMember)}
