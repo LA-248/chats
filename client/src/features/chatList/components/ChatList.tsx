@@ -28,7 +28,7 @@ export default function ChatList({
   const { room } = useParams();
 
   const [filteredChats, setFilteredChats] = useState<Chat[]>([]);
-  const [hoverChatId, setHoverChatId] = useState<number | null>(null);
+  const [hoverChatId, setHoverChatId] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState<string>('');
   const {
     chatSearchInputText,
@@ -157,9 +157,9 @@ export default function ChatList({
               key={chat.chat_id}
               chat={chat}
               isActive={chat.room === activeChatRoom}
-              isHovered={hoverChatId === Number(chat.chat_id)}
-              onMouseEnter={() => setHoverChatId(Number(chat.chat_id))}
-              onMouseLeave={() => setHoverChatId(null)}
+              isHovered={hoverChatId === chat.chat_id}
+              onMouseEnter={() => setHoverChatId(chat.chat_id)}
+              onMouseLeave={() => setHoverChatId('')}
               onClick={() => handleChatClick(chat)}
               onDeleteClick={(event) => handleChatDelete(event, chat)}
             />
