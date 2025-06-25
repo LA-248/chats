@@ -1,13 +1,16 @@
 import type { UserInfo } from '../types/user';
 
 async function getLoggedInUserData(): Promise<UserInfo> {
-  const response = await fetch('http://localhost:8080/users', {
-    method: 'GET',
-    headers: {
-      Accept: 'application/json',
-    },
-    credentials: 'include',
-  });
+  const response = await fetch(
+    `${import.meta.env.VITE_SERVER_BASE_URL}/users`,
+    {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+      },
+      credentials: 'include',
+    }
+  );
 
   if (!response.ok) {
     const errorResponse = await response.json();
@@ -20,13 +23,16 @@ async function getLoggedInUserData(): Promise<UserInfo> {
 
 // Retrieve the ID of a message recipient from the database using their username
 async function getRecipientUserIdByUsername(username: string): Promise<number> {
-  const response = await fetch(`http://localhost:8080/users/${username}`, {
-    method: 'GET',
-    headers: {
-      Accept: 'application/json',
-    },
-    credentials: 'include',
-  });
+  const response = await fetch(
+    `${import.meta.env.VITE_SERVER_BASE_URL}/users/${username}`,
+    {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+      },
+      credentials: 'include',
+    }
+  );
 
   if (!response.ok) {
     const errorResponse = await response.json();
@@ -39,13 +45,16 @@ async function getRecipientUserIdByUsername(username: string): Promise<number> {
 
 // Retrieve the block list of the logged in user
 async function getBlockList(): Promise<number[]> {
-  const response = await fetch('http://localhost:8080/users/blocked', {
-    method: 'GET',
-    headers: {
-      Accept: 'application/json',
-    },
-    credentials: 'include',
-  });
+  const response = await fetch(
+    `${import.meta.env.VITE_SERVER_BASE_URL}/users/blocked`,
+    {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+      },
+      credentials: 'include',
+    }
+  );
 
   if (!response.ok) {
     const errorResponse = await response.json();
@@ -57,15 +66,18 @@ async function getBlockList(): Promise<number[]> {
 }
 
 async function updateUsername(username: string): Promise<string> {
-  const response = await fetch('http://localhost:8080/users', {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-      Accept: 'application/json',
-    },
-    body: JSON.stringify({ username: username }),
-    credentials: 'include',
-  });
+  const response = await fetch(
+    `${import.meta.env.VITE_SERVER_BASE_URL}/users`,
+    {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      body: JSON.stringify({ username: username }),
+      credentials: 'include',
+    }
+  );
 
   if (!response.ok) {
     const errorResponse = await response.json();
@@ -78,14 +90,17 @@ async function updateUsername(username: string): Promise<string> {
 
 // Update a user's block list with the ID of who they want blocked
 async function updateBlockList(userIds: number[]): Promise<void> {
-  const response = await fetch('http://localhost:8080/users/blocked', {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ blockedUserIds: userIds }),
-    credentials: 'include',
-  });
+  const response = await fetch(
+    `${import.meta.env.VITE_SERVER_BASE_URL}/users/blocked`,
+    {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ blockedUserIds: userIds }),
+      credentials: 'include',
+    }
+  );
 
   if (!response.ok) {
     const errorResponse = await response.json();

@@ -4,13 +4,16 @@ import { getRecipientUserIdByUsername } from './user-api';
 
 // Fetch the chat list of a specific user
 async function getChatListByUserId(): Promise<Chat[]> {
-  const response = await fetch('http://localhost:8080/chats', {
-    method: 'GET',
-    headers: {
-      Accept: 'application/json',
-    },
-    credentials: 'include',
-  });
+  const response = await fetch(
+    `${import.meta.env.VITE_SERVER_BASE_URL}/chats`,
+    {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+      },
+      credentials: 'include',
+    }
+  );
 
   if (!response.ok) {
     const errorResponse = await response.json();
@@ -25,13 +28,16 @@ async function getRecipientInfo(
   room: string,
   navigate: (path: string) => void
 ): Promise<UserInfo> {
-  const response = await fetch(`http://localhost:8080/chats/${room}`, {
-    method: 'GET',
-    headers: {
-      Accept: 'application/json',
-    },
-    credentials: 'include',
-  });
+  const response = await fetch(
+    `${import.meta.env.VITE_SERVER_BASE_URL}/chats/${room}`,
+    {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+      },
+      credentials: 'include',
+    }
+  );
   const data = await response.json();
 
   // Redirect user to homepage if they try to access a chat via the URL with a user that does not exist
@@ -58,19 +64,22 @@ async function addChat(inputUsername: string): Promise<Chat> {
     throw new Error('Username is required');
   }
 
-  const response = await fetch('http://localhost:8080/chats', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Accept: 'application/json',
-    },
-    // Send the username entered to the backend to ensure that it exists in the database
-    body: JSON.stringify({
-      recipientName: inputUsername,
-      recipientId: recipientId,
-    }),
-    credentials: 'include',
-  });
+  const response = await fetch(
+    `${import.meta.env.VITE_SERVER_BASE_URL}/chats`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      // Send the username entered to the backend to ensure that it exists in the database
+      body: JSON.stringify({
+        recipientName: inputUsername,
+        recipientId: recipientId,
+      }),
+      credentials: 'include',
+    }
+  );
   const data = await response.json();
 
   if (!response.ok) {
@@ -87,7 +96,7 @@ async function updateLastMessageId(
   room: string
 ): Promise<void> {
   const response = await fetch(
-    `http://localhost:8080/chats/${room}/last_message`,
+    `${import.meta.env.VITE_SERVER_BASE_URL}/chats/${room}/last_message`,
     {
       method: 'PUT',
       headers: {
@@ -106,7 +115,7 @@ async function updateLastMessageId(
 
 async function updateReadStatus(read: boolean, room: string): Promise<void> {
   const response = await fetch(
-    `http://localhost:8080/chats/${room}/read_status`,
+    `${import.meta.env.VITE_SERVER_BASE_URL}/chats/${room}/read_status`,
     {
       method: 'PUT',
       headers: {
@@ -125,13 +134,16 @@ async function updateReadStatus(read: boolean, room: string): Promise<void> {
 
 // Delete a chat from the user's chat list
 async function deletePrivateChat(room: string): Promise<void> {
-  const response = await fetch(`http://localhost:8080/chats/${room}`, {
-    method: 'DELETE',
-    headers: {
-      Accept: 'application/json',
-    },
-    credentials: 'include',
-  });
+  const response = await fetch(
+    `${import.meta.env.VITE_SERVER_BASE_URL}/chats/${room}`,
+    {
+      method: 'DELETE',
+      headers: {
+        Accept: 'application/json',
+      },
+      credentials: 'include',
+    }
+  );
 
   if (!response.ok) {
     const errorResponse = await response.json();

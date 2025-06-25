@@ -28,7 +28,7 @@ export default function SignUp() {
       }
 
       const response = await fetch(
-        'http://localhost:8080/auth/register/password',
+        `${import.meta.env.VITE_SERVER_BASE_URL}/auth/register/password`,
         {
           method: 'POST',
           headers: {

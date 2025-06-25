@@ -12,19 +12,22 @@ export async function createGroupChat(
     throw new Error('Group name is required');
   }
 
-  const response = await fetch('http://localhost:8080/groups', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Accept: 'application/json',
-    },
-    body: JSON.stringify({
-      loggedInUserId: loggedInUserId,
-      groupName: groupName,
-      addedMembers: addedMembers,
-    }),
-    credentials: 'include',
-  });
+  const response = await fetch(
+    `${import.meta.env.VITE_SERVER_BASE_URL}/groups`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      body: JSON.stringify({
+        loggedInUserId: loggedInUserId,
+        groupName: groupName,
+        addedMembers: addedMembers,
+      }),
+      credentials: 'include',
+    }
+  );
   const data = await response.json();
 
   if (!response.ok) {
@@ -38,17 +41,20 @@ export async function addMembers(
   room: string,
   addedMembers: GroupMemberToBeAdded[]
 ): Promise<{ message: string }> {
-  const response = await fetch(`http://localhost:8080/groups/${room}/members`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Accept: 'application/json',
-    },
-    body: JSON.stringify({
-      addedMembers: addedMembers,
-    }),
-    credentials: 'include',
-  });
+  const response = await fetch(
+    `${import.meta.env.VITE_SERVER_BASE_URL}/groups/${room}/members`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      body: JSON.stringify({
+        addedMembers: addedMembers,
+      }),
+      credentials: 'include',
+    }
+  );
   const data = await response.json();
 
   if (!response.ok) {
@@ -61,13 +67,16 @@ export async function getGroupChatInfo(
   room: string,
   navigate: (path: string) => void
 ): Promise<GroupInfoWithMembers> {
-  const response = await fetch(`http://localhost:8080/groups/${room}`, {
-    method: 'GET',
-    headers: {
-      Accept: 'application/json',
-    },
-    credentials: 'include',
-  });
+  const response = await fetch(
+    `${import.meta.env.VITE_SERVER_BASE_URL}/groups/${room}`,
+    {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+      },
+      credentials: 'include',
+    }
+  );
   const data = await response.json();
 
   // Redirect user to homepage if they try to access a group chat via the URL that does not exist
@@ -90,7 +99,7 @@ export async function retrieveGroupMembersInfo(
   groupId: number
 ): Promise<string[]> {
   const response = await fetch(
-    `http://localhost:8080/groups/${groupId}/members`,
+    `${import.meta.env.VITE_SERVER_BASE_URL}/groups/${groupId}/members`,
     {
       method: 'GET',
       headers: {
@@ -114,7 +123,7 @@ export async function updateLastGroupMessageId(
   room: string
 ): Promise<void> {
   const response = await fetch(
-    `http://localhost:8080/groups/${room}/last_message`,
+    `${import.meta.env.VITE_SERVER_BASE_URL}/groups/${room}/last_message`,
     {
       method: 'PUT',
       headers: {
@@ -132,13 +141,16 @@ export async function updateLastGroupMessageId(
 }
 
 export async function markUserAsRead(room: string): Promise<void> {
-  const response = await fetch(`http://localhost:8080/groups/${room}`, {
-    method: 'PUT',
-    headers: {
-      Accept: 'application/json',
-    },
-    credentials: 'include',
-  });
+  const response = await fetch(
+    `${import.meta.env.VITE_SERVER_BASE_URL}/groups/${room}`,
+    {
+      method: 'PUT',
+      headers: {
+        Accept: 'application/json',
+      },
+      credentials: 'include',
+    }
+  );
 
   if (!response.ok) {
     const errorResponse = await response.json();
@@ -151,7 +163,7 @@ export async function deleteGroupChat(
   room: string
 ): Promise<void> {
   const response = await fetch(
-    `http://localhost:8080/groups/${groupId}/rooms/${room}`,
+    `${import.meta.env.VITE_SERVER_BASE_URL}/groups/${groupId}/rooms/${room}`,
     {
       method: 'DELETE',
       headers: {
@@ -169,7 +181,7 @@ export async function deleteGroupChat(
 
 export async function leaveGroup(groupId: number): Promise<string> {
   const response = await fetch(
-    `http://localhost:8080/groups/${groupId}/members/me`,
+    `${import.meta.env.VITE_SERVER_BASE_URL}/${groupId}/members/me`,
     {
       method: 'DELETE',
       headers: {
@@ -192,7 +204,9 @@ export async function removeGroupMember(
   userId: number
 ): Promise<string> {
   const response = await fetch(
-    `http://localhost:8080/groups/${groupId}/members/${userId}`,
+    `${
+      import.meta.env.VITE_SERVER_BASE_URL
+    }/groups/${groupId}/members/${userId}`,
     {
       method: 'DELETE',
       headers: {
@@ -213,7 +227,7 @@ export async function removeGroupMember(
 export async function permanentlyDeleteGroup(groupId: number): Promise<string> {
   const response = await fetch(
     // TODO: Rename route to avoid conflict with existing one
-    `http://localhost:8080/groups/${groupId}`,
+    `${import.meta.env.VITE_SERVER_BASE_URL}/groups/${groupId}`,
     {
       method: 'DELETE',
       headers: {

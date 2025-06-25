@@ -8,10 +8,13 @@ export default function Logout() {
 
   const handleLogout = async (): Promise<void> => {
     try {
-      const response = await fetch('http://localhost:8080/auth/logout', {
-        method: 'POST',
-        credentials: 'include',
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_SERVER_BASE_URL}/auth/logout`,
+        {
+          method: 'POST',
+          credentials: 'include',
+        }
+      );
 
       if (!response.ok) {
         throw new Error(await response.json());

@@ -27,7 +27,7 @@ const port = process.env.PORT || 4000;
 
 app.use(
   cors({
-    origin: 'http://localhost:3000',
+    origin: process.env.CLIENT_BASE_URL,
     credentials: true,
   })
 );
@@ -51,8 +51,8 @@ app.use('/messages', messagesRouter);
 
 const io = new Server(server, {
   cors: {
-    origin: 'http://localhost:3000',
-    methods: ['GET', 'POST'],
+    origin: process.env.CLIENT_BASE_URL,
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true,
   },
   connectionStateRecovery: {},

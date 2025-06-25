@@ -16,7 +16,7 @@ export default function Login() {
 
     try {
       const response = await fetch(
-        'http://localhost:8080/auth/login/password',
+        `${import.meta.env.VITE_SERVER_BASE_URL}/auth/login/password`,
         {
           method: 'POST',
           headers: {

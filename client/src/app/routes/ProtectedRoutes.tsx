@@ -3,16 +3,21 @@ import { Outlet, Navigate } from 'react-router-dom';
 
 // Set up route protection - done by retrieving the auth status from the backend
 export default function ProtectedRoutes() {
-  const [authenticationStatus, setAuthenticationStatus] = useState<boolean | null>(null);
+  const [authenticationStatus, setAuthenticationStatus] = useState<
+    boolean | null
+  >(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     try {
       const checkAuthStatus = async (): Promise<void> => {
-        const response = await fetch('http://localhost:8080/auth/status', {
-          method: 'GET',
-          credentials: 'include',
-        });
+        const response = await fetch(
+          `${import.meta.env.VITE_SERVER_BASE_URL}/auth/status`,
+          {
+            method: 'GET',
+            credentials: 'include',
+          }
+        );
 
         if (!response.ok) {
           throw new Error(

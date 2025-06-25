@@ -26,8 +26,8 @@ export function usePictureUpload(
     const uploadPromise = async () => {
       const response = await fetch(
         chatType === ChatType.GROUP
-          ? `http://localhost:8080/groups/${room}/pictures`
-          : `http://localhost:8080/users/pictures`,
+          ? `${import.meta.env.VITE_SERVER_BASE_URL}/groups/${room}/pictures`
+          : `${import.meta.env.VITE_SERVER_BASE_URL}/users/pictures`,
         {
           method: 'POST',
           body: formData,
