@@ -181,7 +181,7 @@ export async function deleteGroupChat(
 
 export async function leaveGroup(groupId: number): Promise<string> {
   const response = await fetch(
-    `${import.meta.env.VITE_SERVER_BASE_URL}/${groupId}/members/me`,
+    `${import.meta.env.VITE_SERVER_BASE_URL}/groups/${groupId}/members/me`,
     {
       method: 'DELETE',
       headers: {
