@@ -106,7 +106,7 @@ export default function GroupInfoModal({
           <button
             className='delete-group-button'
             onClick={() => setIsDeleteModalOpen(true)}
-            style={{ width: '100%' }}
+            style={{ width: '100%', marginBottom: '-5px' }}
           >
             Delete group
           </button>

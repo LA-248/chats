@@ -313,6 +313,7 @@ const restoreChat = async (
   }
 };
 
+// Emit a chat message to everyone in the relevant room (used for both private and group chats)
 const broadcastMessage = (
   io: Server,
   room: string,

@@ -37,6 +37,7 @@ function ChatView() {
   useEffect(() => {
     if (!socket) return;
 
+    // Display all messages of a chat when opened
     const displayInitialMessages = (initialMessages: Message[]): void => {
       setMessages(initialMessages);
     };
