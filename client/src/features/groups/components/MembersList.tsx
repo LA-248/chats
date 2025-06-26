@@ -98,7 +98,6 @@ export default function MembersList({
                       >
                         <AddModeratorRoundedIcon fontSize='small' />
                       </button>
-                    // If 
                     ) : isMemberOwner &&
                       member.role === GroupMemberRole.ADMIN ? (
                       <button
@@ -111,7 +110,7 @@ export default function MembersList({
                   ) : null
                 }
 
-
+                {showKickButton ? (
                   <button
                     className='remove-member-button'
                     title='Kick'
@@ -123,7 +122,7 @@ export default function MembersList({
                   >
                     <PersonRemoveAlt1RoundedIcon fontSize='small' />
                   </button>
-
+                ) : null}
               </div>
             </div>
           );
