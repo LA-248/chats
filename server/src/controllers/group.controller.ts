@@ -5,9 +5,10 @@ import {
   addUsersToGroup,
   addUserToReadList,
   getMemberUsernames,
+  makeMemberAdmin,
   markGroupAsDeleted,
   permanentlyDeleteGroupChat,
-  removeKickedMember,
+  kickMember,
   removeMember,
   retrieveGroupInfoWithMembers,
   updateLastGroupMessage,
@@ -156,7 +157,7 @@ export const leaveGroup = async (
     io.to(room).emit('remove-member', {
       removedUserId,
     });
-    // After a member leaves or is removed, send the room to the frontend so the group can be filtered out of their chat list
+    // After a member leaves, send the room to the frontend so the group can be filtered out of their chat list
     io.to(socketId).emit('remove-group-chat', {
       room: room,
       redirectPath: '/',
@@ -176,7 +177,7 @@ export const leaveGroup = async (
   }
 };
 
-// Used when the group owner removes a member
+// Used when the group owner or an admin kicks a member
 export const removeGroupMember = async (
   req: Request,
   res: Response
@@ -185,8 +186,14 @@ export const removeGroupMember = async (
     const io = req.app.get('io');
     const groupId = Number(req.params.groupId);
     const userId = Number(req.params.userId);
+    const loggedInUserId = Number(req.user?.user_id); // Get the ID of the user performing the member removal
     const socketId = userSockets.get(userId);
-    const { room, removedUser } = await removeKickedMember(io, groupId, userId);
+    const { room, removedUser } = await kickMember(
+      io,
+      groupId,
+      userId,
+      loggedInUserId
+    );
     const removedUserId = removedUser.user_id;
 
     // Send the user id of the removed member to the frontend
@@ -194,7 +201,7 @@ export const removeGroupMember = async (
     io.to(room).emit('remove-member', {
       removedUserId,
     });
-    // After a member leaves or is removed, send the room to the frontend so the group can be filtered out of their chat list
+    // After a member is kicked, send the room to the frontend so the group can be filtered out of their chat list
     io.to(socketId).emit('remove-group-chat', {
       room: room,
       redirectPath: '/',
@@ -204,9 +211,42 @@ export const removeGroupMember = async (
       message: 'Member successfully removed',
     });
   } catch (error) {
+    if (error instanceof Error) {
+      if (error.message === 'You may not kick this member') {
+        res.status(403).json({
+          error: error.message,
+        });
+        return;
+      }
+    }
     console.error('Error removing member from group chat:', error);
     res.status(500).json({
       error: 'Error removing member from group chat. Please try again.',
+    });
+  }
+};
+
+export const updateRoleToAdmin = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const io = req.app.get('io');
+    const groupId = Number(req.params.groupId);
+    const userId = Number(req.params.userId);
+    const { room, newAdmin } = await makeMemberAdmin(groupId, userId);
+
+    io.to(room).emit('assign-member-as-admin', {
+      newAdmin,
+    });
+
+    res.status(200).json({
+      message: 'Member successfully assigned as admin',
+    });
+  } catch (error) {
+    console.error('Error making member admin:', error);
+    res.status(500).json({
+      error: 'Error making member admin. Please try again.',
     });
   }
 };

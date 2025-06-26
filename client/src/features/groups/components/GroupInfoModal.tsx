@@ -10,6 +10,7 @@ import GroupPicture from './GroupPicture';
 import MembersList from './MembersList';
 import RemoveMemberModal from './RemoveMemberModal';
 import DeleteGroupModal from './DeleteGroupModal';
+import MakeMemberAdminModal from './MakeMemberAdminModal';
 
 interface GroupInfoHeaderProps {
   group: GroupInfoWithMembers;
@@ -61,12 +62,14 @@ export default function GroupInfoModal({
 }: GroupInfoModalProps) {
   const [isLeaveModalOpen, setIsLeaveModalOpen] = useState<boolean>(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
+  const [isMakeMemberAdminModalOpen, setIsMakeMemberAdminModalOpen] =
+    useState<boolean>(false);
   const [isRemoveMemberModalOpen, setIsRemoveMemberModalOpen] =
     useState<boolean>(false);
   const [memberId, setMemberId] = useState<number>(0);
   const [memberName, setMemberName] = useState<string>('');
 
-  const isMemberAdmin = useMemo(() => {
+  const isMemberOwner = useMemo(() => {
     return membersList.some(
       (member) =>
         member.user_id === loggedInUserId &&
@@ -95,13 +98,14 @@ export default function GroupInfoModal({
           membersList={membersList}
           loggedInUsername={loggedInUsername}
           loggedInUserId={loggedInUserId}
+          setIsMakeAdminModalOpen={setIsMakeMemberAdminModalOpen}
           setIsRemoveMemberModalOpen={setIsRemoveMemberModalOpen}
           setMemberId={setMemberId}
           setMemberName={setMemberName}
         />
       </div>
 
-      {isMemberAdmin ? (
+      {isMemberOwner ? (
         <div className='delete-group-container'>
           <button
             className='delete-group-button'
@@ -133,6 +137,14 @@ export default function GroupInfoModal({
         group={group}
         isModalOpen={isDeleteModalOpen}
         setIsModalOpen={setIsDeleteModalOpen}
+      />
+
+      <MakeMemberAdminModal
+        group={group}
+        isModalOpen={isMakeMemberAdminModalOpen}
+        setIsModalOpen={setIsMakeMemberAdminModalOpen}
+        memberId={memberId}
+        memberName={memberName}
       />
 
       <RemoveMemberModal

@@ -110,7 +110,7 @@ export const groupChatRoomAuth = async (
   }
 };
 
-export const authoriseGroupAdminAction = async (
+export const authoriseGroupOwnerAction = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -143,6 +143,63 @@ export const authoriseGroupAdminAction = async (
     );
 
     if (isOwner) {
+      return next();
+    } else {
+      res.status(403).json({
+        error: 'Unauthorised',
+        message: 'You are unauthorised to perform this action',
+        redirectPath: '/',
+      });
+      return;
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      error: 'Internal server error',
+      message: 'An unexpected error occurred',
+      redirectPath: '/',
+    });
+  }
+};
+
+export const authoriseGroupOwnerOrAdminAction = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  const loggedInUserId = Number(req.user?.user_id);
+  const groupId = Number(req.params.groupId);
+  const room = await Group.retrieveRoomByGroupId(groupId);
+
+  try {
+    const groupChatMembers: GroupMemberPartialInfo[] | null =
+      await GroupMember.retrieveMembersByRoom(room);
+    if (!groupChatMembers) {
+      res.status(404).json({
+        error: 'Not found',
+        message: 'This chat does not exist',
+        redirectPath: '/',
+      });
+      return;
+    }
+
+    if (!loggedInUserId) {
+      res.status(401).json({ error: 'Invalid ID' });
+      return;
+    }
+
+    const isOwner = groupChatMembers.some(
+      (member) =>
+        member.user_id === loggedInUserId &&
+        member.role === GroupMemberRole.OWNER
+    );
+    const isAdmin = groupChatMembers.some(
+      (member) =>
+        member.user_id === loggedInUserId &&
+        member.role === GroupMemberRole.ADMIN
+    );
+
+    if (isOwner || isAdmin) {
       return next();
     } else {
       res.status(403).json({

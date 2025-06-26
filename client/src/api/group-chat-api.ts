@@ -224,6 +224,31 @@ export async function removeGroupMember(
   return data.message;
 }
 
+export async function makeMemberAdmin(
+  groupId: number,
+  userId: number
+): Promise<string> {
+  const response = await fetch(
+    `${
+      import.meta.env.VITE_SERVER_BASE_URL
+    }/groups/${groupId}/members/${userId}`,
+    {
+      method: 'PUT',
+      headers: {
+        Accept: 'application/json',
+      },
+      credentials: 'include',
+    }
+  );
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.error);
+  }
+
+  return data.message;
+}
+
 export async function permanentlyDeleteGroup(groupId: number): Promise<string> {
   const response = await fetch(
     // TODO: Rename route to avoid conflict with existing one

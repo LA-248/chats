@@ -118,26 +118,7 @@ export const addUsersToGroup = async (
   return await notifyAddedUsers(io, insertedGroupMembers, groupInfo, room);
 };
 
-export const removeKickedMember = async (
-  io: Server,
-  groupId: number,
-  userId: number
-): Promise<{ room: string; removedUser: RemovedGroupMember }> => {
-  const socketId = userSockets.get(userId);
-
-  const room = await Group.retrieveRoomByGroupId(groupId);
-  const removedUser = await GroupMember.removeGroupMember(groupId, userId);
-  await Group.removeUserFromReadList(userId, room);
-
-  // Remove socket of removed member from the room
-  if (socketId) {
-    const memberSocket = io.sockets.sockets.get(socketId);
-    memberSocket?.leave(room);
-  }
-
-  return { room, removedUser };
-};
-
+// Handles removing a member that voluntarily left a group
 export const removeMember = async (
   io: Server,
   groupId: number,
@@ -156,10 +137,17 @@ export const removeMember = async (
 
   // If the user who left the group was the owner, randomly assign another member as the new owner
   if (removedUser.role === GroupMemberRole.OWNER) {
-    const groupMemberInfo = await GroupMember.retrieveMember(room, groupId);
+    const groupMemberInfo = await GroupMember.retrieveRandomMember(
+      room,
+      groupId
+    );
     const groupMemberUserId = groupMemberInfo.user_id;
 
-    newGroupOwner = await GroupMember.updateRole(groupId, groupMemberUserId);
+    newGroupOwner = await GroupMember.updateRole(
+      GroupMemberRole.OWNER,
+      groupId,
+      groupMemberUserId
+    );
     await Group.updateOwner(newGroupOwner.user_id, groupId, room);
   }
 
@@ -170,6 +158,60 @@ export const removeMember = async (
   }
 
   return { room, removedUser, newGroupOwner };
+};
+
+export const kickMember = async (
+  io: Server,
+  groupId: number,
+  userId: number,
+  loggedInUserId: number
+): Promise<{ room: string; removedUser: RemovedGroupMember }> => {
+  const socketId = userSockets.get(userId);
+  const room = await Group.retrieveRoomByGroupId(groupId);
+
+  const kicker = await GroupMember.retrieveMemberByUserId(
+    room,
+    groupId,
+    loggedInUserId
+  );
+  const memberToBeRemoved = await GroupMember.retrieveMemberByUserId(
+    room,
+    groupId,
+    userId
+  );
+
+  // Make sure the member performing the kick can only do so to those with a lower role than theirs
+  if (
+    memberToBeRemoved.role === kicker.role ||
+    memberToBeRemoved.role === GroupMemberRole.OWNER
+  ) {
+    throw new Error('You may not kick this member');
+  }
+
+  const removedUser = await GroupMember.removeGroupMember(groupId, userId);
+  await Group.removeUserFromReadList(userId, room);
+
+  // Remove socket of removed member from the room
+  if (socketId) {
+    const memberSocket = io.sockets.sockets.get(socketId);
+    memberSocket?.leave(room);
+  }
+
+  return { room, removedUser };
+};
+
+export const makeMemberAdmin = async (
+  groupId: number,
+  userId: number
+): Promise<{ room: string; newAdmin: GroupMemberPartialInfo }> => {
+  const room = await Group.retrieveRoomByGroupId(groupId);
+  const newAdmin = await GroupMember.updateRole(
+    GroupMemberRole.ADMIN,
+    groupId,
+    userId
+  );
+
+  return { room, newAdmin };
 };
 
 export const permanentlyDeleteGroupChat = async (
@@ -272,9 +314,10 @@ const notifyAddedUsers = async (
     addedUsersInfo.push(addedUser);
 
     if (userSockets.has(addedUser.user_id)) {
-      const socketId = userSockets.get(addedUser.user_id);
-      if (socketId) {
-        io.to(socketId).emit('add-group-to-chat-list', {
+      // Get the socket ID of each member added to the group
+      const addedUserSocketId = userSockets.get(addedUser.user_id);
+      if (addedUserSocketId) {
+        io.to(addedUserSocketId).emit('add-group-to-chat-list', {
           chat_id: `g_${groupData.group_id}`,
           chat_picture: groupPictureUrl,
           chat_type: 'group',
@@ -288,7 +331,7 @@ const notifyAddedUsers = async (
           room,
           updated_at: new Date(),
         });
-        const memberSocket = io.sockets.sockets.get(socketId);
+        const memberSocket = io.sockets.sockets.get(addedUserSocketId);
         memberSocket?.join(room);
       }
     }
@@ -306,6 +349,7 @@ const broadcastGroupCreation = (
   for (const member of insertedGroupMembers) {
     if (member.value) {
       if (userSockets.has(member.value.user_id)) {
+        // Get the socket ID of each member added to the group
         const socketId = userSockets.get(member.value.user_id);
         if (socketId) {
           // This structure is used as it mirrors the one returned when fetching a user's chats from the database to build their chat list

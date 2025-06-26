@@ -1,11 +1,14 @@
 import { useMemo } from 'react';
 import { GroupMemberRole, type GroupMember } from '../../../types/group';
 import PersonRemoveAlt1RoundedIcon from '@mui/icons-material/PersonRemoveAlt1Rounded';
+import AddModeratorRoundedIcon from '@mui/icons-material/AddModeratorRounded';
+import RemoveModeratorRoundedIcon from '@mui/icons-material/RemoveModeratorRounded';
 
 interface MembersListProps {
   membersList: GroupMember[];
   loggedInUsername: string;
   loggedInUserId: number;
+  setIsMakeAdminModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setIsRemoveMemberModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setMemberId: React.Dispatch<React.SetStateAction<number>>;
   setMemberName: React.Dispatch<React.SetStateAction<string>>;
@@ -15,16 +18,26 @@ export default function MembersList({
   membersList,
   loggedInUsername,
   loggedInUserId,
+  setIsMakeAdminModalOpen,
   setIsRemoveMemberModalOpen,
   setMemberId,
   setMemberName,
 }: MembersListProps) {
-  // Check if current logged in user is the group admin
-  const isMemberAdmin = useMemo(() => {
+  // Check if current logged in user is the group owner
+  const isMemberOwner = useMemo(() => {
     return membersList.some(
       (member) =>
         member.user_id === loggedInUserId &&
         member.role === GroupMemberRole.OWNER
+    );
+  }, [membersList, loggedInUserId]);
+
+  // Check if current logged in user is a group admin
+  const isMemberAdmin = useMemo(() => {
+    return membersList.some(
+      (member) =>
+        member.user_id === loggedInUserId &&
+        member.role === GroupMemberRole.ADMIN
     );
   }, [membersList, loggedInUserId]);
 
@@ -33,31 +46,75 @@ export default function MembersList({
       <div className='group-member-list-container'>
         <div className='group-member-list-header'>Members</div>
         {membersList.map((member) => {
+          const isSelf = member.user_id === loggedInUserId;
+
+          const showKickButton =
+            // OWNER: able to kick everybody except themselves
+            (isMemberOwner && !isSelf) ||
+            // ADMIN: able to kick only normal members (not owner, not self, not other admins)
+            (isMemberAdmin &&
+              member.role !== GroupMemberRole.OWNER &&
+              member.role !== GroupMemberRole.ADMIN &&
+              !isSelf);
+
           return (
             <div className='group-member' key={member.user_id}>
-              <div className='group-member-profile-pic-and-name'>
+              <div className='group-member-metadata'>
                 <img
                   className='group-member-profile-picture'
                   src={member.profile_picture ?? '/images/default-avatar.jpg'}
                   alt='Profile avatar'
                 />
-                <div className='group-member-name'>
-                  {loggedInUsername === member.username
-                    ? 'You'
-                    : member.username}
+                <div className='group-member-name-and-role'>
+                  <div className='group-member-name'>
+                    {loggedInUsername === member.username
+                      ? 'You'
+                      : member.username}
+                  </div>
+                  <div className='group-member-role'>
+                    <div>
+                      {member.role === GroupMemberRole.OWNER
+                        ? 'Owner'
+                        : member.role === GroupMemberRole.ADMIN
+                        ? 'Admin'
+                        : null}
+                    </div>
+                  </div>
                 </div>
               </div>
-              <div className='group-member-role'>
-                <div>
-                  {member.role === GroupMemberRole.OWNER ? 'Admin' : null}
-                </div>
-              </div>
+              <div className='group-moderation-buttons-container'>
+                {
+                  // Do not show button to add/remove an admin next to owner
+                  member.role !== GroupMemberRole.OWNER ? (
+                    isMemberOwner && member.role !== GroupMemberRole.ADMIN ? (
+                      <button
+                        className='make-admin-button'
+                        title='Make admin'
+                        onClick={() => {
+                          setIsMakeAdminModalOpen(true);
+                          setMemberId(member.user_id);
+                          setMemberName(member.username);
+                        }}
+                      >
+                        <AddModeratorRoundedIcon fontSize='small' />
+                      </button>
+                    // If 
+                    ) : isMemberOwner &&
+                      member.role === GroupMemberRole.ADMIN ? (
+                      <button
+                        className='remove-admin-button'
+                        title='Remove admin'
+                      >
+                        <RemoveModeratorRoundedIcon fontSize='small'></RemoveModeratorRoundedIcon>
+                      </button>
+                    ) : null
+                  ) : null
+                }
 
-              {isMemberAdmin ? (
-                // Displays the kick button next to every member that is not the group owner
-                member.role !== GroupMemberRole.OWNER ? (
+
                   <button
                     className='remove-member-button'
+                    title='Kick'
                     onClick={() => {
                       setIsRemoveMemberModalOpen(true);
                       setMemberId(member.user_id);
@@ -66,8 +123,8 @@ export default function MembersList({
                   >
                     <PersonRemoveAlt1RoundedIcon fontSize='small' />
                   </button>
-                ) : null
-              ) : null}
+
+              </div>
             </div>
           );
         })}

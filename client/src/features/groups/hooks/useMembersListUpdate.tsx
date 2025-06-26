@@ -37,14 +37,30 @@ export default function useMembersListUpdate(
       );
     };
 
+    const handleAdminAssignment = (data: {
+      newAdmin: GroupMemberPartialInfo;
+    }) => {
+      setMembersList((prevMembersList) =>
+        prevMembersList.map((member) => {
+          if (member.user_id === data.newAdmin.user_id) {
+            return { ...member, role: data.newAdmin.role };
+          } else {
+            return member;
+          }
+        })
+      );
+    };
+
     socket.on('remove-member', handleMemberRemoval);
     socket.on('add-members', handleMemberAddition);
     socket.on('assign-new-group-owner', handleNewGroupOwnerAssignment);
+    socket.on('assign-member-as-admin', handleAdminAssignment);
 
     return () => {
       socket.off('remove-member');
       socket.off('add-members');
       socket.off('assign-new-group-owner');
+      socket.off('assign-member-as-admin');
     };
   }, [socket, setMembersList]);
 }

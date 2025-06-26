@@ -1,7 +1,8 @@
 import express, { NextFunction, Request, Response } from 'express';
 import handleMulterError from '../middlewares/multer.middleware.ts';
 import {
-  authoriseGroupAdminAction,
+  authoriseGroupOwnerAction,
+  authoriseGroupOwnerOrAdminAction,
   groupChatRoomAuth,
   requireAuth,
 } from '../middlewares/auth.middleware.ts';
@@ -16,6 +17,7 @@ import {
   retrieveMemberUsernames,
   updateGroupPicture,
   updateLastMessageId,
+  updateRoleToAdmin,
   updateUserReadStatus,
 } from '../controllers/group.controller.ts';
 
@@ -48,13 +50,13 @@ groupChatsRouter.delete('/:groupId/members/me', groupChatRoomAuth, leaveGroup);
 groupChatsRouter.delete(
   '/:groupId/members/:userId',
   groupChatRoomAuth,
-  authoriseGroupAdminAction,
+  authoriseGroupOwnerOrAdminAction,
   removeGroupMember
 );
 groupChatsRouter.delete(
   '/:groupId',
   groupChatRoomAuth,
-  authoriseGroupAdminAction,
+  authoriseGroupOwnerAction,
   permanentlyDeleteGroup
 );
 groupChatsRouter.delete(
@@ -67,6 +69,11 @@ groupChatsRouter.put(
   '/:room/last_message',
   groupChatRoomAuth,
   updateLastMessageId
+);
+groupChatsRouter.put(
+  '/:groupId/members/:userId',
+  groupChatRoomAuth,
+  updateRoleToAdmin
 );
 groupChatsRouter.put('/:room', groupChatRoomAuth, updateUserReadStatus);
 

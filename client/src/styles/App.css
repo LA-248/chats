@@ -410,7 +410,19 @@ body {
 
 .chat-action-buttons {
   display: flex;
+  align-items: center;
   gap: 10px;
+}
+
+.start-voice-call-button {
+  color: white;
+  cursor: pointer;
+  background: none;
+  border: none;
+}
+
+.start-voice-call-button:hover {
+  opacity: 0.9;
 }
 
 .add-group-members-button {
@@ -934,9 +946,10 @@ body {
   font-weight: 500;
 }
 
-.group-member-profile-pic-and-name {
+.group-member-metadata {
   display: flex;
   align-items: center;
+  justify-content: center;
 }
 
 .group-member-profile-picture {
@@ -948,13 +961,18 @@ body {
   margin-right: 10px;
 }
 
+.group-member-name-and-role {
+  display: flex;
+  flex-direction: column;
+}
+
 .group-member-name {
   font-weight: 600;
 }
 
 .group-member-role {
   display: flex;
-  justify-content: space-between;
+  font-size: 12px;
 }
 
 .leave-group-button {
@@ -969,6 +987,33 @@ body {
   cursor: pointer;
   opacity: 0.9;
   text-decoration: underline;
+}
+
+.group-moderation-buttons-container {
+  display: flex;
+  gap: 10px;
+}
+
+.make-admin-button {
+  color: white;
+  background: none;
+  border: none;
+}
+
+.make-admin-button:hover {
+  cursor: pointer;
+  opacity: 0.9;
+}
+
+.remove-admin-button {
+  color: white;
+  background: none;
+  border: none;
+}
+
+.remove-admin-button:hover {
+  cursor: pointer;
+  opacity: 0.9;
 }
 
 .remove-member-button {

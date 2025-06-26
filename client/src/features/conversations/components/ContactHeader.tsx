@@ -5,15 +5,16 @@ import { MessageContext } from '../../../contexts/MessageContext';
 import { UserContext } from '../../../contexts/UserContext';
 
 import { getBlockList, updateBlockList } from '../../../api/user-api';
+import { ChatType } from '../../../types/chat';
+import type { UserInfo } from '../../../types/user';
+import type { GroupInfoWithMembers } from '../../../types/group';
 import MessageSearch from './MessageSearch';
 import ContactInfoModal from './ContactInfoModal';
 import GroupInfoModal from '../../groups/components/GroupInfoModal';
 import useClearErrorMessage from '../../../hooks/useClearErrorMessage';
 import useMembersListUpdate from '../../groups/hooks/useMembersListUpdate';
 import AddGroupMembers from '../../groups/components/AddGroupMembers';
-import type { UserInfo } from '../../../types/user';
-import type { GroupInfoWithMembers } from '../../../types/group';
-import { ChatType } from '../../../types/chat';
+import LocalPhoneRoundedIcon from '@mui/icons-material/LocalPhoneRounded';
 
 interface ContactHeaderProps {
   room: string;
@@ -103,6 +104,32 @@ export default function ContactHeader({
 
   useMembersListUpdate(socket, setMembersList);
 
+  // const handleVoiceCallStart = async (): Promise<void> => {
+  //   const openMediaDevices = async (constraints: {
+  //     video: boolean;
+  //     audio: boolean;
+  //   }) => {
+  //     return await navigator.mediaDevices.getUserMedia(constraints);
+  //   };
+
+  //   try {
+  //     const stream = await openMediaDevices({ video: false, audio: true });
+  //     console.log('Got MediaStream:', stream);
+  //   } catch (error) {
+  //     console.error('Error accessing media devices.', error);
+  //   }
+  // };
+
+  // const handleConnectedDevices = async (): Promise<void> => {
+  //   async function getConnectedDevices(type: string) {
+  //     const devices = await navigator.mediaDevices.enumerateDevices();
+  //     return devices.filter((device) => device.kind === type);
+  //   }
+
+  //   const audioDevices = getConnectedDevices('audioinput');
+  //   console.log('Audio devices found:', audioDevices);
+  // };
+
   return (
     <div>
       <div className='contact-header-container'>
@@ -139,6 +166,15 @@ export default function ContactHeader({
           </div>
 
           <div className='chat-action-buttons'>
+            {isPrivateChat ? (
+              <button
+                className='start-voice-call-button'
+                // onClick={handleVoiceCallStart}
+              >
+                <LocalPhoneRoundedIcon fontSize='medium'></LocalPhoneRoundedIcon>
+              </button>
+            ) : null}
+
             {chatType === ChatType.GROUP ? (
               <button
                 className='add-group-members-button'

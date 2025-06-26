@@ -124,7 +124,43 @@ const GroupMember = {
     });
   },
 
-  retrieveMember: function (
+  retrieveMemberByUserId: function (
+    room: string,
+    groupId: number,
+    userId: number
+  ): Promise<GroupMemberPartialInfo> {
+    return new Promise((resolve, reject) => {
+      pool.query(
+        `
+        SELECT gm.user_id, gm.role
+        FROM group_members gm
+        JOIN groups g ON g.group_id = gm.group_id
+        WHERE g.room = $1 AND gm.group_id = $2 AND gm.user_id = $3
+        `,
+        [room, groupId, userId],
+        (err, result) => {
+          if (err) {
+            return reject(
+              `Database error in group_members table: ${err.message}`
+            );
+          }
+
+          try {
+            const member = GroupMemberPartialInfoSchema.parse(result.rows[0]);
+            return resolve(member);
+          } catch (error) {
+            return reject(
+              `Error validating group member data: ${
+                error instanceof Error ? error.message : error
+              }`
+            );
+          }
+        }
+      );
+    });
+  },
+
+  retrieveRandomMember: function (
     room: string,
     groupId: number
   ): Promise<GroupMemberPartialInfo> {
@@ -163,6 +199,7 @@ const GroupMember = {
   // UPDATE OPERATIONS
 
   updateRole: function (
+    role: string,
     groupId: number,
     userId: number
   ): Promise<GroupMemberPartialInfo> {
@@ -170,11 +207,11 @@ const GroupMember = {
       pool.query(
         `
         UPDATE group_members 
-        SET role = 'owner'
-        WHERE group_id = $1 AND user_id = $2
+        SET role = $1
+        WHERE group_id = $2 AND user_id = $3
         RETURNING user_id, role
         `,
-        [groupId, userId],
+        [role, groupId, userId],
         (err, result) => {
           if (err) {
             return reject(
