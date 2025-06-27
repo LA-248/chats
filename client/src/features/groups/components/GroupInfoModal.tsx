@@ -11,13 +11,29 @@ import MembersList from './MembersList';
 import RemoveMemberModal from './RemoveMemberModal';
 import DeleteGroupModal from './DeleteGroupModal';
 import MakeMemberAdminModal from './MakeMemberAdminModal';
+import RemoveAsAdminModal from './RemoveAdminModal';
 
 interface GroupInfoHeaderProps {
   group: GroupInfoWithMembers;
-  setIsLeaveModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  membersList: GroupMember[];
+  loggedInUserId: number;
+  setIsDeleteModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-function GroupInfoHeader({ group, setIsLeaveModalOpen }: GroupInfoHeaderProps) {
+function GroupInfoHeader({
+  group,
+  membersList,
+  loggedInUserId,
+  setIsDeleteModalOpen,
+}: GroupInfoHeaderProps) {
+  const isMemberOwner = useMemo(() => {
+    return membersList.some(
+      (member) =>
+        member.user_id === loggedInUserId &&
+        member.role === GroupMemberRole.OWNER
+    );
+  }, [membersList, loggedInUserId]);
+
   return (
     <>
       <GroupPicture />
@@ -27,14 +43,17 @@ function GroupInfoHeader({ group, setIsLeaveModalOpen }: GroupInfoHeaderProps) {
       >
         {group.info.name}
       </div>
-      <div
-        className='leave-group-button'
-        onClick={() => {
-          setIsLeaveModalOpen(true);
-        }}
-      >
-        Leave group
-      </div>
+      {isMemberOwner ? (
+        <div className='delete-group-container'>
+          <button
+            className='delete-group-button'
+            onClick={() => setIsDeleteModalOpen(true)}
+            style={{ width: '100%', marginBottom: '-5px' }}
+          >
+            Delete group
+          </button>
+        </div>
+      ) : null}
     </>
   );
 }
@@ -61,21 +80,16 @@ export default function GroupInfoModal({
   setErrorMessage,
 }: GroupInfoModalProps) {
   const [isLeaveModalOpen, setIsLeaveModalOpen] = useState<boolean>(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
+  const [isDeleteGroupModalOpen, setIsDeleteGroupModalOpen] =
+    useState<boolean>(false);
   const [isMakeMemberAdminModalOpen, setIsMakeMemberAdminModalOpen] =
+    useState<boolean>(false);
+  const [isRemoveAsAdminModalOpen, setIsRemoveAsAdminModalOpen] =
     useState<boolean>(false);
   const [isRemoveMemberModalOpen, setIsRemoveMemberModalOpen] =
     useState<boolean>(false);
   const [memberId, setMemberId] = useState<number>(0);
   const [memberName, setMemberName] = useState<string>('');
-
-  const isMemberOwner = useMemo(() => {
-    return membersList.some(
-      (member) =>
-        member.user_id === loggedInUserId &&
-        member.role === GroupMemberRole.OWNER
-    );
-  }, [membersList, loggedInUserId]);
 
   return (
     <Modal
@@ -89,7 +103,9 @@ export default function GroupInfoModal({
       <div className='group-info-container'>
         <GroupInfoHeader
           group={group}
-          setIsLeaveModalOpen={setIsLeaveModalOpen}
+          membersList={membersList}
+          loggedInUserId={loggedInUserId}
+          setIsDeleteModalOpen={setIsDeleteGroupModalOpen}
         />
         <hr
           style={{ width: '100%', border: 'solid 1px gray', margin: '10px' }}
@@ -99,23 +115,21 @@ export default function GroupInfoModal({
           loggedInUsername={loggedInUsername}
           loggedInUserId={loggedInUserId}
           setIsMakeAdminModalOpen={setIsMakeMemberAdminModalOpen}
+          setIsRemoveAsAdminModalOpen={setIsRemoveAsAdminModalOpen}
           setIsRemoveMemberModalOpen={setIsRemoveMemberModalOpen}
           setMemberId={setMemberId}
           setMemberName={setMemberName}
         />
       </div>
 
-      {isMemberOwner ? (
-        <div className='delete-group-container'>
-          <button
-            className='delete-group-button'
-            onClick={() => setIsDeleteModalOpen(true)}
-            style={{ width: '100%', marginBottom: '-5px' }}
-          >
-            Delete group
-          </button>
-        </div>
-      ) : null}
+      <div
+        className='leave-group-button'
+        onClick={() => {
+          setIsLeaveModalOpen(true);
+        }}
+      >
+        Leave group
+      </div>
 
       <div className='modal-action-buttons-container'>
         <button
@@ -132,13 +146,11 @@ export default function GroupInfoModal({
         isModalOpen={isLeaveModalOpen}
         setIsModalOpen={setIsLeaveModalOpen}
       />
-
       <DeleteGroupModal
         group={group}
-        isModalOpen={isDeleteModalOpen}
-        setIsModalOpen={setIsDeleteModalOpen}
+        isModalOpen={isDeleteGroupModalOpen}
+        setIsModalOpen={setIsDeleteGroupModalOpen}
       />
-
       <MakeMemberAdminModal
         group={group}
         isModalOpen={isMakeMemberAdminModalOpen}
@@ -146,7 +158,13 @@ export default function GroupInfoModal({
         memberId={memberId}
         memberName={memberName}
       />
-
+      <RemoveAsAdminModal
+        group={group}
+        isModalOpen={isRemoveAsAdminModalOpen}
+        setIsModalOpen={setIsRemoveAsAdminModalOpen}
+        memberId={memberId}
+        memberName={memberName}
+      />
       <RemoveMemberModal
         group={group}
         isModalOpen={isRemoveMemberModalOpen}

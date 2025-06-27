@@ -7,7 +7,7 @@ import {
 } from '../../../types/group';
 import { updateGroupMemberRole } from '../../../api/group-chat-api';
 
-interface MakeAdminModalProps {
+interface RemoveAsAdminModalProps {
   group: GroupInfoWithMembers;
   isModalOpen: boolean;
   setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -15,22 +15,22 @@ interface MakeAdminModalProps {
   memberName: string;
 }
 
-export default function MakeMemberAdminModal({
+export default function RemoveAsAdminModal({
   group,
   isModalOpen,
   setIsModalOpen,
   memberId,
   memberName,
-}: MakeAdminModalProps) {
+}: RemoveAsAdminModalProps) {
   const [errorMessage, setErrorMessage] = useState<string>('');
 
-  const handleAdminAssignment = async (): Promise<void> => {
+  const handleAdminRemoval = async (): Promise<void> => {
     try {
       const groupId = group.info.chatId;
       const result = await updateGroupMemberRole(
         groupId,
         memberId,
-        GroupMemberRole.ADMIN
+        GroupMemberRole.MEMBER
       );
       toast.success(result);
       setIsModalOpen(false);
@@ -50,18 +50,17 @@ export default function MakeMemberAdminModal({
         errorMessage={errorMessage}
         setErrorMessage={setErrorMessage}
       >
-        <div className='modal-heading'>{`Make ${memberName} an admin?`}</div>
+        <div className='modal-heading'>{`Remove ${memberName} as admin?`}</div>
         <div className='modal-subtext'>
-          As admin, <strong>{memberName}</strong> will have the ability to kick
-          members. They will not however be able to give admin to other members
-          or delete the group.
+          This will remove <strong>{memberName}'s</strong> admin privileges,
+          they will no longer have the ability to kick members.
         </div>
 
         <div className='modal-action-buttons-container'>
           <button
             className='confirm-action-button'
             style={{ backgroundColor: '#1db954' }}
-            onClick={() => handleAdminAssignment()}
+            onClick={() => handleAdminRemoval()}
           >
             Confirm
           </button>

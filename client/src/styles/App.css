@@ -978,15 +978,20 @@ body {
 .leave-group-button {
   display: flex;
   justify-content: center;
+  align-items: center;
+  margin-bottom: -5px;
   font-size: 13px;
-  color: red;
-  width: max-content;
+  font-weight: 400;
+  border-radius: 25px;
+  height: 35px;
+  color: white;
+  background-color: red;
+  border: none;
 }
 
 .leave-group-button:hover {
   cursor: pointer;
   opacity: 0.9;
-  text-decoration: underline;
 }
 
 .group-moderation-buttons-container {
@@ -1031,20 +1036,17 @@ body {
 .delete-group-button {
   display: flex;
   justify-content: center;
-  align-items: center;
-  padding: 10px;
   font-size: 13px;
-  font-weight: 400;
-  border-radius: 25px;
-  height: 35px;
-  color: white;
-  background-color: red;
+  color: red;
+  width: max-content;
+  background: none;
   border: none;
 }
 
 .delete-group-button:hover {
   cursor: pointer;
   opacity: 0.9;
+  text-decoration: underline;
 }
 
 /* SETTINGS */

@@ -119,7 +119,7 @@ export const addUsersToGroup = async (
 };
 
 // Handles removing a member that voluntarily left a group
-export const removeMember = async (
+export const removeMemberWhoLeft = async (
   io: Server,
   groupId: number,
   userId: number
@@ -168,7 +168,6 @@ export const kickMember = async (
 ): Promise<{ room: string; removedUser: RemovedGroupMember }> => {
   const socketId = userSockets.get(userId);
   const room = await Group.retrieveRoomByGroupId(groupId);
-
   const kicker = await GroupMember.retrieveMemberByUserId(
     room,
     groupId,
@@ -200,16 +199,13 @@ export const kickMember = async (
   return { room, removedUser };
 };
 
-export const makeMemberAdmin = async (
+export const updateMemberRole = async (
+  newRole: string,
   groupId: number,
   userId: number
 ): Promise<{ room: string; newAdmin: GroupMemberPartialInfo }> => {
   const room = await Group.retrieveRoomByGroupId(groupId);
-  const newAdmin = await GroupMember.updateRole(
-    GroupMemberRole.ADMIN,
-    groupId,
-    userId
-  );
+  const newAdmin = await GroupMember.updateRole(newRole, groupId, userId);
 
   return { room, newAdmin };
 };

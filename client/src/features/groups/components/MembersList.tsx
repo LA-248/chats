@@ -9,6 +9,7 @@ interface MembersListProps {
   loggedInUsername: string;
   loggedInUserId: number;
   setIsMakeAdminModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  setIsRemoveAsAdminModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setIsRemoveMemberModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setMemberId: React.Dispatch<React.SetStateAction<number>>;
   setMemberName: React.Dispatch<React.SetStateAction<string>>;
@@ -19,6 +20,7 @@ export default function MembersList({
   loggedInUsername,
   loggedInUserId,
   setIsMakeAdminModalOpen,
+  setIsRemoveAsAdminModalOpen,
   setIsRemoveMemberModalOpen,
   setMemberId,
   setMemberName,
@@ -84,7 +86,7 @@ export default function MembersList({
               </div>
               <div className='group-moderation-buttons-container'>
                 {
-                  // Do not show button to add/remove an admin next to owner
+                  // For the owner of the group, do not show the button to add/remove an admin next to their name
                   member.role !== GroupMemberRole.OWNER ? (
                     isMemberOwner && member.role !== GroupMemberRole.ADMIN ? (
                       <button
@@ -103,6 +105,11 @@ export default function MembersList({
                       <button
                         className='remove-admin-button'
                         title='Remove admin'
+                        onClick={() => {
+                          setIsRemoveAsAdminModalOpen(true);
+                          setMemberId(member.user_id);
+                          setMemberName(member.username);
+                        }}
                       >
                         <RemoveModeratorRoundedIcon fontSize='small'></RemoveModeratorRoundedIcon>
                       </button>

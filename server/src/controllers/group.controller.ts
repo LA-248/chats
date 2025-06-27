@@ -5,11 +5,11 @@ import {
   addUsersToGroup,
   addUserToReadList,
   getMemberUsernames,
-  makeMemberAdmin,
+  updateMemberRole,
   markGroupAsDeleted,
   permanentlyDeleteGroupChat,
   kickMember,
-  removeMember,
+  removeMemberWhoLeft,
   retrieveGroupInfoWithMembers,
   updateLastGroupMessage,
   uploadGroupPicture,
@@ -145,7 +145,7 @@ export const leaveGroup = async (
     const groupId = Number(req.params.groupId);
     const userId = Number(req.user?.user_id);
     const socketId = userSockets.get(userId);
-    const { room, removedUser, newGroupOwner } = await removeMember(
+    const { room, removedUser, newGroupOwner } = await removeMemberWhoLeft(
       io,
       groupId,
       userId
@@ -178,7 +178,7 @@ export const leaveGroup = async (
 };
 
 // Used when the group owner or an admin kicks a member
-export const removeGroupMember = async (
+export const removeKickedGroupMember = async (
   req: Request,
   res: Response
 ): Promise<void> => {
@@ -226,7 +226,7 @@ export const removeGroupMember = async (
   }
 };
 
-export const updateRoleToAdmin = async (
+export const updateRole = async (
   req: Request,
   res: Response
 ): Promise<void> => {
@@ -234,19 +234,20 @@ export const updateRoleToAdmin = async (
     const io = req.app.get('io');
     const groupId = Number(req.params.groupId);
     const userId = Number(req.params.userId);
-    const { room, newAdmin } = await makeMemberAdmin(groupId, userId);
+    const newRole: string = req.body.role;
+    const { room, newAdmin } = await updateMemberRole(newRole, groupId, userId);
 
     io.to(room).emit('assign-member-as-admin', {
       newAdmin,
     });
 
     res.status(200).json({
-      message: 'Member successfully assigned as admin',
+      message: 'Member role successfully updated',
     });
   } catch (error) {
-    console.error('Error making member admin:', error);
+    console.error('Error updating member role:', error);
     res.status(500).json({
-      error: 'Error making member admin. Please try again.',
+      error: 'Error updating member role. Please try again.',
     });
   }
 };

@@ -224,9 +224,10 @@ export async function removeGroupMember(
   return data.message;
 }
 
-export async function makeMemberAdmin(
+export async function updateGroupMemberRole(
   groupId: number,
-  userId: number
+  userId: number,
+  newRole: string
 ): Promise<string> {
   const response = await fetch(
     `${
@@ -236,7 +237,9 @@ export async function makeMemberAdmin(
       method: 'PUT',
       headers: {
         Accept: 'application/json',
+        'Content-Type': 'application/json',
       },
+      body: JSON.stringify({ role: newRole }),
       credentials: 'include',
     }
   );

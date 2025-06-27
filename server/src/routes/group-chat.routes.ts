@@ -12,12 +12,12 @@ import {
   leaveGroup,
   markGroupChatAsDeleted,
   permanentlyDeleteGroup,
-  removeGroupMember,
+  removeKickedGroupMember,
   retrieveGroupInfo,
   retrieveMemberUsernames,
   updateGroupPicture,
   updateLastMessageId,
-  updateRoleToAdmin,
+  updateRole,
   updateUserReadStatus,
 } from '../controllers/group.controller.ts';
 
@@ -51,7 +51,7 @@ groupChatsRouter.delete(
   '/:groupId/members/:userId',
   groupChatRoomAuth,
   authoriseGroupOwnerOrAdminAction,
-  removeGroupMember
+  removeKickedGroupMember
 );
 groupChatsRouter.delete(
   '/:groupId',
@@ -73,7 +73,8 @@ groupChatsRouter.put(
 groupChatsRouter.put(
   '/:groupId/members/:userId',
   groupChatRoomAuth,
-  updateRoleToAdmin
+  authoriseGroupOwnerAction,
+  updateRole
 );
 groupChatsRouter.put('/:room', groupChatRoomAuth, updateUserReadStatus);
 
