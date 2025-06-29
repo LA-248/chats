@@ -40,7 +40,7 @@ export default function ChatItem({
               <div className='chat-time'>
                 {chat.last_message_time ? formatDate(chat.updated_at) : null}
               </div>
-              {!isActive && chat.read === false ? (
+              {!isActive && !chat.read ? (
                 <span className='unread-message-alert'></span>
               ) : (
                 (chat.read = true)

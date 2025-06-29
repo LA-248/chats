@@ -151,7 +151,7 @@ export default function ChatList({
         <div id='no-chats-state'>No chats found</div>
       ) : (
         filteredChats
-          .filter((chat) => chat.deleted === false)
+          .filter((chat) => !chat.deleted)
           .map((chat) => (
             <ChatItem
               key={chat.chat_id}

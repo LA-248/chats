@@ -47,7 +47,8 @@ export default function ProtectedRoutes() {
     return <div>Loading...</div>;
   }
 
-  if (authenticationStatus === true) {
+  if (authenticationStatus) {
+    console.log('this ran');
     return <Outlet />;
   } else {
     return <Navigate to='/login' />;

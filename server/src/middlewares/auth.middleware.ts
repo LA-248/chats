@@ -62,6 +62,7 @@ export const privateChatRoomAuth = async (
   }
 };
 
+// Verify that the user making the request is a member of the group
 export const groupChatRoomAuth = async (
   req: Request,
   res: Response,
@@ -162,6 +163,7 @@ export const authoriseGroupOwnerAction = async (
   }
 };
 
+// Ensure that only group owners or admins can perform the requested action
 export const authoriseGroupOwnerOrAdminAction = async (
   req: Request,
   res: Response,

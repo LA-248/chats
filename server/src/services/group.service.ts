@@ -67,7 +67,6 @@ export const getMemberUsernames = async (
   return groupMembersInfo.map((member: GroupParticipant) => member.username);
 };
 
-// Create new group chat
 export const createNewGroup = async (
   io: Server,
   ownerUserId: number,
@@ -92,7 +91,7 @@ export const createNewGroup = async (
   const failedInsertions: GroupMemberInsertionResult[] = [];
   for (let i = 0; i < insertedGroupMembers.length; i++) {
     if (insertedGroupMembers[i].status === 'rejected') {
-      console.error(`Failed to add user ${insertedGroupMembers[i]}`);
+      console.error(`Failed to add user ${insertedGroupMembers[i].reason}`);
       failedInsertions.push(insertedGroupMembers[i]);
     }
   }

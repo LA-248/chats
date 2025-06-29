@@ -25,7 +25,7 @@ export default function AddChatInput({
 
       try {
         const exists = chatList.some(
-          (chat) => chat.name === inputUsername && chat.deleted === false
+          (chat) => chat.name === inputUsername && !chat.deleted
         );
         if (exists) {
           throw new Error('You already have an active chat with this user');

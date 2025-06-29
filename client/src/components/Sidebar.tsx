@@ -41,7 +41,7 @@ export default function Sidebar() {
 
       {chatList.length > 0 ? (
         chatList.some((chat) => {
-          return chat.deleted === false;
+          return !chat.deleted;
         }) ? (
           <ChatSearch />
         ) : (
@@ -51,7 +51,7 @@ export default function Sidebar() {
             </div>
             <div className='chat-list-empty-subtext'>
               To get started, enter the username of the user you would like to
-              chat with above or create a group chat
+              chat with in the input above or create a group chat
             </div>
           </div>
         )
@@ -62,7 +62,7 @@ export default function Sidebar() {
           </div>
           <div className='chat-list-empty-subtext'>
             To get started, enter the username of the user you would like to
-            chat with above or create a group chat
+            chat with in the input above or create a group chat
           </div>
         </div>
       )}
