@@ -104,32 +104,6 @@ export default function ContactHeader({
 
   useMembersListUpdate(socket, setMembersList);
 
-  // const handleVoiceCallStart = async (): Promise<void> => {
-  //   const openMediaDevices = async (constraints: {
-  //     video: boolean;
-  //     audio: boolean;
-  //   }) => {
-  //     return await navigator.mediaDevices.getUserMedia(constraints);
-  //   };
-
-  //   try {
-  //     const stream = await openMediaDevices({ video: false, audio: true });
-  //     console.log('Got MediaStream:', stream);
-  //   } catch (error) {
-  //     console.error('Error accessing media devices.', error);
-  //   }
-  // };
-
-  // const handleConnectedDevices = async (): Promise<void> => {
-  //   async function getConnectedDevices(type: string) {
-  //     const devices = await navigator.mediaDevices.enumerateDevices();
-  //     return devices.filter((device) => device.kind === type);
-  //   }
-
-  //   const audioDevices = getConnectedDevices('audioinput');
-  //   console.log('Audio devices found:', audioDevices);
-  // };
-
   return (
     <div>
       <div className='contact-header-container'>
