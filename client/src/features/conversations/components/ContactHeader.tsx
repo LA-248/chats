@@ -143,7 +143,6 @@ export default function ContactHeader({
             {isPrivateChat ? (
               <button
                 className='start-voice-call-button'
-                // onClick={handleVoiceCallStart}
               >
                 <LocalPhoneRoundedIcon fontSize='medium'></LocalPhoneRoundedIcon>
               </button>
