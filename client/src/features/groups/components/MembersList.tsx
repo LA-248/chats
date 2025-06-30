@@ -104,7 +104,7 @@ export default function MembersList({
                       member.role === GroupMemberRole.ADMIN ? (
                       <button
                         className='remove-admin-button'
-                        title='Remove admin'
+                        title='Remove as admin'
                         onClick={() => {
                           setIsRemoveAsAdminModalOpen(true);
                           setMemberId(member.user_id);
