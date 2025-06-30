@@ -1,0 +1,42 @@
+services:
+  client:
+    build:
+      context: ./client
+    ports:
+      - '3000:3000'
+    volumes:
+      - ./client:/app
+      - /app/node_modules
+    env_file:
+      - ./client/.env.development.local
+    depends_on:
+      - server
+
+  server:
+    build:
+      context: ./server
+    ports:
+      - '8080:8080'
+    volumes:
+      - ./server:/app
+      - /app/node_modules
+    env_file:
+      - ./server/.env
+    environment:
+      - DATABASE_URL=postgres://${USERNAME}:${DATABASE_PASSWORD}@${HOST}:${DATABASE_PORT}/${DATABASE_NAME}
+    depends_on:
+      - db
+
+  db:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: ${USERNAME}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_DB: ${DATABASE_NAME}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    env_file:
+      - ./server/.env
+
+volumes:
+  pgdata:

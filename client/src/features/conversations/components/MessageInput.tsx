@@ -5,8 +5,6 @@ import { useSocket } from '../../../hooks/useSocket';
 import { UserContext } from '../../../contexts/UserContext';
 import { ChatContext } from '../../../contexts/ChatContext';
 import useClearErrorMessage from '../../../hooks/useClearErrorMessage';
-import data from '@emoji-mart/data';
-import Picker from '@emoji-mart/react';
 
 export default function MessageInput() {
   const socket = useSocket();
@@ -47,11 +45,6 @@ export default function MessageInput() {
     }
   };
 
-  // Add the emoji(s) to the existing message
-  const handleAddEmoji = (emoji: { native: string }): void => {
-    setMessage((prevMessage) => prevMessage + emoji.native);
-  };
-
   useClearErrorMessage(errorMessage, setErrorMessage);
 
   return (
@@ -59,11 +52,6 @@ export default function MessageInput() {
       <form id='message-form' action='' onSubmit={handleChatMessageSubmission}>
         {showEmojiPicker ? (
           <div className='emoji-picker-container'>
-            <Picker
-              data={data}
-              onEmojiSelect={handleAddEmoji}
-              onClickOutside={() => setShowEmojiPicker(false)}
-            />
           </div>
         ) : null}
 

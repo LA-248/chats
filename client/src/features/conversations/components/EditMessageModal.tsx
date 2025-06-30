@@ -4,8 +4,6 @@ import { MessageContext } from '../../../contexts/MessageContext';
 import { editMessageById } from '../../../api/message-api';
 import { useSocket } from '../../../hooks/useSocket';
 import Modal from '../../../components/ModalTemplate';
-import data from '@emoji-mart/data';
-import Picker from '@emoji-mart/react';
 
 interface EditMessageModalProps {
   chatType: string;
@@ -64,10 +62,6 @@ export default function EditMessageModal({
     }
   };
 
-  const handleAddEmoji = (emoji: { native: string }): void => {
-    setNewMessage((prevMessage) => prevMessage + emoji.native);
-  };
-
   return (
     <>
       <Modal
@@ -101,11 +95,6 @@ export default function EditMessageModal({
 
         {showEmojiPicker ? (
           <div className='emoji-picker-container'>
-            <Picker
-              data={data}
-              onEmojiSelect={handleAddEmoji}
-              onClickOutside={() => setShowEmojiPicker(false)}
-            />
           </div>
         ) : null}
 
