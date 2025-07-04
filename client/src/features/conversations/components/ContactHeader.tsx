@@ -141,9 +141,7 @@ export default function ContactHeader({
 
           <div className='chat-action-buttons'>
             {isPrivateChat ? (
-              <button
-                className='start-voice-call-button'
-              >
+              <button className='start-voice-call-button'>
                 <LocalPhoneRoundedIcon fontSize='medium'></LocalPhoneRoundedIcon>
               </button>
             ) : null}
