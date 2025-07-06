@@ -120,7 +120,7 @@ export default function ChatList({
     'recipient_user_id',
     'userId',
     'chat_picture',
-    'profilePicture',
+    'newInfo',
     room!,
     setRecipientProfilePicture,
     'update-profile-picture-for-contacts'
@@ -132,7 +132,7 @@ export default function ChatList({
     'recipient_user_id',
     'userId',
     'name',
-    'newUsername',
+    'newInfo',
     room!,
     setChatName,
     'update-username-for-contacts'

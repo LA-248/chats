@@ -6,13 +6,13 @@ import { z } from 'zod/v4';
 export const InsertGroupChatSchema = z.object({
   ownerUserId: z.number().int().positive(),
   name: z.string().min(1).max(50),
-  room: z.string().uuid(),
+  room: z.uuid(),
 });
 export type InsertGroupChat = z.infer<typeof InsertGroupChatSchema>;
 
 export const NewGroupChatSchema = z.object({
   group_id: z.number(),
-  room: z.string().uuid(),
+  room: z.uuid(),
   name: z.string(),
 });
 export type NewGroupChat = z.infer<typeof NewGroupChatSchema>;
@@ -32,8 +32,11 @@ export const GroupInfoSchema = z.object({
 });
 export type GroupInfo = z.infer<typeof GroupInfoSchema>;
 
-export const GroupRoomSchema = z.string().uuid();
+export const GroupRoomSchema = z.uuid();
 export type GroupRoom = z.infer<typeof GroupRoomSchema>;
+
+export const GroupRoomsSchema = z.array(z.uuid());
+export type GroupRooms = z.infer<typeof GroupRoomsSchema>;
 
 export const GroupPictureSchema = z.string().nullable().or(z.null());
 export type GroupPicture = z.infer<typeof GroupPictureSchema>;

@@ -3,7 +3,7 @@ import { z } from 'zod/v4';
 export const InsertPrivateChatSchema = z.object({
   user1Id: z.number().int().positive(),
   user2Id: z.number().int().positive(),
-  room: z.string().uuid(),
+  room: z.uuid(),
 });
 export type InsertPrivateChat = z.infer<typeof InsertPrivateChatSchema>;
 
@@ -28,7 +28,7 @@ export const ChatMembersSchema = z.object({
 });
 export type ChatMembers = z.infer<typeof ChatMembersSchema>;
 
-export const ChatRoomSchema = z.string().uuid();
+export const ChatRoomSchema = z.uuid();
 export type ChatRoom = z.infer<typeof ChatRoomSchema>;
 
 export const ChatDeletionStatusSchema = z.boolean();

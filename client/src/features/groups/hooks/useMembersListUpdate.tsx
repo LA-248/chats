@@ -51,16 +51,55 @@ export default function useMembersListUpdate(
       );
     };
 
+    const handleGroupMemberProfilePictureUpdate = (data: {
+      userId: number;
+      newInfo: string;
+      groupRoom: string;
+    }) => {
+      setMembersList((prevMembersList) =>
+        prevMembersList.map((member) => {
+          if (member.user_id === data.userId) {
+            return { ...member, profile_picture: data.newInfo };
+          } else {
+            return member;
+          }
+        })
+      );
+    };
+
+    const handleGroupMemberUsernameUpdate = (data: {
+      userId: number;
+      newInfo: string;
+      groupRoom: string;
+    }) => {
+      setMembersList((prevMembersList) =>
+        prevMembersList.map((member) => {
+          if (member.user_id === data.userId) {
+            return { ...member, username: data.newInfo };
+          } else {
+            return member;
+          }
+        })
+      );
+    };
+
     socket.on('remove-member', handleMemberRemoval);
     socket.on('add-members', handleMemberAddition);
     socket.on('assign-new-group-owner', handleNewGroupOwnerAssignment);
     socket.on('assign-member-as-admin', handleAdminAssignment);
+    socket.on(
+      'update-profile-picture-in-groups',
+      handleGroupMemberProfilePictureUpdate
+    );
+    socket.on('update-username-in-groups', handleGroupMemberUsernameUpdate);
 
     return () => {
       socket.off('remove-member');
       socket.off('add-members');
       socket.off('assign-new-group-owner');
       socket.off('assign-member-as-admin');
+      socket.off('update-profile-picture-in-groups');
+      socket.off('update-username-in-groups');
     };
   }, [socket, setMembersList]);
 }

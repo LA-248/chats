@@ -10,6 +10,8 @@ import {
   GroupPictureSchema,
   GroupRoom,
   GroupRoomSchema,
+  GroupRoomsSchema,
+  GroupUpdatedAt,
   GroupUpdatedAtSchema,
   InsertGroupChatSchema,
   NewGroupChat,
@@ -263,7 +265,7 @@ const Group = {
     });
   },
 
-  retrieveUpdatedAtDate: function (room: string) {
+  retrieveUpdatedAtDate: function (room: string): Promise<GroupUpdatedAt> {
     return new Promise((resolve, reject) => {
       pool.query(
         `SELECT updated_at FROM groups WHERE room = $1`,
@@ -283,6 +285,40 @@ const Group = {
           } catch (error) {
             return reject(
               `Error validating group chat updated at value: ${
+                error instanceof Error ? error.message : error
+              }`
+            );
+          }
+        }
+      );
+    });
+  },
+
+  retrieveAllGroupsByUser: function (userId: number): Promise<string[]> {
+    return new Promise((resolve, reject) => {
+      pool.query(
+        `
+        SELECT g.room
+        FROM groups g
+        JOIN group_members gm ON g.group_id = gm.group_id
+        WHERE gm.user_id = $1
+        `,
+        [userId],
+        (err, result) => {
+          if (err) {
+            return reject(
+              `Error retrieving all groups a member belongs to: ${err.message}`
+            );
+          }
+
+          try {
+            const rooms = GroupRoomsSchema.parse(
+              result.rows.map((row) => row.room)
+            );
+            return resolve(rooms);
+          } catch (error) {
+            return reject(
+              `Error validating rooms: ${
                 error instanceof Error ? error.message : error
               }`
             );

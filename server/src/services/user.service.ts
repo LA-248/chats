@@ -8,6 +8,7 @@ import {
   UserId,
   UserProfile,
 } from '../schemas/user.schema.ts';
+import { Group } from '../models/group.model.ts';
 
 export const retrieveProfilePictureUrl = async (
   profilePicture: string
@@ -80,7 +81,20 @@ export const updateProfilePicture = async (
     process.env.BUCKET_NAME!,
     file.key
   );
-  await updateProfilePictureForAllContacts(userId, io, profilePictureUrl);
+
+  await updateUserInfoForAllContacts(
+    userId,
+    io,
+    profilePictureUrl,
+    'update-profile-picture-for-contacts'
+  );
+  await updateUserInfoInAllGroups(
+    userId,
+    io,
+    profilePictureUrl,
+    'update-profile-picture-in-groups'
+  );
+
   return profilePictureUrl;
 };
 
@@ -90,7 +104,20 @@ export const handleUsernameUpdate = async (
   io: Server
 ): Promise<void> => {
   await User.updateUsernameById(username, userId);
-  return await updateUsernameForAllContacts(userId, io, username);
+  
+  await updateUserInfoForAllContacts(
+    userId,
+    io,
+    username,
+    'update-username-for-contacts'
+  );
+  await updateUserInfoInAllGroups(
+    userId,
+    io,
+    username,
+    'update-username-in-groups'
+  );
+  return;
 };
 
 export const updateUserBlockList = async (
@@ -100,42 +127,42 @@ export const updateUserBlockList = async (
   return await User.updateBlockedUsersById(blockedUserIds, userId);
 };
 
-// Update profile picture for all the user's contacts in real-time
-const updateProfilePictureForAllContacts = async (
+// Update profile picture or username for all the user's private chats in real-time
+const updateUserInfoForAllContacts = async (
   userId: number,
   io: Server,
-  profilePicture: string
+  newInfo: string,
+  socketEvent: string
 ): Promise<void> => {
   const rooms = await PrivateChat.retrieveAllRoomsByUser(userId);
-  const roomIds = rooms.map((row) => row);
 
-  for (let i = 0; i < roomIds.length; i++) {
-    const room = roomIds[i];
+  for (let i = 0; i < rooms.length; i++) {
+    const room = rooms[i];
     if (room) {
-      io.to(room).emit('update-profile-picture-for-contacts', {
+      io.to(room).emit(socketEvent, {
         userId,
-        profilePicture,
+        newInfo,
         room,
       });
     }
   }
 };
 
-// Update username for all the user's contacts in real-time
-const updateUsernameForAllContacts = async (
+// Update profile picture or username in all groups the user is a member of in real-time
+const updateUserInfoInAllGroups = async (
   userId: number,
   io: Server,
-  newUsername: string
+  newInfo: string,
+  socketEvent: string
 ): Promise<void> => {
-  const rooms = await PrivateChat.retrieveAllRoomsByUser(userId);
-  const roomIds = rooms.map((row) => row);
+  const rooms = await Group.retrieveAllGroupsByUser(userId);
 
-  for (let i = 0; i < roomIds.length; i++) {
-    const room = roomIds[i];
+  for (let i = 0; i < rooms.length; i++) {
+    const room = rooms[i];
     if (room) {
-      io.to(room).emit('update-username-for-contacts', {
+      io.to(room).emit(socketEvent, {
         userId,
-        newUsername,
+        newInfo,
         room,
       });
     }

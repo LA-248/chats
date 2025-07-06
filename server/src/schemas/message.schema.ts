@@ -4,7 +4,7 @@ export const InsertMessageSchema = z.object({
   content: z.string(),
   senderId: z.number().int().positive(),
   recipientId: z.number().int().positive().nullable(),
-  room: z.string().uuid(),
+  room: z.uuid(),
   clientOffset: z.string(),
 });
 export type InsertMessage = z.infer<typeof InsertMessageSchema>;
