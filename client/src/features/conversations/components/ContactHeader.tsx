@@ -31,6 +31,7 @@ export default function ContactHeader({
 }: ContactHeaderProps) {
   const socket = useSocket();
   const isPrivateChat = chatType === ChatType.PRIVATE;
+  const isGroupChat = chatType === ChatType.GROUP;
 
   const {
     setChatId,
@@ -58,6 +59,7 @@ export default function ContactHeader({
   useClearErrorMessage(errorMessage, setErrorMessage);
 
   // Handles fetching the info of private and group chats
+  // TODO: Clean up this useEffect
   useEffect(() => {
     const fetchChatInfo = async (): Promise<void> => {
       try {
@@ -70,7 +72,7 @@ export default function ContactHeader({
             setChatId(recipientId);
           }
           setRecipientProfilePicture(privateChatInfo.profilePicture);
-        } else {
+        } else if (isGroupChat) {
           setChatId(groupChatInfo.info.chatId);
           setGroupPicture(groupChatInfo.info.groupPicture);
           setMembersList(groupChatInfo.members);
@@ -91,6 +93,7 @@ export default function ContactHeader({
   }, [
     room,
     isPrivateChat,
+    isGroupChat,
     privateChatInfo,
     groupChatInfo,
     setIsBlocked,

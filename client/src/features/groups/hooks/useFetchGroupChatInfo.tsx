@@ -4,7 +4,7 @@ import { getGroupChatInfo } from '../../../api/group-chat-api';
 import type { GroupInfoWithMembers } from '../../../types/group';
 import { ChatType } from '../../../types/chat';
 
-export default function useGroupChatInfo(
+export default function useFetchGroupChatInfo(
   room: string,
   chatType: string,
   setErrorMessage: React.Dispatch<React.SetStateAction<string>>

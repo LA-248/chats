@@ -36,7 +36,22 @@ export default function AddChatInput({
 
         const addedChat = await addChat(inputUsername);
         setChatList((prevChatList) => {
-          const updatedList = [addedChat, ...prevChatList];
+          let updatedList: Chat[];
+
+          // Only append the new chat to the list if it does not already exist
+          if (
+            !prevChatList.some((chat) => chat.chat_id === addedChat.chat_id)
+          ) {
+            updatedList = [addedChat, ...prevChatList];
+          } else {
+            // If it does already exist, just set the deleted flag to false
+            updatedList = prevChatList.map((chat) => {
+              if (chat.chat_id === addedChat.chat_id) {
+                return { ...chat, deleted: false };
+              }
+              return chat;
+            });
+          }
           // Sorting must be done here for when chats are restored,
           // since a re-added chat might not be the most recently updated one
           return updatedList.sort(

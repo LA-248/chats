@@ -12,7 +12,7 @@ import useClearErrorMessage from '../../../hooks/useClearErrorMessage';
 import useChatListUpdate from '../hooks/useChatListUpdate';
 import useChatUpdates from '../../conversations/hooks/useChatUpdates';
 import useAddGroupToChatList from '../hooks/useAddGroupToChatList';
-import useAddPrivateChatToChatList from '../../conversations/hooks/useAddPrivateChat';
+import useAddNewPrivateChatToChatList from '../../conversations/hooks/useAddPrivateChat';
 import { useChatDelete } from '../hooks/useChatDelete';
 import { useSocketErrorHandling } from '../../../hooks/useSocketErrorHandling';
 import { markUserAsRead } from '../../../api/group-chat-api';
@@ -95,11 +95,9 @@ export default function ChatList({
   );
 
   useChatListUpdate(socket, setChatList, activeChatRoom);
-
-  // When a user is added to a group chat, notify them and add it to their chat list
-  useAddGroupToChatList(socket, setChatList);
+  useAddGroupToChatList(socket, setChatList); // When a user is added to a group chat, notify them and add it to their chat list
   useRemoveGroupChat(socket, setChatList, setActiveChatRoom, navigate);
-  useAddPrivateChatToChatList(socket, setChatList);
+  useAddNewPrivateChatToChatList(socket, setChatList);
 
   // Update the picture of a group for all its members in real-time
   useChatUpdates(

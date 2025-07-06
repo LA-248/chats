@@ -9,8 +9,8 @@ import MessageList from './MessageList';
 import MessageInput from './MessageInput';
 import DeleteMessageModal from './DeleteMessageModal';
 import EditMessageModal from './EditMessageModal';
-import usePrivateChatInfo from '../hooks/usePrivateChatInfo';
-import useGroupChatInfo from '../../groups/hooks/useGroupChatInfo';
+import useFetchPrivateChatInfo from '../hooks/useFetchPrivateChatInfo';
+import useFetchGroupChatInfo from '../../groups/hooks/useFetchGroupChatInfo';
 
 function ChatView() {
   const location = useLocation();
@@ -29,8 +29,12 @@ function ChatView() {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const [errorMessage, setErrorMessage] = useState<string>('');
 
-  const privateChatInfo = usePrivateChatInfo(room!, chatType, setErrorMessage);
-  const groupChatInfo = useGroupChatInfo(room!, chatType, setErrorMessage);
+  const privateChatInfo = useFetchPrivateChatInfo(
+    room!,
+    chatType,
+    setErrorMessage
+  );
+  const groupChatInfo = useFetchGroupChatInfo(room!, chatType, setErrorMessage);
 
   useSocketErrorHandling(socket, setErrorMessage);
 

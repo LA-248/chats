@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import type { UserInfo } from '../../../types/user';
 import { ChatType } from '../../../types/chat';
 
-export default function usePrivateChatInfo(
+export default function useFetchPrivateChatInfo(
   room: string,
   chatType: string,
   setErrorMessage: React.Dispatch<React.SetStateAction<string>>

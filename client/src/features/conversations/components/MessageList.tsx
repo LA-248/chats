@@ -63,7 +63,7 @@ export default function MessageList({
             setMessages((prevMessages: Message[]) =>
               prevMessages.concat(messageData)
             );
-            // If a message is received while the user has the chat open, this is needed to automatically mark the chat as read
+            // If a message is received while the user has the chat open, automatically mark the chat as read
             if (messageData.chatType === ChatType.PRIVATE) {
               await updateReadStatus(true, room);
             } else if (messageData.chatType === ChatType.GROUP) {

@@ -3,13 +3,13 @@ import type { Chat } from '../../../types/chat';
 import { Socket } from 'socket.io-client';
 
 // Add private chat to the recipient's chat list in real-time on first time message
-export default function useAddPrivateChatToChatList(
+export default function useAddNewPrivateChatToChatList(
   socket: Socket | null,
   setChatList: React.Dispatch<React.SetStateAction<Chat[]>>
 ) {
   useEffect(() => {
     if (socket) {
-      const handleChatAddition = (newChat: Chat): void => {
+      const handleFirstTimeChatAddition = (newChat: Chat): void => {
         setChatList((prevChatList): Chat[] => {
           // Only add chat if it does not already exist
           if (!prevChatList.some((chat) => chat.chat_id === newChat.chat_id)) {
@@ -21,7 +21,7 @@ export default function useAddPrivateChatToChatList(
       };
 
       socket.on('add-private-chat-to-chat-list', (data: Chat) =>
-        handleChatAddition(data)
+        handleFirstTimeChatAddition(data)
       );
 
       return () => {
