@@ -38,6 +38,7 @@ export default function MessageList({
   setMessageIndex,
 }: MessageListProps) {
   const isPrivateChat = chatType === ChatType.PRIVATE;
+  const isGroupChat = chatType === ChatType.GROUP;
   const socket = useSocket();
 
   const { recipientProfilePicture, chatName } = useContext(ChatContext);
@@ -84,21 +85,23 @@ export default function MessageList({
     }
   }, [room, socket, setMessages]);
 
-  const getProfilePicture = (messageData: Message): string => {
-    // Group chat
-    if (!isPrivateChat) {
+  const getChatMemberProfilePicture = (messageData: Message): string => {
+    if (isGroupChat) {
       const groupMember = groupMembersInfo.find(
         (member) => messageData.senderId === member.user_id
       );
       return groupMember?.profile_picture || '/images/default-avatar.jpg';
     }
 
-    // Private chat
-    if (loggedInUserId === messageData.senderId) {
-      return profilePicture || '/images/default-avatar.jpg';
-    } else {
-      return recipientProfilePicture || '/images/default-avatar.jpg';
+    if (isPrivateChat) {
+      if (loggedInUserId === messageData.senderId) {
+        return profilePicture || '/images/default-avatar.jpg';
+      } else {
+        return recipientProfilePicture || '/images/default-avatar.jpg';
+      }
     }
+
+    return '/images/default-avatar.jpg';
   };
 
   return (
@@ -132,7 +135,7 @@ export default function MessageList({
                     {
                       <img
                         className='message-profile-picture'
-                        src={getProfilePicture(messageData)}
+                        src={getChatMemberProfilePicture(messageData)}
                         alt='Profile avatar'
                       />
                     }
