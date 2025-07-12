@@ -20,12 +20,13 @@ export default function useAddNewPrivateChatToChatList(
         });
       };
 
-      socket.on('add-private-chat-to-chat-list', (data: Chat) =>
-        handleFirstTimeChatAddition(data)
-      );
+      socket.on('add-private-chat-to-chat-list', handleFirstTimeChatAddition);
 
       return () => {
-        socket.off('add-private-chat-to-chat-list');
+        socket.off(
+          'add-private-chat-to-chat-list',
+          handleFirstTimeChatAddition
+        );
       };
     }
   }, [socket, setChatList]);

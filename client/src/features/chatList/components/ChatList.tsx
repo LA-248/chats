@@ -62,8 +62,8 @@ export default function ChatList({
   useEffect(() => {
     const displayChatList = async (): Promise<void> => {
       try {
-        const result = await getChatListByUserId();
-        setChatList(result);
+        const chatList = await getChatListByUserId();
+        setChatList(chatList);
       } catch (error) {
         if (error instanceof Error) {
           setErrorMessage(error.message);

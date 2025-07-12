@@ -59,14 +59,12 @@ export default function useChatListUpdate(
         );
       };
 
-      socket.on('update-chat-list', (data) => handleChatListUpdate(data));
-      socket.on('last-message-updated', (data) =>
-        handleLastMessageUpdate(data)
-      );
+      socket.on('update-chat-list', handleChatListUpdate);
+      socket.on('last-message-updated', handleChatListUpdate);
 
       return () => {
-        socket.off('update-chat-list');
-        socket.off('last-message-updated');
+        socket.off('update-chat-list', handleChatListUpdate);
+        socket.off('last-message-updated', handleLastMessageUpdate);
       };
     }
   }, [setChatList, socket, activeChatRoom]);

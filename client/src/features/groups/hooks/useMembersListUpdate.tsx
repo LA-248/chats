@@ -94,12 +94,15 @@ export default function useMembersListUpdate(
     socket.on('update-username-in-groups', handleGroupMemberUsernameUpdate);
 
     return () => {
-      socket.off('remove-member');
-      socket.off('add-members');
-      socket.off('assign-new-group-owner');
-      socket.off('assign-member-as-admin');
-      socket.off('update-profile-picture-in-groups');
-      socket.off('update-username-in-groups');
+      socket.off('remove-member', handleMemberRemoval);
+      socket.off('add-members', handleMemberAddition);
+      socket.off('assign-new-group-owner', handleNewGroupOwnerAssignment);
+      socket.off('assign-member-as-admin', handleAdminAssignment);
+      socket.off(
+        'update-profile-picture-in-groups',
+        handleGroupMemberProfilePictureUpdate
+      );
+      socket.off('update-username-in-groups', handleGroupMemberUsernameUpdate);
     };
   }, [socket, setMembersList]);
 }
