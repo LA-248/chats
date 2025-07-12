@@ -55,6 +55,9 @@ export default function MessageList({
   const [userProfilePictureMap, setUserProfilePictureMap] = useState<
     Map<number, string>
   >(new Map<number, string>());
+  const [usernameMap, setUsernameMap] = useState<Map<number, string>>(
+    new Map<number, string>()
+  );
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>('');
   const groupMembersInfo = groupChatInfo.members;
@@ -90,26 +93,37 @@ export default function MessageList({
   }, [room, socket, setMessages]);
 
   useEffect(() => {
-    const map = new Map<number, string>();
+    const profilePictureMap = new Map<number, string>();
+    const usernameMap = new Map<number, string>();
 
     if (isGroupChat) {
       groupMembersInfo.forEach((member: GroupMember) => {
-        map.set(
+        profilePictureMap.set(
           member.user_id,
           member.profile_picture || '/images/default-avatar.jpg'
         );
+        usernameMap.set(member.user_id, member.username);
       });
     }
 
     if (isPrivateChat) {
-      map.set(loggedInUserId, profilePicture || '/images/default-avatar.jpg');
-      map.set(
+      profilePictureMap.set(
+        loggedInUserId,
+        profilePicture || '/images/default-avatar.jpg'
+      );
+      profilePictureMap.set(
         recipientUserId,
         recipientProfilePicture || '/images/default-avatar.jpg'
       );
+
+      usernameMap.set(loggedInUserId, loggedInUsername);
+      usernameMap.set(recipientUserId, chatName);
+
+      console.log(usernameMap);
     }
 
-    setUserProfilePictureMap(map);
+    setUserProfilePictureMap(profilePictureMap);
+    setUsernameMap(usernameMap);
   }, [
     isGroupChat,
     isPrivateChat,
@@ -118,12 +132,14 @@ export default function MessageList({
     profilePicture,
     recipientUserId,
     recipientProfilePicture,
+    loggedInUsername,
+    chatName,
   ]);
 
   useEffect(() => {
     if (!isGroupChat || !socket) return;
 
-    const handleProfilePictureUpdate = (data: UserProfileUpdate) => {
+    const handleMemberProfilePictureUpdate = (data: UserProfileUpdate) => {
       setUserProfilePictureMap((prev) =>
         new Map(prev).set(
           data.userId,
@@ -131,18 +147,30 @@ export default function MessageList({
         )
       );
     };
+    const handleMemberUsernameUpdate = (data: UserProfileUpdate) => {
+      setUsernameMap((prev) => new Map(prev).set(data.userId, data.newInfo));
+    };
 
-    socket.on('update-profile-picture-in-groups', handleProfilePictureUpdate);
+    socket.on(
+      'update-profile-picture-in-groups',
+      handleMemberProfilePictureUpdate
+    );
+    socket.on('update-username-in-groups', handleMemberUsernameUpdate);
     return () => {
       socket.off(
         'update-profile-picture-in-groups',
-        handleProfilePictureUpdate
+        handleMemberProfilePictureUpdate
       );
+
+      socket.off('update-username-in-groups', handleMemberUsernameUpdate);
     };
   }, [isGroupChat, socket]);
 
   const getChatMemberProfilePicture = (senderId: number): string => {
     return userProfilePictureMap.get(senderId) || '/images/default-avatar.jpg';
+  };
+  const getChatMemberUsername = (senderId: number): string | undefined => {
+    return usernameMap.get(senderId);
   };
 
   return (
@@ -195,11 +223,7 @@ export default function MessageList({
                               : null
                           }
                         >
-                          {isPrivateChat
-                            ? loggedInUserId !== messageData.senderId
-                              ? chatName
-                              : loggedInUsername
-                            : messageData.from}
+                          {getChatMemberUsername(messageData.senderId)}
                         </div>
                         <div className='message-time'>
                           {formatDate(messageData.eventTime)}
