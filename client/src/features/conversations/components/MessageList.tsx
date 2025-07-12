@@ -8,9 +8,10 @@ import { updateReadStatus } from '../../../api/private-chat-api';
 import { markUserAsRead } from '../../../api/group-chat-api';
 import ContactInfoModal from './ContactInfoModal';
 import formatDate from '../../../utils/DateTimeFormat';
-import type { GroupInfoWithMembers } from '../../../types/group';
+import type { GroupInfoWithMembers, GroupMember } from '../../../types/group';
 import type { Message } from '../../../types/message';
 import { ChatType } from '../../../types/chat';
+import type { UserProfileUpdate } from '../../../types/user';
 
 interface MessageListProps {
   room: string;
@@ -51,6 +52,9 @@ export default function MessageList({
     filteredMessages,
   } = useContext(MessageContext);
 
+  const [userProfilePictureMap, setUserProfilePictureMap] = useState<
+    Map<number, string>
+  >(new Map<number, string>());
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>('');
   const groupMembersInfo = groupChatInfo.members;
@@ -85,23 +89,60 @@ export default function MessageList({
     }
   }, [room, socket, setMessages]);
 
-  const getChatMemberProfilePicture = (messageData: Message): string => {
+  useEffect(() => {
+    const map = new Map<number, string>();
+
     if (isGroupChat) {
-      const groupMember = groupMembersInfo.find(
-        (member) => messageData.senderId === member.user_id
-      );
-      return groupMember?.profile_picture || '/images/default-avatar.jpg';
+      groupMembersInfo.forEach((member: GroupMember) => {
+        map.set(
+          member.user_id,
+          member.profile_picture || '/images/default-avatar.jpg'
+        );
+      });
     }
 
     if (isPrivateChat) {
-      if (loggedInUserId === messageData.senderId) {
-        return profilePicture || '/images/default-avatar.jpg';
-      } else {
-        return recipientProfilePicture || '/images/default-avatar.jpg';
-      }
+      map.set(loggedInUserId, profilePicture || '/images/default-avatar.jpg');
+      map.set(
+        recipientUserId,
+        recipientProfilePicture || '/images/default-avatar.jpg'
+      );
     }
 
-    return '/images/default-avatar.jpg';
+    setUserProfilePictureMap(map);
+  }, [
+    isGroupChat,
+    isPrivateChat,
+    groupMembersInfo,
+    loggedInUserId,
+    profilePicture,
+    recipientUserId,
+    recipientProfilePicture,
+  ]);
+
+  useEffect(() => {
+    if (!isGroupChat || !socket) return;
+
+    const handleProfilePictureUpdate = (data: UserProfileUpdate) => {
+      setUserProfilePictureMap((prev) =>
+        new Map(prev).set(
+          data.userId,
+          data.newInfo || '/images/default-avatar.jpg'
+        )
+      );
+    };
+
+    socket.on('update-profile-picture-in-groups', handleProfilePictureUpdate);
+    return () => {
+      socket.off(
+        'update-profile-picture-in-groups',
+        handleProfilePictureUpdate
+      );
+    };
+  }, [isGroupChat, socket]);
+
+  const getChatMemberProfilePicture = (senderId: number): string => {
+    return userProfilePictureMap.get(senderId) || '/images/default-avatar.jpg';
   };
 
   return (
@@ -117,7 +158,6 @@ export default function MessageList({
         />
       )}
 
-      {/* Only render the messages if the user is a part of the private chat */}
       <div className='chat-content-container'>
         <div className='messages-container'>
           <ul id='messages'>
@@ -135,7 +175,7 @@ export default function MessageList({
                     {
                       <img
                         className='message-profile-picture'
-                        src={getChatMemberProfilePicture(messageData)}
+                        src={getChatMemberProfilePicture(messageData.senderId)}
                         alt='Profile avatar'
                       />
                     }

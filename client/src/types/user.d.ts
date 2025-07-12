@@ -14,3 +14,9 @@ export interface UserContextType {
   isBlocked: boolean;
   setIsBlocked: React.Dispatch<React.SetStateAction<boolean>>;
 }
+
+export interface UserProfileUpdate {
+  userId: number;
+  newInfo: string;
+  room: string;
+}
