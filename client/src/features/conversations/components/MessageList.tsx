@@ -118,8 +118,6 @@ export default function MessageList({
 
       usernameMap.set(loggedInUserId, loggedInUsername);
       usernameMap.set(recipientUserId, chatName);
-
-      console.log(usernameMap);
     }
 
     setUserProfilePictureMap(profilePictureMap);
