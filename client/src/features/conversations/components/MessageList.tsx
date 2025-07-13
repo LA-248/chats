@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useMemo, useState } from 'react';
 import { useSocket } from '../../../hooks/useSocket';
 import { UserContext } from '../../../contexts/UserContext';
 import { MessageContext } from '../../../contexts/MessageContext';
@@ -52,12 +52,6 @@ export default function MessageList({
     filteredMessages,
   } = useContext(MessageContext);
 
-  const [userProfilePictureMap, setUserProfilePictureMap] = useState<
-    Map<number, string>
-  >(new Map<number, string>());
-  const [usernameMap, setUsernameMap] = useState<Map<number, string>>(
-    new Map<number, string>()
-  );
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>('');
   const groupMembersInfo = groupChatInfo.members;
@@ -92,7 +86,9 @@ export default function MessageList({
     }
   }, [room, socket, setMessages]);
 
-  useEffect(() => {
+  // Build maps that associate users in the chat with their respective username and profile picture
+  // These maps can then be used to retrieve a specific user's info for display in the message list
+  const { profilePictureMap, usernameMap } = useMemo(() => {
     const profilePictureMap = new Map<number, string>();
     const usernameMap = new Map<number, string>();
 
@@ -105,7 +101,6 @@ export default function MessageList({
         usernameMap.set(member.user_id, member.username);
       });
     }
-
     if (isPrivateChat) {
       profilePictureMap.set(
         loggedInUserId,
@@ -115,13 +110,11 @@ export default function MessageList({
         recipientUserId,
         recipientProfilePicture || '/images/default-avatar.jpg'
       );
-
       usernameMap.set(loggedInUserId, loggedInUsername);
       usernameMap.set(recipientUserId, chatName);
     }
 
-    setUserProfilePictureMap(profilePictureMap);
-    setUsernameMap(usernameMap);
+    return { profilePictureMap, usernameMap };
   }, [
     isGroupChat,
     isPrivateChat,
@@ -137,16 +130,16 @@ export default function MessageList({
   useEffect(() => {
     if (!isGroupChat || !socket) return;
 
-    const handleMemberProfilePictureUpdate = (data: UserProfileUpdate) => {
-      setUserProfilePictureMap((prev) =>
-        new Map(prev).set(
-          data.userId,
-          data.newInfo || '/images/default-avatar.jpg'
-        )
+    const handleMemberProfilePictureUpdate = (
+      data: UserProfileUpdate
+    ): void => {
+      profilePictureMap.set(
+        data.userId,
+        data.newInfo || '/images/default-avatar.jpg'
       );
     };
-    const handleMemberUsernameUpdate = (data: UserProfileUpdate) => {
-      setUsernameMap((prev) => new Map(prev).set(data.userId, data.newInfo));
+    const handleMemberUsernameUpdate = (data: UserProfileUpdate): void => {
+      usernameMap.set(data.userId, data.newInfo);
     };
 
     socket.on(
@@ -162,10 +155,10 @@ export default function MessageList({
 
       socket.off('update-username-in-groups', handleMemberUsernameUpdate);
     };
-  }, [isGroupChat, socket]);
+  }, [isGroupChat, profilePictureMap, socket, usernameMap]);
 
   const getChatMemberProfilePicture = (senderId: number): string => {
-    return userProfilePictureMap.get(senderId) || '/images/default-avatar.jpg';
+    return profilePictureMap.get(senderId) || '/images/default-avatar.jpg';
   };
   const getChatMemberUsername = (senderId: number): string | undefined => {
     return usernameMap.get(senderId);
