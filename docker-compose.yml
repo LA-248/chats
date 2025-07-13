@@ -6,7 +6,7 @@ services:
       - '3000:3000'
     volumes:
       - ./client:/app
-      - /app/node_modules
+      - node_modules_client:/app/node_modules
     env_file:
       - ./client/.env.development.local
     depends_on:
@@ -19,7 +19,7 @@ services:
       - '8080:8080'
     volumes:
       - ./server:/app
-      - /app/node_modules
+      - node_modules_server:/app/node_modules
     env_file:
       - ./server/.env
     environment:
@@ -40,3 +40,5 @@ services:
 
 volumes:
   pgdata:
+  node_modules_client:
+  node_modules_server:
