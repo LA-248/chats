@@ -12,7 +12,7 @@ export default function useAddGroupToChatList(
         setChatList((prevChatList) => [newChat, ...prevChatList]);
       };
 
-      socket.on('add-group-to-chat-list', (data) => handleChatListUpdate(data));
+      socket.on('add-group-to-chat-list', handleChatListUpdate);
 
       return () => {
         socket.off('add-group-to-chat-list', handleChatListUpdate);
