@@ -37,8 +37,6 @@ export default function ChatList({
     setChatList,
     activeChatRoom,
     setActiveChatRoom,
-    setRecipientProfilePicture,
-    setGroupPicture,
   } = useContext(ChatContext);
 
   const handleChatClick = async (chat: Chat): Promise<void> => {
@@ -98,43 +96,8 @@ export default function ChatList({
   useAddGroupToChatList(socket, setChatList); // When a user is added to a group chat, notify them and add it to their chat list
   useRemoveGroupChat(socket, setChatList, setActiveChatRoom, navigate);
   useAddNewPrivateChatToChatList(socket, setChatList);
+  useChatUpdates(socket, setChatList, room!);
 
-  // Update the picture of a group for all its members in real-time
-  useChatUpdates(
-    socket,
-    setChatList,
-    'room',
-    'room',
-    'chat_picture',
-    'groupPicture',
-    room!,
-    setGroupPicture,
-    'update-group-picture'
-  );
-  // Update the profile picture of a private chat contact when changed
-  useChatUpdates(
-    socket,
-    setChatList,
-    'recipient_user_id',
-    'userId',
-    'chat_picture',
-    'newInfo',
-    room!,
-    setRecipientProfilePicture,
-    'update-profile-picture-for-contacts'
-  );
-  // Update the username of a private chat contact when changed
-  useChatUpdates(
-    socket,
-    setChatList,
-    'recipient_user_id',
-    'userId',
-    'name',
-    'newInfo',
-    room!,
-    setChatName,
-    'update-username-for-contacts'
-  );
   useSocketErrorHandling(socket, setErrorMessage);
   useClearErrorMessage(errorMessage, setErrorMessage);
 
