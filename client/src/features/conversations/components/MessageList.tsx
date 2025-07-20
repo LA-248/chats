@@ -127,6 +127,7 @@ export default function MessageList({
     chatName,
   ]);
 
+  // Update the profile picture and/or username of a user displayed in the message list in real-time when they change it
   useEffect(() => {
     if (!isGroupChat || !socket) return;
 

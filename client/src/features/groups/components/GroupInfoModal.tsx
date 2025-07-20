@@ -1,11 +1,9 @@
-import { useContext, useMemo, useState } from 'react';
-import { useSocket } from '../../../hooks/useSocket';
+import { useMemo, useState } from 'react';
 import {
   GroupMemberRole,
   type GroupInfoWithMembers,
   type GroupMember,
 } from '../../../types/group';
-import { ChatContext } from '../../../contexts/ChatContext';
 import Modal from '../../../components/ModalTemplate';
 import LeaveGroupModal from './LeaveGroupModal';
 import GroupPicture from './GroupPicture';
@@ -14,7 +12,6 @@ import RemoveMemberModal from './RemoveMemberModal';
 import DeleteGroupModal from './DeleteGroupModal';
 import MakeMemberAdminModal from './MakeMemberAdminModal';
 import RemoveAsAdminModal from './RemoveAdminModal';
-import useMembersListUpdate from '../hooks/useMembersListUpdate';
 
 interface GroupInfoHeaderProps {
   group: GroupInfoWithMembers;
@@ -82,8 +79,6 @@ export default function GroupInfoModal({
   errorMessage,
   setErrorMessage,
 }: GroupInfoModalProps) {
-  const socket = useSocket();
-  const { setMembersList } = useContext(ChatContext);
   const [isLeaveModalOpen, setIsLeaveModalOpen] = useState<boolean>(false);
   const [isDeleteGroupModalOpen, setIsDeleteGroupModalOpen] =
     useState<boolean>(false);
@@ -95,8 +90,6 @@ export default function GroupInfoModal({
     useState<boolean>(false);
   const [memberId, setMemberId] = useState<number>(0);
   const [memberName, setMemberName] = useState<string>('');
-
-  useMembersListUpdate(socket, setMembersList);
 
   return (
     <Modal

@@ -1,4 +1,7 @@
 import { useContext, useEffect, useState } from 'react';
+import { useSocket } from '../../../hooks/useSocket';
+import useMembersListUpdate from '../../groups/hooks/useMembersListUpdate';
+
 import { ChatContext } from '../../../contexts/ChatContext';
 import { MessageContext } from '../../../contexts/MessageContext';
 import { UserContext } from '../../../contexts/UserContext';
@@ -42,6 +45,7 @@ export default function ContactHeader({
     setMembersList,
     setActiveChatRoom,
   } = useContext(ChatContext);
+  const socket = useSocket();
   const { messages, setFilteredMessages } = useContext(MessageContext);
   const { loggedInUsername, loggedInUserId, setIsBlocked } =
     useContext(UserContext);
@@ -55,29 +59,24 @@ export default function ContactHeader({
 
   useClearErrorMessage(errorMessage, setErrorMessage);
 
-  // Handles fetching the info of private and group chats
-  // TODO: Clean up this useEffect
+  // Handle setting the contact header and modal info of a private chat
   useEffect(() => {
-    const fetchChatInfo = async (): Promise<void> => {
-      try {
-        if (isPrivateChat) {
-          const blockList = await getBlockList();
-          const recipientId = privateChatInfo.userId;
-          if (typeof recipientId === 'number') {
-            setRecipientUserId(recipientId);
-            setIsBlocked(blockList.includes(recipientId));
-            setChatId(recipientId);
-          }
-          setRecipientProfilePicture(privateChatInfo.profilePicture);
-        } else if (isGroupChat) {
-          setChatId(groupChatInfo.info.chatId);
-          setGroupPicture(groupChatInfo.info.groupPicture);
-          setMembersList(groupChatInfo.members);
-        }
+    if (!isPrivateChat) return;
 
-        setChatName(
-          isPrivateChat ? privateChatInfo.username : groupChatInfo.info.name
-        );
+    const handlePrivateChatInfo = async (): Promise<void> => {
+      try {
+        const blockList = await getBlockList();
+        const recipientId = privateChatInfo.userId;
+        if (typeof recipientId === 'number') {
+          setRecipientUserId(recipientId);
+          setIsBlocked(blockList.includes(recipientId));
+          setChatId(recipientId);
+        }
+        const contactProfilePicture = privateChatInfo.profilePicture;
+        const contactUsername = privateChatInfo.username;
+
+        setRecipientProfilePicture(contactProfilePicture);
+        setChatName(contactUsername);
         setActiveChatRoom(room);
       } catch (error) {
         if (error instanceof Error) {
@@ -86,21 +85,55 @@ export default function ContactHeader({
       }
     };
 
-    fetchChatInfo();
+    handlePrivateChatInfo();
   }, [
     room,
-    isPrivateChat,
-    isGroupChat,
+    chatType,
     privateChatInfo,
-    groupChatInfo,
+    isPrivateChat,
     setIsBlocked,
     setChatId,
     setChatName,
     setRecipientProfilePicture,
-    setGroupPicture,
-    setMembersList,
     setActiveChatRoom,
   ]);
+
+  // Handle setting the contact header and modal info (members list, group picture, etc) of a group chat
+  useEffect(() => {
+    if (!isGroupChat) return;
+
+    const handleGroupChatInfo = async (): Promise<void> => {
+      try {
+        const groupId = groupChatInfo.info.chatId;
+        const groupChatPicture = groupChatInfo.info.groupPicture;
+        const groupMembersList = groupChatInfo.members;
+        const groupName = groupChatInfo.info.name;
+
+        setChatId(groupId);
+        setGroupPicture(groupChatPicture);
+        setMembersList(groupMembersList);
+        setChatName(groupName);
+        setActiveChatRoom(room);
+      } catch (error) {
+        if (error instanceof Error) {
+          setErrorMessage(error.message);
+        }
+      }
+    };
+
+    handleGroupChatInfo();
+  }, [
+    isGroupChat,
+    groupChatInfo,
+    room,
+    setActiveChatRoom,
+    setChatId,
+    setChatName,
+    setGroupPicture,
+    setMembersList,
+  ]);
+
+  useMembersListUpdate(socket, setMembersList);
 
   return (
     <div>
@@ -123,7 +156,7 @@ export default function ContactHeader({
               >
                 {chatName}
               </div>
-              {chatType === ChatType.GROUP && groupChatInfo.members ? (
+              {isGroupChat && groupChatInfo.members ? (
                 <div className='group-member-list'>
                   {membersList
                     .map((member) => {
@@ -144,7 +177,7 @@ export default function ContactHeader({
               </button>
             ) : null}
 
-            {chatType === ChatType.GROUP ? (
+            {isGroupChat ? (
               <button
                 className='add-group-members-button'
                 onClick={() => setIsAddMembersModalOpen(true)}
