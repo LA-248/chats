@@ -1,3 +1,5 @@
+# TODO: Use multi-stage builds
+
 # Use the official Node.js 20 image based on Alpine Linux
 FROM node:20-alpine
 

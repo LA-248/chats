@@ -37,7 +37,7 @@ export default function useChatListUpdate(
         );
       };
 
-      // Update chat list when the last remaining message in a chat is deleted or edited
+      // Update chat in chat list when the last remaining message in a chat is deleted or edited
       const handleLastMessageUpdate = (lastMessageData: ChatMetadata): void => {
         setChatList((prevChatList) =>
           prevChatList

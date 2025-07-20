@@ -1,5 +1,4 @@
 import { useContext, useEffect, useState } from 'react';
-import { useSocket } from '../../../hooks/useSocket';
 import { ChatContext } from '../../../contexts/ChatContext';
 import { MessageContext } from '../../../contexts/MessageContext';
 import { UserContext } from '../../../contexts/UserContext';
@@ -12,7 +11,6 @@ import MessageSearch from './MessageSearch';
 import ContactInfoModal from './ContactInfoModal';
 import GroupInfoModal from '../../groups/components/GroupInfoModal';
 import useClearErrorMessage from '../../../hooks/useClearErrorMessage';
-import useMembersListUpdate from '../../groups/hooks/useMembersListUpdate';
 import AddGroupMembers from '../../groups/components/AddGroupMembers';
 import LocalPhoneRoundedIcon from '@mui/icons-material/LocalPhoneRounded';
 
@@ -29,7 +27,6 @@ export default function ContactHeader({
   privateChatInfo,
   groupChatInfo,
 }: ContactHeaderProps) {
-  const socket = useSocket();
   const isPrivateChat = chatType === ChatType.PRIVATE;
   const isGroupChat = chatType === ChatType.GROUP;
 
@@ -104,8 +101,6 @@ export default function ContactHeader({
     setMembersList,
     setActiveChatRoom,
   ]);
-
-  useMembersListUpdate(socket, setMembersList);
 
   return (
     <div>

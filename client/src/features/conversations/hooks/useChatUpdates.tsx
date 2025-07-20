@@ -3,7 +3,6 @@ import { Socket } from 'socket.io-client';
 import type { Chat } from '../../../types/chat';
 import { ChatContext } from '../../../contexts/ChatContext';
 
-// TODO: REFACTOR THIS MESS
 export default function useChatUpdates(
   socket: Socket | null,
   setChatList: React.Dispatch<React.SetStateAction<Chat[]>>,
