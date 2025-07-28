@@ -10,7 +10,7 @@ import {
 } from '../schemas/user.schema.ts';
 import { Group } from '../models/group.model.ts';
 
-export const retrieveProfilePictureUrl = async (
+export const createProfilePictureUrl = async (
   profilePicture: string
 ): Promise<string | null> => {
   return profilePicture
@@ -56,6 +56,14 @@ export const retrieveUserIdByUsername = async (
   username: string
 ): Promise<UserId | null> => {
   return await User.getIdByUsername(username);
+};
+
+export const retrieveProfilePicture = async (userId: number) => {
+  const profilePicture = await User.getUserProfilePicture(userId);
+
+  return profilePicture
+    ? await createProfilePictureUrl(profilePicture)
+    : null;
 };
 
 export const retrieveBlockList = async (
@@ -104,7 +112,7 @@ export const handleUsernameUpdate = async (
   io: Server
 ): Promise<void> => {
   await User.updateUsernameById(username, userId);
-  
+
   await updateUserInfoForAllContacts(
     userId,
     io,

@@ -6,6 +6,7 @@ import {
   retrieveBlockListById,
   retrieveIdByUsername,
   retrieveLoggedInUserData,
+  retrieveUserProfilePicture,
   updateBlockedUsers,
   updateUsername,
   uploadProfilePicture,
@@ -17,6 +18,7 @@ usersRouter.use(requireAuth);
 usersRouter.get('/', retrieveLoggedInUserData);
 usersRouter.get('/blocked', retrieveBlockListById);
 usersRouter.get('/:username', retrieveIdByUsername);
+usersRouter.get('/:id/pictures', retrieveUserProfilePicture);
 
 usersRouter.put('/', updateUsername);
 usersRouter.put('/blocked', updateBlockedUsers);

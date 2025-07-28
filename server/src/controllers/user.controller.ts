@@ -1,12 +1,13 @@
 import { Request, Response } from 'express';
 import {
+  createProfilePictureUrl,
   handleUsernameUpdate,
+  retrieveProfilePicture,
   updateProfilePicture,
   updateUserBlockList,
 } from '../services/user.service.ts';
 import {
   retrieveBlockList,
-  retrieveProfilePictureUrl,
   retrieveRecipientData,
   retrieveUserIdByUsername,
 } from '../services/user.service.ts';
@@ -21,7 +22,7 @@ export const retrieveLoggedInUserData = async (
     const profilePicture = req.user?.profile_picture;
 
     const profilePictureUrl = profilePicture
-      ? await retrieveProfilePictureUrl(profilePicture)
+      ? await createProfilePictureUrl(profilePicture)
       : null;
 
     res.status(200).json({
@@ -88,6 +89,21 @@ export const retrieveIdByUsername = async (
     }
     console.error('Error retrieving user ID:', error);
     res.status(500).json({ error: 'An unexpected error occurred' });
+  }
+};
+
+export const retrieveUserProfilePicture = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const userId = Number(req.params.id);
+    const profilePictureUrl = await retrieveProfilePicture(userId);
+
+    res.status(200).json({ profilePicture: profilePictureUrl });
+  } catch (error) {
+    console.error('Error retrieving user profile picture:', error);
+    res.status(500).json({ error: 'Error retrieving user profile picture' });
   }
 };
 

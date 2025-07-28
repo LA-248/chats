@@ -1,5 +1,8 @@
-import { useEffect, useState } from 'react';
-import { getRecipientUserIdByUsername } from '../../../api/user-api';
+import { useContext, useEffect, useState } from 'react';
+import {
+  getRecipientUserIdByUsername,
+  getUserProfilePicture,
+} from '../../../api/user-api';
 import { createGroupChat } from '../../../api/group-chat-api';
 import { toast } from 'sonner';
 import Modal from '../../../components/ModalTemplate';
@@ -8,6 +11,7 @@ import {
   type GroupMemberToBeAdded,
   type GroupMemberToRemove,
 } from '../../../types/group';
+import { UserContext } from '../../../contexts/UserContext';
 
 interface CreateGroupChatModalProps {
   isModalOpen: boolean;
@@ -22,6 +26,7 @@ export default function CreateGroupChatModal({
   loggedInUsername,
   loggedInUserId,
 }: CreateGroupChatModalProps) {
+  const { profilePicture } = useContext(UserContext);
   const [groupName, setGroupName] = useState<string>('');
   const [inputUsername, setInputUsername] = useState<string>('');
   const [addedMembers, setAddedMembers] = useState<GroupMemberToBeAdded[]>([]);
@@ -33,10 +38,11 @@ export default function CreateGroupChatModal({
       {
         username: loggedInUsername,
         userId: loggedInUserId,
+        profilePicture: profilePicture,
         role: GroupMemberRole.OWNER,
       },
     ]);
-  }, [loggedInUserId, loggedInUsername]);
+  }, [loggedInUserId, loggedInUsername, profilePicture]);
 
   const handleAddMember = async (
     event: React.FormEvent<HTMLFormElement>
@@ -67,12 +73,15 @@ export default function CreateGroupChatModal({
       const memberUserId = await getRecipientUserIdByUsername(
         sanitizedUsername
       );
+      const memberProfilePicture = await getUserProfilePicture(memberUserId);
+
       // Store the username, id, and group role of each added member, this is needed to add them as a group member in the database
       setAddedMembers((prevMembers) => [
         ...prevMembers,
         {
           username: sanitizedUsername,
           userId: memberUserId,
+          profilePicture: memberProfilePicture,
           role: GroupMemberRole.MEMBER,
         },
       ]);
@@ -120,6 +129,7 @@ export default function CreateGroupChatModal({
         {
           username: loggedInUsername,
           userId: loggedInUserId,
+          profilePicture: profilePicture,
           role: GroupMemberRole.OWNER,
         },
       ]);
@@ -175,10 +185,16 @@ export default function CreateGroupChatModal({
           <div className='added-group-members-container'>
             {addedMembers.map((addedMember, index) => (
               <div className='added-group-member' key={index}>
-                <div className='added-member-username-container'>
+                <div className='added-member-container'>
+                  <img
+                    src={
+                      addedMember.profilePicture ?? '/images/default-avatar.jpg'
+                    }
+                    className='added-member-profile-picture'
+                  ></img>
                   <div>{addedMember.username}</div>
                   {addedMember.role === GroupMemberRole.OWNER ? (
-                    <div>(You)</div>
+                    <div style={{ marginLeft: '-5px' }}>(You)</div>
                   ) : null}
                 </div>
                 {addedMember.role === GroupMemberRole.MEMBER ? (

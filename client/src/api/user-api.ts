@@ -1,6 +1,6 @@
 import type { UserInfo } from '../types/user';
 
-async function getLoggedInUserData(): Promise<UserInfo> {
+export async function getLoggedInUserData(): Promise<UserInfo> {
   const response = await fetch(
     `${import.meta.env.VITE_SERVER_BASE_URL}/users`,
     {
@@ -22,7 +22,9 @@ async function getLoggedInUserData(): Promise<UserInfo> {
 }
 
 // Retrieve the ID of a message recipient from the database using their username
-async function getRecipientUserIdByUsername(username: string): Promise<number> {
+export async function getRecipientUserIdByUsername(
+  username: string
+): Promise<number> {
   const response = await fetch(
     `${import.meta.env.VITE_SERVER_BASE_URL}/users/${username}`,
     {
@@ -43,8 +45,29 @@ async function getRecipientUserIdByUsername(username: string): Promise<number> {
   return data.userId;
 }
 
+export async function getUserProfilePicture(userId: number): Promise<string> {
+  const response = await fetch(
+    `${import.meta.env.VITE_SERVER_BASE_URL}/users/${userId}/pictures`,
+    {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+      },
+      credentials: 'include',
+    }
+  );
+
+  if (!response.ok) {
+    const errorResponse = await response.json();
+    throw new Error(errorResponse.error);
+  }
+
+  const data = await response.json();
+  return data.profilePicture;
+}
+
 // Retrieve the block list of the logged in user
-async function getBlockList(): Promise<number[]> {
+export async function getBlockList(): Promise<number[]> {
   const response = await fetch(
     `${import.meta.env.VITE_SERVER_BASE_URL}/users/blocked`,
     {
@@ -65,7 +88,7 @@ async function getBlockList(): Promise<number[]> {
   return data.blockList;
 }
 
-async function updateUsername(username: string): Promise<string> {
+export async function updateUsername(username: string): Promise<string> {
   const response = await fetch(
     `${import.meta.env.VITE_SERVER_BASE_URL}/users`,
     {
@@ -89,7 +112,7 @@ async function updateUsername(username: string): Promise<string> {
 }
 
 // Update a user's block list with the ID of who they want blocked
-async function updateBlockList(userIds: number[]): Promise<void> {
+export async function updateBlockList(userIds: number[]): Promise<void> {
   const response = await fetch(
     `${import.meta.env.VITE_SERVER_BASE_URL}/users/blocked`,
     {
@@ -107,11 +130,3 @@ async function updateBlockList(userIds: number[]): Promise<void> {
     throw new Error(errorResponse.error);
   }
 }
-
-export {
-  getLoggedInUserData,
-  getRecipientUserIdByUsername,
-  getBlockList,
-  updateUsername,
-  updateBlockList,
-};

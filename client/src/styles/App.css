@@ -831,10 +831,16 @@ body {
   font-size: 14px;
 }
 
-.added-member-username-container {
+.added-member-container {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 10px;
+}
+
+.added-member-profile-picture {
+  height: 30px;
+  width: auto;
+  border-radius: 999px;
 }
 
 .remove-group-member-button {
