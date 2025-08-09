@@ -1,12 +1,11 @@
 import { toast } from 'sonner';
-import { ChatType } from '../../../types/chat';
 
-export function usePictureUpload(
+export function useMediaUpload(
   fileInputRef: React.RefObject<HTMLInputElement | null>,
   formRef: React.RefObject<HTMLFormElement | null>,
   setPicture: React.Dispatch<React.SetStateAction<string>>,
-  chatType: string,
-  room: string
+  apiEndpoint: string,
+  successMessage: string
 ) {
   // Use the reference to the file picker input to open it when clicking on the upload button
   const handleFileInputClick = () => {
@@ -15,7 +14,7 @@ export function usePictureUpload(
     }
   };
 
-  const handlePictureUpload = async (
+  const handleMediaUpload = async (
     event: React.ChangeEvent<HTMLInputElement>
   ): Promise<void> => {
     event.preventDefault();
@@ -24,16 +23,11 @@ export function usePictureUpload(
     const formData = new FormData(formRef.current);
 
     const uploadPromise = async () => {
-      const response = await fetch(
-        chatType === ChatType.GROUP
-          ? `${import.meta.env.VITE_SERVER_BASE_URL}/groups/${room}/pictures`
-          : `${import.meta.env.VITE_SERVER_BASE_URL}/users/pictures`,
-        {
-          method: 'POST',
-          body: formData,
-          credentials: 'include',
-        }
-      );
+      const response = await fetch(apiEndpoint, {
+        method: 'POST',
+        body: formData,
+        credentials: 'include',
+      });
 
       if (!response.ok) {
         const errorResponse = await response.json();
@@ -47,11 +41,11 @@ export function usePictureUpload(
     toast.promise(uploadPromise(), {
       loading: 'Uploading...',
       success: () => {
-        return 'Picture uploaded successfully';
+        return successMessage;
       },
       error: (error) => error.message,
     });
   };
 
-  return { handleFileInputClick, handlePictureUpload };
+  return { handleFileInputClick, handleMediaUpload };
 }

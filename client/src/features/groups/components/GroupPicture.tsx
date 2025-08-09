@@ -1,15 +1,12 @@
 import { useContext, useRef } from 'react';
-import { useLocation, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { ChatContext } from '../../../contexts/ChatContext';
-import { usePictureUpload } from '../../users/hooks/usePictureUpload';
+import { useMediaUpload } from '../../../hooks/useMediaUpload';
 
 export default function GroupPicture() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
   const { room } = useParams();
-  const location = useLocation();
-  const pathSegments = location.pathname.split('/');
-  const chatType = pathSegments[1];
 
   const chatContext = useContext(ChatContext);
   if (!chatContext) {
@@ -17,12 +14,16 @@ export default function GroupPicture() {
   }
   const { groupPicture, setGroupPicture } = chatContext;
 
-  const { handleFileInputClick, handlePictureUpload } = usePictureUpload(
+  const apiEndpoint = `${
+    import.meta.env.VITE_SERVER_BASE_URL
+  }/groups/${room}/pictures`;
+
+  const { handleFileInputClick, handleMediaUpload } = useMediaUpload(
     fileInputRef,
     formRef,
     setGroupPicture,
-    chatType,
-    room!
+    apiEndpoint,
+    'Picture uploaded successfully'
   );
 
   return (
@@ -43,7 +44,7 @@ export default function GroupPicture() {
           name='group-picture'
           accept='image/*'
           style={{ display: 'none' }}
-          onChange={handlePictureUpload}
+          onChange={handleMediaUpload}
         />
       </form>
       <button

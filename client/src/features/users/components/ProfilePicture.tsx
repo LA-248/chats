@@ -1,23 +1,20 @@
 import { useContext, useRef } from 'react';
-import { useLocation, useParams } from 'react-router-dom';
 import { UserContext } from '../../../contexts/UserContext';
-import { usePictureUpload } from '../hooks/usePictureUpload';
+import { useMediaUpload } from '../../../hooks/useMediaUpload';
 
 export default function ProfilePicture() {
-  const { room } = useParams();
   const fileInputRef = useRef(null);
   const formRef = useRef(null);
-  const location = useLocation();
-  const pathSegments = location.pathname.split('/');
-  const chatType = pathSegments[1];
   const { profilePicture, setProfilePicture } = useContext(UserContext);
 
-  const { handleFileInputClick, handlePictureUpload } = usePictureUpload(
+  const apiEndpoint = `${import.meta.env.VITE_SERVER_BASE_URL}/users/pictures`;
+
+  const { handleFileInputClick, handleMediaUpload } = useMediaUpload(
     fileInputRef,
     formRef,
     setProfilePicture,
-    chatType,
-    room!
+    apiEndpoint,
+    'Picture uploaded successfully'
   );
 
   return (
@@ -38,7 +35,7 @@ export default function ProfilePicture() {
           name='profile-picture'
           accept='image/*'
           style={{ display: 'none' }}
-          onChange={handlePictureUpload}
+          onChange={handleMediaUpload}
         />
       </form>
       <button
