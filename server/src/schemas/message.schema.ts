@@ -42,5 +42,6 @@ export type FormattedMessage = z.infer<typeof FormattedMessageSchema>;
 export const LastMessageInfoSchema = z.object({
   content: z.string(),
   event_time: z.coerce.date(),
+  type: z.string(),
 });
 export type LastMessageInfo = z.infer<typeof LastMessageInfoSchema>;

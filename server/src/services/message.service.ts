@@ -14,13 +14,13 @@ export const remove = async (
   senderId: number,
   messageId: number
 ): Promise<void> => {
-  const messageType = await Message.getMessageType(messageId);
+  const messageType = await Message.retrieveMessageType(messageId);
   const isImage = messageType === MessageType.IMAGE;
 
   // If the message being deleted is an image, delete the image in the S3 bucket
   if (isImage) {
     // Retrieve the file key (saved as message content) from the database
-    const fileKey = await Message.getMessageContent(senderId, messageId);
+    const fileKey = await Message.retrieveMessageContent(senderId, messageId);
 
     await deleteS3Object(process.env.BUCKET_NAME!, fileKey);
   }
@@ -29,6 +29,5 @@ export const remove = async (
 };
 
 export const upload = async (file: Express.MulterS3.File) => {
-  const fileKey = file.key;
-  return fileKey;
+  return file.key;
 };

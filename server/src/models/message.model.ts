@@ -131,7 +131,7 @@ const Message = {
 
   // READ OPERATIONS
 
-  getMessageContent: function (
+  retrieveMessageContent: function (
     senderId: number,
     messageId: number
   ): Promise<string> {
@@ -147,7 +147,7 @@ const Message = {
         (err, result) => {
           if (err) {
             return reject(
-              `Database error in getMessageContent in messages table: ${err.message}`
+              `Database error in retrieveMessageContent in messages table: ${err.message}`
             );
           }
           return resolve(result.rows[0].content);
@@ -156,7 +156,7 @@ const Message = {
     });
   },
 
-  getMessageType: function (messageId: number): Promise<string> {
+  retrieveMessageType: function (messageId: number): Promise<string> {
     return new Promise((resolve, reject) => {
       pool.query(
         `
@@ -169,7 +169,7 @@ const Message = {
         (err, result) => {
           if (err) {
             return reject(
-              `Database error in getMessageType in messages table: ${err.message}`
+              `Database error in retrieveMessageType in messages table: ${err.message}`
             );
           }
           return resolve(result.rows[0].type);
@@ -230,7 +230,8 @@ const Message = {
         `
         SELECT
           content,
-          event_time
+          event_time,
+          type
         FROM messages
         WHERE room = $1
         ORDER BY message_id DESC LIMIT 1 
