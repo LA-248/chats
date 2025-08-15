@@ -103,16 +103,18 @@ const updateMostRecentMessage = (socket: Socket, io: Server): void => {
     const { room, chatType } = data;
     try {
       const lastMessageInfo = await Message.retrieveLastMessageInfo(room);
-
       const isImage = lastMessageInfo?.type === MessageType.IMAGE;
+
       const lastMessageContent = lastMessageInfo
         ? isImage
           ? 'Image'
           : lastMessageInfo.content
         : null;
+
       const lastMessageTime = lastMessageInfo
         ? lastMessageInfo.event_time
         : null;
+
       const updatedAt =
         chatType === ChatType.PRIVATE
           ? await PrivateChat.retrieveUpdatedAtDate(room)
