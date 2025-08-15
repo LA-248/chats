@@ -630,6 +630,7 @@ body {
   outline: none;
 }
 
+.media-upload-button,
 .emoji-picker-button {
   margin-right: 10px;
   padding: 10px;
@@ -642,6 +643,7 @@ body {
   border: none;
 }
 
+.media-upload-button:hover,
 .emoji-picker-button:hover {
   cursor: pointer;
   opacity: 0.9;

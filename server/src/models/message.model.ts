@@ -73,7 +73,7 @@ const Message = {
             client_offset
           ) 
           VALUES ($1, $2, $3, $4, $5, $6)
-          RETURNING message_id, event_time
+          RETURNING message_id, event_time, type
         `,
         [content, senderId, recipientId, room, type, clientOffset],
         (err, result) => {
@@ -85,6 +85,7 @@ const Message = {
             const newMessage = NewMessageSchema.parse({
               id: result.rows[0].message_id,
               event_time: result.rows[0].event_time,
+              type: result.rows[0].type,
             });
             return resolve(newMessage);
           } catch (error) {
@@ -130,14 +131,39 @@ const Message = {
 
   // READ OPERATIONS
 
+  getMessageContent: function (
+    senderId: number,
+    messageId: number
+  ): Promise<string> {
+    return new Promise((resolve, reject) => {
+      pool.query(
+        `
+        SELECT
+          content
+        FROM messages
+        WHERE sender_id = $1 AND message_id = $2
+        `,
+        [senderId, messageId],
+        (err, result) => {
+          if (err) {
+            return reject(
+              `Database error in getMessageContent in messages table: ${err.message}`
+            );
+          }
+          return resolve(result.rows[0].content);
+        }
+      );
+    });
+  },
+
   getMessageType: function (messageId: number): Promise<string> {
     return new Promise((resolve, reject) => {
       pool.query(
         `
         SELECT
-          m.type
-        FROM messages m
-        WHERE m.message_id = $1
+          type
+        FROM messages
+        WHERE message_id = $1
         `,
         [messageId],
         (err, result) => {

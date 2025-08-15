@@ -19,6 +19,7 @@ const Chat = {
           pc.last_message_id,
           m.content AS last_message_content,
           m.event_time AS last_message_time,
+          m.type AS last_message_type,
           pc.room,
           CASE
             WHEN pc.user1_id = $1 THEN pc.user1_read
@@ -49,6 +50,7 @@ const Chat = {
           g.last_message_id,
           m.content AS last_message_content,
           m.event_time AS last_message_time,
+          m.type AS last_message_type,
           g.room,
           CASE 
             WHEN $1 = ANY(g.read_by) THEN TRUE 

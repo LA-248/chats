@@ -1,4 +1,5 @@
 import type { Chat } from '../../../types/chat';
+import { MessageType } from '../../../types/message';
 import formatDate from '../../../utils/DateTimeFormat';
 
 interface ChatItemProps {
@@ -48,7 +49,11 @@ export default function ChatItem({
             </div>
           </div>
           <div className='chat-metadata-container'>
-            <p className='chat-last-message'>{chat.last_message_content}</p>
+            <p className='chat-last-message'>
+              {chat.last_message_type === MessageType.IMAGE
+                ? 'Image'
+                : chat.last_message_content}
+            </p>
             <div className='chat-utilities'>
               {isHovered && (
                 <button onClick={onDeleteClick} className='chat-delete-button'>

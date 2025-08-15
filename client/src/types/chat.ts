@@ -8,6 +8,7 @@ export interface Chat {
   last_message_content: string | null;
   last_message_id: number | null;
   last_message_time: Date | null;
+  last_message_type: string;
   name: string;
   read: boolean;
   recipient_user_id: number | null;
@@ -20,6 +21,7 @@ export interface ChatMetadata {
   room: string;
   lastMessageContent: string;
   lastMessageTime: Date;
+  lastMessageType: string;
   updatedAt: Date;
 }
 

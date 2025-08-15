@@ -49,6 +49,7 @@ export const ChatSchema = z.object({
   last_message_id: z.number().nullable(),
   last_message_content: z.string().nullable(),
   last_message_time: z.coerce.date().nullable(),
+  last_message_type: z.string().nullable(),
   room: z.string(),
   read: z.boolean(),
   chat_type: z.string(),

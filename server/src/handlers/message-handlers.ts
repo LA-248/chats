@@ -20,6 +20,7 @@ const handleChatMessages = (socket: Socket, io: Server): void => {
     const { username, chatId, content, room, chatType, messageType } = data;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const senderId = (socket.handshake as any).session.passport.user;
+    const isImage = messageType === MessageType.IMAGE;
 
     try {
       if (chatType === ChatType.PRIVATE) {
@@ -42,7 +43,7 @@ const handleChatMessages = (socket: Socket, io: Server): void => {
         io,
         room,
         username,
-        messageType === MessageType.IMAGE
+        isImage
           ? await createPresignedUrl(process.env.BUCKET_NAME!, content)
           : content,
         senderId,
@@ -80,11 +81,11 @@ const displayChatMessages = async (
       );
 
       const settled = await Promise.allSettled(messages.map(formatMessage));
-      const initialMessages = settled.map((result) => {
-        if (result.status === 'fulfilled') {
+      const initialMessages = settled
+        .filter((result) => result.status === 'fulfilled')
+        .map((result) => {
           return result.value;
-        }
-      });
+        });
       socket.emit('initial-messages', initialMessages);
     } catch (error) {
       console.error('Unable to retrieve chat messages:', error);
@@ -148,10 +149,10 @@ const updateMessageList = (socket: Socket, io: Server): void => {
 const formatMessage = async (
   message: MessageStructure
 ): Promise<FormattedMessage> => {
-  const content =
-    message.type === MessageType.IMAGE
-      ? await createPresignedUrl(process.env.BUCKET_NAME!, message.content)
-      : message.content;
+  const isImage = message.type === MessageType.IMAGE;
+  const content = isImage
+    ? await createPresignedUrl(process.env.BUCKET_NAME!, message.content)
+    : message.content;
 
   return {
     from: message.sender_username,
@@ -370,9 +371,11 @@ const broadcastChatListUpdate = (
   newMessage: NewMessage,
   updatedAt: Date
 ): void => {
+  const isImage = newMessage.type === MessageType.IMAGE;
+
   io.to(room).emit('update-chat-list', {
     room: room,
-    lastMessageContent: message,
+    lastMessageContent: isImage ? 'Image' : message,
     lastMessageTime: newMessage.event_time,
     updatedAt: updatedAt,
   });

@@ -40,9 +40,9 @@ export const uploadMedia = async (
 ): Promise<void> => {
   try {
     const file = req.file as Express.MulterS3.File;
-    const fileName = await upload(file);
+    const fileKey = await upload(file);
 
-    res.status(200).json({ fileName });
+    res.status(200).json({ fileKey });
   } catch (error) {
     console.error('Error uploading media:', error);
     res.status(500).json({ error: 'Error uploading media. Please try again.' });

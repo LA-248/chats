@@ -79,6 +79,13 @@ export default function MessageInput() {
         </div>
 
         <div className='message-input-container'>
+          <button
+            type='button'
+            className='media-upload-button'
+            onClick={handleFileInputClick}
+          >
+            Media
+          </button>
           <input
             id='message-input'
             type='text'
@@ -92,13 +99,6 @@ export default function MessageInput() {
             disabled={isBlocked}
             autoFocus
           />
-          <button
-            type='button'
-            className='media-upload-button'
-            onClick={handleFileInputClick}
-          >
-            Media
-          </button>
           <button
             type='button'
             className='emoji-picker-button'

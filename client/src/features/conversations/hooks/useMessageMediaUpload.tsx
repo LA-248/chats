@@ -44,7 +44,7 @@ export function useMessageMediaUpload(
     }
 
     const data = await response.json();
-    const content = data.fileName;
+    const content = data.fileKey;
 
     if (socket) {
       const messageType = MessageType.IMAGE;
