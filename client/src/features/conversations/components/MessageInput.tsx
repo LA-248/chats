@@ -4,9 +4,9 @@ import { useLocation, useParams } from 'react-router-dom';
 import { useSocket } from '../../../hooks/useSocket';
 import { UserContext } from '../../../contexts/UserContext';
 import { ChatContext } from '../../../contexts/ChatContext';
-import useClearErrorMessage from '../../../hooks/useClearErrorMessage';
 import { MessageType } from '../../../types/message';
-import { useMessageMediaUpload } from '../hooks/useMessageMediaUpload';
+import { useSendMediaMessage } from '../hooks/useSendMediaMessage';
+import useClearErrorMessage from '../../../hooks/useClearErrorMessage';
 
 export default function MessageInput() {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -52,16 +52,15 @@ export default function MessageInput() {
   };
 
   // Handle media content
-  const { handleFileInputClick, handleMessageMediaUpload } =
-    useMessageMediaUpload(
-      fileInputRef,
-      formRef,
-      username,
-      chatId,
-      room!,
-      chatType,
-      setErrorMessage
-    );
+  const { handleFileInputClick, handleUpload } = useSendMediaMessage(
+    fileInputRef,
+    formRef,
+    username,
+    chatId,
+    room!,
+    chatType,
+    setErrorMessage
+  );
   useClearErrorMessage(errorMessage, setErrorMessage);
 
   return (
@@ -127,7 +126,7 @@ export default function MessageInput() {
           name='media-upload'
           accept='image/*'
           style={{ display: 'none' }}
-          onChange={handleMessageMediaUpload}
+          onChange={handleUpload}
         ></input>
       </form>
     </div>

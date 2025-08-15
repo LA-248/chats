@@ -2,7 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { useSocket } from '../../../hooks/useSocket';
 import { MessageType } from '../../../types/message';
 
-export function useMessageMediaUpload(
+export function useSendMediaMessage(
   fileInputRef: React.RefObject<HTMLInputElement | null>,
   formRef: React.RefObject<HTMLFormElement | null>,
   username: string,
@@ -20,7 +20,7 @@ export function useMessageMediaUpload(
     }
   };
 
-  const handleMessageMediaUpload = async (
+  const handleUpload = async (
     event: React.ChangeEvent<HTMLInputElement>
   ): Promise<void> => {
     event.preventDefault();
@@ -70,5 +70,5 @@ export function useMessageMediaUpload(
     }
   };
 
-  return { handleFileInputClick, handleMessageMediaUpload };
+  return { handleFileInputClick, handleUpload };
 }
