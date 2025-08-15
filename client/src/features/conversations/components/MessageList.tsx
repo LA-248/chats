@@ -9,7 +9,7 @@ import { markUserAsRead } from '../../../api/group-chat-api';
 import ContactInfoModal from './ContactInfoModal';
 import formatDate from '../../../utils/DateTimeFormat';
 import type { GroupInfoWithMembers, GroupMember } from '../../../types/group';
-import type { Message } from '../../../types/message';
+import { MessageType, type Message } from '../../../types/message';
 import { ChatType } from '../../../types/chat';
 import type { UserProfileUpdate } from '../../../types/user';
 
@@ -19,6 +19,7 @@ interface MessageListProps {
   groupChatInfo: GroupInfoWithMembers;
   recipientUserId: number;
   hoveredIndex: number | null;
+  setMessages: React.Dispatch<React.SetStateAction<Message[]>>;
   setHoveredIndex: React.Dispatch<React.SetStateAction<number | null>>;
   setIsEditModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setIsDeleteModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -32,6 +33,7 @@ export default function MessageList({
   groupChatInfo,
   recipientUserId,
   hoveredIndex,
+  setMessages,
   setHoveredIndex,
   setIsEditModalOpen,
   setIsDeleteModalOpen,
@@ -45,12 +47,8 @@ export default function MessageList({
   const { recipientProfilePicture, chatName } = useContext(ChatContext);
   const { loggedInUsername, loggedInUserId, profilePicture } =
     useContext(UserContext);
-  const {
-    setMessages,
-    setCurrentMessage,
-    messageSearchValueText,
-    filteredMessages,
-  } = useContext(MessageContext);
+  const { setCurrentMessage, messageSearchValueText, filteredMessages } =
+    useContext(MessageContext);
 
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>('');
@@ -62,9 +60,9 @@ export default function MessageList({
         try {
           // Append message to UI only if the user is currently in the room where the message was sent
           if (room === messageData.room) {
-            setMessages((prevMessages: Message[]) =>
-              prevMessages.concat(messageData)
-            );
+            setMessages((prevMessages: Message[]) => {
+              return prevMessages.concat(messageData);
+            });
             // If a message is received while the user has the chat open, automatically mark the chat as read
             if (messageData.chatType === ChatType.PRIVATE) {
               await updateReadStatus(true, room);
@@ -223,17 +221,19 @@ export default function MessageList({
                         {hoveredIndex === index &&
                         loggedInUserId === messageData.senderId ? (
                           <div className='message-actions-button'>
-                            <div
-                              className='message-edit-button'
-                              onClick={() => {
-                                setIsEditModalOpen(true);
-                                setMessageId(messageData.id);
-                                setMessageIndex(index);
-                                setCurrentMessage(messageData.content);
-                              }}
-                            >
-                              Edit
-                            </div>
+                            {messageData.type === MessageType.TEXT ? (
+                              <div
+                                className='message-edit-button'
+                                onClick={() => {
+                                  setIsEditModalOpen(true);
+                                  setMessageId(messageData.id);
+                                  setMessageIndex(index);
+                                  setCurrentMessage(messageData.content);
+                                }}
+                              >
+                                Edit
+                              </div>
+                            ) : null}
                             <div
                               className='message-delete-button'
                               onClick={() => {
@@ -248,9 +248,16 @@ export default function MessageList({
                         ) : null}
                       </div>
                       <div className='message-content-container'>
-                        <div className='message-content'>
-                          {messageData.content}
-                        </div>
+                        {messageData.type === MessageType.TEXT ? (
+                          <div className='message-content'>
+                            {messageData.content}
+                          </div>
+                        ) : (
+                          <img
+                            className='message-media-content'
+                            src={messageData.content}
+                          ></img>
+                        )}
                         {messageData.isEdited ? (
                           <div className='message-edited-tag'>(edited)</div>
                         ) : null}

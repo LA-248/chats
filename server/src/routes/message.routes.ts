@@ -1,14 +1,30 @@
-import express from 'express';
+import express, { NextFunction, Request, Response } from 'express';
 import { requireAuth } from '../middlewares/auth.middleware.ts';
+import { s3Upload } from '../services/s3.service.ts';
 import {
   deleteMessage,
   editMessage,
+  uploadMedia,
 } from '../controllers/message.controller.ts';
+import handleMulterError from '../middlewares/multer.middleware.ts';
+import { enforceMessageEditRules } from '../middlewares/message.middleware.ts';
 
 const messagesRouter = express.Router();
 messagesRouter.use(requireAuth);
 
-messagesRouter.put('/', editMessage);
+messagesRouter.put('/', enforceMessageEditRules, editMessage);
 messagesRouter.delete('/', deleteMessage);
+messagesRouter.post(
+  '/images',
+  (req: Request, res: Response, next: NextFunction) => {
+    s3Upload.single('media-upload')(req, res, (err) => {
+      if (err) {
+        return handleMulterError(err, req, res, next);
+      }
+      next();
+    });
+  },
+  uploadMedia
+);
 
 export default messagesRouter;

@@ -83,6 +83,7 @@ function ChatView() {
         groupChatInfo={groupChatInfo}
         recipientUserId={Number(privateChatInfo.userId)}
         hoveredIndex={hoveredIndex}
+        setMessages={setMessages}
         setHoveredIndex={setHoveredIndex}
         setIsEditModalOpen={setIsEditModalOpen}
         setIsDeleteModalOpen={setIsDeleteModalOpen}

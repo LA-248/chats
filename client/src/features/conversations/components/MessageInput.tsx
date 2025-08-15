@@ -1,12 +1,16 @@
 import { v4 as uuidv4 } from 'uuid';
-import { useContext, useState } from 'react';
+import { useContext, useRef, useState } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 import { useSocket } from '../../../hooks/useSocket';
 import { UserContext } from '../../../contexts/UserContext';
 import { ChatContext } from '../../../contexts/ChatContext';
 import useClearErrorMessage from '../../../hooks/useClearErrorMessage';
+import { MessageType } from '../../../types/message';
+import { useMessageMediaUpload } from '../hooks/useMessageMediaUpload';
 
 export default function MessageInput() {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
   const socket = useSocket();
   const location = useLocation();
   const pathSegments = location.pathname.split('/');
@@ -20,6 +24,7 @@ export default function MessageInput() {
   const [showEmojiPicker, setShowEmojiPicker] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>('');
   const username = loggedInUsername;
+  const messageType = MessageType.TEXT;
 
   const handleChatMessageSubmission = (
     event: React.FormEvent<HTMLFormElement>
@@ -27,13 +32,14 @@ export default function MessageInput() {
     event.preventDefault();
     if (message) {
       if (!socket) return;
+      const content = message;
 
       // Compute a unique offset
       const clientOffset = uuidv4();
       // Send the message and its metadata to the server
       socket.emit(
         'chat-message',
-        { username, chatId, message, room, chatType },
+        { username, chatId, content, room, chatType, messageType },
         clientOffset,
         (response: string) => {
           if (response) {
@@ -45,14 +51,24 @@ export default function MessageInput() {
     }
   };
 
+  // Handle media content
+  const { handleFileInputClick, handleMessageMediaUpload } =
+    useMessageMediaUpload(
+      fileInputRef,
+      formRef,
+      username,
+      chatId,
+      room!,
+      chatType,
+      setErrorMessage
+    );
   useClearErrorMessage(errorMessage, setErrorMessage);
 
   return (
     <div>
       <form id='message-form' action='' onSubmit={handleChatMessageSubmission}>
         {showEmojiPicker ? (
-          <div className='emoji-picker-container'>
-          </div>
+          <div className='emoji-picker-container'></div>
         ) : null}
 
         <div
@@ -78,6 +94,13 @@ export default function MessageInput() {
           />
           <button
             type='button'
+            className='media-upload-button'
+            onClick={handleFileInputClick}
+          >
+            Media
+          </button>
+          <button
+            type='button'
             className='emoji-picker-button'
             onClick={(event) => {
               event.stopPropagation();
@@ -95,6 +118,17 @@ export default function MessageInput() {
             Send
           </button>
         </div>
+      </form>
+
+      <form ref={formRef} id='media-upload-form' encType='multipart/form-data'>
+        <input
+          ref={fileInputRef}
+          type='file'
+          name='media-upload'
+          accept='image/*'
+          style={{ display: 'none' }}
+          onChange={handleMessageMediaUpload}
+        ></input>
       </form>
     </div>
   );

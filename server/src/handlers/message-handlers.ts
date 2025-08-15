@@ -5,16 +5,19 @@ import { GroupMember } from '../models/group-member.model.ts';
 import { PrivateChat } from '../models/private-chat.model.ts';
 import { Message } from '../models/message.model.ts';
 import {
-  Message as MessageType,
+  FormattedMessage,
+  Message as MessageStructure,
   NewMessage,
 } from '../schemas/message.schema.ts';
 import { ChatHandler, ChatType } from '../types/chat.ts';
 import { addNewPrivateChat } from '../services/private-chat.service.ts';
+import { createPresignedUrl } from '../services/s3.service.ts';
+import { MessageType } from '../types/message.ts';
 
 const handleChatMessages = (socket: Socket, io: Server): void => {
   socket.on('chat-message', async (data, clientOffset, callback) => {
     // In the context of private chats, chatId equals the ID of the recipient
-    const { username, chatId, message, room, chatType } = data;
+    const { username, chatId, content, room, chatType, messageType } = data;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const senderId = (socket.handshake as any).session.passport.user;
 
@@ -25,11 +28,12 @@ const handleChatMessages = (socket: Socket, io: Server): void => {
       }
 
       const { newMessage, updatedAt } = await saveMessageInDatabase(
-        message,
+        content,
         senderId,
         chatId,
         room,
         chatType,
+        messageType,
         clientOffset
       );
 
@@ -38,12 +42,15 @@ const handleChatMessages = (socket: Socket, io: Server): void => {
         io,
         room,
         username,
-        message,
+        messageType === MessageType.IMAGE
+          ? await createPresignedUrl(process.env.BUCKET_NAME!, content)
+          : content,
         senderId,
         newMessage,
-        chatType
+        chatType,
+        messageType
       );
-      broadcastChatListUpdate(io, room, message, newMessage, updatedAt);
+      broadcastChatListUpdate(io, room, content, newMessage, updatedAt);
       return;
     } catch (error: unknown) {
       console.error('Error handling chat message:', error);
@@ -71,7 +78,14 @@ const displayChatMessages = async (
         socket.handshake.auth.serverOffset,
         room
       );
-      socket.emit('initial-messages', messages.map(formatMessage));
+
+      const settled = await Promise.allSettled(messages.map(formatMessage));
+      const initialMessages = settled.map((result) => {
+        if (result.status === 'fulfilled') {
+          return result.value;
+        }
+      });
+      socket.emit('initial-messages', initialMessages);
     } catch (error) {
       console.error('Unable to retrieve chat messages:', error);
       socket.emit('custom-error', {
@@ -119,7 +133,7 @@ const updateMessageList = (socket: Socket, io: Server): void => {
       );
       io.to(room).emit('message-list-update-event', {
         room: room,
-        updatedMessageList: messages.map(formatMessage),
+        updatedMessageList: await Promise.all(messages.map(formatMessage)),
       });
     } catch (error) {
       console.error('Unexpected error:', error);
@@ -131,14 +145,24 @@ const updateMessageList = (socket: Socket, io: Server): void => {
   });
 };
 
-const formatMessage = (message: MessageType) => ({
-  from: message.sender_username,
-  content: message.content,
-  eventTime: message.event_time,
-  id: message.message_id,
-  senderId: message.sender_id,
-  isEdited: message.is_edited,
-});
+const formatMessage = async (
+  message: MessageStructure
+): Promise<FormattedMessage> => {
+  const content =
+    message.type === MessageType.IMAGE
+      ? await createPresignedUrl(process.env.BUCKET_NAME!, message.content)
+      : message.content;
+
+  return {
+    from: message.sender_username,
+    content,
+    eventTime: message.event_time,
+    id: message.message_id,
+    senderId: message.sender_id,
+    isEdited: message.is_edited,
+    type: message.type,
+  };
+};
 
 const isBlocked = async (
   recipientId: number,
@@ -234,6 +258,7 @@ const saveMessageInDatabase = async (
   chatId: number,
   room: string,
   chatType: keyof typeof CHAT_HANDLERS,
+  messageType: string,
   clientOffset: string
 ): Promise<{ newMessage: NewMessage; updatedAt: Date }> => {
   let newMessage: NewMessage | undefined;
@@ -252,6 +277,7 @@ const saveMessageInDatabase = async (
       // TODO: Create distinct tables for private and group chat messages
       chatType === ChatType.PRIVATE ? chatId : null,
       room,
+      messageType,
       clientOffset
     );
 
@@ -318,19 +344,21 @@ const broadcastMessage = (
   io: Server,
   room: string,
   username: string,
-  message: string,
+  content: string,
   senderId: number,
   newMessage: NewMessage,
-  chatType: string
+  chatType: ChatType,
+  type: MessageType
 ): void => {
   io.to(room).emit('chat-message', {
     from: username,
-    content: message,
+    content: content,
     room: room,
     eventTime: newMessage.event_time,
     id: newMessage.id,
     senderId: senderId,
     chatType: chatType,
+    type: type,
   });
 };
 

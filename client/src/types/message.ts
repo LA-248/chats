@@ -7,6 +7,7 @@ export interface Message {
   isEdited: boolean;
   chatType?: string;
   room?: string;
+  type: string;
 }
 
 export interface MessageContextType {
@@ -20,4 +21,9 @@ export interface MessageContextType {
   setNewMessage: React.Dispatch<React.SetStateAction<string>>;
   messageSearchValueText: string;
   setMessageSearchValueText: React.Dispatch<React.SetStateAction<string>>;
+}
+
+export enum MessageType {
+  TEXT = 'text',
+  IMAGE = 'image',
 }

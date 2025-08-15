@@ -8,9 +8,14 @@ export const edit = async (
   return await Message.editMessageContent(newMessage, senderId, messageId);
 };
 
-export const handleMessageDeletion = async (
+export const remove = async (
   senderId: number,
   messageId: number
 ): Promise<void> => {
   return await Message.deleteMessageById(senderId, messageId);
+};
+
+export const upload = async (file: Express.MulterS3.File) => {
+  const fileName = file.key;
+  return fileName;
 };

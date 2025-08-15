@@ -567,6 +567,12 @@ body {
   overflow-wrap: break-word;
 }
 
+.message-media-content {
+  height: 200px;
+  width: auto;
+  border-radius: 5px;
+}
+
 .message-edited-tag {
   font-size: 11px;
   color: #888;

@@ -23,6 +23,7 @@ const Message = {
             content TEXT DEFAULT NULL,
             event_time TIMESTAMPTZ DEFAULT NOW(),
             is_edited BOOLEAN DEFAULT FALSE,
+            type TEXT NOT NULL,
             UNIQUE (room, event_time, message_id)
           )
         `,
@@ -43,6 +44,7 @@ const Message = {
     senderId: number,
     recipientId: number | null,
     room: string,
+    type: string,
     clientOffset: string
   ): Promise<NewMessage> {
     const parsed = InsertMessageSchema.safeParse({
@@ -50,6 +52,7 @@ const Message = {
       senderId,
       recipientId,
       room,
+      type,
       clientOffset,
     });
 
@@ -66,12 +69,13 @@ const Message = {
             sender_id,
             recipient_id,
             room,
+            type,
             client_offset
           ) 
-          VALUES ($1, $2, $3, $4, $5)
+          VALUES ($1, $2, $3, $4, $5, $6)
           RETURNING message_id, event_time
         `,
-        [content, senderId, recipientId, room, clientOffset],
+        [content, senderId, recipientId, room, type, clientOffset],
         (err, result) => {
           if (err) {
             return reject(`Database error in messages table: ${err.message}`);
@@ -126,6 +130,28 @@ const Message = {
 
   // READ OPERATIONS
 
+  getMessageType: function (messageId: number): Promise<string> {
+    return new Promise((resolve, reject) => {
+      pool.query(
+        `
+        SELECT
+          m.type
+        FROM messages m
+        WHERE m.message_id = $1
+        `,
+        [messageId],
+        (err, result) => {
+          if (err) {
+            return reject(
+              `Database error in getMessageType in messages table: ${err.message}`
+            );
+          }
+          return resolve(result.rows[0].type);
+        }
+      );
+    });
+  },
+
   retrieveMessageList: function (
     serverOffset: string,
     room: string
@@ -139,6 +165,7 @@ const Message = {
           m.content,
           m.event_time,
           m.is_edited,
+          m.type,
           u.username as sender_username
         FROM messages m
         JOIN users u
