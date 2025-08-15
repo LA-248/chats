@@ -28,7 +28,7 @@ services:
       - db
 
   db:
-    image: postgres:latest
+    image: postgres:16-bookworm
     environment:
       POSTGRES_USER: ${USERNAME}
       POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
