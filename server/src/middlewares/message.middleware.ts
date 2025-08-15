@@ -9,8 +9,8 @@ export const enforceMessageEditRules = async (
 ) => {
   const messageId = req.body.messageId;
 
-  try {
-    const messageType = await Message.getMessageType(messageId);
+  try { 
+    const messageType = await Message.retrieveMessageType(messageId);
 
     if (messageType === MessageType.IMAGE) {
       res.status(409).json({
