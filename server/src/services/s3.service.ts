@@ -83,23 +83,25 @@ export const generatePresignedUrlsForChatList = async (
   try {
     for (const chat of chatList) {
       const fileName = chat.chat_picture;
+      // If the chat has no associated picture, set it to null and skip to the next chat
       if (!fileName) {
         chat.chat_picture = null;
         continue;
       }
 
+      // If there is a cache of the picture for the given chat, use it and skip to the next chat
       const cachedUrl = profilePictureUrlCache.get<string>(fileName);
       if (cachedUrl) {
         chat.chat_picture = cachedUrl;
         continue;
       }
 
+      // If there is no cached url, create a new presigned S3 url
       const presignedUrl = await createPresignedUrl(
         process.env.BUCKET_NAME!,
         fileName
       );
-
-      profilePictureUrlCache.set(fileName, presignedUrl);
+      profilePictureUrlCache.set(fileName, presignedUrl); // Cache the newly generated picture url
       chat.chat_picture = presignedUrl;
     }
   } catch (error: unknown) {
