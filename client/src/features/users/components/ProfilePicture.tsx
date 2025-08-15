@@ -12,8 +12,8 @@ export default function ProfilePicture() {
   const { handleFileInputClick, handleMediaUpload } = useMediaUpload(
     fileInputRef,
     formRef,
-    setProfilePicture,
     apiEndpoint,
+    setProfilePicture,
     'Picture uploaded successfully'
   );
 

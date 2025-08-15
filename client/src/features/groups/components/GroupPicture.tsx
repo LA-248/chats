@@ -21,8 +21,8 @@ export default function GroupPicture() {
   const { handleFileInputClick, handleMediaUpload } = useMediaUpload(
     fileInputRef,
     formRef,
-    setGroupPicture,
     apiEndpoint,
+    setGroupPicture,
     'Picture uploaded successfully'
   );
 

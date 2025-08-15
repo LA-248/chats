@@ -3,9 +3,9 @@ import { toast } from 'sonner';
 export function useMediaUpload(
   fileInputRef: React.RefObject<HTMLInputElement | null>,
   formRef: React.RefObject<HTMLFormElement | null>,
-  setPicture: React.Dispatch<React.SetStateAction<string>>,
   apiEndpoint: string,
-  successMessage: string
+  setPicture?: React.Dispatch<React.SetStateAction<string>>,
+  successMessage?: string
 ) {
   // Use the reference to the file picker input to open it when clicking on the upload button
   const handleFileInputClick = () => {
@@ -35,7 +35,9 @@ export function useMediaUpload(
       }
 
       const data = await response.json();
-      setPicture(data.fileUrl);
+      if (setPicture) {
+        setPicture(data.fileUrl);
+      }
     };
 
     toast.promise(uploadPromise(), {
