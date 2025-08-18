@@ -55,6 +55,11 @@ const handleChatMessages = (socket: Socket, io: Server): void => {
         messageType
       );
       broadcastChatListUpdate(io, room, content, newMessage, updatedAt);
+
+      if (isImage) {
+        callback('Image uploaded');
+      }
+
       return;
     } catch (error: unknown) {
       console.error('Error handling chat message:', error);

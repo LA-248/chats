@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import { useSocket } from '../../../hooks/useSocket';
 import { MessageType } from '../../../types/message';
+import { toast } from 'sonner';
 
 export function useSendMediaMessage(
   fileInputRef: React.RefObject<HTMLInputElement | null>,
@@ -29,44 +30,57 @@ export function useSendMediaMessage(
     if (!formRef.current) return;
     const formData = new FormData(formRef.current);
 
-    const response = await fetch(
-      `${import.meta.env.VITE_SERVER_BASE_URL}/messages/images`,
-      {
-        method: 'POST',
-        body: formData,
-        credentials: 'include',
-      }
-    );
+    try {
+      const loadingToast = toast.loading('Uploading image...', {
+        duration: Infinity,
+      });
 
-    if (!response.ok) {
-      const errorResponse = await response.json();
-      throw new Error(errorResponse.error);
-    }
-
-    const data = await response.json();
-    const content = data.fileKey;
-
-    if (socket) {
-      const messageType = MessageType.IMAGE;
-      const clientOffset = uuidv4();
-
-      socket.emit(
-        'chat-message',
+      const response = await fetch(
+        `${import.meta.env.VITE_SERVER_BASE_URL}/messages/images`,
         {
-          username,
-          chatId,
-          content,
-          room,
-          chatType,
-          messageType,
-        },
-        clientOffset,
-        (response: string) => {
-          if (response) {
-            setErrorMessage(response);
-          }
+          method: 'POST',
+          body: formData,
+          credentials: 'include',
         }
       );
+
+      if (!response.ok) {
+        const errorResponse = await response.json();
+        throw new Error(errorResponse.error);
+      }
+      const data = await response.json();
+      const content = data.fileKey;
+
+      if (socket) {
+        const messageType = MessageType.IMAGE;
+        const clientOffset = uuidv4();
+
+        socket.emit(
+          'chat-message',
+          {
+            username,
+            chatId,
+            content,
+            room,
+            chatType,
+            messageType,
+          },
+          clientOffset,
+          (response: string) => {
+            // If the image was successfully sent, show a success toast and dismiss the loading toast
+            if (response === 'Image uploaded') {
+              toast.success(response);
+              toast.dismiss(loadingToast);
+            } else {
+              setErrorMessage(response);
+            }
+          }
+        );
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        toast.error(error.message);
+      }
     }
   };
 
