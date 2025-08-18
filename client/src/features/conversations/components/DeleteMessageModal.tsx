@@ -107,7 +107,7 @@ export default function DeleteMessageModal({
               setIsModalOpen(false);
             }}
           >
-            Close
+            Cancel
           </button>
         </div>
       </Modal>

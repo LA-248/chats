@@ -98,7 +98,7 @@ export default function UsernameEdit({
               style={{ marginTop: '20px' }}
               onClick={() => setIsModalOpen(false)}
             >
-              Close
+              Cancel
             </button>
           </div>
         </form>

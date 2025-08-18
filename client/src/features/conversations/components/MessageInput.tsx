@@ -78,13 +78,6 @@ export default function MessageInput() {
         </div>
 
         <div className='message-input-container'>
-          <button
-            type='button'
-            className='media-upload-button'
-            onClick={handleFileInputClick}
-          >
-            Media
-          </button>
           <input
             id='message-input'
             type='text'
@@ -100,6 +93,18 @@ export default function MessageInput() {
           />
           <button
             type='button'
+            className='media-upload-button'
+            onClick={handleFileInputClick}
+            disabled={isBlocked}
+            style={{
+              opacity: isBlocked ? '0.5' : undefined,
+              cursor: isBlocked ? 'auto' : 'pointer',
+            }}
+          >
+            Media
+          </button>
+          <button
+            type='button'
             className='emoji-picker-button'
             onClick={(event) => {
               event.stopPropagation();
@@ -113,7 +118,14 @@ export default function MessageInput() {
           >
             Emojis
           </button>
-          <button type='submit' className='submit-message-button'>
+          <button
+            type='submit'
+            className='submit-message-button'
+            style={{
+              opacity: isBlocked ? '0.5' : undefined,
+              cursor: isBlocked ? 'auto' : 'pointer',
+            }}
+          >
             Send
           </button>
         </div>
