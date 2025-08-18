@@ -1,5 +1,4 @@
 import { Socket, Server } from 'socket.io';
-import { User } from '../models/user.model.ts';
 import { Group } from '../models/group.model.ts';
 import { GroupMember } from '../models/group-member.model.ts';
 import { PrivateChat } from '../models/private-chat.model.ts';
@@ -13,6 +12,10 @@ import { ChatHandler, ChatType } from '../types/chat.ts';
 import { addNewPrivateChat } from '../services/private-chat.service.ts';
 import { createPresignedUrl } from '../services/s3.service.ts';
 import { MessageType } from '../types/message.ts';
+import {
+  authoriseChatMessage,
+  isSenderBlocked,
+} from '../middlewares/message.middleware.ts';
 
 const handleChatMessages = (socket: Socket, io: Server): void => {
   socket.on('chat-message', async (data, clientOffset, callback) => {
@@ -24,7 +27,7 @@ const handleChatMessages = (socket: Socket, io: Server): void => {
 
     try {
       if (chatType === ChatType.PRIVATE) {
-        await isBlocked(chatId, senderId); // Check if sender is blocked
+        await isSenderBlocked(chatId, senderId);
         await addNewPrivateChat(io, socket, chatId, room);
       }
 
@@ -176,18 +179,6 @@ const formatMessage = async (
     isEdited: message.is_edited,
     type: message.type,
   };
-};
-
-const isBlocked = async (
-  recipientId: number,
-  senderId: number
-): Promise<void> => {
-  const recipientBlockList = await User.getBlockListById(recipientId);
-  if (recipientBlockList) {
-    if (recipientBlockList.includes(senderId)) {
-      throw new Error('Sender is blocked by the recipient');
-    }
-  }
 };
 
 // Handlers for chat type specific operations, allows for polymorphic behaviour at runtime
@@ -392,19 +383,6 @@ const broadcastChatListUpdate = (
     lastMessageTime: newMessage.event_time,
     updatedAt: updatedAt,
   });
-};
-
-// Prevent users from sending messages to chat rooms they are not a part of
-// This check is needed because messages do not go through the existing auth middleware since they are handled via sockets and not HTTP routes
-const authoriseChatMessage = async (
-  chatHandler: ChatHandler,
-  room: string,
-  senderId: number
-): Promise<void> => {
-  const memberIds = await chatHandler.getMembers(room);
-  if (!memberIds.includes(senderId)) {
-    throw new Error('User is not authorised to send messages in this chat');
-  }
 };
 
 export {
