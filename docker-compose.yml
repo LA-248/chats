@@ -33,6 +33,8 @@ services:
       POSTGRES_USER: ${USERNAME}
       POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
       POSTGRES_DB: ${DATABASE_NAME}
+    ports:
+      - '6543:5432'
     volumes:
       - pgdata:/var/lib/postgresql/data
     env_file:
