@@ -24,7 +24,9 @@ export const deleteMessage = async (
   try {
     const senderId = Number(req.user?.user_id);
     const messageId = req.body.messageId;
-    await remove(senderId, messageId);
+    const chatId = req.body.chatId;
+
+    await remove(senderId, messageId, chatId);
     res.status(200).json({ success: 'Message deleted' });
   } catch (error) {
     console.error('Error deleting message:', error);

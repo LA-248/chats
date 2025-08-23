@@ -21,18 +21,20 @@ import {
   updateUserReadStatus,
 } from '../controllers/group.controller.ts';
 
-import { s3Upload } from '../services/s3.service.ts';
+import { s3GroupPictureUpload } from '../services/s3.service.ts';
 
 const groupChatsRouter = express.Router();
 groupChatsRouter.use(requireAuth);
 
+// TODO: Rename :groupId route parameter to :id
+
 groupChatsRouter.post('/', createGroupChat);
 groupChatsRouter.post('/:room/members', groupChatRoomAuth, addMembers);
 groupChatsRouter.post(
-  '/:room/pictures',
+  '/:groupId/pictures',
   groupChatRoomAuth,
   (req: Request, res: Response, next: NextFunction) => {
-    s3Upload.single('group-picture')(req, res, (err) => {
+    s3GroupPictureUpload.single('group-picture')(req, res, (err) => {
       if (err) {
         return handleMulterError(err, req, res, next);
       }

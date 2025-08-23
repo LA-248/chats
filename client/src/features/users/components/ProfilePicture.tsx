@@ -5,9 +5,12 @@ import { useMediaUpload } from '../../../hooks/useMediaUpload';
 export default function ProfilePicture() {
   const fileInputRef = useRef(null);
   const formRef = useRef(null);
-  const { profilePicture, setProfilePicture } = useContext(UserContext);
+  const { profilePicture, setProfilePicture, loggedInUserId } =
+    useContext(UserContext);
 
-  const apiEndpoint = `${import.meta.env.VITE_SERVER_BASE_URL}/users/pictures`;
+  const apiEndpoint = `${
+    import.meta.env.VITE_SERVER_BASE_URL
+  }/users/${loggedInUserId}/pictures`;
 
   const { handleFileInputClick, handleMediaUpload } = useMediaUpload(
     fileInputRef,

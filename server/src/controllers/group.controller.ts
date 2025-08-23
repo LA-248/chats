@@ -285,9 +285,9 @@ export const updateGroupPicture = async (
 ): Promise<void> => {
   try {
     const io = req.app.get('io');
-    const room = req.params.room;
+    const groupId = Number(req.params.groupId);
     const file = req.file as Express.MulterS3.File;
-    const groupPictureUrl = await uploadGroupPicture(room, file, io);
+    const groupPictureUrl = await uploadGroupPicture(groupId, file, io);
 
     res.status(200).json({
       fileUrl: groupPictureUrl,

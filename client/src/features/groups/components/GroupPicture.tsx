@@ -1,22 +1,21 @@
 import { useContext, useRef } from 'react';
-import { useParams } from 'react-router-dom';
 import { ChatContext } from '../../../contexts/ChatContext';
 import { useMediaUpload } from '../../../hooks/useMediaUpload';
 
 export default function GroupPicture() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
-  const { room } = useParams();
 
   const chatContext = useContext(ChatContext);
   if (!chatContext) {
     throw new Error();
   }
-  const { groupPicture, setGroupPicture } = chatContext;
+  const { groupPicture, setGroupPicture, chatId } = chatContext;
+  const groupId = chatId;
 
   const apiEndpoint = `${
     import.meta.env.VITE_SERVER_BASE_URL
-  }/groups/${room}/pictures`;
+  }/groups/${groupId}/pictures`;
 
   const { handleFileInputClick, handleMediaUpload } = useMediaUpload(
     fileInputRef,

@@ -61,9 +61,7 @@ export const retrieveUserIdByUsername = async (
 export const retrieveProfilePicture = async (userId: number) => {
   const profilePicture = await User.getUserProfilePicture(userId);
 
-  return profilePicture
-    ? await createProfilePictureUrl(profilePicture)
-    : null;
+  return profilePicture ? await createProfilePictureUrl(profilePicture) : null;
 };
 
 export const retrieveBlockList = async (
@@ -81,10 +79,10 @@ export const updateProfilePicture = async (
   const currentProfilePicture = await User.getUserProfilePicture(userId);
   if (!(currentProfilePicture === null)) {
     // Only run if a current profile picture exists
-    await deleteS3Object(process.env.BUCKET_NAME!, currentProfilePicture);
+    await deleteS3Object(process.env.BUCKET_NAME!, file.key);
   }
 
-  await User.updateProfilePictureById(file.key, userId);
+  await User.updateProfilePictureById(file.originalname, userId);
   const profilePictureUrl = await createPresignedUrl(
     process.env.BUCKET_NAME!,
     file.key

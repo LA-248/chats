@@ -1,12 +1,13 @@
 import { useContext } from 'react';
 import { useParams } from 'react-router-dom';
-import { deleteMessageById } from '../../../api/message-api';
+import { deleteMessage } from '../../../api/message-api';
 import { useSocket } from '../../../hooks/useSocket';
 import { MessageContext } from '../../../contexts/MessageContext';
 import { updateLastMessageId } from '../../../api/private-chat-api';
 import { updateLastGroupMessageId } from '../../../api/group-chat-api';
 import Modal from '../../../components/ModalTemplate';
 import { ChatType } from '../../../types/chat';
+import { ChatContext } from '../../../contexts/ChatContext';
 
 interface DeleteMessageModalProps {
   chatType: string;
@@ -30,6 +31,7 @@ export default function DeleteMessageModal({
   const socket = useSocket();
   const { room } = useParams();
   const { filteredMessages } = useContext(MessageContext);
+  const { chatId } = useContext(ChatContext);
 
   const handleMessageDelete = async (
     messageId: number | null,
@@ -41,7 +43,9 @@ export default function DeleteMessageModal({
       const messageList = [...filteredMessages];
       const isLastMessage = messageIndex === messageList.length - 1;
 
-      await deleteMessageById(messageId);
+      if (messageId && chatId) {
+        await deleteMessage(messageId, chatId);
+      }
 
       // Update chat list in real-time after most recent message is deleted
       // If last remaining message is deleted, ensure last message id in private chat table is null

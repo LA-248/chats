@@ -199,11 +199,11 @@ const Group = {
     });
   },
 
-  retrievePicture: function (room: string): Promise<GroupPicture> {
+  retrievePicture: function (groupId: number): Promise<GroupPicture> {
     return new Promise((resolve, reject) => {
       pool.query(
-        `SELECT group_picture FROM groups WHERE room = $1`,
-        [room],
+        `SELECT group_picture FROM groups WHERE group_id = $1`,
+        [groupId],
         (err, result) => {
           if (err) {
             return reject(
@@ -330,11 +330,11 @@ const Group = {
 
   // UPDATE OPERATIONS
 
-  updatePicture: function (fileName: string, room: string): Promise<void> {
+  updatePicture: function (fileName: string, groupId: number): Promise<void> {
     return new Promise((resolve, reject) => {
       pool.query(
-        `UPDATE groups SET group_picture = $1 WHERE room = $2`,
-        [fileName, room],
+        `UPDATE groups SET group_picture = $1 WHERE group_id = $2`,
+        [fileName, groupId],
         (err) => {
           if (err) {
             return reject(

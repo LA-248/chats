@@ -126,7 +126,7 @@ export const uploadProfilePicture = async (
   res: Response
 ): Promise<void> => {
   try {
-    const userId = Number(req.user?.user_id);
+    const userId = Number(req.params.id);
     const file = req.file as Express.MulterS3.File;
     const io = req.app.get('io');
 

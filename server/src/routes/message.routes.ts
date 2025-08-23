@@ -1,6 +1,6 @@
 import express, { NextFunction, Request, Response } from 'express';
 import { requireAuth } from '../middlewares/auth.middleware.ts';
-import { s3Upload } from '../services/s3.service.ts';
+import { s3ChatMediaUpload } from '../services/s3.service.ts';
 import {
   deleteMessage,
   editMessage,
@@ -15,9 +15,9 @@ messagesRouter.use(requireAuth);
 messagesRouter.put('/', enforceMessageEditRules, editMessage);
 messagesRouter.delete('/', deleteMessage);
 messagesRouter.post(
-  '/images',
+  '/media',
   (req: Request, res: Response, next: NextFunction) => {
-    s3Upload.single('media-upload')(req, res, (err) => {
+    s3ChatMediaUpload.single('media-upload')(req, res, (err) => {
       if (err) {
         return handleMulterError(err, req, res, next);
       }

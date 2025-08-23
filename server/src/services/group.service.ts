@@ -232,19 +232,21 @@ export const permanentlyDeleteGroupChat = async (
 };
 
 export const uploadGroupPicture = async (
-  room: string,
+  groupId: number,
   file: Express.MulterS3.File,
   io: Server
 ): Promise<string> => {
+  const fileName = await Group.retrievePicture(groupId);
+  const room = await Group.retrieveRoomByGroupId(groupId);
+
   // Delete previous picture from S3 storage
-  const fileName = await Group.retrievePicture(room);
   if (!(fileName === null)) {
     // Only run if a picture exists
-    await deleteS3Object(process.env.BUCKET_NAME!, fileName);
+    await deleteS3Object(process.env.BUCKET_NAME!, file.key);
   }
 
   // Upload new picture
-  await Group.updatePicture(file.key, room);
+  await Group.updatePicture(file.originalname, groupId);
 
   // Generate a temporary URL for viewing the uploaded picture from S3
   const presignedS3Url = await createPresignedUrl(

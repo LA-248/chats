@@ -1,5 +1,5 @@
 import express, { NextFunction, Request, Response } from 'express';
-import { s3Upload } from '../services/s3.service.ts';
+import { s3UserPictureUpload } from '../services/s3.service.ts';
 import { requireAuth } from '../middlewares/auth.middleware.ts';
 import handleMulterError from '../middlewares/multer.middleware.ts';
 import {
@@ -24,9 +24,9 @@ usersRouter.put('/', updateUsername);
 usersRouter.put('/blocked', updateBlockedUsers);
 
 usersRouter.post(
-  '/pictures',
+  '/:id/pictures',
   (req: Request, res: Response, next: NextFunction) => {
-    s3Upload.single('profile-picture')(req, res, (err) => {
+    s3UserPictureUpload.single('profile-picture')(req, res, (err) => {
       if (err) {
         return handleMulterError(err, req, res, next);
       }
