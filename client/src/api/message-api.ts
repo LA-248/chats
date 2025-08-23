@@ -1,4 +1,4 @@
-async function editMessageById(
+export async function editMessageById(
   newMessage: string,
   messageId: number | null
 ): Promise<void> {
@@ -20,7 +20,11 @@ async function editMessageById(
   }
 }
 
-async function deleteMessageById(messageId: number | null): Promise<void> {
+// TODO: Identify resource to be deleted via the URL, not the body (e.g. /chats/:chatId/messages/:messageId)
+export async function deleteMessage(
+  messageId: number,
+  chatId: number
+): Promise<void> {
   const response = await fetch(
     `${import.meta.env.VITE_SERVER_BASE_URL}/messages`,
     {
@@ -28,7 +32,7 @@ async function deleteMessageById(messageId: number | null): Promise<void> {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ messageId: messageId }),
+      body: JSON.stringify({ messageId, chatId }),
       credentials: 'include',
     }
   );
@@ -38,5 +42,3 @@ async function deleteMessageById(messageId: number | null): Promise<void> {
     throw new Error(errorResponse.error);
   }
 }
-
-export { editMessageById, deleteMessageById };
