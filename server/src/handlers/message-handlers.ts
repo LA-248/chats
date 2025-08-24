@@ -112,6 +112,7 @@ const updateMostRecentMessage = (socket: Socket, io: Server): void => {
     try {
       const lastMessageInfo = await Message.retrieveLastMessageInfo(room);
       const isImage = lastMessageInfo?.type === MessageType.IMAGE;
+      const isPrivateChat = chatType === ChatType.PRIVATE;
 
       const lastMessageContent = lastMessageInfo
         ? isImage
@@ -123,10 +124,9 @@ const updateMostRecentMessage = (socket: Socket, io: Server): void => {
         ? lastMessageInfo.event_time
         : null;
 
-      const updatedAt =
-        chatType === ChatType.PRIVATE
-          ? await PrivateChat.retrieveUpdatedAtDate(room)
-          : await Group.retrieveUpdatedAtDate(room);
+      const updatedAt = isPrivateChat
+        ? await PrivateChat.retrieveUpdatedAtDate(room)
+        : await Group.retrieveUpdatedAtDate(room);
 
       io.to(room).emit('last-message-updated', {
         room: room,
@@ -303,6 +303,7 @@ const saveMessageInDatabase = async (
 
     return { newMessage, updatedAt };
   } catch (error) {
+    // TODO: Use database transactions instead of manually deleting inserted messages when an error occurs
     if (newMessage) {
       await Message.deleteMessageById(senderId, newMessage.id);
     }
@@ -328,7 +329,10 @@ const restoreChat = async (
   chatType: string
 ): Promise<void> => {
   try {
-    if (chatType === ChatType.PRIVATE) {
+    const isPrivateChat = chatType === ChatType.PRIVATE;
+    const isGroupChat = chatType === ChatType.GROUP;
+
+    if (isPrivateChat) {
       const isDeleted = await PrivateChat.retrieveChatDeletionStatus(
         recipientId,
         room
@@ -336,7 +340,7 @@ const restoreChat = async (
       if (isDeleted) {
         await PrivateChat.updateChatDeletionStatus(recipientId, false, room);
       }
-    } else if (chatType === ChatType.GROUP) {
+    } else if (isGroupChat) {
       const membersWhoDeletedChat = await Group.retrieveDeletedForList(room);
       if (membersWhoDeletedChat !== null) {
         await Group.restoreChat(room);
