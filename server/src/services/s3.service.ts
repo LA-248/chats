@@ -3,6 +3,10 @@ import { DeleteObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { GetObjectCommand } from '@aws-sdk/client-s3';
 import { Chat } from '../schemas/private-chat.schema.ts';
+import {
+  S3AttachmentsStoragePath,
+  S3AvatarStoragePath,
+} from '../types/chat.ts';
 import multer from 'multer';
 import multerS3 from 'multer-s3';
 import NodeCache from 'node-cache';
@@ -37,7 +41,7 @@ export const s3UserPictureUpload = multer({
     key: function (req, file, cb) {
       const userId = req.params.id;
       const fileName = file.originalname;
-      cb(null, `avatars/users/${userId}/${fileName}`);
+      cb(null, `${S3AvatarStoragePath.USER_AVATARS}/${userId}/${fileName}`);
     },
   }),
   limits: { fileSize: 10 * 1024 * 1024 },
@@ -54,7 +58,7 @@ export const s3GroupPictureUpload = multer({
     key: function (req, file, cb) {
       const groupId = req.params.groupId;
       const fileName = file.originalname;
-      cb(null, `avatars/groups/${groupId}/${fileName}`);
+      cb(null, `${S3AvatarStoragePath.GROUP_AVATARS}/${groupId}/${fileName}`);
     },
   }),
   limits: { fileSize: 10 * 1024 * 1024 },
@@ -71,7 +75,10 @@ export const s3ChatMediaUpload = multer({
     key: function (req, file, cb) {
       const chatId = req.params.id;
       const fileName = file.originalname;
-      cb(null, `attachments/chats/${chatId}/${fileName}`);
+      cb(
+        null,
+        `${S3AttachmentsStoragePath.CHAT_ATTACHMENTS}/${chatId}/${fileName}`
+      );
     },
   }),
   limits: { fileSize: 2 * 1024 * 1024 * 1024 },
@@ -119,6 +126,9 @@ export const generatePresignedUrlsForChatList = async (
   try {
     for (const chat of chatList) {
       const fileName = chat.chat_picture;
+      const isPrivateChat = chat.chat_type === 'private_chat';
+      const objectKey = buildS3AvatarObjectKey(chat, isPrivateChat);
+
       // If the chat has no associated picture, set it to null and skip to the next chat
       if (!fileName) {
         chat.chat_picture = null;
@@ -135,7 +145,7 @@ export const generatePresignedUrlsForChatList = async (
       // If there is no cached url, create a new presigned S3 url
       const presignedUrl = await createPresignedUrl(
         process.env.BUCKET_NAME!,
-        fileName
+        objectKey
       );
       pictureUrlCache.set(fileName, presignedUrl); // Cache the newly generated picture url
       chat.chat_picture = presignedUrl;
@@ -146,3 +156,18 @@ export const generatePresignedUrlsForChatList = async (
     }
   }
 };
+
+function buildS3AvatarObjectKey(chat: Chat, isPrivateChat: boolean) {
+  if (isPrivateChat) {
+    const fileName = chat.chat_picture;
+    const recipientId = chat.recipient_user_id;
+    return `${S3AvatarStoragePath.USER_AVATARS}/${recipientId}/${fileName}`;
+  } else {
+    // Chat IDs used in the chat list constructed for the frontend are given prefixes to differentiate -
+    // between private and group chats (e.g. p_1, g_4), so to get the group ID -
+    // we need to transform it so only the number is left, which can then be used in the S3 path
+    const groupId = chat.chat_id.split('_').pop();
+    const fileName = chat.chat_picture;
+    return `${S3AvatarStoragePath.GROUP_AVATARS}/${groupId}/${fileName}`;
+  }
+}

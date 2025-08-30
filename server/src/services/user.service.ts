@@ -9,12 +9,17 @@ import {
   UserProfile,
 } from '../schemas/user.schema.ts';
 import { Group } from '../models/group.model.ts';
+import { S3AvatarStoragePath } from '../types/chat.ts';
 
 export const createProfilePictureUrl = async (
+  userId: number,
   profilePicture: string
 ): Promise<string | null> => {
   return profilePicture
-    ? await createPresignedUrl(process.env.BUCKET_NAME!, profilePicture)
+    ? await createPresignedUrl(
+        process.env.BUCKET_NAME!,
+        `${S3AvatarStoragePath.USER_AVATARS}/${userId}/${profilePicture}`
+      )
     : null;
 };
 
@@ -22,17 +27,20 @@ export const retrieveRecipientData = async (
   userId: number,
   room: string
 ): Promise<{
-  user: RecipientUserProfile;
+  recipient: RecipientUserProfile;
   profilePictureUrl: string | null;
 } | null> => {
-  const user = await User.getRecipientUserProfile(userId, room);
-  if (!user) return null;
+  const recipient = await User.getRecipientUserProfile(userId, room);
+  if (!recipient) return null;
 
-  const profilePictureUrl = user.profile_picture
-    ? await createPresignedUrl(process.env.BUCKET_NAME!, user.profile_picture)
+  const profilePictureUrl = recipient.profile_picture
+    ? await createPresignedUrl(
+        process.env.BUCKET_NAME!,
+        `${S3AvatarStoragePath.USER_AVATARS}/${recipient.user_id}/${recipient.profile_picture}`
+      )
     : null;
 
-  return { user, profilePictureUrl };
+  return { recipient, profilePictureUrl };
 };
 
 export const retrieveUserById = async (id: number): Promise<UserProfile> => {
@@ -42,7 +50,10 @@ export const retrieveUserById = async (id: number): Promise<UserProfile> => {
     const username = user.username;
 
     const profilePictureUrl = user.profile_picture
-      ? await createPresignedUrl(process.env.BUCKET_NAME!, user.profile_picture)
+      ? await createPresignedUrl(
+          process.env.BUCKET_NAME!,
+          `${S3AvatarStoragePath.USER_AVATARS}/${userId}/${user.profile_picture}`
+        )
       : null;
 
     return { user_id: userId, username, profile_picture: profilePictureUrl };
@@ -61,7 +72,9 @@ export const retrieveUserIdByUsername = async (
 export const retrieveProfilePicture = async (userId: number) => {
   const profilePicture = await User.getUserProfilePicture(userId);
 
-  return profilePicture ? await createProfilePictureUrl(profilePicture) : null;
+  return profilePicture
+    ? await createProfilePictureUrl(userId, profilePicture)
+    : null;
 };
 
 export const retrieveBlockList = async (
@@ -79,7 +92,10 @@ export const updateProfilePicture = async (
   const currentProfilePicture = await User.getUserProfilePicture(userId);
   if (!(currentProfilePicture === null)) {
     // Only run if a current profile picture exists
-    await deleteS3Object(process.env.BUCKET_NAME!, file.key);
+    await deleteS3Object(
+      process.env.BUCKET_NAME!,
+      `${S3AvatarStoragePath.USER_AVATARS}/${userId}/${currentProfilePicture}`
+    );
   }
 
   await User.updateProfilePictureById(file.originalname, userId);

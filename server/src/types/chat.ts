@@ -3,6 +3,15 @@ export enum ChatType {
   GROUP = 'groups',
 }
 
+export enum S3AvatarStoragePath {
+  USER_AVATARS = 'avatars/users',
+  GROUP_AVATARS = 'avatars/groups',
+}
+
+export enum S3AttachmentsStoragePath {
+  CHAT_ATTACHMENTS = 'attachments/chats',
+}
+
 export interface ChatHandler {
   getMembers: (room: string) => Promise<number[]>;
   postInsert: (

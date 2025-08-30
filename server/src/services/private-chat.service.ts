@@ -11,6 +11,7 @@ import {
   Chat as ChatItem,
 } from '../schemas/private-chat.schema.ts';
 import { userSockets } from '../handlers/socket-handlers.ts';
+import { S3AvatarStoragePath } from '../types/chat.ts';
 
 export const handleChatAddition = async (
   socket: Socket,
@@ -62,8 +63,13 @@ export const getChat = async (
 ): Promise<ChatItem> => {
   const addedChat = await PrivateChat.retrieveChat(senderId, room);
   const profilePictureName = addedChat.chat_picture;
+  const recipientId = addedChat.recipient_user_id;
+
   const profilePictureUrl = profilePictureName
-    ? await createPresignedUrl(process.env.BUCKET_NAME!, profilePictureName)
+    ? await createPresignedUrl(
+        process.env.BUCKET_NAME!,
+        `${S3AvatarStoragePath.USER_AVATARS}/${recipientId}/${profilePictureName}`
+      )
     : null;
   addedChat.chat_picture = profilePictureUrl;
 

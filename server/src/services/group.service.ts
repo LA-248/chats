@@ -19,6 +19,7 @@ import {
   RemovedGroupMember,
 } from '../schemas/group.schema.ts';
 import { AddedUserInfo, GroupMemberToBeAdded } from '../types/group.ts';
+import { S3AvatarStoragePath } from '../types/chat.ts';
 
 export const retrieveGroupInfoWithMembers = async (
   room: string
@@ -26,7 +27,7 @@ export const retrieveGroupInfoWithMembers = async (
   const groupInfo = await Group.retrieveGroupInfoByRoom(room);
   const groupMembersInfo = await retrieveGroupMembersInfo(groupInfo.group_id);
   const groupPictureUrl = groupInfo.group_picture
-    ? await createGroupPictureUrl(groupInfo.group_picture)
+    ? await createGroupPictureUrl(groupInfo.group_id, groupInfo.group_picture)
     : null;
 
   return {
@@ -52,7 +53,7 @@ export const retrieveGroupMembersInfo = async (
     if (groupMember.profile_picture) {
       groupMember.profile_picture = await createPresignedUrl(
         process.env.BUCKET_NAME!,
-        groupMember.profile_picture
+        `${S3AvatarStoragePath.USER_AVATARS}/${groupMember.user_id}/${groupMember.profile_picture}`
       );
     }
   }
@@ -242,7 +243,10 @@ export const uploadGroupPicture = async (
   // Delete previous picture from S3 storage
   if (!(fileName === null)) {
     // Only run if a picture exists
-    await deleteS3Object(process.env.BUCKET_NAME!, file.key);
+    await deleteS3Object(
+      process.env.BUCKET_NAME!,
+      `${S3AvatarStoragePath.GROUP_AVATARS}/${groupId}/${fileName}`
+    );
   }
 
   // Upload new picture
@@ -302,7 +306,7 @@ const notifyAddedUsers = async (
 ): Promise<AddedUserInfo[]> => {
   const groupPictureUrl =
     'group_picture' in groupData && groupData.group_picture
-      ? await createGroupPictureUrl(groupData.group_picture)
+      ? await createGroupPictureUrl(groupData.group_id, groupData.group_picture)
       : null;
   const addedUsersInfo: AddedUserInfo[] = [];
 

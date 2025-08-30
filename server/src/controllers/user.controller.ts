@@ -17,12 +17,12 @@ export const retrieveLoggedInUserData = async (
   res: Response
 ): Promise<void> => {
   try {
-    const userId = req.user?.user_id;
+    const userId = Number(req.user?.user_id);
     const username = req.user?.username;
     const profilePicture = req.user?.profile_picture;
 
     const profilePictureUrl = profilePicture
-      ? await createProfilePictureUrl(profilePicture)
+      ? await createProfilePictureUrl(userId, profilePicture)
       : null;
 
     res.status(200).json({
@@ -45,17 +45,17 @@ export const retrieveRecipientProfile = async (
     const room = req.params.room;
     const result = await retrieveRecipientData(userId, room);
 
-    if (!result || !result.user) {
+    if (!result || !result.recipient) {
       console.error('User does not exist');
       res.status(302).json({ redirectPath: '/' });
       return;
     }
 
-    const { user, profilePictureUrl } = result;
+    const { recipient, profilePictureUrl } = result;
 
     res.status(200).json({
-      userId: user.user_id,
-      username: user.username,
+      userId: recipient.user_id,
+      username: recipient.username,
       profilePicture: profilePictureUrl,
     });
   } catch (error) {
