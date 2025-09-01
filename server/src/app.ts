@@ -45,9 +45,9 @@ app.use(express.static('../../client/public'));
 
 app.use('/auth', authRouter);
 app.use('/users', usersRouter);
-app.use('/chats', privateChatsRouter);
-app.use('/groups', groupChatsRouter);
-app.use('/messages', messagesRouter);
+app.use('/chats/private', privateChatsRouter);
+app.use('/chats/group', groupChatsRouter);
+app.use('/chats', messagesRouter);
 
 const io = new Server(server, {
   cors: {

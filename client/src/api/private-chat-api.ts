@@ -5,7 +5,7 @@ import { getRecipientUserIdByUsername } from './user-api';
 // Fetch the chat list of a specific user
 async function getChatListByUserId(): Promise<Chat[]> {
   const response = await fetch(
-    `${import.meta.env.VITE_SERVER_BASE_URL}/chats`,
+    `${import.meta.env.VITE_SERVER_BASE_URL}/chats/private`,
     {
       method: 'GET',
       headers: {
@@ -29,7 +29,7 @@ async function getRecipientInfo(
   navigate: (path: string) => void
 ): Promise<UserInfo> {
   const response = await fetch(
-    `${import.meta.env.VITE_SERVER_BASE_URL}/chats/${room}`,
+    `${import.meta.env.VITE_SERVER_BASE_URL}/chats/private/${room}`,
     {
       method: 'GET',
       headers: {
@@ -65,7 +65,7 @@ async function addChat(inputUsername: string): Promise<Chat> {
   }
 
   const response = await fetch(
-    `${import.meta.env.VITE_SERVER_BASE_URL}/chats`,
+    `${import.meta.env.VITE_SERVER_BASE_URL}/chats/private`,
     {
       method: 'POST',
       headers: {
@@ -96,7 +96,9 @@ async function updateLastMessageId(
   room: string
 ): Promise<void> {
   const response = await fetch(
-    `${import.meta.env.VITE_SERVER_BASE_URL}/chats/${room}/last_message`,
+    `${
+      import.meta.env.VITE_SERVER_BASE_URL
+    }/chats/private/${room}/last_message`,
     {
       method: 'PUT',
       headers: {
@@ -115,7 +117,7 @@ async function updateLastMessageId(
 
 async function updateReadStatus(read: boolean, room: string): Promise<void> {
   const response = await fetch(
-    `${import.meta.env.VITE_SERVER_BASE_URL}/chats/${room}/read_status`,
+    `${import.meta.env.VITE_SERVER_BASE_URL}/chats/private/${room}/read_status`,
     {
       method: 'PUT',
       headers: {
@@ -135,7 +137,7 @@ async function updateReadStatus(read: boolean, room: string): Promise<void> {
 // Delete a chat from the user's chat list
 async function deletePrivateChat(room: string): Promise<void> {
   const response = await fetch(
-    `${import.meta.env.VITE_SERVER_BASE_URL}/chats/${room}`,
+    `${import.meta.env.VITE_SERVER_BASE_URL}/chats/private/${room}`,
     {
       method: 'DELETE',
       headers: {

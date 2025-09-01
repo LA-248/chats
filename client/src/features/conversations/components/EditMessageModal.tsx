@@ -4,6 +4,7 @@ import { MessageContext } from '../../../contexts/MessageContext';
 import { editMessageById } from '../../../api/message-api';
 import { useSocket } from '../../../hooks/useSocket';
 import Modal from '../../../components/ModalTemplate';
+import { ChatContext } from '../../../contexts/ChatContext';
 
 interface EditMessageModalProps {
   chatType: string;
@@ -26,6 +27,7 @@ export default function EditMessageModal({
 }: EditMessageModalProps) {
   const socket = useSocket();
   const { room } = useParams();
+  const { chatId } = useContext(ChatContext);
   const { currentMessage, filteredMessages, newMessage, setNewMessage } =
     useContext(MessageContext);
   const [showEmojiPicker, setShowEmojiPicker] = useState<boolean>(false);
@@ -42,7 +44,9 @@ export default function EditMessageModal({
         return;
       }
       // Update the database with the edited message
-      await editMessageById(newMessage, messageId);
+      if (chatId) {
+        await editMessageById(chatType, chatId, newMessage, messageId);
+      }
 
       const messageList = [...filteredMessages];
       const isLastMessage = messageIndex === messageList.length - 1;
@@ -94,8 +98,7 @@ export default function EditMessageModal({
         </div>
 
         {showEmojiPicker ? (
-          <div className='emoji-picker-container'>
-          </div>
+          <div className='emoji-picker-container'></div>
         ) : null}
 
         <div className='modal-action-buttons-container'>

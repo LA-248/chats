@@ -44,7 +44,7 @@ export default function DeleteMessageModal({
       const isLastMessage = messageIndex === messageList.length - 1;
 
       if (messageId && chatId) {
-        await deleteMessage(messageId, chatId);
+        await deleteMessage(chatType, chatId, messageId);
       }
 
       // Update chat list in real-time after most recent message is deleted

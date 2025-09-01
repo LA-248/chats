@@ -10,7 +10,9 @@ import useClearErrorMessage from '../../../hooks/useClearErrorMessage';
 
 export default function MessageInput() {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const formRef = useRef<HTMLFormElement>(null);
+  const formRef = useRef<HTMLFormElement>(
+    null
+  ) as React.RefObject<HTMLFormElement>;
   const socket = useSocket();
   const location = useLocation();
   const pathSegments = location.pathname.split('/');

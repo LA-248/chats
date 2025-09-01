@@ -10,10 +10,9 @@ export const edit = async (
   return await Message.editMessageContent(newMessage, senderId, messageId);
 };
 
-export const remove = async (
+export const deleteChatMessage = async (
   senderId: number,
-  messageId: number,
-  chatId: number
+  messageId: number
 ): Promise<void> => {
   const messageType = await Message.retrieveMessageType(messageId);
   const isImage = messageType === MessageType.IMAGE;
@@ -21,8 +20,7 @@ export const remove = async (
   // If the message being deleted is an image, delete the image in the S3 bucket
   if (isImage) {
     // Retrieve the file key (saved as message content) from the database
-    const fileName = await Message.retrieveMessageContent(senderId, messageId);
-    const objectKey = `attachments/chats/${chatId}/${fileName}`;
+    const objectKey = await Message.retrieveMessageContent(senderId, messageId);
 
     await deleteS3Object(process.env.BUCKET_NAME!, objectKey);
   }

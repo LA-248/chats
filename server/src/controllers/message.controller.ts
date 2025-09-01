@@ -1,5 +1,9 @@
 import { Request, Response } from 'express';
-import { edit, remove, upload } from '../services/message.service.ts';
+import {
+  edit,
+  deleteChatMessage,
+  upload,
+} from '../services/message.service.ts';
 
 export const editMessage = async (
   req: Request,
@@ -8,7 +12,8 @@ export const editMessage = async (
   try {
     const newMessage = req.body.newMessage;
     const senderId = Number(req.user?.user_id);
-    const messageId = req.body.messageId;
+    const messageId = Number(req.params.messageId);
+
     await edit(newMessage, senderId, messageId);
     res.status(200).json({ editedMessage: newMessage });
   } catch (error) {
@@ -23,10 +28,9 @@ export const deleteMessage = async (
 ): Promise<void> => {
   try {
     const senderId = Number(req.user?.user_id);
-    const messageId = req.body.messageId;
-    const chatId = req.body.chatId;
+    const messageId = Number(req.params.messageId);
 
-    await remove(senderId, messageId, chatId);
+    await deleteChatMessage(senderId, messageId);
     res.status(200).json({ success: 'Message deleted' });
   } catch (error) {
     console.error('Error deleting message:', error);

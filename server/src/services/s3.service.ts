@@ -73,11 +73,12 @@ export const s3ChatMediaUpload = multer({
       cb(null, { fieldName: file.fieldname });
     },
     key: function (req, file, cb) {
-      const chatId = req.params.id;
+      const chatType = req.params.type;
+      const chatId = req.params.chatId;
       const fileName = file.originalname;
       cb(
         null,
-        `${S3AttachmentsStoragePath.CHAT_ATTACHMENTS}/${chatId}/${fileName}`
+        `${S3AttachmentsStoragePath.CHAT_ATTACHMENTS}/${chatType}/${chatId}/${fileName}`
       );
     },
   }),

@@ -12,10 +12,14 @@ import { enforceMessageEditRules } from '../middlewares/message.middleware.ts';
 const messagesRouter = express.Router();
 messagesRouter.use(requireAuth);
 
-messagesRouter.put('/', enforceMessageEditRules, editMessage);
-messagesRouter.delete('/', deleteMessage);
+messagesRouter.put(
+  '/:type/:chatId/messages/:messageId',
+  enforceMessageEditRules,
+  editMessage
+);
+messagesRouter.delete('/:type/:chatId/messages/:messageId', deleteMessage);
 messagesRouter.post(
-  '/media',
+  '/:type/:chatId/media',
   (req: Request, res: Response, next: NextFunction) => {
     s3ChatMediaUpload.single('media-upload')(req, res, (err) => {
       if (err) {

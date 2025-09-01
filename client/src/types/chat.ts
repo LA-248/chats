@@ -37,8 +37,8 @@ export interface ChatContextType {
   setActiveChatRoom: React.Dispatch<React.SetStateAction<string | null>>;
   chatSearchInputText: string;
   setChatSearchInputText: React.Dispatch<React.SetStateAction<string>>;
-  chatId: number | null;
-  setChatId: React.Dispatch<React.SetStateAction<number | null>>;
+  chatId: number;
+  setChatId: React.Dispatch<React.SetStateAction<number>>;
   chatName: string;
   setChatName: React.Dispatch<React.SetStateAction<string>>;
   recipientProfilePicture: string | null;

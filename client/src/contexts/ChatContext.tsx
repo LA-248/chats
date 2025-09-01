@@ -9,7 +9,7 @@ const defaultChatContext: ChatContextType = {
   setActiveChatRoom: () => {},
   chatSearchInputText: '',
   setChatSearchInputText: () => {},
-  chatId: null,
+  chatId: 0,
   setChatId: () => {},
   chatName: '',
   setChatName: () => {},
@@ -25,7 +25,7 @@ const ChatContext = createContext<ChatContextType>(defaultChatContext);
 
 const ChatProvider = ({ children }: { children: ReactNode }) => {
   const [chatList, setChatList] = useState<Chat[]>([]);
-  const [chatId, setChatId] = useState<number | null>(null);
+  const [chatId, setChatId] = useState<number>(0);
   const [chatName, setChatName] = useState<string>('');
   const [activeChatRoom, setActiveChatRoom] = useState<string | null>(null);
   const [chatSearchInputText, setChatSearchInputText] = useState<string>('');
