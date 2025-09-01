@@ -58,7 +58,7 @@ export async function deleteMessage(
   }
 }
 
-export const handleChatMediaUpload = async (
+export const uploadChatMedia = async (
   event: React.ChangeEvent<HTMLInputElement>,
   formRef: React.RefObject<HTMLFormElement>,
   socket: Socket,
