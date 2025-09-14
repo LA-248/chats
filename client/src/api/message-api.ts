@@ -65,8 +65,7 @@ export const uploadChatMedia = async (
   username: string,
   chatId: number,
   room: string,
-  chatType: string,
-  setErrorMessage: React.Dispatch<React.SetStateAction<string>>
+  chatType: string
 ): Promise<void> => {
   event.preventDefault();
 
@@ -82,9 +81,7 @@ export const uploadChatMedia = async (
 
   try {
     const response = await fetch(
-      `${
-        import.meta.env.VITE_SERVER_BASE_URL
-      }/chats/${type}/${chatId}/media`,
+      `${import.meta.env.VITE_SERVER_BASE_URL}/chats/${type}/${chatId}/media`,
       {
         method: 'POST',
         body: formData,
@@ -97,7 +94,8 @@ export const uploadChatMedia = async (
       throw new Error(errorResponse.error);
     }
     const data = await response.json();
-    const content = data.fileKey;
+    const content = data.fileName;
+    const fileKey = data.fileKey;
 
     if (socket) {
       const messageType = MessageType.IMAGE;
@@ -112,6 +110,7 @@ export const uploadChatMedia = async (
           room,
           chatType,
           messageType,
+          fileKey,
         },
         clientOffset,
         (response: string) => {
@@ -120,7 +119,8 @@ export const uploadChatMedia = async (
             toast.success(response);
             toast.dismiss(loadingToast);
           } else {
-            setErrorMessage(response);
+            toast.error(response);
+            toast.dismiss(loadingToast);
           }
         }
       );

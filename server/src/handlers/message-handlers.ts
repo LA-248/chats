@@ -8,71 +8,90 @@ import {
   Message as MessageStructure,
   NewMessage,
 } from '../schemas/message.schema.ts';
-import { ChatHandler, ChatType } from '../types/chat.ts';
+import {
+  ChatHandler,
+  ChatType,
+  S3AttachmentsStoragePath,
+} from '../types/chat.ts';
 import { addNewPrivateChat } from '../services/private-chat.service.ts';
 import { createPresignedUrl } from '../services/s3.service.ts';
-import { MessageType } from '../types/message.ts';
+import { MessageEvent, MessageType } from '../types/message.ts';
 import {
   authoriseChatMessage,
   isSenderBlocked,
 } from '../middlewares/message.middleware.ts';
 
 const handleChatMessages = (socket: Socket, io: Server): void => {
-  socket.on('chat-message', async (data, clientOffset, callback) => {
-    // In the context of private chats, chatId equals the ID of the recipient
-    const { username, chatId, content, room, chatType, messageType } = data;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const senderId = (socket.handshake as any).session.passport.user;
-    const isImage = messageType === MessageType.IMAGE;
-
-    try {
-      if (chatType === ChatType.PRIVATE) {
-        await isSenderBlocked(chatId, senderId);
-        await addNewPrivateChat(io, socket, chatId, room);
-      }
-
-      const { newMessage, updatedAt } = await saveMessageInDatabase(
-        content,
-        senderId,
+  socket.on(
+    'chat-message',
+    async (data: MessageEvent, clientOffset, callback) => {
+      // In the context of private chats, chatId equals the ID of the recipient
+      // fileKey is used for media uploads
+      const {
+        username,
         chatId,
+        content,
         room,
         chatType,
         messageType,
-        clientOffset
-      );
+        fileKey,
+      } = data;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const senderId = (socket.handshake as any).session.passport.user;
+      const isImage = messageType === MessageType.IMAGE;
 
-      restoreChat(chatId, room, chatType);
-      broadcastMessage(
-        io,
-        room,
-        username,
-        isImage
-          ? await createPresignedUrl(process.env.BUCKET_NAME!, content)
-          : content,
-        senderId,
-        newMessage,
-        chatType,
-        messageType
-      );
-      broadcastChatListUpdate(io, room, content, newMessage, updatedAt);
-
-      if (isImage) {
-        callback('Image uploaded');
-      }
-
-      return;
-    } catch (error: unknown) {
-      console.error('Error handling chat message:', error);
-      if (error instanceof Error) {
-        if (error.message === 'Sender is blocked by the recipient') {
-          callback(
-            'You cannot send messages to this user because they have you blocked'
-          );
+      try {
+        if (chatType === ChatType.PRIVATE) {
+          await isSenderBlocked(chatId, senderId);
+          await addNewPrivateChat(io, socket, chatId, room);
         }
+
+        const { newMessage, updatedAt } = await saveMessageInDatabase(
+          content,
+          senderId,
+          chatId,
+          room,
+          chatType,
+          messageType,
+          clientOffset
+        );
+
+        restoreChat(chatId, room, chatType);
+        broadcastMessage(
+          io,
+          room,
+          username,
+          isImage
+            ? await createPresignedUrl(
+                process.env.BUCKET_NAME!,
+                fileKey as string
+              )
+            : content,
+          senderId,
+          newMessage,
+          chatType,
+          messageType
+        );
+        broadcastChatListUpdate(io, room, content, newMessage, updatedAt);
+
+        if (isImage) {
+          callback('Media uploaded');
+        }
+
+        return;
+      } catch (error: unknown) {
+        console.error('Error handling chat message:', error);
+        if (error instanceof Error) {
+          if (error.message === 'Sender is blocked by the recipient') {
+            callback(
+              'You cannot send messages to this user because they have you blocked'
+            );
+          }
+        }
+        callback('Error sending message');
       }
-      callback('Error sending message');
     }
-  });
+  );
 };
 
 // Load all messages of a chat when opened
@@ -94,6 +113,7 @@ const displayChatMessages = async (
         .map((result) => {
           return result.value;
         });
+
       socket.emit('initial-messages', initialMessages);
     } catch (error) {
       console.error('Unable to retrieve chat messages:', error);
@@ -170,9 +190,20 @@ const updateMessageList = (socket: Socket, io: Server): void => {
 const formatMessage = async (
   message: MessageStructure
 ): Promise<FormattedMessage> => {
+  const recipientId = message.recipient_id;
+  const groupId = message.group_id;
+  const fileName = message.content;
+
+  const isGroup = recipientId === null ? true : false;
+  const chatId = isGroup ? groupId : recipientId;
+  const chatType = isGroup ? 'group' : 'private';
   const isImage = message.type === MessageType.IMAGE;
+
   const content = isImage
-    ? await createPresignedUrl(process.env.BUCKET_NAME!, message.content)
+    ? await createPresignedUrl(
+        process.env.BUCKET_NAME!,
+        `${S3AttachmentsStoragePath.CHAT_ATTACHMENTS}/${chatType}/${chatId}/${fileName}`
+      )
     : message.content;
 
   return {
@@ -275,6 +306,8 @@ const saveMessageInDatabase = async (
 
   try {
     const chatHandler = CHAT_HANDLERS[chatType];
+    const isPrivateChat = chatType === ChatType.PRIVATE;
+    const isGroupChat = chatType === ChatType.GROUP;
 
     await authoriseChatMessage(chatHandler, room, senderId);
 
@@ -285,7 +318,8 @@ const saveMessageInDatabase = async (
       // This error happens because the recipient id in the messages table references the users table,
       // when sending messages in a group chat, the group id is used as the recipient id which does not exist in the user's table
       // TODO: Create distinct tables for private and group chat messages
-      chatType === ChatType.PRIVATE ? chatId : null,
+      isPrivateChat ? chatId : null,
+      isGroupChat ? chatId : null,
       room,
       messageType,
       clientOffset

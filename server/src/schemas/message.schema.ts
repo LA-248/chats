@@ -20,6 +20,8 @@ export type NewMessage = z.infer<typeof NewMessageSchema>;
 export const MessageSchema = z.object({
   message_id: z.number(),
   sender_id: z.number(),
+  recipient_id: z.number().int().positive().nullable(),
+  group_id: z.number().int().positive().nullable(),
   content: z.string(),
   event_time: z.coerce.date(),
   is_edited: z.boolean(),

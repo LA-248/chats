@@ -18,6 +18,7 @@ const Message = {
             message_id SERIAL PRIMARY KEY,
             sender_id INTEGER REFERENCES users(user_id) ON DELETE CASCADE,
             recipient_id INTEGER REFERENCES users(user_id) ON DELETE CASCADE,
+            group_id INTEGER REFERENCES groups(group_id) ON DELETE CASCADE,
             client_offset TEXT UNIQUE,
             room UUID NOT NULL,
             content TEXT DEFAULT NULL,
@@ -43,6 +44,7 @@ const Message = {
     content: string,
     senderId: number,
     recipientId: number | null,
+    groupId: number | null,
     room: string,
     type: string,
     clientOffset: string
@@ -51,6 +53,7 @@ const Message = {
       content,
       senderId,
       recipientId,
+      groupId,
       room,
       type,
       clientOffset,
@@ -68,14 +71,15 @@ const Message = {
             content,
             sender_id,
             recipient_id,
+            group_id,
             room,
             type,
             client_offset
           ) 
-          VALUES ($1, $2, $3, $4, $5, $6)
+          VALUES ($1, $2, $3, $4, $5, $6, $7)
           RETURNING message_id, event_time, type
         `,
-        [content, senderId, recipientId, room, type, clientOffset],
+        [content, senderId, recipientId, groupId, room, type, clientOffset],
         (err, result) => {
           if (err) {
             return reject(`Database error in messages table: ${err.message}`);
@@ -188,6 +192,8 @@ const Message = {
         SELECT
           m.message_id,
           m.sender_id,
+          m.recipient_id,
+          m.group_id,
           m.content,
           m.event_time,
           m.is_edited,

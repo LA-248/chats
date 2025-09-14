@@ -29,5 +29,5 @@ export const deleteChatMessage = async (
 };
 
 export const upload = async (file: Express.MulterS3.File) => {
-  return file.key;
+  return { fileKey: file.key, fileName: file.originalname };
 };
