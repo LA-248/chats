@@ -15,7 +15,7 @@ export default function GroupPicture() {
 
   const apiEndpoint = `${
     import.meta.env.VITE_SERVER_BASE_URL
-  }/groups/${groupId}/pictures`;
+  }/chats/group/${groupId}/pictures`;
 
   const { handleFileInputClick, handleMediaUpload } = useMediaUpload(
     fileInputRef,
