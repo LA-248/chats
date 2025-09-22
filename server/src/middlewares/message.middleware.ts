@@ -22,7 +22,7 @@ export const enforceMessageEditRules = async (
   res: Response,
   next: NextFunction
 ) => {
-  const messageId = req.body.messageId;
+  const messageId = Number(req.params.messageId);
 
   try {
     const messageType = await Message.retrieveMessageType(messageId);
