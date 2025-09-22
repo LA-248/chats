@@ -1,4 +1,5 @@
 import { Message } from '../models/message.model.ts';
+import { S3AttachmentsStoragePath } from '../types/chat.ts';
 import { MessageType } from '../types/message.ts';
 import { deleteS3Object } from './s3.service.ts';
 
@@ -12,16 +13,17 @@ export const edit = async (
 
 export const deleteChatMessage = async (
   senderId: number,
-  messageId: number
+  messageId: number,
+  chatType: string,
+  chatId: string
 ): Promise<void> => {
   const messageType = await Message.retrieveMessageType(messageId);
   const isImage = messageType === MessageType.IMAGE;
 
-  // If the message being deleted is an image, delete the image in the S3 bucket
+  // If the message being deleted is an image, delete the image in S3
   if (isImage) {
-    // Retrieve the file key (saved as message content) from the database
-    const objectKey = await Message.retrieveMessageContent(senderId, messageId);
-
+    const fileName = await Message.retrieveMessageContent(senderId, messageId);
+    const objectKey = `${S3AttachmentsStoragePath.CHAT_ATTACHMENTS}/${chatType}/${chatId}/${fileName}`;
     await deleteS3Object(process.env.BUCKET_NAME!, objectKey);
   }
 
