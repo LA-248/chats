@@ -192,7 +192,6 @@ const formatMessage = async (
 ): Promise<FormattedMessage> => {
   const recipientId = message.recipient_id;
   const groupId = message.group_id;
-  const fileName = message.content;
 
   const isGroup = recipientId === null ? true : false;
   const chatId = isGroup ? groupId : recipientId;
@@ -202,7 +201,7 @@ const formatMessage = async (
   const content = isImage
     ? await createPresignedUrl(
         process.env.BUCKET_NAME!,
-        `${S3AttachmentsStoragePath.CHAT_ATTACHMENTS}/${chatType}/${chatId}/${fileName}`
+        `${S3AttachmentsStoragePath.CHAT_ATTACHMENTS}/${chatType}/${chatId}/${message.content}`
       )
     : message.content;
 
