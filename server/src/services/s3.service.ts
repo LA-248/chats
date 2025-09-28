@@ -1,4 +1,8 @@
-import { S3Client } from '@aws-sdk/client-s3';
+import {
+  DeleteObjectsCommand,
+  ListObjectsV2Command,
+  S3Client,
+} from '@aws-sdk/client-s3';
 import { DeleteObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { GetObjectCommand } from '@aws-sdk/client-s3';
@@ -102,6 +106,30 @@ export const deleteS3Object = async (
     return console.error('Error deleting object from S3:', error);
   }
 };
+
+// Delete a directory and its contents
+export async function deleteS3Directory(
+  bucket: string,
+  prefix: string
+): Promise<void> {
+  const directoryObjects = await s3Client.send(
+    new ListObjectsV2Command({ Bucket: bucket, Prefix: prefix })
+  );
+
+  if (!directoryObjects.Contents || directoryObjects.Contents.length < 0) {
+    return;
+  }
+
+  const deleteParams = {
+    Bucket: bucket,
+    Delete: {
+      Objects: directoryObjects.Contents.map((object) => ({ Key: object.Key })),
+    },
+  };
+
+  await s3Client.send(new DeleteObjectsCommand(deleteParams));
+  console.log(`Successfully deleted directory ${prefix} and its contents`);
+}
 
 // Create a presigned S3 URL for temporary access to the object
 export const createPresignedUrl = (
