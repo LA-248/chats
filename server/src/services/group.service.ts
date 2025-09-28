@@ -7,7 +7,11 @@ import {
   GroupMemberRole,
 } from '../types/group.ts';
 import createGroupPictureUrl from '../utils/create-group-picture-url.ts';
-import { createPresignedUrl, deleteS3Object } from './s3.service.ts';
+import {
+  createPresignedUrl,
+  deleteS3Directory,
+  deleteS3Object,
+} from './s3.service.ts';
 import { retrieveUserById } from './user.service.ts';
 import { userSockets } from '../handlers/socket-handlers.ts';
 import { GroupMember } from '../models/group-member.model.ts';
@@ -19,7 +23,10 @@ import {
   RemovedGroupMember,
 } from '../schemas/group.schema.ts';
 import { AddedUserInfo, GroupMemberToBeAdded } from '../types/group.ts';
-import { S3AvatarStoragePath } from '../types/chat.ts';
+import {
+  S3AttachmentsStoragePath,
+  S3AvatarStoragePath,
+} from '../types/chat.ts';
 
 export const retrieveGroupInfoWithMembers = async (
   room: string
@@ -218,6 +225,10 @@ export const permanentlyDeleteGroupChat = async (
   const room = await Group.retrieveRoomByGroupId(groupId);
   const memberSocketIds = [];
 
+  const groupAvatar = await Group.retrievePicture(groupId);
+  const avatarObjectKey = `${S3AvatarStoragePath.GROUP_AVATARS}/${groupId}/${groupAvatar}`;
+  const directoryPrefix = `${S3AttachmentsStoragePath.CHAT_ATTACHMENTS}/group/${groupId}`;
+
   // Get the socket IDs of each group member
   for (let i = 0; i < memberUserIds.length; i++) {
     const memberUserId = memberUserIds[i];
@@ -227,6 +238,10 @@ export const permanentlyDeleteGroupChat = async (
     }
   }
 
+  if (groupAvatar) {
+    await deleteS3Object(process.env.BUCKET_NAME!, avatarObjectKey);
+  }
+  await deleteS3Directory(process.env.BUCKET_NAME!, directoryPrefix);
   await Group.permanentlyDelete(groupId);
 
   return { room, memberSocketIds };
