@@ -119,6 +119,7 @@ const PrivateChat = {
             pc.last_message_id,
             m.content AS last_message_content,
             m.event_time AS last_message_time,
+            m.type AS last_message_type,
             pc.room,
             CASE
               WHEN pc.user1_id = $1 THEN pc.user1_read
