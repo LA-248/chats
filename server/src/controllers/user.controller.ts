@@ -113,8 +113,8 @@ export const retrieveBlockListById = async (
 ): Promise<void> => {
   try {
     const userId = Number(req.user?.user_id);
-    const blockList = await retrieveBlockList(userId);
-    res.status(200).json({ blockList: blockList });
+    const result = await retrieveBlockList(userId);
+    res.status(200).json({ blockList: result.blocked_users });
   } catch (error) {
     console.error('Error retrieving block list:', error);
     res.status(500).json({ error: 'Error retrieving blocked status' });

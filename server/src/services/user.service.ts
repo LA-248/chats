@@ -1,5 +1,5 @@
 import { Server } from 'socket.io';
-import { User } from '../models/user.model.ts';
+import { User } from '../repositories/user.repository.ts';
 import { createPresignedUrl, deleteS3Object } from './s3.service.ts';
 import { PrivateChat } from '../models/private-chat.model.ts';
 import {
@@ -30,7 +30,12 @@ export const retrieveRecipientData = async (
   recipient: RecipientUserProfile;
   profilePictureUrl: string | null;
 } | null> => {
-  const recipient = await User.getRecipientUserProfile(userId, room);
+  const userRepository = new User();
+  const recipient = await userRepository.findRecipientUserProfileById(
+    userId,
+    room
+  );
+  console.log(recipient);
   if (!recipient) return null;
 
   const profilePictureUrl = recipient.profile_picture
@@ -45,7 +50,8 @@ export const retrieveRecipientData = async (
 
 export const retrieveUserById = async (id: number): Promise<UserProfile> => {
   try {
-    const user = await User.getUserById(id);
+    const userRepository = new User();
+    const user = await userRepository.findUserById(id);
     const userId = user.user_id;
     const username = user.username;
 
@@ -66,11 +72,14 @@ export const retrieveUserById = async (id: number): Promise<UserProfile> => {
 export const retrieveUserIdByUsername = async (
   username: string
 ): Promise<UserId | null> => {
-  return await User.getIdByUsername(username);
+  const userRepository = new User();
+  return await userRepository.findUserIdByUsername(username);
 };
 
 export const retrieveProfilePicture = async (userId: number) => {
-  const profilePicture = await User.getUserProfilePicture(userId);
+  const userRepository = new User();
+  const result = await userRepository.findUserProfilePictureById(userId);
+  const profilePicture = result.profile_picture;
 
   return profilePicture
     ? await createProfilePictureUrl(userId, profilePicture)
@@ -80,7 +89,8 @@ export const retrieveProfilePicture = async (userId: number) => {
 export const retrieveBlockList = async (
   userId: number
 ): Promise<UserBlockList> => {
-  return await User.getBlockListById(userId);
+  const userRepository = new User();
+  return await userRepository.findBlockListById(userId);
 };
 
 export const updateProfilePicture = async (
@@ -88,8 +98,12 @@ export const updateProfilePicture = async (
   file: Express.MulterS3.File,
   io: Server
 ): Promise<string> => {
+  const userRepository = new User();
+
   // Delete previous profile picture from S3 storage
-  const currentProfilePicture = await User.getUserProfilePicture(userId);
+  const currentProfilePicture = await userRepository.findUserProfilePictureById(
+    userId
+  );
   if (!(currentProfilePicture === null)) {
     // Only run if a current profile picture exists
     await deleteS3Object(
@@ -98,7 +112,7 @@ export const updateProfilePicture = async (
     );
   }
 
-  await User.updateProfilePictureById(file.originalname, userId);
+  await userRepository.updateProfilePictureById(file.originalname, userId);
   const profilePictureUrl = await createPresignedUrl(
     process.env.BUCKET_NAME!,
     file.key
@@ -125,7 +139,8 @@ export const handleUsernameUpdate = async (
   userId: number,
   io: Server
 ): Promise<void> => {
-  await User.updateUsernameById(username, userId);
+  const userRepository = new User();
+  await userRepository.updateUsernameById(username, userId);
 
   await updateUserInfoForAllContacts(
     userId,
@@ -146,7 +161,8 @@ export const updateUserBlockList = async (
   blockedUserIds: number[],
   userId: number
 ): Promise<void> => {
-  return await User.updateBlockedUsersById(blockedUserIds, userId);
+  const userRepository = new User();
+  return await userRepository.updateBlockedUsersById(blockedUserIds, userId);
 };
 
 // Update profile picture or username for all the user's private chats in real-time

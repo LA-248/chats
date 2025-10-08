@@ -4,12 +4,13 @@ dotenv.config({
 });
 
 import pg from 'pg';
-import { User } from '../src/models/user.model.ts';
+
 import { PrivateChat } from '../src/models/private-chat.model.ts';
 import { Group } from '../src/models/group.model.ts';
 import { GroupMember } from '../src/models/group-member.model.ts';
 import { Message } from '../src/models/message.model.ts';
 import { Session } from '../src/models/session.model.ts';
+import { User } from '../src/repositories/user.repository.ts';
 const { Pool } = pg;
 
 // Initialise a connection pool
@@ -23,14 +24,15 @@ const pool = new Pool({
 
 async function createTables(): Promise<void> {
   try {
-    await User.createUsersTable();
+    const userRepository = new User();
+    await userRepository.createUsersTable();
     await PrivateChat.createPrivateChatsTable();
     await Group.createGroupsTable();
     await GroupMember.createGroupMemberTable();
     await Message.createMessagesTable();
     await Session.createSessionsTable();
   } catch (error) {
-    console.error('Error creating tables:', error);
+    console.error('Error creating table:', error);
   }
 }
 

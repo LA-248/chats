@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import { Message } from '../models/message.model.ts';
 import { MessageType } from '../types/message.ts';
-import { User } from '../models/user.model.ts';
+import { User } from '../repositories/user.repository.ts';
 import { ChatHandler } from '../types/chat.ts';
 
 // Prevent users from sending messages to chat rooms they are not a part of
@@ -50,7 +50,10 @@ export const isSenderBlocked = async (
   recipientId: number,
   senderId: number
 ): Promise<void> => {
-  const recipientBlockList = await User.getBlockListById(recipientId);
+  const userRepository = new User();
+  const result = await userRepository.findBlockListById(recipientId);
+  const recipientBlockList = result.blocked_users;
+
   if (recipientBlockList) {
     if (recipientBlockList.includes(senderId)) {
       throw new Error('Sender is blocked by the recipient');
