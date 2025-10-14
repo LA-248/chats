@@ -1,7 +1,6 @@
 import { Server } from 'socket.io';
 import { User } from '../repositories/user.repository.ts';
 import { createPresignedUrl, deleteS3Object } from './s3.service.ts';
-import { PrivateChat } from '../models/private-chat.model.ts';
 import {
   RecipientUserProfile,
   UserBlockList,
@@ -10,6 +9,7 @@ import {
 } from '../schemas/user.schema.ts';
 import { Group } from '../models/group.model.ts';
 import { S3AvatarStoragePath } from '../types/chat.ts';
+import { PrivateChat } from '../repositories/private-chat.repository.ts';
 
 export const createProfilePictureUrl = async (
   userId: number,
@@ -35,7 +35,6 @@ export const retrieveRecipientData = async (
     userId,
     room
   );
-  console.log(recipient);
   if (!recipient) return null;
 
   const profilePictureUrl = recipient.profile_picture
@@ -172,10 +171,11 @@ const updateUserInfoForAllContacts = async (
   newInfo: string,
   socketEvent: string
 ): Promise<void> => {
-  const rooms = await PrivateChat.retrieveAllRoomsByUser(userId);
+  const privateChatRepository = new PrivateChat();
+  const rooms = await privateChatRepository.findAllRoomsByUser(userId);
 
   for (let i = 0; i < rooms.length; i++) {
-    const room = rooms[i];
+    const room = rooms[i].room;
     if (room) {
       io.to(room).emit(socketEvent, {
         userId,

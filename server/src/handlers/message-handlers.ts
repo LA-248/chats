@@ -1,7 +1,6 @@
 import { Socket, Server } from 'socket.io';
 import { Group } from '../models/group.model.ts';
 import { GroupMember } from '../models/group-member.model.ts';
-import { PrivateChat } from '../models/private-chat.model.ts';
 import { Message } from '../models/message.model.ts';
 import {
   FormattedMessage,
@@ -20,8 +19,9 @@ import {
   authoriseChatMessage,
   isSenderBlocked,
 } from '../middlewares/message.middleware.ts';
+import { PrivateChat } from '../repositories/private-chat.repository.ts';
 
-const handleChatMessages = (socket: Socket, io: Server): void => {
+export const handleChatMessages = (socket: Socket, io: Server): void => {
   socket.on(
     'chat-message',
     async (data: MessageEvent, clientOffset, callback) => {
@@ -95,7 +95,7 @@ const handleChatMessages = (socket: Socket, io: Server): void => {
 };
 
 // Load all messages of a chat when opened
-const displayChatMessages = async (
+export const displayChatMessages = async (
   socket: Socket,
   room: string
 ): Promise<void> => {
@@ -126,10 +126,12 @@ const displayChatMessages = async (
 };
 
 // Send updated message info for the chat list after the last remaining message in a chat is deleted or edited
-const updateMostRecentMessage = (socket: Socket, io: Server): void => {
+export const updateMostRecentMessage = (socket: Socket, io: Server): void => {
   socket.on('last-message-updated', async (data) => {
     const { room, chatType } = data;
     try {
+      const privateChatRepository = new PrivateChat();
+
       const lastMessageInfo = await Message.retrieveLastMessageInfo(room);
       const isImage = lastMessageInfo?.type === MessageType.IMAGE;
       const isPrivateChat = chatType === ChatType.PRIVATE;
@@ -145,7 +147,7 @@ const updateMostRecentMessage = (socket: Socket, io: Server): void => {
         : null;
 
       const updatedAt = isPrivateChat
-        ? await PrivateChat.retrieveUpdatedAtDate(room)
+        ? await privateChatRepository.findUpdatedAtDate(room)
         : await Group.retrieveUpdatedAtDate(room);
 
       io.to(room).emit('last-message-updated', {
@@ -166,7 +168,7 @@ const updateMostRecentMessage = (socket: Socket, io: Server): void => {
 
 // TODO: Don't retrieve the whole message list after a message is deleted or edited - optimise it
 // Listen for message deletes and edits, and emit the updated message list to the relevant room
-const updateMessageList = (socket: Socket, io: Server): void => {
+export const updateMessageList = (socket: Socket, io: Server): void => {
   socket.on('message-list-update-event', async (room, updateType) => {
     try {
       const messages = await Message.retrieveMessageList(
@@ -222,7 +224,8 @@ const CHAT_HANDLERS: Record<ChatType, ChatHandler> = {
     // Get private chat members, this is then used for an authorisation check in the authoriseChatMessage function
     getMembers: async (room: string): Promise<number[]> => {
       try {
-        const members = await PrivateChat.retrieveMembersByRoom(room);
+        const privateChatRepository = new PrivateChat();
+        const members = await privateChatRepository.findMembersByRoom(room);
         return members ? Object.values(members) : [];
       } catch (error) {
         if (error instanceof Error) {
@@ -240,9 +243,14 @@ const CHAT_HANDLERS: Record<ChatType, ChatHandler> = {
       room: string
     ): Promise<Date> => {
       try {
-        await PrivateChat.updateUserReadStatus(chatId, false, room);
+        const privateChatRepository = new PrivateChat();
+
+        await privateChatRepository.updateUserReadStatus(chatId, false, room);
         // After setting the last message, fetch the new updated_at date which is equal to the time at which the message was sent
-        const updatedAt = await PrivateChat.setLastMessage(newMessageId, room);
+        const updatedAt = await privateChatRepository.setLastMessage(
+          newMessageId,
+          room
+        );
         return updatedAt;
       } catch (error) {
         if (error instanceof Error) {
@@ -362,16 +370,22 @@ const restoreChat = async (
   chatType: string
 ): Promise<void> => {
   try {
+    const privateChatRepository = new PrivateChat();
+
     const isPrivateChat = chatType === ChatType.PRIVATE;
     const isGroupChat = chatType === ChatType.GROUP;
 
     if (isPrivateChat) {
-      const isDeleted = await PrivateChat.retrieveChatDeletionStatus(
+      const isDeleted = await privateChatRepository.findChatDeletionStatus(
         recipientId,
         room
       );
       if (isDeleted) {
-        await PrivateChat.updateChatDeletionStatus(recipientId, false, room);
+        await privateChatRepository.updateChatDeletionStatus(
+          recipientId,
+          false,
+          room
+        );
       }
     } else if (isGroupChat) {
       const membersWhoDeletedChat = await Group.retrieveDeletedForList(room);
@@ -425,11 +439,4 @@ const broadcastChatListUpdate = (
     lastMessageTime: newMessage.event_time,
     updatedAt: updatedAt,
   });
-};
-
-export {
-  handleChatMessages,
-  displayChatMessages,
-  updateMostRecentMessage,
-  updateMessageList,
 };

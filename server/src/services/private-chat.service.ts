@@ -1,6 +1,5 @@
 import { Server, Socket } from 'socket.io';
 import { Chat } from '../models/chat-list.model.ts';
-import { PrivateChat } from '../models/private-chat.model.ts';
 import { v4 as uuidv4 } from 'uuid';
 import {
   createPresignedUrl,
@@ -12,24 +11,33 @@ import {
 } from '../schemas/private-chat.schema.ts';
 import { userSockets } from '../handlers/socket-handlers.ts';
 import { S3AvatarStoragePath } from '../types/chat.ts';
+import { PrivateChat } from '../repositories/private-chat.repository.ts';
 
 export const handleChatAddition = async (
   socket: Socket,
   senderId: number,
   recipientId: number
 ): Promise<ChatItem> => {
-  const room = await PrivateChat.retrieveRoomByMembers(senderId, recipientId);
+  const privateChatRepository = new PrivateChat();
+  const { room } = await privateChatRepository.findRoomByMembers(
+    senderId,
+    recipientId
+  );
 
   // This check is needed to know whether to insert a new chat in the database and mark it as not deleted, or to only do the latter
   // All chats are marked as deleted by default to prevent incorrectly displaying them in a user's chat list
   if (room === null) {
     const newRoom = uuidv4();
-    await PrivateChat.insertNewChat(senderId, recipientId, newRoom);
-    await PrivateChat.updateChatDeletionStatus(senderId, false, newRoom);
+    await privateChatRepository.insertNewChat(senderId, recipientId, newRoom);
+    await privateChatRepository.updateChatDeletionStatus(
+      senderId,
+      false,
+      newRoom
+    );
     socket.join(newRoom);
     return await getChat(senderId, newRoom); // Retrieve newly inserted/created chat for addition
   } else {
-    await PrivateChat.updateChatDeletionStatus(senderId, false, room);
+    await privateChatRepository.updateChatDeletionStatus(senderId, false, room);
     return await getChat(senderId, room); // Retrieve pre-existing chat for addition after it's flagged as not deleted
   }
 };
@@ -39,7 +47,8 @@ export const updateLastMessage = async (
   newLastMessageId: number,
   room: string
 ): Promise<void> => {
-  return await PrivateChat.updateLastMessage(newLastMessageId, room);
+  const privateChatRepository = new PrivateChat();
+  return await privateChatRepository.updateLastMessage(newLastMessageId, room);
 };
 
 export const updateReadStatus = async (
@@ -47,21 +56,29 @@ export const updateReadStatus = async (
   read: boolean,
   room: string
 ): Promise<void> => {
-  return await PrivateChat.updateUserReadStatus(userId, read, room);
+  const privateChatRepository = new PrivateChat();
+  return await privateChatRepository.updateUserReadStatus(userId, read, room);
 };
 
 export const updateDeletionStatus = async (
   userId: number,
   room: string
 ): Promise<ChatDeletionStatus> => {
-  return await PrivateChat.updateChatDeletionStatus(userId, true, room);
+  const privateChatRepository = new PrivateChat();
+  return await privateChatRepository.updateChatDeletionStatus(
+    userId,
+    true,
+    room
+  );
 };
 
 export const getChat = async (
   senderId: number,
   room: string
 ): Promise<ChatItem> => {
-  const addedChat = await PrivateChat.retrieveChat(senderId, room);
+  const privateChatRepository = new PrivateChat();
+
+  const addedChat = await privateChatRepository.findChat(senderId, room);
   const profilePictureName = addedChat.chat_picture;
   const recipientId = addedChat.recipient_user_id;
 
@@ -84,7 +101,9 @@ export const addNewPrivateChat = async (
   room: string
 ): Promise<void> => {
   try {
-    const lastMessageId = await PrivateChat.retrieveLastMessageId(room);
+    const privateChatRepository = new PrivateChat();
+
+    const lastMessageId = await privateChatRepository.findLastMessageId(room);
     const socketId = userSockets.get(recipientId);
 
     // If lastMessageId is null it means it's the first message being sent in the chat, which should -

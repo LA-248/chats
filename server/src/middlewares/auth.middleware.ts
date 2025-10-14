@@ -1,9 +1,9 @@
 import { NextFunction, Request, Response } from 'express';
 import { GroupMember } from '../models/group-member.model.ts';
-import { PrivateChat } from '../models/private-chat.model.ts';
 import { Group } from '../models/group.model.ts';
 import { GroupMemberPartialInfo } from '../schemas/group.schema.ts';
 import { GroupMemberRole } from '../types/group.ts';
+import { PrivateChat } from '../repositories/private-chat.repository.ts';
 
 export const requireAuth = (
   req: Request,
@@ -31,7 +31,10 @@ export const privateChatRoomAuth = async (
   const room = req.params.room;
 
   try {
-    const privateChatMembers = await PrivateChat.retrieveMembersByRoom(room);
+    const privateChatRepository = new PrivateChat();
+    const privateChatMembers = await privateChatRepository.findMembersByRoom(
+      room
+    );
     if (!privateChatMembers) {
       res.status(404).json({
         error: 'Not found',

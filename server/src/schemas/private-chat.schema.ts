@@ -28,16 +28,24 @@ export const ChatMembersSchema = z.object({
 });
 export type ChatMembers = z.infer<typeof ChatMembersSchema>;
 
-export const ChatRoomSchema = z.uuid();
+export const ChatRoomSchema = z.object({
+  room: z.uuid(),
+});
 export type ChatRoom = z.infer<typeof ChatRoomSchema>;
 
-export const ChatDeletionStatusSchema = z.boolean();
+export const ChatDeletionStatusSchema = z.object({
+  deleted: z.boolean(),
+});
 export type ChatDeletionStatus = z.infer<typeof ChatDeletionStatusSchema>;
 
-export const ChatUpdatedAtSchema = z.coerce.date();
+export const ChatUpdatedAtSchema = z.object({
+  updated_at: z.coerce.date(),
+});
 export type ChatUpdatedAt = z.infer<typeof ChatUpdatedAtSchema>;
 
-export const ChatLastMessageSchema = z.number().nullable();
+export const ChatLastMessageSchema = z.object({
+  last_message_id: z.number().nullable(),
+});
 export type ChatLastMessage = z.infer<typeof ChatLastMessageSchema>;
 
 // TODO: This schema applies to both private and group chats, so it should be moved to a different file
