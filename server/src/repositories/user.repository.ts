@@ -14,8 +14,12 @@ import {
   UserBlockListSchema,
 } from '../schemas/user.schema.ts';
 
+interface Database {
+  query: typeof query;
+}
+
 export class User {
-  private readonly db: { query: typeof query };
+  private readonly db: Database;
 
   constructor(db = { query }) {
     this.db = db;
