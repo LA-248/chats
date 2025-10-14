@@ -18,9 +18,19 @@ export const query = async <T extends QueryResultRow>(
 
       try {
         if (schema) {
-          const validatedRows = schema.array().parse(result.rows);
-          return resolve({ ...result, rows: validatedRows });
+          const validatedRows = schema.array().safeParse(result.rows);
+
+          if (validatedRows.success) {
+            return resolve({ ...result, rows: validatedRows.data });
+          } else {
+            return reject(
+              new Error(
+                `Error validating data: ${validatedRows.error.issues[0].message}`
+              )
+            );
+          }
         }
+
         return resolve(result);
       } catch (error) {
         return reject(
