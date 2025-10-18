@@ -58,13 +58,6 @@ export default function Home() {
     }
   }, [loggedInUserId]);
 
-  // Join the user to all rooms in they are a part of when they connect, ensures real-time updates
-  useEffect(() => {
-    if (loggedInUserId && socket) {
-      socket.emit('initialise-chat-rooms');
-    }
-  }, [loggedInUserId, socket]);
-
   return (
     // Render child components only if the socket is initialised
     socket && (
