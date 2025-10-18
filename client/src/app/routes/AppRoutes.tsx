@@ -5,8 +5,8 @@ import SignUp from '../../pages/sign-up';
 import Login from '../../pages/login';
 import Settings from '../../pages/settings';
 import ProtectedRoutes from './ProtectedRoutes';
-import ChatWindowPlaceholder from '../../features/conversations/components/ChatWindowPlaceholder';
-import { ChatView } from '../../features/conversations/components/ChatView';
+import ChatWindowPlaceholder from '../../features/chats/components/ChatWindowPlaceholder';
+import { ChatView } from '../../features/chats/components/ChatView';
 
 export default function AppRoutes() {
   return (

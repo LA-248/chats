@@ -10,9 +10,9 @@ import {
 import ChatItem from './ChatItem';
 import useClearErrorMessage from '../../../hooks/useClearErrorMessage';
 import useChatListUpdate from '../hooks/useChatListUpdate';
-import useChatUpdates from '../../conversations/hooks/useChatUpdates';
+import useChatUpdates from '../../chats/hooks/useChatUpdates';
 import useAddGroupToChatList from '../hooks/useAddGroupToChatList';
-import useAddNewPrivateChatToChatList from '../../conversations/hooks/useAddPrivateChat';
+import useAddNewPrivateChatToChatList from '../../chats/hooks/useAddPrivateChat';
 import { useChatDelete } from '../hooks/useChatDelete';
 import { useSocketErrorHandling } from '../../../hooks/useSocketErrorHandling';
 import { markUserAsRead } from '../../../api/group-chat-api';

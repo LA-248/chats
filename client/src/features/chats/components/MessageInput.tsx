@@ -138,7 +138,7 @@ export default function MessageInput() {
           ref={fileInputRef}
           type='file'
           name='media-upload'
-          accept='image/*'
+          accept='image/*,video/*'
           style={{ display: 'none' }}
           onChange={handleUpload}
         ></input>
