@@ -8,9 +8,9 @@ import pg from 'pg';
 import { Group } from '../src/models/group.model.ts';
 import { GroupMember } from '../src/models/group-member.model.ts';
 import { Message } from '../src/models/message.model.ts';
-import { Session } from '../src/models/session.model.ts';
 import { User } from '../src/repositories/user.repository.ts';
 import { PrivateChat } from '../src/repositories/private-chat.repository.ts';
+import { Session } from '../src/repositories/session.repository.ts';
 const { Pool } = pg;
 
 // Initialise a connection pool
@@ -33,7 +33,9 @@ async function createTables(): Promise<void> {
     await Group.createGroupsTable();
     await GroupMember.createGroupMemberTable();
     await Message.createMessagesTable();
-    await Session.createSessionsTable();
+
+    const sessionRepository = new Session();
+    await sessionRepository.createSessionsTable();
   } catch (error) {
     console.error('Error creating table:', error);
   }

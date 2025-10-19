@@ -100,10 +100,12 @@ export const updateProfilePicture = async (
   const userRepository = new User();
 
   // Delete previous profile picture from S3 storage
-  const currentProfilePicture = await userRepository.findUserProfilePictureById(
+  const { profile_picture } = await userRepository.findUserProfilePictureById(
     userId
   );
-  if (!(currentProfilePicture === null)) {
+  const currentProfilePicture = profile_picture;
+
+  if (currentProfilePicture !== null) {
     // Only run if a current profile picture exists
     await deleteS3Object(
       process.env.BUCKET_NAME!,

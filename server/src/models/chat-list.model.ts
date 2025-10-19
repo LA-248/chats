@@ -81,7 +81,7 @@ const Chat = {
             return resolve(chatList);
           } catch (error) {
             return reject(
-              `Error validating chat data: ${
+              `Error validating chat list data: ${
                 error instanceof Error ? error.message : error
               }`
             );

@@ -222,15 +222,6 @@ body {
   margin-top: 10px;
 }
 
-.chat-list-empty-subtext {
-  font-size: 14px;
-  font-weight: 500;
-  text-align: center;
-  color: white;
-  margin-top: 10px;
-  max-width: 300px;
-}
-
 .time-and-notification-container {
   display: flex;
   justify-content: center;
@@ -847,7 +838,7 @@ body {
 
 .added-member-profile-picture {
   height: 30px;
-  width: auto;
+  width: 30px;
   border-radius: 999px;
 }
 

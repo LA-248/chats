@@ -49,20 +49,12 @@ export default function Sidebar() {
             <div className='chat-list-empty-message'>
               You have no active chats
             </div>
-            <div className='chat-list-empty-subtext'>
-              To get started, enter the username of the user you would like to
-              chat with in the input above or create a group chat
-            </div>
           </div>
         )
       ) : (
         <div className='chat-list-empty-container'>
           <div className='chat-list-empty-message'>
             You have no active chats
-          </div>
-          <div className='chat-list-empty-subtext'>
-            To get started, enter the username of the user you would like to
-            chat with in the input above or create a group chat
           </div>
         </div>
       )}

@@ -36,7 +36,7 @@ export const UserIdSchema = z.object({
 export type UserId = z.infer<typeof UserIdSchema>;
 
 export const UserProfilePictureSchema = z.object({
-  profile_picture: z.string(),
+  profile_picture: z.string().nullable(),
 });
 export type UserProfilePicture = z.infer<typeof UserProfilePictureSchema>;
 

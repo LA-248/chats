@@ -137,7 +137,7 @@ export class PrivateChat {
       ChatRoomSchema
     );
 
-    return result.rows[0];
+    return { room: result.rows[0]?.room ?? null };
   };
 
   findAllRoomsByUser = async (userId: number): Promise<ChatRoom[]> => {
