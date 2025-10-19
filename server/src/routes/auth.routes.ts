@@ -1,5 +1,4 @@
 import express from 'express';
-import validateSignUp from '../middlewares/validators.ts';
 import { handleSignUp } from '../controllers/auth/sign-up.controller.ts';
 import { handleUserLogin } from '../controllers/auth/login.controller.ts';
 import { handleLogout } from '../controllers/auth/logout.controller.ts';
@@ -8,7 +7,7 @@ import { checkAuthStatus } from '../controllers/auth/auth-status.controller.ts';
 const authRouter = express.Router();
 
 // Sign up
-authRouter.post('/register/password', validateSignUp(), handleSignUp);
+authRouter.post('/register/password', handleSignUp);
 
 // Login
 authRouter.post('/login/password', handleUserLogin);

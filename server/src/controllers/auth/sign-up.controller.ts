@@ -1,17 +1,23 @@
 import bcrypt from 'bcrypt';
 import { User } from '../../repositories/user.repository.ts';
-import { validationResult } from 'express-validator';
 import { Request, Response } from 'express';
+import { UserCredentialsSchema } from '../../schemas/user.schema.ts';
 
 const handleSignUp = async (req: Request, res: Response): Promise<void> => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    // Send validation errors to the client
-    res.status(400).send({ errors: errors.array() });
+  const parsed = UserCredentialsSchema.safeParse(req.body);
+
+  if (!parsed.success) {
+    const errorMessages = [];
+
+    for (let i = 0; i < parsed.error.issues.length; i++) {
+      errorMessages.push(parsed.error.issues[i].message);
+    }
+
+    res.status(400).json({ error: errorMessages.join(', ') });
     return;
   }
 
-  const { username, password } = req.body;
+  const { username, password } = parsed.data;
 
   try {
     const userRepository = new User();
@@ -25,7 +31,7 @@ const handleSignUp = async (req: Request, res: Response): Promise<void> => {
     }
 
     // Hash user password
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(password, 14);
 
     // Insert new user
     await userRepository.insertUser(username, hashedPassword);
@@ -50,7 +56,7 @@ const handleSignUp = async (req: Request, res: Response): Promise<void> => {
         });
         return;
       }
-      res.status(200).json({ redirectPath: '/' });
+      res.status(201).json({ redirectPath: '/' });
     });
   } catch (error) {
     console.error('Error during sign up:', error);
