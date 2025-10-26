@@ -7,9 +7,9 @@ import {
   UserId,
   UserProfile,
 } from '../schemas/user.schema.ts';
-import { Group } from '../models/group.model.ts';
 import { S3AvatarStoragePath } from '../types/chat.ts';
 import { PrivateChat } from '../repositories/private-chat.repository.ts';
+import { Group } from '../repositories/group.repository.ts';
 
 export const createProfilePictureUrl = async (
   userId: number,
@@ -195,7 +195,8 @@ const updateUserInfoInAllGroups = async (
   newInfo: string,
   socketEvent: string
 ): Promise<void> => {
-  const rooms = await Group.retrieveAllGroupsByUser(userId);
+  const groupRepository = new Group();
+  const rooms = await groupRepository.findAllGroupsByUser(userId);
 
   for (let i = 0; i < rooms.length; i++) {
     const room = rooms[i];

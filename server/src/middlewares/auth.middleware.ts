@@ -1,9 +1,9 @@
 import { NextFunction, Request, Response } from 'express';
 import { GroupMember } from '../models/group-member.model.ts';
-import { Group } from '../models/group.model.ts';
 import { GroupMemberPartialInfo } from '../schemas/group.schema.ts';
 import { GroupMemberRole } from '../types/group.ts';
 import { PrivateChat } from '../repositories/private-chat.repository.ts';
+import { Group } from '../repositories/group.repository.ts';
 
 export const requireAuth = (
   req: Request,
@@ -75,9 +75,12 @@ export const groupChatRoomAuth = async (
   const groupId = Number(req.params.groupId);
 
   try {
+    const groupRepository = new Group();
+
     const room =
-      req.params.room ?? (await Group.retrieveRoomByGroupId(groupId));
+      req.params.room ?? (await groupRepository.findRoomById(groupId));
     const groupChatMembers = await GroupMember.retrieveMembersByRoom(room);
+    
     if (!groupChatMembers) {
       res.status(404).json({
         error: 'Not found',
@@ -119,9 +122,11 @@ export const authoriseGroupOwnerAction = async (
   res: Response,
   next: NextFunction
 ): Promise<void> => {
+  const groupRepository = new Group();
   const loggedInUserId = Number(req.user?.user_id);
   const groupId = Number(req.params.groupId);
-  const room = await Group.retrieveRoomByGroupId(groupId);
+
+  const { room } = await groupRepository.findRoomById(groupId);
 
   try {
     const groupChatMembers: GroupMemberPartialInfo[] | null =
@@ -172,9 +177,11 @@ export const authoriseGroupOwnerOrAdminAction = async (
   res: Response,
   next: NextFunction
 ): Promise<void> => {
+  const groupRepository = new Group();
   const loggedInUserId = Number(req.user?.user_id);
   const groupId = Number(req.params.groupId);
-  const room = await Group.retrieveRoomByGroupId(groupId);
+
+  const { room } = await groupRepository.findRoomById(groupId);
 
   try {
     const groupChatMembers: GroupMemberPartialInfo[] | null =
