@@ -1,14 +1,18 @@
 import { z } from 'zod/v4';
 
-// Schema validations for database operations on the group and group member table
-
-// Group table
-export const InsertGroupChatSchema = z.object({
+export const CreateGroupChatSchema = z.object({
   ownerUserId: z.number().int().positive(),
   name: z.string().min(1).max(50),
   room: z.uuid(),
+  membersToBeAdded: z.array(
+    z.object({
+      username: z.string(),
+      userId: z.number(),
+      role: z.string(),
+    })
+  ),
 });
-export type InsertGroupChat = z.infer<typeof InsertGroupChatSchema>;
+export type CreateGroupChatDTOInput = z.infer<typeof CreateGroupChatSchema>;
 
 export const NewGroupChatSchema = z.object({
   group_id: z.number(),
@@ -32,16 +36,22 @@ export const GroupInfoSchema = z.object({
 });
 export type GroupInfo = z.infer<typeof GroupInfoSchema>;
 
-export const GroupRoomSchema = z.uuid();
+export const GroupRoomSchema = z.object({
+  room: z.uuid(),
+});
 export type GroupRoom = z.infer<typeof GroupRoomSchema>;
 
 export const GroupRoomsSchema = z.array(z.uuid());
 export type GroupRooms = z.infer<typeof GroupRoomsSchema>;
 
-export const GroupPictureSchema = z.string().nullable().or(z.null());
+export const GroupPictureSchema = z.object({
+  group_picture: z.string().nullable().or(z.null()),
+});
 export type GroupPicture = z.infer<typeof GroupPictureSchema>;
 
-export const GroupDeletedForListSchema = z.array(z.number()).nullable();
+export const GroupDeletedForListSchema = z.object({
+  deleted_for: z.array(z.number()).nullable(),
+});
 export type GroupDeletedForList = z.infer<typeof GroupDeletedForListSchema>;
 
 export const GroupUpdatedAtSchema = z.coerce.date();

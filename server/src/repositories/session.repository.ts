@@ -1,4 +1,4 @@
-import { query } from '../utils/databaseQuery.ts';
+import { query } from '../utils/database-query.ts';
 
 interface Database {
   query: typeof query;

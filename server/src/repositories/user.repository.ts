@@ -1,4 +1,4 @@
-import { query } from '../utils/databaseQuery.ts';
+import { query } from '../utils/database-query.ts';
 import {
   UserEntity,
   UserProfile,

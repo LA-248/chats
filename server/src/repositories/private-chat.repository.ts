@@ -14,7 +14,7 @@ import {
   NewChat,
   NewChatSchema,
 } from '../schemas/private-chat.schema.ts';
-import { query } from '../utils/databaseQuery.ts';
+import { query } from '../utils/database-query.ts';
 
 interface Database {
   query: typeof query;

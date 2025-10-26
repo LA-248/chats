@@ -5,7 +5,7 @@ dotenv.config({
 
 import pg from 'pg';
 
-import { Group } from '../src/models/group.model.ts';
+import { Group } from '../src/repositories/group.repository.ts';
 import { GroupMember } from '../src/models/group-member.model.ts';
 import { Message } from '../src/models/message.model.ts';
 import { User } from '../src/repositories/user.repository.ts';
@@ -30,7 +30,9 @@ async function createTables(): Promise<void> {
     const privateChatRepository = new PrivateChat();
     await privateChatRepository.createPrivateChatsTable();
 
-    await Group.createGroupsTable();
+    const groupChatRepository = new Group();
+    await groupChatRepository.createGroupsTable();
+
     await GroupMember.createGroupMemberTable();
     await Message.createMessagesTable();
 
