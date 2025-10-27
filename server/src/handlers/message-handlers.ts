@@ -1,6 +1,4 @@
 import { Socket, Server } from 'socket.io';
-import { Group } from '../models/group.model.ts';
-import { GroupMember } from '../models/group-member.model.ts';
 import { Message } from '../models/message.model.ts';
 import {
   FormattedMessage,
@@ -20,6 +18,8 @@ import {
   isSenderBlocked,
 } from '../middlewares/message.middleware.ts';
 import { PrivateChat } from '../repositories/private-chat.repository.ts';
+import { Group } from '../repositories/group.repository.ts';
+import { GroupMember } from '../repositories/group-member.repository.ts';
 
 export const handleChatMessages = (socket: Socket, io: Server): void => {
   socket.on(
@@ -131,6 +131,7 @@ export const updateMostRecentMessage = (socket: Socket, io: Server): void => {
     const { room, chatType } = data;
     try {
       const privateChatRepository = new PrivateChat();
+      const groupRepository = new Group();
 
       const lastMessageInfo = await Message.retrieveLastMessageInfo(room);
       const isImage = lastMessageInfo?.type === MessageType.IMAGE;
@@ -146,9 +147,10 @@ export const updateMostRecentMessage = (socket: Socket, io: Server): void => {
         ? lastMessageInfo.event_time
         : null;
 
-      const updatedAt = isPrivateChat
+      const { updated_at } = isPrivateChat
         ? await privateChatRepository.findUpdatedAtDate(room)
-        : await Group.retrieveUpdatedAtDate(room);
+        : await groupRepository.findUpdatedAtDate(room);
+      const updatedAt = updated_at;
 
       io.to(room).emit('last-message-updated', {
         room: room,
@@ -244,13 +246,12 @@ const CHAT_HANDLERS: Record<ChatType, ChatHandler> = {
     ): Promise<Date> => {
       try {
         const privateChatRepository = new PrivateChat();
-
         await privateChatRepository.updateUserReadStatus(chatId, false, room);
+
         // After setting the last message, fetch the new updated_at date which is equal to the time at which the message was sent
-        const updatedAt = await privateChatRepository.setLastMessage(
-          newMessageId,
-          room
-        );
+        const { updated_at: updatedAt } =
+          await privateChatRepository.setLastMessage(newMessageId, room);
+
         return updatedAt;
       } catch (error) {
         if (error instanceof Error) {
@@ -266,7 +267,8 @@ const CHAT_HANDLERS: Record<ChatType, ChatHandler> = {
     // Get all members of a group chat, this is then used for an authorisation check in the authoriseChatMessage function
     getMembers: async (room: string): Promise<number[]> => {
       try {
-        const members = await GroupMember.retrieveMembersByRoom(room);
+        const groupMemberRepository = new GroupMember();
+        const members = await groupMemberRepository.findMembersByRoom(room);
         return members ? members.map((member) => member.user_id) : [];
       } catch (error) {
         if (error instanceof Error) {
@@ -284,9 +286,13 @@ const CHAT_HANDLERS: Record<ChatType, ChatHandler> = {
       room: string
     ): Promise<Date> => {
       try {
-        await Group.resetReadByList([senderId], room);
+        const groupRepository = new Group();
+        await groupRepository.setReadBy([senderId], room);
         // After setting the last message, fetch the new updated_at date which is equal to the time at which the message was sent
-        const updatedAt = await Group.setLastMessage(newMessageId, room);
+        const { updated_at: updatedAt } = await groupRepository.setLastMessage(
+          newMessageId,
+          room
+        );
         return updatedAt;
       } catch (error) {
         if (error instanceof Error) {
@@ -371,6 +377,7 @@ const restoreChat = async (
 ): Promise<void> => {
   try {
     const privateChatRepository = new PrivateChat();
+    const groupRepository = new Group();
 
     const isPrivateChat = chatType === ChatType.PRIVATE;
     const isGroupChat = chatType === ChatType.GROUP;
@@ -388,9 +395,11 @@ const restoreChat = async (
         );
       }
     } else if (isGroupChat) {
-      const membersWhoDeletedChat = await Group.retrieveDeletedForList(room);
+      const membersWhoDeletedChat = await groupRepository.findDeletedForList(
+        room
+      );
       if (membersWhoDeletedChat !== null) {
-        await Group.restoreChat(room);
+        await groupRepository.restore(room);
       }
     }
   } catch (error) {

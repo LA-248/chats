@@ -1,5 +1,4 @@
 import { Server } from 'socket.io';
-import { Group } from '../models/group.model.ts';
 import {
   GroupInfoWithMembers,
   GroupMemberInsertionResult,
@@ -14,25 +13,28 @@ import {
 } from './s3.service.ts';
 import { retrieveUserById } from './user.service.ts';
 import { userSockets } from '../handlers/socket-handlers.ts';
-import { GroupMember } from '../models/group-member.model.ts';
 import {
   GroupInfo,
-  GroupMemberPartialInfo,
+  GroupMemberInfo,
   NewGroupChat,
   NewGroupMember,
-  RemovedGroupMember,
 } from '../schemas/group.schema.ts';
 import { AddedUserInfo, GroupMemberToBeAdded } from '../types/group.ts';
 import {
   S3AttachmentsStoragePath,
   S3AvatarStoragePath,
 } from '../types/chat.ts';
+import { Group } from '../repositories/group.repository.ts';
+import { GroupMember } from '../repositories/group-member.repository.ts';
 
 export const retrieveGroupInfoWithMembers = async (
   room: string
 ): Promise<GroupInfoWithMembers> => {
-  const groupInfo = await Group.retrieveGroupInfoByRoom(room);
-  const groupMembersInfo = await retrieveGroupMembersInfo(groupInfo.group_id);
+  const groupRepository = new Group();
+  const groupInfo = await groupRepository.findGroupInfoByRoom(room);
+  const groupMembersInfo = await groupRepository.findMembersInfoById(
+    groupInfo.group_id
+  );
   const groupPictureUrl = groupInfo.group_picture
     ? await createGroupPictureUrl(groupInfo.group_id, groupInfo.group_picture)
     : null;
@@ -41,7 +43,7 @@ export const retrieveGroupInfoWithMembers = async (
     info: {
       chatId: groupInfo.group_id,
       name: groupInfo.name,
-      groupPicture: groupPictureUrl,
+      groupPicture: groupPictureUrl?.group_picture ?? null,
     },
     members: groupMembersInfo,
   };
@@ -50,9 +52,8 @@ export const retrieveGroupInfoWithMembers = async (
 export const retrieveGroupMembersInfo = async (
   groupId: number
 ): Promise<GroupParticipant[]> => {
-  const groupMembersInfo = (await Group.retrieveMembersInfo(
-    groupId
-  )) as GroupParticipant[];
+  const groupRepository = new Group();
+  const groupMembersInfo = await groupRepository.findMembersInfoById(groupId);
 
   // Create a presigned S3 url for each group member's profile picture
   for (let i = 0; i < groupMembersInfo.length; i++) {
@@ -71,7 +72,9 @@ export const retrieveGroupMembersInfo = async (
 export const getMemberUsernames = async (
   groupId: number
 ): Promise<string[]> => {
-  const groupMembersInfo = await Group.retrieveMembersInfo(groupId);
+  const groupRepository = new Group();
+
+  const groupMembersInfo = await groupRepository.findMembersInfoById(groupId);
   return groupMembersInfo.map((member: GroupParticipant) => member.username);
 };
 
@@ -82,7 +85,10 @@ export const createNewGroup = async (
   room: string,
   addedMembers: GroupMemberToBeAdded[]
 ): Promise<GroupMemberInsertionResult[]> => {
-  const newGroupChat: NewGroupChat = await Group.insertNewGroupChat(
+  const groupRepository = new Group();
+  const groupMemberRepository = new GroupMember();
+
+  const newGroupChat: NewGroupChat = await groupRepository.insertNewGroupChat(
     ownerUserId,
     groupName,
     room
@@ -90,7 +96,11 @@ export const createNewGroup = async (
 
   // Add members to the group chat concurrently
   const insertGroupMembers = addedMembers.map((user) =>
-    GroupMember.insertGroupMember(newGroupChat.group_id, user.userId, user.role)
+    groupMemberRepository.insertGroupMember(
+      newGroupChat.group_id,
+      user.userId,
+      user.role
+    )
   );
   const insertedGroupMembers: GroupMemberInsertionResult[] =
     await Promise.allSettled(insertGroupMembers);
@@ -114,11 +124,18 @@ export const addUsersToGroup = async (
   room: string,
   addedMembers: GroupMemberToBeAdded[]
 ): Promise<AddedUserInfo[]> => {
-  const groupInfo = await Group.retrieveGroupInfoByRoom(room);
+  const groupRepository = new Group();
+  const groupMemberRepository = new GroupMember();
+
+  const groupInfo = await groupRepository.findGroupInfoByRoom(room);
 
   // Add members to the group chat
   const insertGroupMembers = addedMembers.map((user) =>
-    GroupMember.insertGroupMember(groupInfo.group_id, user.userId, user.role)
+    groupMemberRepository.insertGroupMember(
+      groupInfo.group_id,
+      user.userId,
+      user.role
+    )
   );
   const insertedGroupMembers = await Promise.all(insertGroupMembers);
 
@@ -132,30 +149,39 @@ export const removeMemberWhoLeft = async (
   userId: number
 ): Promise<{
   room: string;
-  removedUser: RemovedGroupMember;
-  newGroupOwner: GroupMemberPartialInfo;
+  removedUser: Omit<GroupMemberInfo, 'username' | 'profile_picture'>;
+  newGroupOwner: Omit<GroupMemberInfo, 'username' | 'profile_picture'>;
 }> => {
-  const socketId = userSockets.get(userId);
-  let newGroupOwner: GroupMemberPartialInfo = { user_id: 0, role: '' };
+  const groupRepository = new Group();
+  const groupMemberRepository = new GroupMember();
 
-  const room = await Group.retrieveRoomByGroupId(groupId);
-  const removedUser = await GroupMember.removeGroupMember(groupId, userId);
-  await Group.removeUserFromReadList(userId, room);
+  const socketId = userSockets.get(userId);
+  let newGroupOwner: Omit<GroupMemberInfo, 'username' | 'profile_picture'> = {
+    user_id: 0,
+    role: '',
+  };
+
+  const { room } = await groupRepository.findRoomById(groupId);
+  const removedUser = await groupMemberRepository.deleteGroupMember(
+    groupId,
+    userId
+  );
+  await groupRepository.markUnreadByUser(userId, room);
 
   // If the user who left the group was the owner, randomly assign another member as the new owner
   if (removedUser.role === GroupMemberRole.OWNER) {
-    const groupMemberInfo = await GroupMember.retrieveRandomMember(
+    const groupMemberInfo = await groupMemberRepository.findRandomMember(
       room,
       groupId
     );
     const groupMemberUserId = groupMemberInfo.user_id;
 
-    newGroupOwner = await GroupMember.updateRole(
+    newGroupOwner = await groupMemberRepository.updateRole(
       GroupMemberRole.OWNER,
       groupId,
       groupMemberUserId
     );
-    await Group.updateOwner(newGroupOwner.user_id, groupId, room);
+    await groupRepository.updateOwner(newGroupOwner.user_id, groupId, room);
   }
 
   if (socketId) {
@@ -172,15 +198,21 @@ export const kickMember = async (
   groupId: number,
   userId: number,
   loggedInUserId: number
-): Promise<{ room: string; removedUser: RemovedGroupMember }> => {
+): Promise<{
+  room: string;
+  removedUser: Omit<GroupMemberInfo, 'username' | 'profile_picture'>;
+}> => {
+  const groupRepository = new Group();
+  const groupMemberRepository = new GroupMember();
   const socketId = userSockets.get(userId);
-  const room = await Group.retrieveRoomByGroupId(groupId);
-  const kicker = await GroupMember.retrieveMemberByUserId(
+
+  const { room } = await groupRepository.findRoomById(groupId);
+  const kicker = await groupMemberRepository.findMemberByUserId(
     room,
     groupId,
     loggedInUserId
   );
-  const memberToBeRemoved = await GroupMember.retrieveMemberByUserId(
+  const memberToBeRemoved = await groupMemberRepository.findMemberByUserId(
     room,
     groupId,
     userId
@@ -194,8 +226,11 @@ export const kickMember = async (
     throw new Error('You may not kick this member');
   }
 
-  const removedUser = await GroupMember.removeGroupMember(groupId, userId);
-  await Group.removeUserFromReadList(userId, room);
+  const removedUser = await groupMemberRepository.deleteGroupMember(
+    groupId,
+    userId
+  );
+  await groupRepository.markUnreadByUser(userId, room);
 
   // Remove socket of removed member from the room
   if (socketId) {
@@ -210,9 +245,19 @@ export const updateMemberRole = async (
   newRole: string,
   groupId: number,
   userId: number
-): Promise<{ room: string; newAdmin: GroupMemberPartialInfo }> => {
-  const room = await Group.retrieveRoomByGroupId(groupId);
-  const newAdmin = await GroupMember.updateRole(newRole, groupId, userId);
+): Promise<{
+  room: string;
+  newAdmin: Omit<GroupMemberInfo, 'username' | 'profile_picture'>;
+}> => {
+  const groupRepository = new Group();
+  const groupMemberRepository = new GroupMember();
+
+  const { room } = await groupRepository.findRoomById(groupId);
+  const newAdmin = await groupMemberRepository.updateRole(
+    newRole,
+    groupId,
+    userId
+  );
 
   return { room, newAdmin };
 };
@@ -220,12 +265,14 @@ export const updateMemberRole = async (
 export const permanentlyDeleteGroupChat = async (
   groupId: number
 ): Promise<{ room: string; memberSocketIds: string[] }> => {
-  const membersInfo = await Group.retrieveMembersInfo(groupId);
+  const groupRepository = new Group();
+
+  const membersInfo = await groupRepository.findMembersInfoById(groupId);
   const memberUserIds = membersInfo.map((member) => member.user_id);
-  const room = await Group.retrieveRoomByGroupId(groupId);
+  const { room } = await groupRepository.findRoomById(groupId);
   const memberSocketIds = [];
 
-  const groupAvatar = await Group.retrievePicture(groupId);
+  const groupAvatar = await groupRepository.findPictureById(groupId);
   const avatarObjectKey = `${S3AvatarStoragePath.GROUP_AVATARS}/${groupId}/${groupAvatar}`;
   const directoryPrefix = `${S3AttachmentsStoragePath.CHAT_ATTACHMENTS}/group/${groupId}`;
 
@@ -242,7 +289,7 @@ export const permanentlyDeleteGroupChat = async (
     await deleteS3Object(process.env.BUCKET_NAME!, avatarObjectKey);
   }
   await deleteS3Directory(process.env.BUCKET_NAME!, directoryPrefix);
-  await Group.permanentlyDelete(groupId);
+  await groupRepository.deleteById(groupId);
 
   return { room, memberSocketIds };
 };
@@ -252,8 +299,10 @@ export const uploadGroupPicture = async (
   file: Express.MulterS3.File,
   io: Server
 ): Promise<string> => {
-  const fileName = await Group.retrievePicture(groupId);
-  const room = await Group.retrieveRoomByGroupId(groupId);
+  const groupRepository = new Group();
+
+  const fileName = await groupRepository.findPictureById(groupId);
+  const { room } = await groupRepository.findRoomById(groupId);
 
   // Delete previous picture from S3 storage
   if (!(fileName === null)) {
@@ -265,7 +314,7 @@ export const uploadGroupPicture = async (
   }
 
   // Upload new picture
-  await Group.updatePicture(file.originalname, groupId);
+  await groupRepository.updatePicture(file.originalname, groupId);
 
   // Generate a temporary URL for viewing the uploaded picture from S3
   const presignedS3Url = await createPresignedUrl(
@@ -282,7 +331,8 @@ export const addUserToReadList = async (
   userId: number,
   room: string
 ): Promise<void> => {
-  return await Group.markUserAsRead(userId, room);
+  const groupRepository = new Group();
+  return await groupRepository.markReadByUser(userId, room);
 };
 
 // Update the last message in a group chat, used when the most recent message is deleted
@@ -290,14 +340,19 @@ export const updateLastGroupMessage = async (
   newLastMessageId: number,
   room: string
 ): Promise<void | null> => {
-  return await Group.updateLastMessage(newLastMessageId, room);
+  const groupRepository = new Group();
+  return await groupRepository.updateLastMessageEventTime(
+    newLastMessageId,
+    room
+  );
 };
 
 export const markGroupAsDeleted = async (
   userId: number,
   room: string
 ): Promise<void> => {
-  return await Group.updateDeletedForList(userId, room);
+  const groupRepository = new Group();
+  return await groupRepository.updateDeletedForList(userId, room);
 };
 
 // Update the picture of a group for all its members in real-time
