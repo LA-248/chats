@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { Socket } from 'socket.io-client';
-import type { GroupMember, GroupMemberPartialInfo } from '../../../types/group';
+import type { GroupMember } from '../../../types/group';
 
 export default function useMembersListUpdate(
   socket: Socket | null,
@@ -24,7 +24,7 @@ export default function useMembersListUpdate(
     };
 
     const handleNewGroupOwnerAssignment = (data: {
-      newGroupOwner: GroupMemberPartialInfo;
+      newGroupOwner: Omit<GroupMember, 'username' | 'profile_picture'>;
     }) => {
       setMembersList((prevMembersList) =>
         prevMembersList.map((member) => {
@@ -38,7 +38,7 @@ export default function useMembersListUpdate(
     };
 
     const handleAdminAssignment = (data: {
-      newAdmin: GroupMemberPartialInfo;
+      newAdmin: Omit<GroupMember, 'username' | 'profile_picture'>;
     }) => {
       setMembersList((prevMembersList) =>
         prevMembersList.map((member) => {

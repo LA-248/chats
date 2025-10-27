@@ -11,7 +11,7 @@ export class Session {
     this.db = db;
   }
 
-  createSessionsTable = async () => {
+  createSessionsTable = async (): Promise<void> => {
     await this.db.query(
       `
       CREATE TABLE IF NOT EXISTS sessions (

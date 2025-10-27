@@ -196,7 +196,10 @@ export class PrivateChat {
 
   // UPDATE OPERATIONS
 
-  setLastMessage = async (messageId: number, room: string): Promise<Date> => {
+  setLastMessage = async (
+    messageId: number,
+    room: string
+  ): Promise<ChatUpdatedAt> => {
     const result = await this.db.query(
       `
       UPDATE private_chats
@@ -206,10 +209,11 @@ export class PrivateChat {
       WHERE room = $2
       RETURNING updated_at
       `,
-      [messageId, room]
+      [messageId, room],
+      ChatUpdatedAtSchema
     );
 
-    return result.rows[0].updated_at;
+    return result.rows[0];
   };
 
   // Handle updating last message after most recent message is deleted

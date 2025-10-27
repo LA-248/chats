@@ -32,11 +32,6 @@ export interface GroupMemberToRemove {
   role: string;
 }
 
-export interface GroupMemberPartialInfo {
-  user_id: number;
-  role: string;
-}
-
 export enum GroupMemberRole {
   OWNER = 'owner',
   ADMIN = 'admin',

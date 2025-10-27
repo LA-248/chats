@@ -1,11 +1,19 @@
 import {
+  GroupDeletedForList,
   GroupDeletedForListSchema,
+  GroupInfo,
   GroupInfoSchema,
+  GroupMemberInfo,
   GroupMemberInfoSchema,
+  GroupPicture,
   GroupPictureSchema,
+  GroupRoom,
+  GroupRooms,
   GroupRoomSchema,
   GroupRoomsSchema,
+  GroupUpdatedAt,
   GroupUpdatedAtSchema,
+  NewGroupChat,
   NewGroupChatSchema,
 } from '../schemas/group.schema.ts';
 import { query } from '../utils/database-query.ts';
@@ -47,7 +55,7 @@ export class Group {
     ownerUserId: number,
     name: string,
     room: string
-  ) => {
+  ): Promise<NewGroupChat> => {
     const result = await this.db.query(
       `
         INSERT INTO groups (owner_user_id, name, room)
@@ -63,7 +71,7 @@ export class Group {
 
   // READ OPERATIONS
 
-  findMembersInfoById = async (groupId: number) => {
+  findMembersInfoById = async (groupId: number): Promise<GroupMemberInfo[]> => {
     const result = await this.db.query(
       `
       SELECT
@@ -79,10 +87,10 @@ export class Group {
       GroupMemberInfoSchema
     );
 
-    return result.rows[0];
+    return result.rows;
   };
 
-  findGroupInfoByRoom = async (room: string) => {
+  findGroupInfoByRoom = async (room: string): Promise<GroupInfo> => {
     const result = await this.db.query(
       'SELECT group_id, name, group_picture FROM groups WHERE room = $1',
       [room],
@@ -92,7 +100,7 @@ export class Group {
     return result.rows[0];
   };
 
-  findRoomById = async (groupId: number) => {
+  findRoomById = async (groupId: number): Promise<GroupRoom> => {
     const result = await this.db.query(
       'SELECT room FROM groups WHERE group_id = $1',
       [groupId],
@@ -102,27 +110,27 @@ export class Group {
     return result.rows[0];
   };
 
-  findPictureById = async (groupId: number) => {
+  findPictureById = async (groupId: number): Promise<GroupPicture> => {
     const result = await this.db.query(
       'SELECT group_picture FROM groups WHERE group_id = $1',
       [groupId],
       GroupPictureSchema
     );
 
-    return { room: result.rows[0]?.group_picture ?? null };
+    return { group_picture: result.rows[0]?.group_picture ?? null };
   };
 
-  findDeletedForList = async (room: string) => {
+  findDeletedForList = async (room: string): Promise<GroupDeletedForList> => {
     const result = await this.db.query(
       'SELECT deleted_for FROM groups WHERE room = $1',
       [room],
       GroupDeletedForListSchema
     );
 
-    return { room: result.rows[0]?.deleted_for ?? null };
+    return { deleted_for: result.rows[0]?.deleted_for ?? null };
   };
 
-  findUpdatedAtDate = async (room: string) => {
+  findUpdatedAtDate = async (room: string): Promise<GroupUpdatedAt> => {
     const result = await this.db.query(
       'SELECT updated_at FROM groups WHERE room = $1',
       [room],
@@ -132,7 +140,7 @@ export class Group {
     return result.rows[0];
   };
 
-  findAllGroupsByUser = async (userId: number) => {
+  findAllGroupsByUser = async (userId: number): Promise<GroupRooms> => {
     const result = await this.db.query(
       `
       SELECT g.room
@@ -156,7 +164,10 @@ export class Group {
     );
   };
 
-  setLastMessage = async (messageId: number, room: string) => {
+  setLastMessage = async (
+    messageId: number,
+    room: string
+  ): Promise<GroupUpdatedAt> => {
     const result = await this.db.query(
       `
       UPDATE groups
@@ -166,13 +177,17 @@ export class Group {
       WHERE room = $2
       RETURNING updated_at
       `,
-      [messageId, room]
+      [messageId, room],
+      GroupUpdatedAtSchema
     );
 
     return result.rows[0];
   };
 
-  updateLastMessageEventTime = async (messageId: number, room: string) => {
+  updateLastMessageEventTime = async (
+    messageId: number,
+    room: string
+  ): Promise<void> => {
     await this.db.query(
       `
       UPDATE groups
@@ -188,7 +203,7 @@ export class Group {
     );
   };
 
-  markReadByUser = async (userId: number, room: string) => {
+  markReadByUser = async (userId: number, room: string): Promise<void> => {
     await this.db.query(
       `
       UPDATE groups
@@ -199,7 +214,7 @@ export class Group {
     );
   };
 
-  markUnreadByUser = async (userId: number, room: string) => {
+  markUnreadByUser = async (userId: number, room: string): Promise<void> => {
     await this.db.query(
       `
       UPDATE groups
@@ -210,7 +225,7 @@ export class Group {
     );
   };
 
-  setReadBy = async (userId: number[], room: string) => {
+  setReadBy = async (userId: number[], room: string): Promise<void> => {
     await this.db.query(
       `
       UPDATE groups
@@ -221,7 +236,10 @@ export class Group {
     );
   };
 
-  updateDeletedForList = async (userId: number, room: string) => {
+  updateDeletedForList = async (
+    userId: number,
+    room: string
+  ): Promise<void> => {
     await this.db.query(
       `
       UPDATE groups
@@ -232,7 +250,7 @@ export class Group {
     );
   };
 
-  restore = async (room: string) => {
+  restore = async (room: string): Promise<void> => {
     await this.db.query(
       `
       UPDATE groups
@@ -243,7 +261,11 @@ export class Group {
     );
   };
 
-  updateOwner = async (userId: number, groupId: number, room: string) => {
+  updateOwner = async (
+    userId: number,
+    groupId: number,
+    room: string
+  ): Promise<void> => {
     await this.db.query(
       `
       UPDATE groups
@@ -256,7 +278,7 @@ export class Group {
 
   // DELETE OPERATIONS
 
-  deleteById = async (groupId: number) => {
+  deleteById = async (groupId: number): Promise<void> => {
     await this.db.query('DELETE FROM groups WHERE group_id = $1', [groupId]);
   };
 }
