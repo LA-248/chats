@@ -27,14 +27,14 @@ import {
 import { Group } from '../repositories/group.repository.ts';
 import { GroupMember } from '../repositories/group-member.repository.ts';
 
+// TODO: Rename this function, it's confusing
 export const retrieveGroupInfoWithMembers = async (
   room: string
 ): Promise<GroupInfoWithMembers> => {
   const groupRepository = new Group();
   const groupInfo = await groupRepository.findGroupInfoByRoom(room);
-  const groupMembersInfo = await groupRepository.findMembersInfoById(
-    groupInfo.group_id
-  );
+  const groupMembersInfo = await retrieveGroupMembersInfo(groupInfo.group_id);
+
   const groupPictureUrl = groupInfo.group_picture
     ? await createGroupPictureUrl(groupInfo.group_id, groupInfo.group_picture)
     : null;
