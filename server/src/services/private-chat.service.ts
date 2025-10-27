@@ -1,5 +1,4 @@
 import { Server, Socket } from 'socket.io';
-import { Chat } from '../models/chat-list.model.ts';
 import { v4 as uuidv4 } from 'uuid';
 import {
   createPresignedUrl,
@@ -12,6 +11,7 @@ import {
 import { userSockets } from '../handlers/socket-handlers.ts';
 import { S3AvatarStoragePath } from '../types/chat.ts';
 import { PrivateChat } from '../repositories/private-chat.repository.ts';
+import { ChatList } from '../repositories/chat-list.repository.ts';
 
 export const handleChatAddition = async (
   socket: Socket,
@@ -125,7 +125,8 @@ export const addNewPrivateChat = async (
 export const getChatListByUser = async (
   userId: number
 ): Promise<ChatItem[]> => {
-  const chatList = await Chat.retrieveAllChatsByUser(userId);
+  const ChatListRepository = new ChatList();
+  const chatList = await ChatListRepository.findAllChatsByUser(userId);
   await generatePresignedUrlsForChatList(chatList);
   return chatList;
 };

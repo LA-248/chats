@@ -1,13 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Socket } from 'socket.io';
-import { Chat } from '../models/chat-list.model.ts';
+import { ChatList } from '../repositories/chat-list.repository.ts';
 import '../types/socket.d.ts';
 
 async function initialiseChatRooms(socket: Socket) {
+  const ChatListRepository = new ChatList();
   const joinedRooms: string[] = [];
 
   const userId = (socket.handshake as any).session.passport.user;
-  const chatList = await Chat.retrieveAllChatsByUser(userId);
+  const chatList = await ChatListRepository.findAllChatsByUser(userId);
 
   for (let i = 0; i < chatList.length; i++) {
     const room = chatList[i].room;
