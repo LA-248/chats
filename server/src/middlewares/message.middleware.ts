@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from 'express';
-import { Message } from '../models/message.model.ts';
 import { MessageType } from '../types/message.ts';
 import { User } from '../repositories/user.repository.ts';
 import { ChatHandler } from '../types/chat.ts';
+import { Message } from '../repositories/message.repository.ts';
 
 // Prevent users from sending messages to chat rooms they are not a part of
 // This check is needed because messages do not go through the existing auth middleware since they are handled via sockets and not HTTP routes
@@ -25,7 +25,8 @@ export const enforceMessageEditRules = async (
   const messageId = Number(req.params.messageId);
 
   try {
-    const messageType = await Message.retrieveMessageType(messageId);
+    const messageRepository = new Message();
+    const messageType = await messageRepository.findMessageType(messageId);
 
     if (messageType === MessageType.IMAGE) {
       res.status(409).json({

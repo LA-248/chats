@@ -1,5 +1,4 @@
 import { Socket, Server } from 'socket.io';
-import { Message } from '../models/message.model.ts';
 import {
   FormattedMessage,
   Message as MessageStructure,
@@ -20,6 +19,7 @@ import {
 import { PrivateChat } from '../repositories/private-chat.repository.ts';
 import { Group } from '../repositories/group.repository.ts';
 import { GroupMember } from '../repositories/group-member.repository.ts';
+import { Message } from '../repositories/message.repository.ts';
 
 export const handleChatMessages = (socket: Socket, io: Server): void => {
   socket.on(
@@ -101,8 +101,10 @@ export const displayChatMessages = async (
 ): Promise<void> => {
   if (!socket.recovered) {
     try {
+      const messageRepository = new Message();
+
       // Get messages from database for display, filtered by room
-      const messages = await Message.retrieveMessageList(
+      const messages = await messageRepository.findMessageList(
         socket.handshake.auth.serverOffset,
         room
       );
@@ -130,10 +132,11 @@ export const updateMostRecentMessage = (socket: Socket, io: Server): void => {
   socket.on('last-message-updated', async (data) => {
     const { room, chatType } = data;
     try {
+      const messageRepository = new Message();
       const privateChatRepository = new PrivateChat();
       const groupRepository = new Group();
 
-      const lastMessageInfo = await Message.retrieveLastMessageInfo(room);
+      const lastMessageInfo = await messageRepository.findLastMessageInfo(room);
       const isImage = lastMessageInfo?.type === MessageType.IMAGE;
       const isPrivateChat = chatType === ChatType.PRIVATE;
 
@@ -173,7 +176,9 @@ export const updateMostRecentMessage = (socket: Socket, io: Server): void => {
 export const updateMessageList = (socket: Socket, io: Server): void => {
   socket.on('message-list-update-event', async (room, updateType) => {
     try {
-      const messages = await Message.retrieveMessageList(
+      const messageRepository = new Message();
+
+      const messages = await messageRepository.findMessageList(
         socket.handshake.auth.serverOffset,
         room
       );
@@ -318,13 +323,14 @@ const saveMessageInDatabase = async (
   let newMessage: NewMessage | undefined;
 
   try {
+    const messageRepository = new Message();
     const chatHandler = CHAT_HANDLERS[chatType];
     const isPrivateChat = chatType === ChatType.PRIVATE;
     const isGroupChat = chatType === ChatType.GROUP;
 
     await authoriseChatMessage(chatHandler, room, senderId);
 
-    newMessage = await Message.insertNewMessage(
+    newMessage = await messageRepository.insertNewMessage(
       message,
       senderId,
       // Terrible hack to get past the foreign key constraint in the messages table
@@ -352,7 +358,8 @@ const saveMessageInDatabase = async (
   } catch (error) {
     // TODO: Use database transactions instead of manually deleting inserted messages when an error occurs
     if (newMessage) {
-      await Message.deleteMessageById(senderId, newMessage.id);
+      const messageRepository = new Message();
+      await messageRepository.deleteMessage(senderId, newMessage.id);
     }
     if (error instanceof Error) {
       if (

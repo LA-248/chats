@@ -80,6 +80,7 @@ export const groupChatRoomAuth = async (
 
     const room =
       req.params.room ?? (await groupRepository.findRoomById(groupId));
+
     const groupChatMembers = await groupMemberRepository.findMembersByRoom(
       room
     );
@@ -136,6 +137,7 @@ export const authoriseGroupOwnerAction = async (
     const groupChatMembers:
       | Omit<GroupMemberInfo, 'username' | 'profile_picture'>[]
       | null = await groupMemberRepository.findMembersByRoom(room);
+
     if (!groupChatMembers) {
       res.status(404).json({
         error: 'Not found',
@@ -193,6 +195,7 @@ export const authoriseGroupOwnerOrAdminAction = async (
     const groupChatMembers:
       | Omit<GroupMemberInfo, 'username' | 'profile_picture'>[]
       | null = await groupMemberRepository.findMembersByRoom(room);
+
     if (!groupChatMembers) {
       res.status(404).json({
         error: 'Not found',
