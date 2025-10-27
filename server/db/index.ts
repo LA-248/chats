@@ -7,7 +7,7 @@ import pg from 'pg';
 
 import { Group } from '../src/repositories/group.repository.ts';
 import { GroupMember } from '../src/repositories/group-member.repository.ts';
-import { Message } from '../src/models/message.model.ts';
+import { Message } from '../src/repositories/message.repository.ts';
 import { User } from '../src/repositories/user.repository.ts';
 import { PrivateChat } from '../src/repositories/private-chat.repository.ts';
 import { Session } from '../src/repositories/session.repository.ts';
@@ -36,7 +36,8 @@ async function createTables(): Promise<void> {
     const groupMemberRepository = new GroupMember();
     await groupMemberRepository.createGroupMemberTable();
 
-    await Message.createMessagesTable();
+    const messageRepository = new Message();
+    await messageRepository.createMessagesTable();
 
     const sessionRepository = new Session();
     await sessionRepository.createSessionsTable();
