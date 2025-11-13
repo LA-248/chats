@@ -349,7 +349,7 @@ const saveMessageInDatabase = async (
     // whereas the last_message_time can be null if no messages exist in a chat
     const updatedAt = await chatHandler.postInsert(
       senderId,
-      newMessage.id,
+      newMessage.message_id,
       chatId,
       room
     );
@@ -359,7 +359,7 @@ const saveMessageInDatabase = async (
     // TODO: Use database transactions instead of manually deleting inserted messages when an error occurs
     if (newMessage) {
       const messageRepository = new Message();
-      await messageRepository.deleteMessage(senderId, newMessage.id);
+      await messageRepository.deleteMessage(senderId, newMessage.message_id);
     }
     if (error instanceof Error) {
       if (
@@ -432,7 +432,7 @@ const broadcastMessage = (
     content: content,
     room: room,
     eventTime: newMessage.event_time,
-    id: newMessage.id,
+    id: newMessage.message_id,
     senderId: senderId,
     chatType: chatType,
     type: type,

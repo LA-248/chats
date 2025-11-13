@@ -11,7 +11,7 @@ export const InsertMessageSchema = z.object({
 export type InsertMessage = z.infer<typeof InsertMessageSchema>;
 
 export const NewMessageSchema = z.object({
-  id: z.number(),
+  message_id: z.number(),
   event_time: z.coerce.date(),
   type: z.string(),
 });
