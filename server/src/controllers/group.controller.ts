@@ -15,11 +15,13 @@ import {
   uploadGroupPicture,
 } from '../services/group.service.ts';
 import { createNewGroup } from '../services/group.service.ts';
-import {
-  GroupMemberInsertionResult,
-  GroupMemberToBeAdded,
-} from '../types/group.js';
+import { GroupMemberInsertionResult } from '../types/group.js';
 import { userSockets } from '../handlers/socket-handlers.ts';
+import {
+  CreateGroupChatDtoInput,
+  CreateGroupChatSchema,
+  NewGroupChat,
+} from '../schemas/group.schema.ts';
 
 // Handle creating a group chat
 export const createGroupChat = async (
@@ -28,16 +30,34 @@ export const createGroupChat = async (
 ): Promise<void> => {
   try {
     const io: Server = req.app.get('io');
-    const ownerUserId: number = req.body.loggedInUserId;
-    const groupName: string = req.body.groupName;
-    const room: string = uuidv4();
-    const addedMembers: GroupMemberToBeAdded[] = req.body.addedMembers;
-    const failedInsertions: GroupMemberInsertionResult[] = await createNewGroup(
+    const body: CreateGroupChatDtoInput = {
+      ownerUserId: req.body.loggedInUserId,
+      name: req.body.groupName,
+      room: uuidv4(),
+      membersToBeAdded: req.body.addedMembers,
+    };
+
+    const parsed = CreateGroupChatSchema.safeParse(body);
+    if (!parsed.success) {
+      console.error('Error creating group chat:', parsed.error);
+      res
+        .status(400)
+        .json({ error: 'Error creating group chat. Please try again.' });
+      return;
+    }
+
+    const {
+      newGroupChat,
+      failedInsertions,
+    }: {
+      newGroupChat: NewGroupChat;
+      failedInsertions: GroupMemberInsertionResult[];
+    } = await createNewGroup(
       io,
-      ownerUserId,
-      groupName,
-      room,
-      addedMembers
+      parsed.data.ownerUserId,
+      parsed.data.name,
+      parsed.data.room,
+      parsed.data.membersToBeAdded
     );
 
     // Handle partial success or full success
@@ -50,9 +70,7 @@ export const createGroupChat = async (
       });
     }
 
-    res.status(200).json({
-      message: 'Group created',
-    });
+    res.status(200).json(newGroupChat);
   } catch (error) {
     console.error('Error creating group chat:', error);
     res

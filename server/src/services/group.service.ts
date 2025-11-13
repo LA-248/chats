@@ -84,7 +84,10 @@ export const createNewGroup = async (
   groupName: string,
   room: string,
   addedMembers: GroupMemberToBeAdded[]
-): Promise<GroupMemberInsertionResult[]> => {
+): Promise<{
+  newGroupChat: NewGroupChat;
+  failedInsertions: GroupMemberInsertionResult[];
+}> => {
   const groupRepository = new Group();
   const groupMemberRepository = new GroupMember();
 
@@ -116,7 +119,7 @@ export const createNewGroup = async (
 
   broadcastGroupCreation(io, insertedGroupMembers, newGroupChat);
 
-  return failedInsertions;
+  return { newGroupChat, failedInsertions };
 };
 
 export const addUsersToGroup = async (

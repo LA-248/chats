@@ -12,12 +12,13 @@ export const CreateGroupChatSchema = z.object({
     })
   ),
 });
-export type CreateGroupChatDTOInput = z.infer<typeof CreateGroupChatSchema>;
+export type CreateGroupChatDtoInput = z.infer<typeof CreateGroupChatSchema>;
 
 export const NewGroupChatSchema = z.object({
   group_id: z.number(),
   room: z.uuid(),
   name: z.string(),
+  created_at: z.date(),
 });
 export type NewGroupChat = z.infer<typeof NewGroupChatSchema>;
 
