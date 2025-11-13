@@ -49,8 +49,6 @@ export class Group {
     );
   };
 
-  // INSERT OPERATIONS
-
   insertNewGroupChat = async (
     ownerUserId: number,
     name: string,
@@ -60,7 +58,7 @@ export class Group {
       `
         INSERT INTO groups (owner_user_id, name, room)
         VALUES ($1, $2, $3)
-        RETURNING group_id, room, name
+        RETURNING group_id, room, name, created_at
       `,
       [ownerUserId, name, room],
       NewGroupChatSchema
@@ -68,8 +66,6 @@ export class Group {
 
     return result.rows[0];
   };
-
-  // READ OPERATIONS
 
   findMembersInfoById = async (groupId: number): Promise<GroupMemberInfo[]> => {
     const result = await this.db.query(
@@ -154,8 +150,6 @@ export class Group {
 
     return result.rows[0];
   };
-
-  // UPDATE OPERATIONS
 
   updatePicture = async (fileName: string, groupId: number) => {
     await this.db.query(
@@ -275,8 +269,6 @@ export class Group {
       [userId, groupId, room]
     );
   };
-
-  // DELETE OPERATIONS
 
   deleteById = async (groupId: number): Promise<void> => {
     await this.db.query('DELETE FROM groups WHERE group_id = $1', [groupId]);

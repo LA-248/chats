@@ -49,8 +49,6 @@ export class PrivateChat {
     );
   };
 
-  // INSERT OPERATIONS
-
   insertNewChat = async (
     user1Id: number,
     user2Id: number,
@@ -68,8 +66,6 @@ export class PrivateChat {
 
     return result.rows[0];
   };
-
-  // READ OPERATIONS
 
   findChat = async (userId: number, room: string): Promise<Chat> => {
     const result = await this.db.query(
@@ -194,7 +190,6 @@ export class PrivateChat {
     return result.rows[0];
   };
 
-  // UPDATE OPERATIONS
 
   setLastMessage = async (
     messageId: number,

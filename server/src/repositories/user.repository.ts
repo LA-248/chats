@@ -38,8 +38,6 @@ export class User {
     );
   };
 
-  // INSERT OPERATIONS
-
   insertUser = async (
     username: string,
     hashedPassword: string
@@ -49,8 +47,6 @@ export class User {
       [username, hashedPassword]
     );
   };
-
-  // READ OPERATIONS
 
   findUserById = async (userId: number): Promise<UserProfile> => {
     const result = await this.db.query<UserProfile>(
@@ -128,8 +124,6 @@ export class User {
 
     return result.rows[0];
   };
-
-  // UPDATE OPERATIONS
 
   updateUsernameById = async (
     username: string,
