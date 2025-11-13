@@ -78,8 +78,10 @@ export const groupChatRoomAuth = async (
     const groupRepository = new Group();
     const groupMemberRepository = new GroupMember();
 
-    const room =
-      req.params.room ?? (await groupRepository.findRoomById(groupId));
+    let room = req.params.room;
+    if (!room) {
+      ({ room } = await groupRepository.findRoomById(groupId));
+    }
 
     const groupChatMembers = await groupMemberRepository.findMembersByRoom(
       room
