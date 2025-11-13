@@ -118,12 +118,8 @@ export default function CreateGroupChatModal({
         throw new Error('You must add at least one member to your group');
       }
 
-      const response = await createGroupChat(
-        loggedInUserId,
-        groupName,
-        addedMembers
-      );
-      toast.success(response);
+      await createGroupChat(loggedInUserId, groupName, addedMembers);
+      toast.success('Group chat created');
       setGroupName('');
       setAddedMembers([
         {
