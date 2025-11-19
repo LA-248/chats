@@ -12,7 +12,7 @@ export const CreateGroupChatSchema = z.object({
     })
   ),
 });
-export type CreateGroupChatDtoInput = z.infer<typeof CreateGroupChatSchema>;
+export type CreateGroupChatInputDto = z.infer<typeof CreateGroupChatSchema>;
 
 export const NewGroupChatSchema = z.object({
   group_id: z.number(),

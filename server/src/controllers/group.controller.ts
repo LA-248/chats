@@ -1,27 +1,27 @@
 import { Request, Response } from 'express';
 import { Server } from 'socket.io';
 import { v4 as uuidv4 } from 'uuid';
-import {
-  addUsersToGroup,
-  addUserToReadList,
-  getMemberUsernames,
-  updateMemberRole,
-  markGroupAsDeleted,
-  permanentlyDeleteGroupChat,
-  kickMember,
-  removeMemberWhoLeft,
-  retrieveGroupInfoWithMembers,
-  updateLastGroupMessage,
-  uploadGroupPicture,
-} from '../services/group.service.ts';
-import { createNewGroup } from '../services/group.service.ts';
-import { GroupMemberInsertionResult } from '../types/group.js';
 import { userSockets } from '../handlers/socket-handlers.ts';
 import {
-  CreateGroupChatDtoInput,
+  CreateGroupChatInputDto,
   CreateGroupChatSchema,
   NewGroupChat,
 } from '../schemas/group.schema.ts';
+import {
+  addUsersToGroup,
+  addUserToReadList,
+  createNewGroup,
+  getMemberUsernames,
+  kickMember,
+  markGroupAsDeleted,
+  permanentlyDeleteGroupChat,
+  removeMemberWhoLeft,
+  retrieveGroupInfoWithMembers,
+  updateLastGroupMessage,
+  updateMemberRole,
+  uploadGroupPicture,
+} from '../services/group.service.ts';
+import { GroupMemberInsertionResult } from '../types/group.js';
 
 // Handle creating a group chat
 export const createGroupChat = async (
@@ -30,7 +30,7 @@ export const createGroupChat = async (
 ): Promise<void> => {
   try {
     const io: Server = req.app.get('io');
-    const body: CreateGroupChatDtoInput = {
+    const body: CreateGroupChatInputDto = {
       ownerUserId: req.body.loggedInUserId,
       name: req.body.groupName,
       room: uuidv4(),
