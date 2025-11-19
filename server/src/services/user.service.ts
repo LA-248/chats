@@ -1,6 +1,7 @@
 import { Server } from 'socket.io';
+import { Group } from '../repositories/group.repository.ts';
+import { PrivateChat } from '../repositories/private-chat.repository.ts';
 import { User } from '../repositories/user.repository.ts';
-import { createPresignedUrl, deleteS3Object } from './s3.service.ts';
 import {
   RecipientUserProfile,
   UserBlockList,
@@ -8,8 +9,7 @@ import {
   UserProfile,
 } from '../schemas/user.schema.ts';
 import { S3AvatarStoragePath } from '../types/chat.ts';
-import { PrivateChat } from '../repositories/private-chat.repository.ts';
-import { Group } from '../repositories/group.repository.ts';
+import { createPresignedUrl, deleteS3Object } from './s3.service.ts';
 
 export const createProfilePictureUrl = async (
   userId: number,
@@ -51,6 +51,15 @@ export const retrieveUserById = async (id: number): Promise<UserProfile> => {
   try {
     const userRepository = new User();
     const user = await userRepository.findUserById(id);
+    if (!user) {
+      console.log(
+        'User does not exist. Make sure that the username is correct.'
+      );
+      throw new Error(
+        'User does not exist. Make sure that the username is correct.'
+      );
+    }
+
     const userId = user.user_id;
     const username = user.username;
 
@@ -70,9 +79,18 @@ export const retrieveUserById = async (id: number): Promise<UserProfile> => {
 
 export const retrieveUserIdByUsername = async (
   username: string
-): Promise<UserId | null> => {
+): Promise<UserId> => {
   const userRepository = new User();
-  return await userRepository.findUserIdByUsername(username);
+  const userId = await userRepository.findUserIdByUsername(username);
+
+  if (!userId) {
+    console.log('User does not exist. Make sure that the username is correct.');
+    throw new Error(
+      'User does not exist. Make sure that the username is correct.'
+    );
+  }
+
+  return userId;
 };
 
 export const retrieveProfilePicture = async (userId: number) => {

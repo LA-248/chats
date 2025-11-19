@@ -1,13 +1,15 @@
-import { z } from 'zod';
+import { z } from 'zod/v4';
+
+export const UsernameSchema = z
+  .string()
+  .min(2, { message: 'Username must be between 2 and 30 characters' })
+  .max(30, { message: 'Username must be between 2 and 30 characters' })
+  .regex(/^[a-zA-Z0-9_]+$/, {
+    message: 'Username can only contain letters, numbers, and underscores',
+  });
 
 export const UserCredentialsSchema = z.object({
-  username: z
-    .string()
-    .min(2, { message: 'Username must be between 2 and 30 characters' })
-    .max(30, { message: 'Username must be between 2 and 30 characters' })
-    .regex(/^[a-zA-Z0-9_]+$/, {
-      message: 'Username can only contain letters, numbers, and underscores',
-    }),
+  username: UsernameSchema,
   password: z
     .string()
     .min(4, { message: 'Password must be between 4 and 100 characters' })

@@ -1,6 +1,5 @@
 import type { Chat } from '../types/chat';
 import type { UserInfo } from '../types/user';
-import { getRecipientUserIdByUsername } from './user-api';
 
 // Fetch the chat list of a specific user
 async function getChatListByUserId(): Promise<Chat[]> {
@@ -58,8 +57,6 @@ async function getRecipientInfo(
 
 // Add a chat to the user's chat list
 async function addChat(inputUsername: string): Promise<Chat> {
-  const recipientId = await getRecipientUserIdByUsername(inputUsername);
-
   if (!inputUsername) {
     throw new Error('Username is required');
   }
@@ -72,10 +69,8 @@ async function addChat(inputUsername: string): Promise<Chat> {
         'Content-Type': 'application/json',
         Accept: 'application/json',
       },
-      // Send the username entered to the backend to ensure that it exists in the database
       body: JSON.stringify({
         recipientName: inputUsername,
-        recipientId: recipientId,
       }),
       credentials: 'include',
     }

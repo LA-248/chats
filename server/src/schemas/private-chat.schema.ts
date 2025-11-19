@@ -1,11 +1,10 @@
 import { z } from 'zod/v4';
+import { UsernameSchema } from './user.schema.ts';
 
-export const InsertPrivateChatSchema = z.object({
-  user1Id: z.number().int().positive(),
-  user2Id: z.number().int().positive(),
-  room: z.uuid(),
+export const CreatePrivateChatSchema = z.object({
+  recipientName: UsernameSchema,
 });
-export type InsertPrivateChat = z.infer<typeof InsertPrivateChatSchema>;
+export type CreatePrivateChatInputDto = z.infer<typeof CreatePrivateChatSchema>;
 
 export const NewChatSchema = z.object({
   chat_id: z.number(),

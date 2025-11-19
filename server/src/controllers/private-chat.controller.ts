@@ -1,20 +1,37 @@
 import { Request, Response } from 'express';
+import { userSockets } from '../handlers/socket-handlers.ts';
 import {
-  handleChatAddition,
+  CreatePrivateChatInputDto,
+  CreatePrivateChatSchema,
+} from '../schemas/private-chat.schema.ts';
+import {
   getChatListByUser,
-} from '../services/private-chat.service.ts';
-import { retrieveUserIdByUsername } from '../services/user.service.ts';
-import {
+  handleChatAddition,
   updateDeletionStatus,
   updateLastMessage,
   updateReadStatus,
 } from '../services/private-chat.service.ts';
-import { userSockets } from '../handlers/socket-handlers.ts';
+import { retrieveUserIdByUsername } from '../services/user.service.ts';
 
 // Handle adding a chat (new or previously added but deleted) to a user's chat list
 export const addChat = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { senderId, recipientId } = await getChatRoomData(req);
+    const senderId = Number(req.user?.user_id);
+    const body: CreatePrivateChatInputDto = {
+      recipientName: req.body.recipientName,
+    };
+
+    const parsed = CreatePrivateChatSchema.safeParse(body);
+    if (!parsed.success) {
+      console.error('Error adding chat:', parsed.error);
+      res.status(400).json({ error: 'Error adding chat. Please try again.' });
+      return;
+    }
+
+    const { user_id: recipientId } = await retrieveUserIdByUsername(
+      parsed.data.recipientName
+    );
+
     const io = req.app.get('io');
     // Retrieve specific socket instance by socket ID
     const socket = io.sockets.sockets.get(userSockets.get(senderId));
@@ -34,23 +51,6 @@ export const addChat = async (req: Request, res: Response): Promise<void> => {
     console.error('Error adding chat:', error);
     res.status(500).json({ error: 'Error adding chat. Please try again.' });
   }
-};
-
-const getChatRoomData = async (
-  req: Request
-): Promise<{ senderId: number; recipientId: number }> => {
-  const username = req.body.recipientName;
-  const user = await retrieveUserIdByUsername(username);
-  // If there are no rows, the user does not exist
-  if (!user) {
-    throw new Error(
-      'User does not exist. Make sure that the username is correct.'
-    );
-  }
-  const senderId = Number(req.user?.user_id);
-  const recipientId = req.body.recipientId;
-
-  return { senderId, recipientId };
 };
 
 // Fetch the chat list of a specific user
