@@ -4,7 +4,6 @@ import { UsernameSchema } from './user.schema.ts';
 export const CreatePrivateChatSchema = z.object({
   recipientName: UsernameSchema,
 });
-export type CreatePrivateChatInputDto = z.infer<typeof CreatePrivateChatSchema>;
 
 export const NewChatSchema = z.object({
   chat_id: z.number(),

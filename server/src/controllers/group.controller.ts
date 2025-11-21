@@ -1,12 +1,14 @@
 import { Request, RequestHandler, Response } from 'express';
 import { Server } from 'socket.io';
 import { v4 as uuidv4 } from 'uuid';
-import { userSockets } from '../handlers/socket-handlers.ts';
 import {
   CreateGroupChatBadRequestResponseDto,
   CreateGroupChatInputDto,
   CreateGroupChatPartialSuccessResponseDto,
   CreateGroupChatResponseDto,
+} from '../dtos/group.dto.ts';
+import { userSockets } from '../handlers/socket-handlers.ts';
+import {
   CreateGroupChatSchema,
   NewGroupChat,
 } from '../schemas/group.schema.ts';
@@ -24,7 +26,7 @@ import {
   updateMemberRole,
   uploadGroupPicture,
 } from '../services/group.service.ts';
-import { GroupMemberInsertionResult } from '../types/group.js';
+import { GroupMemberInsertionResult } from '../types/group.ts';
 
 // Handle creating a group chat
 export const createGroupChat: RequestHandler<
@@ -32,7 +34,7 @@ export const createGroupChat: RequestHandler<
   | CreateGroupChatResponseDto
   | CreateGroupChatPartialSuccessResponseDto
   | CreateGroupChatBadRequestResponseDto,
-  Omit<CreateGroupChatInputDto, 'room'>
+  CreateGroupChatInputDto
 > = async (req, res): Promise<void> => {
   try {
     const io: Server = req.app.get('io');
