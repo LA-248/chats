@@ -6,7 +6,7 @@ import type {
 export async function createGroupChat(
   loggedInUserId: number,
   groupName: string,
-  addedMembers: GroupMemberToBeAdded[]
+  membersToBeAdded: GroupMemberToBeAdded[]
 ): Promise<string> {
   if (!groupName) {
     throw new Error('Group name is required');
@@ -21,9 +21,9 @@ export async function createGroupChat(
         Accept: 'application/json',
       },
       body: JSON.stringify({
-        loggedInUserId: loggedInUserId,
-        groupName: groupName,
-        addedMembers: addedMembers,
+        ownerUserId: loggedInUserId,
+        name: groupName,
+        membersToBeAdded,
       }),
       credentials: 'include',
     }

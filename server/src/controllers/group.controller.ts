@@ -1,9 +1,12 @@
-import { Request, Response } from 'express';
+import { Request, RequestHandler, Response } from 'express';
 import { Server } from 'socket.io';
 import { v4 as uuidv4 } from 'uuid';
 import { userSockets } from '../handlers/socket-handlers.ts';
 import {
+  CreateGroupChatBadRequestResponseDto,
   CreateGroupChatInputDto,
+  CreateGroupChatPartialSuccessResponseDto,
+  CreateGroupChatResponseDto,
   CreateGroupChatSchema,
   NewGroupChat,
 } from '../schemas/group.schema.ts';
@@ -24,22 +27,24 @@ import {
 import { GroupMemberInsertionResult } from '../types/group.js';
 
 // Handle creating a group chat
-export const createGroupChat = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
+export const createGroupChat: RequestHandler<
+  Record<string, never>,
+  | CreateGroupChatResponseDto
+  | CreateGroupChatPartialSuccessResponseDto
+  | CreateGroupChatBadRequestResponseDto,
+  Omit<CreateGroupChatInputDto, 'room'>
+> = async (req, res): Promise<void> => {
   try {
     const io: Server = req.app.get('io');
-    const body: CreateGroupChatInputDto = {
-      ownerUserId: req.body.loggedInUserId,
-      name: req.body.groupName,
-      room: uuidv4(),
-      membersToBeAdded: req.body.addedMembers,
+    const groupChatData = {
+      ownerUserId: req.body.ownerUserId,
+      name: req.body.name,
+      membersToBeAdded: req.body.membersToBeAdded,
     };
 
-    const parsed = CreateGroupChatSchema.safeParse(body);
-    if (!parsed.success) {
-      console.error('Error creating group chat:', parsed.error);
+    const parsedBody = CreateGroupChatSchema.safeParse(groupChatData);
+    if (!parsedBody.success) {
+      console.error('Error creating group chat:', parsedBody.error);
       res
         .status(400)
         .json({ error: 'Error creating group chat. Please try again.' });
@@ -54,10 +59,10 @@ export const createGroupChat = async (
       failedInsertions: GroupMemberInsertionResult[];
     } = await createNewGroup(
       io,
-      parsed.data.ownerUserId,
-      parsed.data.name,
-      parsed.data.room,
-      parsed.data.membersToBeAdded
+      parsedBody.data.ownerUserId,
+      parsedBody.data.name,
+      uuidv4(),
+      parsedBody.data.membersToBeAdded
     );
 
     // Handle partial success or full success
@@ -68,6 +73,7 @@ export const createGroupChat = async (
           'Group created successfully but some members could not be added',
         failedMembers: failedInsertions,
       });
+      return;
     }
 
     res.status(200).json(newGroupChat);

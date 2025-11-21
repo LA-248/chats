@@ -58,7 +58,7 @@ export class Group {
       `
         INSERT INTO groups (owner_user_id, name, room)
         VALUES ($1, $2, $3)
-        RETURNING group_id, room, name, created_at
+        RETURNING group_id, room, name
       `,
       [ownerUserId, name, room],
       NewGroupChatSchema

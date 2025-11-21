@@ -1,9 +1,9 @@
 import { z } from 'zod/v4';
+import { GroupMemberInsertionResult } from '../types/group.ts';
 
 export const CreateGroupChatSchema = z.object({
   ownerUserId: z.number().int().positive(),
   name: z.string().min(1).max(50),
-  room: z.uuid(),
   membersToBeAdded: z.array(
     z.object({
       username: z.string(),
@@ -14,11 +14,25 @@ export const CreateGroupChatSchema = z.object({
 });
 export type CreateGroupChatInputDto = z.infer<typeof CreateGroupChatSchema>;
 
+export type CreateGroupChatResponseDto = {
+  group_id: number;
+  room: string;
+  name: string;
+};
+
+export type CreateGroupChatPartialSuccessResponseDto = {
+  message: string;
+  failedMembers: GroupMemberInsertionResult[];
+};
+
+export type CreateGroupChatBadRequestResponseDto = {
+  error: string;
+};
+
 export const NewGroupChatSchema = z.object({
   group_id: z.number(),
   room: z.uuid(),
   name: z.string(),
-  created_at: z.date(),
 });
 export type NewGroupChat = z.infer<typeof NewGroupChatSchema>;
 
