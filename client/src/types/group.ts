@@ -1,7 +1,6 @@
 export interface GroupMemberToBeAdded {
   username: string;
   userId: number;
-  profilePicture: string;
   role: string;
 }
 

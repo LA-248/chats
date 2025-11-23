@@ -47,14 +47,6 @@ export type GroupDeletedForList = z.infer<typeof GroupDeletedForListSchema>;
 export const GroupUpdatedAtSchema = z.object({ updated_at: z.coerce.date() });
 export type GroupUpdatedAt = z.infer<typeof GroupUpdatedAtSchema>;
 
-// Group member table
-export const InsertGroupMemberSchema = z.object({
-  groupId: z.number().int().positive(),
-  userId: z.number().int().positive(),
-  role: z.string(),
-});
-export type InsertGroupMember = z.infer<typeof InsertGroupMemberSchema>;
-
 export const NewGroupMemberSchema = z.object({
   group_id: z.number(),
   user_id: z.number(),
@@ -69,4 +61,13 @@ export const GroupMemberInfoSchema = z.object({
   profile_picture: z.string().nullable(),
   role: z.string(),
 });
-export type GroupMemberInfo = z.infer<typeof GroupMemberInfoSchema>;
+
+export const AddGroupMembersSchema = z.object({
+  addedMembers: z.array(
+    z.object({
+      userId: z.number(),
+      username: z.string(),
+      role: z.string(),
+    })
+  ),
+});

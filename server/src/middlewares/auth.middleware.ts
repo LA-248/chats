@@ -1,9 +1,8 @@
 import { NextFunction, Request, Response } from 'express';
-import { GroupMemberRole } from '../types/group.ts';
-import { PrivateChat } from '../repositories/private-chat.repository.ts';
-import { Group } from '../repositories/group.repository.ts';
-import { GroupMemberInfo } from '../schemas/group.schema.ts';
 import { GroupMember } from '../repositories/group-member.repository.ts';
+import { Group } from '../repositories/group.repository.ts';
+import { PrivateChat } from '../repositories/private-chat.repository.ts';
+import { GroupMemberInfo, GroupMemberRole } from '../types/group.ts';
 
 export const requireAuth = (
   req: Request,

@@ -63,7 +63,7 @@ export async function addMembers(
   return data;
 }
 
-export async function getGroupChatInfo(
+export async function retrieveGroupChatInfo(
   room: string,
   navigate: (path: string) => void
 ): Promise<GroupInfoWithMembers> {

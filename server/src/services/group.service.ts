@@ -1,9 +1,24 @@
 import { Server } from 'socket.io';
+import { userSockets } from '../handlers/socket-handlers.ts';
+import { GroupMember } from '../repositories/group-member.repository.ts';
+import { Group } from '../repositories/group.repository.ts';
 import {
+  GroupInfo,
+  NewGroupChat,
+  NewGroupMember,
+} from '../schemas/group.schema.ts';
+import {
+  S3AttachmentsStoragePath,
+  S3AvatarStoragePath,
+} from '../types/chat.ts';
+import {
+  AddedUserInfo,
   GroupInfoWithMembers,
+  GroupMemberInfo,
   GroupMemberInsertionResult,
-  GroupParticipant,
   GroupMemberRole,
+  GroupMemberToBeAdded,
+  GroupParticipant,
 } from '../types/group.ts';
 import createGroupPictureUrl from '../utils/create-group-picture-url.ts';
 import {
@@ -12,20 +27,6 @@ import {
   deleteS3Object,
 } from './s3.service.ts';
 import { retrieveUserById } from './user.service.ts';
-import { userSockets } from '../handlers/socket-handlers.ts';
-import {
-  GroupInfo,
-  GroupMemberInfo,
-  NewGroupChat,
-  NewGroupMember,
-} from '../schemas/group.schema.ts';
-import { AddedUserInfo, GroupMemberToBeAdded } from '../types/group.ts';
-import {
-  S3AttachmentsStoragePath,
-  S3AvatarStoragePath,
-} from '../types/chat.ts';
-import { Group } from '../repositories/group.repository.ts';
-import { GroupMember } from '../repositories/group-member.repository.ts';
 
 // TODO: Rename this function, it's confusing
 export const retrieveGroupInfoWithMembers = async (

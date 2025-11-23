@@ -3,7 +3,6 @@ import {
   GroupDeletedForListSchema,
   GroupInfo,
   GroupInfoSchema,
-  GroupMemberInfo,
   GroupMemberInfoSchema,
   GroupPicture,
   GroupPictureSchema,
@@ -16,6 +15,7 @@ import {
   NewGroupChat,
   NewGroupChatSchema,
 } from '../schemas/group.schema.ts';
+import { GroupMemberInfo } from '../types/group.ts';
 import { query } from '../utils/database-query.ts';
 
 interface Database {

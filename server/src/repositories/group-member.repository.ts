@@ -1,9 +1,9 @@
 import {
-  GroupMemberInfo,
   GroupMemberInfoSchema,
   NewGroupMember,
   NewGroupMemberSchema,
 } from '../schemas/group.schema.ts';
+import { GroupMemberInfo } from '../types/group.ts';
 import { query } from '../utils/database-query.ts';
 
 interface Database {

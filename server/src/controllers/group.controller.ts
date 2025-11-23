@@ -1,14 +1,20 @@
 import { Request, RequestHandler, Response } from 'express';
 import { Server } from 'socket.io';
 import { v4 as uuidv4 } from 'uuid';
+import { ApiErrorResponse } from '../dtos/error.dto.ts';
 import {
-  CreateGroupChatBadRequestResponseDto,
+  AddMembersInputDto,
+  AddMembersResponseDto,
   CreateGroupChatInputDto,
   CreateGroupChatPartialSuccessResponseDto,
   CreateGroupChatResponseDto,
+  RetrieveGroupInfoResponseDto,
+  RetrieveGroupMemberUsernamesResponseDto,
 } from '../dtos/group.dto.ts';
+import { ApiSuccessResponse } from '../dtos/success.dto.ts';
 import { userSockets } from '../handlers/socket-handlers.ts';
 import {
+  AddGroupMembersSchema,
   CreateGroupChatSchema,
   NewGroupChat,
 } from '../schemas/group.schema.ts';
@@ -33,7 +39,7 @@ export const createGroupChat: RequestHandler<
   Record<string, never>,
   | CreateGroupChatResponseDto
   | CreateGroupChatPartialSuccessResponseDto
-  | CreateGroupChatBadRequestResponseDto,
+  | ApiErrorResponse,
   CreateGroupChatInputDto
 > = async (req, res): Promise<void> => {
   try {
@@ -43,6 +49,7 @@ export const createGroupChat: RequestHandler<
       name: req.body.name,
       membersToBeAdded: req.body.membersToBeAdded,
     };
+    const room = uuidv4();
 
     const parsedBody = CreateGroupChatSchema.safeParse(groupChatData);
     if (!parsedBody.success) {
@@ -63,7 +70,7 @@ export const createGroupChat: RequestHandler<
       io,
       parsedBody.data.ownerUserId,
       parsedBody.data.name,
-      uuidv4(),
+      room,
       parsedBody.data.membersToBeAdded
     );
 
@@ -87,10 +94,11 @@ export const createGroupChat: RequestHandler<
   }
 };
 
-export const retrieveGroupInfo = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
+export const retrieveGroupInfo: RequestHandler<
+  { room: string },
+  RetrieveGroupInfoResponseDto | ApiErrorResponse,
+  void
+> = async (req, res): Promise<void> => {
   try {
     const room = req.params.room;
     const groupData = await retrieveGroupInfoWithMembers(room);
@@ -101,10 +109,13 @@ export const retrieveGroupInfo = async (
   }
 };
 
-export const retrieveMemberUsernames = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
+export const retrieveMemberUsernames: RequestHandler<
+  {
+    groupId: string;
+  },
+  RetrieveGroupMemberUsernamesResponseDto | ApiErrorResponse,
+  void
+> = async (req, res): Promise<void> => {
   try {
     const groupId = req.params.groupId;
     const usernames = await getMemberUsernames(Number(groupId));
@@ -115,10 +126,11 @@ export const retrieveMemberUsernames = async (
   }
 };
 
-export const markGroupChatAsDeleted = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
+export const markGroupChatAsDeleted: RequestHandler<
+  { room: string },
+  ApiSuccessResponse | ApiErrorResponse,
+  void
+> = async (req, res): Promise<void> => {
   try {
     const userId = Number(req.user?.user_id);
     const room = req.params.room;
@@ -137,15 +149,30 @@ export const markGroupChatAsDeleted = async (
 };
 
 // TODO: Use database transactions here to only insert new members in the database if all operations succeed
-export const addMembers = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
+export const addMembers: RequestHandler<
+  { room: string },
+  AddMembersResponseDto | ApiErrorResponse,
+  AddMembersInputDto
+> = async (req, res): Promise<void> => {
   try {
     const io = req.app.get('io');
     const room = req.params.room;
-    const addedMembers = req.body.addedMembers;
-    const addedUsersInfo = await addUsersToGroup(io, room, addedMembers);
+    const addedMembersData = { addedMembers: req.body.addedMembers };
+
+    const parsedBody = AddGroupMembersSchema.safeParse(addedMembersData);
+    if (!parsedBody.success) {
+      console.error('Error adding members to group chat:', parsedBody.error);
+      res
+        .status(400)
+        .json({ error: 'Error adding members. Please try again.' });
+      return;
+    }
+
+    const addedUsersInfo = await addUsersToGroup(
+      io,
+      room,
+      parsedBody.data.addedMembers
+    );
 
     // Emit info of added users to update the members list in real-time
     io.to(room).emit('add-members', {
@@ -153,7 +180,11 @@ export const addMembers = async (
     });
 
     res.status(200).json({
-      message: addedMembers.length > 1 ? 'Members added' : 'Member added',
+      message:
+        parsedBody.data.addedMembers.length > 1
+          ? 'Members added'
+          : 'Member added',
+      addedMembers: addedUsersInfo,
     });
   } catch (error) {
     console.error('Error adding members to group chat:', error);

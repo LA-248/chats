@@ -1,4 +1,8 @@
-import { NewGroupMember } from '../schemas/group.schema.ts';
+import { z } from 'zod/v4';
+import {
+  GroupMemberInfoSchema,
+  NewGroupMember,
+} from '../schemas/group.schema.ts';
 
 export interface GroupInfo {
   group_id: number;
@@ -45,3 +49,5 @@ export enum GroupMemberRole {
   ADMIN = 'admin',
   MEMBER = 'member',
 }
+
+export type GroupMemberInfo = z.infer<typeof GroupMemberInfoSchema>;
