@@ -1,8 +1,4 @@
-import {
-  GroupMemberInfoSchema,
-  NewGroupMember,
-  NewGroupMemberSchema,
-} from '../schemas/group.schema.ts';
+import { NewGroupMember } from '../schemas/group.schema.ts';
 import { GroupMemberInfo } from '../types/group.ts';
 import { query } from '../utils/database-query.ts';
 
@@ -37,14 +33,13 @@ export class GroupMember {
     userId: number,
     role: string
   ): Promise<NewGroupMember> => {
-    const result = await this.db.query(
+    const result = await this.db.query<NewGroupMember>(
       `
       INSERT INTO group_members (group_id, user_id, role)
       VALUES ($1, $2, $3)
       RETURNING *
       `,
-      [groupId, userId, role],
-      NewGroupMemberSchema
+      [groupId, userId, role]
     );
 
     return result.rows[0];
@@ -53,7 +48,9 @@ export class GroupMember {
   findMembersByRoom = async (
     room: string
   ): Promise<Omit<GroupMemberInfo, 'username' | 'profile_picture'>[]> => {
-    const result = await this.db.query(
+    const result = await this.db.query<
+      Omit<GroupMemberInfo, 'username' | 'profile_picture'>
+    >(
       `
       SELECT
         gm.user_id,
@@ -62,8 +59,7 @@ export class GroupMember {
       JOIN groups g ON g.group_id = gm.group_id
       WHERE g.room = $1
       `,
-      [room],
-      GroupMemberInfoSchema.omit({ username: true, profile_picture: true })
+      [room]
     );
 
     return result.rows;
@@ -74,15 +70,16 @@ export class GroupMember {
     groupId: number,
     userId: number
   ): Promise<Omit<GroupMemberInfo, 'username' | 'profile_picture'>> => {
-    const result = await this.db.query(
+    const result = await this.db.query<
+      Omit<GroupMemberInfo, 'username' | 'profile_picture'>
+    >(
       `
       SELECT gm.user_id, gm.role
       FROM group_members gm
       JOIN groups g ON g.group_id = gm.group_id
       WHERE g.room = $1 AND gm.group_id = $2 AND gm.user_id = $3
       `,
-      [room, groupId, userId],
-      GroupMemberInfoSchema.omit({ username: true, profile_picture: true })
+      [room, groupId, userId]
     );
 
     return result.rows[0];
@@ -92,7 +89,9 @@ export class GroupMember {
     room: string,
     groupId: number
   ): Promise<Omit<GroupMemberInfo, 'username' | 'profile_picture'>> => {
-    const result = await this.db.query(
+    const result = await this.db.query<
+      Omit<GroupMemberInfo, 'username' | 'profile_picture'>
+    >(
       `
       SELECT gm.user_id, gm.role
       FROM group_members gm
@@ -100,8 +99,7 @@ export class GroupMember {
       WHERE g.room = $1 AND g.group_id = $2
       LIMIT 1
       `,
-      [room, groupId],
-      GroupMemberInfoSchema.omit({ username: true, profile_picture: true })
+      [room, groupId]
     );
 
     return result.rows[0];
@@ -112,15 +110,16 @@ export class GroupMember {
     groupId: number,
     userId: number
   ): Promise<Omit<GroupMemberInfo, 'username' | 'profile_picture'>> => {
-    const result = await this.db.query(
+    const result = await this.db.query<
+      Omit<GroupMemberInfo, 'username' | 'profile_picture'>
+    >(
       `
       UPDATE group_members 
       SET role = $1
       WHERE group_id = $2 AND user_id = $3
       RETURNING user_id, role
       `,
-      [role, groupId, userId],
-      GroupMemberInfoSchema.omit({ username: true, profile_picture: true })
+      [role, groupId, userId]
     );
 
     return result.rows[0];
@@ -130,14 +129,15 @@ export class GroupMember {
     groupId: number,
     userId: number
   ): Promise<Omit<GroupMemberInfo, 'username' | 'profile_picture'>> => {
-    const result = await this.db.query(
+    const result = await this.db.query<
+      Omit<GroupMemberInfo, 'username' | 'profile_picture'>
+    >(
       `
       DELETE FROM group_members 
       WHERE group_id = $1 AND user_id = $2
       RETURNING user_id, role
       `,
-      [groupId, userId],
-      GroupMemberInfoSchema.omit({ username: true, profile_picture: true })
+      [groupId, userId]
     );
 
     return result.rows[0];

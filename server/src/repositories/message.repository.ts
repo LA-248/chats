@@ -1,10 +1,7 @@
 import {
-  MessageSchema,
-  NewMessage,
-  NewMessageSchema,
-  Message as MessageType,
   LastMessageInfo,
-  LastMessageInfoSchema,
+  Message as MessageType,
+  NewMessage,
 } from '../schemas/message.schema.ts';
 import { query } from '../utils/database-query.ts';
 
@@ -49,7 +46,7 @@ export class Message {
     type: string,
     clientOffset: string
   ): Promise<NewMessage> => {
-    const result = await this.db.query(
+    const result = await this.db.query<NewMessage>(
       `
       INSERT INTO messages (
         content,
@@ -63,8 +60,7 @@ export class Message {
       VALUES ($1, $2, $3, $4, $5, $6, $7)
       RETURNING message_id, event_time, type
       `,
-      [content, senderId, recipientId, groupId, room, type, clientOffset],
-      NewMessageSchema
+      [content, senderId, recipientId, groupId, room, type, clientOffset]
     );
 
     return result.rows[0];
@@ -97,7 +93,7 @@ export class Message {
     serverOffset: string,
     room: string
   ): Promise<MessageType[]> => {
-    const result = await this.db.query(
+    const result = await this.db.query<MessageType>(
       `
       SELECT
         m.message_id,
@@ -116,8 +112,7 @@ export class Message {
         AND m.room = $2
       ORDER BY m.event_time ASC;
       `,
-      [serverOffset, room],
-      MessageSchema
+      [serverOffset, room]
     );
 
     return result.rows;
@@ -126,7 +121,7 @@ export class Message {
   findLastMessageInfo = async (
     room: string
   ): Promise<LastMessageInfo | null> => {
-    const result = await this.db.query(
+    const result = await this.db.query<LastMessageInfo>(
       `
       SELECT
         content,
@@ -136,8 +131,7 @@ export class Message {
       WHERE room = $1
       ORDER BY message_id DESC LIMIT 1 
       `,
-      [room],
-      LastMessageInfoSchema
+      [room]
     );
 
     return result.rows[0];

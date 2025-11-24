@@ -1,4 +1,4 @@
-import { Chat, ChatSchema } from '../schemas/private-chat.schema.ts';
+import { Chat } from '../schemas/private-chat.schema.ts';
 import { query } from '../utils/database-query.ts';
 
 interface Database {
@@ -13,7 +13,7 @@ export class ChatList {
   }
 
   findAllChatsByUser = async (userId: number): Promise<Chat[]> => {
-    const result = await this.db.query(
+    const result = await this.db.query<Chat>(
       `
       SELECT
         CONCAT('p_', pc.chat_id) AS chat_id,
@@ -77,8 +77,7 @@ export class ChatList {
 
       ORDER BY updated_at DESC
       `,
-      [userId],
-      ChatSchema
+      [userId]
     );
 
     return result.rows;

@@ -1,18 +1,12 @@
-import { query } from '../utils/database-query.ts';
 import {
-  UserEntity,
-  UserProfile,
-  UserProfileSchema,
-  UserEntitySchema,
   RecipientUserProfile,
-  RecipientUserProfileSchema,
-  UserId,
-  UserIdSchema,
-  UserProfilePicture,
-  UserProfilePictureSchema,
   UserBlockList,
-  UserBlockListSchema,
+  UserEntity,
+  UserId,
+  UserProfile,
+  UserProfilePicture,
 } from '../schemas/user.schema.ts';
+import { query } from '../utils/database-query.ts';
 
 interface Database {
   query: typeof query;
@@ -51,8 +45,7 @@ export class User {
   findUserById = async (userId: number): Promise<UserProfile> => {
     const result = await this.db.query<UserProfile>(
       'SELECT user_id, username, profile_picture FROM users WHERE user_id = $1',
-      [userId],
-      UserProfileSchema
+      [userId]
     );
 
     return result.rows[0];
@@ -61,8 +54,7 @@ export class User {
   findUserByUsername = async (username: string): Promise<UserEntity> => {
     const result = await this.db.query<UserEntity>(
       'SELECT * FROM users WHERE username = $1',
-      [username],
-      UserEntitySchema
+      [username]
     );
 
     return result.rows[0];
@@ -86,8 +78,7 @@ export class User {
         END
         WHERE pc.room = $2
         `,
-      [userId, room],
-      RecipientUserProfileSchema
+      [userId, room]
     );
 
     return result.rows[0];
@@ -96,8 +87,7 @@ export class User {
   findUserIdByUsername = async (username: string): Promise<UserId> => {
     const result = await query<UserId>(
       'SELECT user_id FROM users WHERE username = $1',
-      [username],
-      UserIdSchema
+      [username]
     );
 
     return result.rows[0];
@@ -108,8 +98,7 @@ export class User {
   ): Promise<UserProfilePicture> => {
     const result = await query<UserProfilePicture>(
       'SELECT profile_picture FROM users WHERE user_id = $1',
-      [userId],
-      UserProfilePictureSchema
+      [userId]
     );
 
     return result.rows[0];
@@ -118,8 +107,7 @@ export class User {
   findBlockListById = async (userId: number): Promise<UserBlockList> => {
     const result = await query<UserBlockList>(
       'SELECT blocked_users FROM users WHERE user_id = $1',
-      [userId],
-      UserBlockListSchema
+      [userId]
     );
 
     return result.rows[0];
