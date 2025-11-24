@@ -271,12 +271,15 @@ export const permanentlyDeleteGroupChat = async (
 ): Promise<{ room: string; memberSocketIds: string[] }> => {
   const groupRepository = new Group();
 
-  const membersInfo = await groupRepository.findMembersInfoById(groupId);
+  const [membersInfo, { room }, groupAvatar] = await Promise.all([
+    await groupRepository.findMembersInfoById(groupId),
+    await groupRepository.findRoomById(groupId),
+    await groupRepository.findPictureById(groupId),
+  ]);
+
   const memberUserIds = membersInfo.map((member) => member.user_id);
-  const { room } = await groupRepository.findRoomById(groupId);
   const memberSocketIds = [];
 
-  const groupAvatar = await groupRepository.findPictureById(groupId);
   const avatarObjectKey = `${S3AvatarStoragePath.GROUP_AVATARS}/${groupId}/${groupAvatar}`;
   const directoryPrefix = `${S3AttachmentsStoragePath.CHAT_ATTACHMENTS}/group/${groupId}`;
 
