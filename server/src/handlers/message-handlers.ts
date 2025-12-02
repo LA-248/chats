@@ -1,25 +1,25 @@
-import { Socket, Server } from 'socket.io';
+import { Server, Socket } from 'socket.io';
+import {
+  authoriseChatMessage,
+  isSenderBlocked,
+} from '../middlewares/message.middleware.ts';
+import { GroupMember } from '../repositories/group-member.repository.ts';
+import { Group } from '../repositories/group.repository.ts';
+import { Message } from '../repositories/message.repository.ts';
+import { PrivateChat } from '../repositories/private-chat.repository.ts';
 import {
   FormattedMessage,
   Message as MessageStructure,
   NewMessage,
 } from '../schemas/message.schema.ts';
+import { addNewPrivateChat } from '../services/private-chat.service.ts';
+import { createPresignedUrl } from '../services/s3.service.ts';
 import {
   ChatHandler,
   ChatType,
   S3AttachmentsStoragePath,
 } from '../types/chat.ts';
-import { addNewPrivateChat } from '../services/private-chat.service.ts';
-import { createPresignedUrl } from '../services/s3.service.ts';
 import { MessageEvent, MessageType } from '../types/message.ts';
-import {
-  authoriseChatMessage,
-  isSenderBlocked,
-} from '../middlewares/message.middleware.ts';
-import { PrivateChat } from '../repositories/private-chat.repository.ts';
-import { Group } from '../repositories/group.repository.ts';
-import { GroupMember } from '../repositories/group-member.repository.ts';
-import { Message } from '../repositories/message.repository.ts';
 
 export const handleChatMessages = (socket: Socket, io: Server): void => {
   socket.on(
@@ -42,21 +42,25 @@ export const handleChatMessages = (socket: Socket, io: Server): void => {
 
       try {
         if (chatType === ChatType.PRIVATE) {
-          await isSenderBlocked(chatId, senderId);
-          await addNewPrivateChat(io, socket, chatId, room);
+          await Promise.all([
+            await isSenderBlocked(chatId, senderId),
+            await addNewPrivateChat(io, socket, chatId, room),
+          ]);
         }
 
-        const { newMessage, updatedAt } = await saveMessageInDatabase(
-          content,
-          senderId,
-          chatId,
-          room,
-          chatType,
-          messageType,
-          clientOffset
-        );
+        const [{ newMessage, updatedAt }] = await Promise.all([
+          await saveMessageInDatabase(
+            content,
+            senderId,
+            chatId,
+            room,
+            chatType,
+            messageType,
+            clientOffset
+          ),
+          await restoreChat(chatId, room, chatType),
+        ]);
 
-        restoreChat(chatId, room, chatType);
         broadcastMessage(
           io,
           room,
@@ -251,11 +255,12 @@ const CHAT_HANDLERS: Record<ChatType, ChatHandler> = {
     ): Promise<Date> => {
       try {
         const privateChatRepository = new PrivateChat();
-        await privateChatRepository.updateUserReadStatus(chatId, false, room);
 
-        // After setting the last message, fetch the new updated_at date which is equal to the time at which the message was sent
-        const { updated_at: updatedAt } =
-          await privateChatRepository.setLastMessage(newMessageId, room);
+        const [{ updated_at: updatedAt }] = await Promise.all([
+          // After setting the last message, fetch the new updated_at date which is equal to the time at which the message was sent
+          await privateChatRepository.setLastMessage(newMessageId, room),
+          await privateChatRepository.updateUserReadStatus(chatId, false, room),
+        ]);
 
         return updatedAt;
       } catch (error) {
@@ -292,12 +297,13 @@ const CHAT_HANDLERS: Record<ChatType, ChatHandler> = {
     ): Promise<Date> => {
       try {
         const groupRepository = new Group();
-        await groupRepository.setReadBy([senderId], room);
-        // After setting the last message, fetch the new updated_at date which is equal to the time at which the message was sent
-        const { updated_at: updatedAt } = await groupRepository.setLastMessage(
-          newMessageId,
-          room
-        );
+
+        const [{ updated_at: updatedAt }] = await Promise.all([
+          // After setting the last message, fetch the new updated_at date which is equal to the time at which the message was sent
+          await groupRepository.setLastMessage(newMessageId, room),
+          await groupRepository.setReadBy([senderId], room),
+        ]);
+
         return updatedAt;
       } catch (error) {
         if (error instanceof Error) {
@@ -344,7 +350,7 @@ const saveMessageInDatabase = async (
       clientOffset
     );
 
-    // Retrieve the updated_at value of the newly inserted message - it is needed to correctly sort a user's chat list
+    // Retrieve the updated_at value of the newly inserted message - it's needed to correctly sort a user's chat list
     // The updated_at value differs from last_message_time in that it will always be populated with the date of the latest chat activity (e.g. message, chat creation, etc),
     // whereas the last_message_time can be null if no messages exist in a chat
     const updatedAt = await chatHandler.postInsert(

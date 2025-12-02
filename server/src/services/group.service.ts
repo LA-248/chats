@@ -165,11 +165,11 @@ export const removeMemberWhoLeft = async (
     role: '',
   };
 
-  const { room } = await groupRepository.findRoomById(groupId);
-  const removedUser = await groupMemberRepository.deleteGroupMember(
-    groupId,
-    userId
-  );
+  const [{ room }, removedUser] = await Promise.all([
+    await groupRepository.findRoomById(groupId),
+    await groupMemberRepository.deleteGroupMember(groupId, userId),
+  ]);
+
   await groupRepository.markUnreadByUser(userId, room);
 
   // If the user who left the group was the owner, randomly assign another member as the new owner
@@ -200,7 +200,7 @@ export const removeMemberWhoLeft = async (
 export const kickMember = async (
   io: Server,
   groupId: number,
-  userId: number,
+  targetUserId: number,
   loggedInUserId: number
 ): Promise<{
   room: string;
@@ -208,33 +208,32 @@ export const kickMember = async (
 }> => {
   const groupRepository = new Group();
   const groupMemberRepository = new GroupMember();
-  const socketId = userSockets.get(userId);
+  const socketId = userSockets.get(targetUserId);
 
   const { room } = await groupRepository.findRoomById(groupId);
-  const kicker = await groupMemberRepository.findMemberByUserId(
-    room,
-    groupId,
-    loggedInUserId
-  );
-  const memberToBeRemoved = await groupMemberRepository.findMemberByUserId(
-    room,
-    groupId,
-    userId
-  );
+
+  const [kicker, memberToRemove] = await Promise.all([
+    await groupMemberRepository.findMemberByUserId(
+      room,
+      groupId,
+      loggedInUserId
+    ),
+    await groupMemberRepository.findMemberByUserId(room, groupId, targetUserId),
+  ]);
 
   // Make sure the member performing the kick can only do so to those with a lower role than theirs
   if (
-    memberToBeRemoved.role === kicker.role ||
-    memberToBeRemoved.role === GroupMemberRole.OWNER
+    memberToRemove.role === kicker.role ||
+    memberToRemove.role === GroupMemberRole.OWNER
   ) {
     throw new Error('You may not kick this member');
   }
 
   const removedUser = await groupMemberRepository.deleteGroupMember(
     groupId,
-    userId
+    targetUserId
   );
-  await groupRepository.markUnreadByUser(userId, room);
+  await groupRepository.markUnreadByUser(targetUserId, room);
 
   // Remove socket of removed member from the room
   if (socketId) {
@@ -256,12 +255,10 @@ export const updateMemberRole = async (
   const groupRepository = new Group();
   const groupMemberRepository = new GroupMember();
 
-  const { room } = await groupRepository.findRoomById(groupId);
-  const newAdmin = await groupMemberRepository.updateRole(
-    newRole,
-    groupId,
-    userId
-  );
+  const [{ room }, newAdmin] = await Promise.all([
+    groupRepository.findRoomById(groupId),
+    await groupMemberRepository.updateRole(newRole, groupId, userId),
+  ]);
 
   return { room, newAdmin };
 };
@@ -301,6 +298,7 @@ export const permanentlyDeleteGroupChat = async (
   return { room, memberSocketIds };
 };
 
+// TODO: Use database transactions
 export const uploadGroupPicture = async (
   groupId: number,
   file: Express.MulterS3.File,
@@ -308,8 +306,10 @@ export const uploadGroupPicture = async (
 ): Promise<string> => {
   const groupRepository = new Group();
 
-  const fileName = await groupRepository.findPictureById(groupId);
-  const { room } = await groupRepository.findRoomById(groupId);
+  const [fileName, { room }] = await Promise.all([
+    await groupRepository.findPictureById(groupId),
+    await groupRepository.findRoomById(groupId),
+  ]);
 
   // Delete previous picture from S3 storage
   if (!(fileName === null)) {
@@ -320,14 +320,10 @@ export const uploadGroupPicture = async (
     );
   }
 
-  // Upload new picture
-  await groupRepository.updatePicture(file.originalname, groupId);
-
-  // Generate a temporary URL for viewing the uploaded picture from S3
-  const presignedS3Url = await createPresignedUrl(
-    process.env.BUCKET_NAME!,
-    file.key
-  );
+  const [presignedS3Url] = await Promise.all([
+    await createPresignedUrl(process.env.BUCKET_NAME!, file.key),
+    await groupRepository.updatePicture(file.originalname, groupId),
+  ]);
 
   await emitGroupPictureUpdate(io, room, presignedS3Url);
 

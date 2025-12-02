@@ -1,17 +1,17 @@
 import { Server, Socket } from 'socket.io';
 import { v4 as uuidv4 } from 'uuid';
-import {
-  createPresignedUrl,
-  generatePresignedUrlsForChatList,
-} from './s3.service.ts';
+import { userSockets } from '../handlers/socket-handlers.ts';
+import { ChatList } from '../repositories/chat-list.repository.ts';
+import { PrivateChat } from '../repositories/private-chat.repository.ts';
 import {
   ChatDeletionStatus,
   Chat as ChatItem,
 } from '../schemas/private-chat.schema.ts';
-import { userSockets } from '../handlers/socket-handlers.ts';
 import { S3AvatarStoragePath } from '../types/chat.ts';
-import { PrivateChat } from '../repositories/private-chat.repository.ts';
-import { ChatList } from '../repositories/chat-list.repository.ts';
+import {
+  createPresignedUrl,
+  generatePresignedUrlsForChatList,
+} from './s3.service.ts';
 
 export const handleChatAddition = async (
   socket: Socket,
@@ -28,12 +28,16 @@ export const handleChatAddition = async (
   // All chats are marked as deleted by default to prevent incorrectly displaying them in a user's chat list
   if (room === null) {
     const newRoom = uuidv4();
-    await privateChatRepository.insertNewChat(senderId, recipientId, newRoom);
-    await privateChatRepository.updateChatDeletionStatus(
-      senderId,
-      false,
-      newRoom
-    );
+
+    await Promise.all([
+      await privateChatRepository.insertNewChat(senderId, recipientId, newRoom),
+      await privateChatRepository.updateChatDeletionStatus(
+        senderId,
+        false,
+        newRoom
+      ),
+    ]);
+
     socket.join(newRoom);
     return await getChat(senderId, newRoom); // Retrieve newly inserted/created chat for addition
   } else {
@@ -106,7 +110,7 @@ export const addNewPrivateChat = async (
     const lastMessageId = await privateChatRepository.findLastMessageId(room);
     const socketId = userSockets.get(recipientId);
 
-    // If lastMessageId is null it means it's the first message being sent in the chat, which should -
+    // If lastMessageId is null, it means it's the first message being sent in the chat, which should -
     // trigger the chat to be added to the recipient's chat list
     if (socketId && lastMessageId === null) {
       const newChat = await getChat(recipientId, room);

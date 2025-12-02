@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt';
-import { User } from '../../repositories/user.repository.ts';
 import { Request, Response } from 'express';
+import { User } from '../../repositories/user.repository.ts';
 import { UserCredentialsSchema } from '../../schemas/user.schema.ts';
 
 const handleSignUp = async (req: Request, res: Response): Promise<void> => {
@@ -24,19 +24,13 @@ const handleSignUp = async (req: Request, res: Response): Promise<void> => {
 
     // Check if username already exists
     const existingUser = await userRepository.findUserByUsername(username);
-
     if (existingUser) {
       res.status(409).json({ error: 'Username already taken' });
       return;
     }
 
-    // Hash user password
     const hashedPassword = await bcrypt.hash(password, 14);
-
-    // Insert new user
     await userRepository.insertUser(username, hashedPassword);
-
-    // Fetch the newly created user
     const newUser = await userRepository.findUserByUsername(username);
 
     if (!newUser) {

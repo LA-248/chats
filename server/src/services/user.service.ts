@@ -131,24 +131,25 @@ export const updateProfilePicture = async (
     );
   }
 
-  await userRepository.updateProfilePictureById(file.originalname, userId);
-  const profilePictureUrl = await createPresignedUrl(
-    process.env.BUCKET_NAME!,
-    file.key
-  );
+  const [profilePictureUrl] = await Promise.all([
+    await createPresignedUrl(process.env.BUCKET_NAME!, file.key),
+    await createPresignedUrl(process.env.BUCKET_NAME!, file.key),
+  ]);
 
-  await updateUserInfoForAllContacts(
-    userId,
-    io,
-    profilePictureUrl,
-    'update-profile-picture-for-contacts'
-  );
-  await updateUserInfoInAllGroups(
-    userId,
-    io,
-    profilePictureUrl,
-    'update-profile-picture-in-groups'
-  );
+  await Promise.all([
+    await updateUserInfoForAllContacts(
+      userId,
+      io,
+      profilePictureUrl,
+      'update-profile-picture-for-contacts'
+    ),
+    await updateUserInfoInAllGroups(
+      userId,
+      io,
+      profilePictureUrl,
+      'update-profile-picture-in-groups'
+    ),
+  ]);
 
   return profilePictureUrl;
 };
@@ -159,20 +160,23 @@ export const handleUsernameUpdate = async (
   io: Server
 ): Promise<void> => {
   const userRepository = new User();
-  await userRepository.updateUsernameById(username, userId);
 
-  await updateUserInfoForAllContacts(
-    userId,
-    io,
-    username,
-    'update-username-for-contacts'
-  );
-  await updateUserInfoInAllGroups(
-    userId,
-    io,
-    username,
-    'update-username-in-groups'
-  );
+  await Promise.all([
+    await userRepository.updateUsernameById(username, userId),
+    await updateUserInfoForAllContacts(
+      userId,
+      io,
+      username,
+      'update-username-for-contacts'
+    ),
+    await updateUserInfoInAllGroups(
+      userId,
+      io,
+      username,
+      'update-username-in-groups'
+    ),
+  ]);
+
   return;
 };
 
