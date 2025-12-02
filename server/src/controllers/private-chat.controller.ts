@@ -1,9 +1,7 @@
 import { Request, Response } from 'express';
+import { CreatePrivateChatInputDto } from '../dtos/private-chat.dto.ts';
 import { userSockets } from '../handlers/socket-handlers.ts';
-import {
-  CreatePrivateChatInputDto,
-  CreatePrivateChatSchema,
-} from '../schemas/private-chat.schema.ts';
+import { CreatePrivateChatSchema } from '../schemas/private-chat.schema.ts';
 import {
   getChatListByUser,
   handleChatAddition,

@@ -125,6 +125,7 @@ export class PrivateChat {
     return { room: result.rows[0]?.room ?? null };
   };
 
+  // Finds all rooms a user belongs to
   findAllRoomsByUser = async (userId: number): Promise<ChatRoom[]> => {
     const result = await this.db.query<ChatRoom>(
       `
