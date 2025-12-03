@@ -35,11 +35,17 @@ export class User {
   insertUser = async (
     username: string,
     hashedPassword: string
-  ): Promise<void> => {
-    await this.db.query(
-      'INSERT INTO users (username, hashed_password) VALUES ($1, $2)',
+  ): Promise<UserProfile> => {
+    const result = await this.db.query<UserProfile>(
+      `
+        INSERT INTO users (username, hashed_password)
+        VALUES ($1, $2)
+        RETURNING user_id, username, profile_picture
+      `,
       [username, hashedPassword]
     );
+
+    return result.rows[0];
   };
 
   findUserById = async (userId: number): Promise<UserProfile> => {

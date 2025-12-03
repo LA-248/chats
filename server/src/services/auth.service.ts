@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import bcrypt from 'bcrypt';
+import { UsernameTakenError } from '../errors/errors.ts';
 import { User } from '../repositories/user.repository.ts';
-import { UserEntity } from '../schemas/user.schema.ts';
+import { UserEntity, UserProfile } from '../schemas/user.schema.ts';
 
-async function authenticateUser(
+export async function authenticateUser(
   username: string,
   password: string,
   cb: (err: any, user?: UserEntity | false, info?: { message: string }) => void
@@ -21,7 +22,7 @@ async function authenticateUser(
   }
 }
 
-function verifyPassword(
+export function verifyPassword(
   password: string,
   user: UserEntity,
   cb: (err: any, user?: UserEntity | false, info?: { message: string }) => void
@@ -39,4 +40,20 @@ function verifyPassword(
   });
 }
 
-export { authenticateUser, verifyPassword };
+export async function insertNewUser(
+  username: string,
+  password: string
+): Promise<UserProfile> {
+  const userRepository = new User();
+
+  // Check if username already exists
+  const existingUser = await userRepository.findUserByUsername(username);
+  if (existingUser) {
+    throw new UsernameTakenError();
+  }
+
+  const hashedPassword = await bcrypt.hash(password, 14);
+  const newUser = await userRepository.insertUser(username, hashedPassword);
+
+  return newUser;
+}

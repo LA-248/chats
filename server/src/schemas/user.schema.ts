@@ -17,7 +17,7 @@ export const UserCredentialsSchema = z.object({
 });
 
 export const InsertUserSchema = z.object({
-  username: z.string().min(2).max(30),
+  username: UsernameSchema,
   hashedPassword: z.string(),
 });
 export type InsertUser = z.infer<typeof InsertUserSchema>;
