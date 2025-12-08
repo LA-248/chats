@@ -23,30 +23,14 @@ export default function useMembersListUpdate(
       );
     };
 
-    const handleNewGroupOwnerAssignment = (data: {
-      newGroupOwner: Omit<GroupMember, 'username' | 'profile_picture'>;
+    const handleGroupMemberRoleUpdate = (data: {
+      updatedMember: Omit<GroupMember, 'username' | 'profile_picture'>;
     }) => {
       setMembersList((prevMembersList) =>
         prevMembersList.map((member) => {
-          if (member.user_id === data.newGroupOwner.user_id) {
-            return { ...member, role: data.newGroupOwner.role };
-          } else {
-            return member;
-          }
-        })
-      );
-    };
-
-    const handleAdminAssignment = (data: {
-      newAdmin: Omit<GroupMember, 'username' | 'profile_picture'>;
-    }) => {
-      setMembersList((prevMembersList) =>
-        prevMembersList.map((member) => {
-          if (member.user_id === data.newAdmin.user_id) {
-            return { ...member, role: data.newAdmin.role };
-          } else {
-            return member;
-          }
+          return member.user_id === data.updatedMember.user_id
+            ? { ...member, role: data.updatedMember.role }
+            : member;
         })
       );
     };
@@ -58,11 +42,9 @@ export default function useMembersListUpdate(
     }) => {
       setMembersList((prevMembersList) =>
         prevMembersList.map((member) => {
-          if (member.user_id === data.userId) {
-            return { ...member, profile_picture: data.newInfo };
-          } else {
-            return member;
-          }
+          return member.user_id === data.userId
+            ? { ...member, profile_picture: data.newInfo }
+            : member;
         })
       );
     };
@@ -74,19 +56,16 @@ export default function useMembersListUpdate(
     }) => {
       setMembersList((prevMembersList) =>
         prevMembersList.map((member) => {
-          if (member.user_id === data.userId) {
-            return { ...member, username: data.newInfo };
-          } else {
-            return member;
-          }
+          return member.user_id === data.userId
+            ? { ...member, username: data.newInfo }
+            : member;
         })
       );
     };
 
     socket.on('remove-member', handleMemberRemoval);
     socket.on('add-members', handleMemberAddition);
-    socket.on('assign-new-group-owner', handleNewGroupOwnerAssignment);
-    socket.on('assign-member-as-admin', handleAdminAssignment);
+    socket.on('update-member-role', handleGroupMemberRoleUpdate);
     socket.on(
       'update-profile-picture-in-groups',
       handleGroupMemberProfilePictureUpdate
@@ -96,8 +75,7 @@ export default function useMembersListUpdate(
     return () => {
       socket.off('remove-member', handleMemberRemoval);
       socket.off('add-members', handleMemberAddition);
-      socket.off('assign-new-group-owner', handleNewGroupOwnerAssignment);
-      socket.off('assign-member-as-admin', handleAdminAssignment);
+      socket.off('update-member-role', handleGroupMemberRoleUpdate);
       socket.off(
         'update-profile-picture-in-groups',
         handleGroupMemberProfilePictureUpdate

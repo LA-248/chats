@@ -44,19 +44,14 @@ export const createGroupChat: RequestHandler<
 > = async (req, res): Promise<void> => {
   try {
     const io: Server = req.app.get('io');
-    const groupChatData = {
-      ownerUserId: req.body.ownerUserId,
-      name: req.body.name,
-      membersToBeAdded: req.body.membersToBeAdded,
-    };
     const room = uuidv4();
 
-    const parsedBody = CreateGroupChatSchema.safeParse(groupChatData);
+    const parsedBody = CreateGroupChatSchema.safeParse(req.body);
     if (!parsedBody.success) {
-      console.error('Error creating group chat:', parsedBody.error);
+      console.error('Unexpected group data shape:', parsedBody.error);
       res
         .status(400)
-        .json({ error: 'Error creating group chat. Please try again.' });
+        .json({ error: 'Invalid group chat data. Please check your input.' });
       return;
     }
 
@@ -157,14 +152,13 @@ export const addMembers: RequestHandler<
   try {
     const io = req.app.get('io');
     const room = req.params.room;
-    const addedMembersData = { addedMembers: req.body.addedMembers };
 
-    const parsedBody = AddGroupMembersSchema.safeParse(addedMembersData);
+    const parsedBody = AddGroupMembersSchema.safeParse(req.body.addedMembers);
     if (!parsedBody.success) {
       console.error('Error adding members to group chat:', parsedBody.error);
       res
         .status(400)
-        .json({ error: 'Error adding members. Please try again.' });
+        .json({ error: 'Invalid member data. Please check your input.' });
       return;
     }
 
@@ -202,11 +196,11 @@ export const leaveGroup = async (
     const groupId = Number(req.params.groupId);
     const userId = Number(req.user?.user_id);
     const socketId = userSockets.get(userId);
-    const { room, removedUser, newGroupOwner } = await removeMemberWhoLeft(
-      io,
-      groupId,
-      userId
-    );
+    const {
+      room,
+      removedUser,
+      newGroupOwner: updatedMember,
+    } = await removeMemberWhoLeft(io, groupId, userId);
     const removedUserId = removedUser.user_id;
 
     // Send the user id of the removed member to the frontend
@@ -219,8 +213,8 @@ export const leaveGroup = async (
       room: room,
       redirectPath: '/',
     });
-    io.to(room).emit('assign-new-group-owner', {
-      newGroupOwner,
+    io.to(room).emit('update-member-role', {
+      updatedMember,
     });
 
     res.status(200).json({
@@ -292,10 +286,14 @@ export const updateRole = async (
     const groupId = Number(req.params.groupId);
     const userId = Number(req.params.userId);
     const newRole: string = req.body.role;
-    const { room, newAdmin } = await updateMemberRole(newRole, groupId, userId);
+    const { room, updatedMember } = await updateMemberRole(
+      newRole,
+      groupId,
+      userId
+    );
 
-    io.to(room).emit('assign-member-as-admin', {
-      newAdmin,
+    io.to(room).emit('update-member-role', {
+      updatedMember,
     });
 
     res.status(200).json({

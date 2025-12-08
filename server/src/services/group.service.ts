@@ -250,17 +250,17 @@ export const updateMemberRole = async (
   userId: number
 ): Promise<{
   room: string;
-  newAdmin: Omit<GroupMemberInfo, 'username' | 'profile_picture'>;
+  updatedMember: Omit<GroupMemberInfo, 'username' | 'profile_picture'>;
 }> => {
   const groupRepository = new Group();
   const groupMemberRepository = new GroupMember();
 
-  const [{ room }, newAdmin] = await Promise.all([
+  const [{ room }, updatedMember] = await Promise.all([
     groupRepository.findRoomById(groupId),
     await groupMemberRepository.updateRole(newRole, groupId, userId),
   ]);
 
-  return { room, newAdmin };
+  return { room, updatedMember };
 };
 
 export const permanentlyDeleteGroupChat = async (
