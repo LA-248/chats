@@ -128,14 +128,14 @@ export class GroupMember {
   deleteGroupMember = async (
     groupId: number,
     userId: number
-  ): Promise<Omit<GroupMemberInfo, 'username' | 'profile_picture'>> => {
+  ): Promise<Omit<GroupMemberInfo, 'profile_picture'>> => {
     const result = await this.db.query<
-      Omit<GroupMemberInfo, 'username' | 'profile_picture'>
+      Omit<GroupMemberInfo, 'profile_picture'>
     >(
       `
       DELETE FROM group_members 
       WHERE group_id = $1 AND user_id = $2
-      RETURNING user_id, role
+      RETURNING user_id, role, username
       `,
       [groupId, userId]
     );

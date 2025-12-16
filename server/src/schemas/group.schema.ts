@@ -71,3 +71,10 @@ export const AddGroupMembersSchema = z.object({
     })
   ),
 });
+
+export const GroupIdSchema = z.string();
+
+export const RemoveKickedGroupMemberSchema = z.object({
+  groupId: z.number(),
+  targetUserId: z.number(),
+});

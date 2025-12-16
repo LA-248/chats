@@ -8,6 +8,8 @@ import {
   CreateGroupChatInputDto,
   CreateGroupChatPartialSuccessResponseDto,
   CreateGroupChatResponseDto,
+  LeaveGroupResponseDto,
+  removeKickedGroupMemberResponseDto,
   RetrieveGroupInfoResponseDto,
   RetrieveGroupMemberUsernamesResponseDto,
 } from '../dtos/group.dto.ts';
@@ -16,7 +18,10 @@ import { userSockets } from '../handlers/socket-handlers.ts';
 import {
   AddGroupMembersSchema,
   CreateGroupChatSchema,
+  GroupIdSchema,
+  GroupRoomSchema,
   NewGroupChat,
+  RemoveKickedGroupMemberSchema,
 } from '../schemas/group.schema.ts';
 import {
   addUsersToGroup,
@@ -95,8 +100,18 @@ export const retrieveGroupInfo: RequestHandler<
   void
 > = async (req, res): Promise<void> => {
   try {
-    const room = req.params.room;
-    const groupData = await retrieveGroupInfoWithMembers(room);
+    const parsedParams = GroupRoomSchema.safeParse(req.params);
+    if (!parsedParams.success) {
+      console.error('Invalid group chat room:', parsedParams.error);
+      res
+        .status(400)
+        .json({ error: 'Invalid group chat room. Please check your input.' });
+      return;
+    }
+
+    const groupData = await retrieveGroupInfoWithMembers(
+      parsedParams.data.room
+    );
     res.status(200).json(groupData);
   } catch (error) {
     console.error('Error retrieving group info:', error);
@@ -113,7 +128,16 @@ export const retrieveMemberUsernames: RequestHandler<
 > = async (req, res): Promise<void> => {
   try {
     const groupId = req.params.groupId;
-    const usernames = await getMemberUsernames(Number(groupId));
+    const parsedParams = GroupIdSchema.safeParse(groupId);
+    if (!parsedParams.success) {
+      console.error('Invalid group ID:', parsedParams.error);
+      res
+        .status(400)
+        .json({ error: 'Invalid group chat ID. Please check your input.' });
+      return;
+    }
+
+    const usernames = await getMemberUsernames(Number(parsedParams.data));
     res.status(200).json({ memberUsernames: usernames });
   } catch (error) {
     console.error('Error retrieving group member usernames:', error);
@@ -128,14 +152,21 @@ export const markGroupChatAsDeleted: RequestHandler<
 > = async (req, res): Promise<void> => {
   try {
     const userId = Number(req.user?.user_id);
-    const room = req.params.room;
-
     if (!userId) {
       res.status(401).json({ error: 'User not authenticated' });
       return;
     }
 
-    await markGroupAsDeleted(userId, room);
+    const parsedParams = GroupRoomSchema.safeParse(req.params);
+    if (!parsedParams.success) {
+      console.error('Invalid group chat room:', parsedParams.error);
+      res
+        .status(400)
+        .json({ error: 'Invalid group chat room. Please check your input.' });
+      return;
+    }
+
+    await markGroupAsDeleted(userId, parsedParams.data.room);
     res.status(200).json({ message: 'Chat deleted successfully' });
   } catch (error) {
     console.error('Error deleting chat:', error);
@@ -153,9 +184,12 @@ export const addMembers: RequestHandler<
     const io = req.app.get('io');
     const room = req.params.room;
 
-    const parsedBody = AddGroupMembersSchema.safeParse(req.body.addedMembers);
+    const parsedBody = AddGroupMembersSchema.safeParse(req.body);
     if (!parsedBody.success) {
-      console.error('Error adding members to group chat:', parsedBody.error);
+      console.error(
+        'Error adding members to group chat, invalid input:',
+        parsedBody.error
+      );
       res
         .status(400)
         .json({ error: 'Invalid member data. Please check your input.' });
@@ -187,14 +221,30 @@ export const addMembers: RequestHandler<
 };
 
 // Handle a user voluntarily leaving a group chat
-export const leaveGroup = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
+export const leaveGroup: RequestHandler<
+  { groupId: string },
+  LeaveGroupResponseDto | ApiErrorResponse,
+  void
+> = async (req, res): Promise<void> => {
   try {
     const io = req.app.get('io');
-    const groupId = Number(req.params.groupId);
+
     const userId = Number(req.user?.user_id);
+    if (!userId) {
+      res.status(401).json({ error: 'User not authenticated' });
+      return;
+    }
+
+    const groupId = Number(req.params.groupId);
+    const parsedParams = GroupIdSchema.safeParse(groupId);
+    if (!parsedParams.success) {
+      console.error('Invalid group ID:', parsedParams.error);
+      res
+        .status(400)
+        .json({ error: 'Invalid group chat ID. Please check your input.' });
+      return;
+    }
+
     const socketId = userSockets.get(userId);
     const {
       room,
@@ -208,12 +258,15 @@ export const leaveGroup = async (
     io.to(room).emit('remove-member', {
       removedUserId,
     });
+
     // After a member leaves, send the room to the frontend so the group can be filtered out of their chat list
     io.to(socketId).emit('remove-group-chat', {
       room: room,
       redirectPath: '/',
     });
-    io.to(room).emit('update-member-role', {
+
+    // If the member who left was the owner, emit the info of the newly assigned group owner
+    io.to(room).emit('update-group-owner', {
       updatedMember,
     });
 
@@ -229,20 +282,35 @@ export const leaveGroup = async (
 };
 
 // Used when the group owner or an admin kicks a member
-export const removeKickedGroupMember = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
+export const removeKickedGroupMember: RequestHandler<
+  {
+    groupId: string;
+    userId: string;
+  },
+  removeKickedGroupMemberResponseDto | ApiErrorResponse,
+  void
+> = async (req, res): Promise<void> => {
   try {
     const io = req.app.get('io');
-    const groupId = Number(req.params.groupId);
-    const userId = Number(req.params.userId);
     const loggedInUserId = Number(req.user?.user_id); // Get the ID of the user performing the member removal
-    const socketId = userSockets.get(userId);
+    if (!loggedInUserId) {
+      res.status(401).json({ error: 'User not authenticated' });
+      return;
+    }
+    const groupId = Number(req.params.groupId);
+    const targetUserId = Number(req.params.userId);
+    const parsedParams = RemoveKickedGroupMemberSchema.safeParse(req.params);
+    if (!parsedParams.success) {
+      console.error('Invalid request params:', parsedParams.error);
+      res.status(400).json({ error: 'Invalid request data' });
+      return;
+    }
+
+    const socketId = userSockets.get(targetUserId);
     const { room, removedUser } = await kickMember(
       io,
       groupId,
-      userId,
+      targetUserId,
       loggedInUserId
     );
     const removedUserId = removedUser.user_id;
@@ -259,6 +327,8 @@ export const removeKickedGroupMember = async (
     });
 
     res.status(200).json({
+      username: removedUser.username,
+      kickedMemberUserId: removedUser.user_id,
       message: 'Member successfully removed',
     });
   } catch (error) {

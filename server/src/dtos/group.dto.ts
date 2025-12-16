@@ -1,4 +1,5 @@
 import { z } from 'zod/v4';
+import { UpdateGroupMemberRoleSchema } from '../schemas/group-member.schema.ts';
 import {
   AddGroupMembersSchema,
   CreateGroupChatSchema,
@@ -42,4 +43,18 @@ export type AddMembersInputDto = z.infer<typeof AddGroupMembersSchema>;
 export type AddMembersResponseDto = {
   message: string;
   addedMembers: AddedUserInfo[];
+};
+
+export type UpdateGroupMemberInputDto = z.infer<
+  typeof UpdateGroupMemberRoleSchema
+>;
+
+export type LeaveGroupResponseDto = {
+  message: string;
+};
+
+export type removeKickedGroupMemberResponseDto = {
+  username: string;
+  kickedMemberUserId: number;
+  message: string;
 };
