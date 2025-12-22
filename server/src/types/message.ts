@@ -10,7 +10,12 @@ export interface MessageEvent {
   fileKey?: string;
 }
 
+export interface MessageSenderId {
+  messageSenderId: number;
+}
+
 export enum MessageType {
   TEXT = 'text',
   IMAGE = 'image',
+  VIDEO = 'video',
 }

@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import {
-  edit,
   deleteChatMessage,
+  edit,
   upload,
 } from '../services/message.service.ts';
 

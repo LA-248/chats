@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from 'express';
-import { MessageType } from '../types/message.ts';
+import { Message } from '../repositories/message.repository.ts';
 import { User } from '../repositories/user.repository.ts';
 import { ChatHandler } from '../types/chat.ts';
-import { Message } from '../repositories/message.repository.ts';
+import { MessageType } from '../types/message.ts';
 
 // Prevent users from sending messages to chat rooms they are not a part of
 // This check is needed because messages do not go through the existing auth middleware since they are handled via sockets and not HTTP routes
@@ -14,6 +14,38 @@ export const authoriseChatMessage = async (
   const memberIds = await chatHandler.getMembers(room);
   if (!memberIds.includes(senderId)) {
     throw new Error('User is not authorised to send messages in this chat');
+  }
+};
+
+export const authoriseMessageDeletion = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const requestingUserId = Number(req.user?.user_id);
+  const messageId = Number(req.params.messageId);
+
+  try {
+    const messageRepository = new Message();
+    const { messageSenderId } = await messageRepository.findMessageSenderId(
+      messageId
+    );
+
+    if (messageSenderId !== requestingUserId) {
+      res.status(403).json({
+        error: 'Forbidden',
+        message: 'You can only delete your own messages',
+      });
+      return;
+    }
+    return next();
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      error: 'Internal server error',
+      message: 'An unexpected error occurred',
+      redirectPath: '/',
+    });
   }
 };
 
@@ -34,9 +66,8 @@ export const enforceMessageEditRules = async (
         message: 'Editing images is not supported',
       });
       return;
-    } else {
-      next();
     }
+    return next();
   } catch (error) {
     console.error(error);
     res.status(500).json({

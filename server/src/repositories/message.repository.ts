@@ -3,6 +3,7 @@ import {
   Message as MessageType,
   NewMessage,
 } from '../schemas/message.schema.ts';
+import { MessageSenderId } from '../types/message.ts';
 import { query } from '../utils/database-query.ts';
 
 interface Database {
@@ -75,6 +76,20 @@ export class Message {
       WHERE sender_id = $1 AND message_id = $2
       `,
       [senderId, messageId]
+    );
+
+    return result.rows[0];
+  };
+
+  findMessageSenderId = async (messageId: number) => {
+    const result = await this.db.query<MessageSenderId>(
+      `
+      SELECT
+        sender_id AS "messageSenderId"
+      FROM messages
+      WHERE message_id = $1
+      `,
+      [messageId]
     );
 
     return result.rows[0];
