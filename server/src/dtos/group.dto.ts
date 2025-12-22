@@ -53,8 +53,31 @@ export type LeaveGroupResponseDto = {
   message: string;
 };
 
-export type removeKickedGroupMemberResponseDto = {
+export type RemoveKickedGroupMemberResponseDto = {
   username: string;
   kickedMemberUserId: number;
   message: string;
+};
+
+export type UpdateGroupMemberRoleResponseDto = {
+  message: string;
+  user_id: number;
+  role: string;
+};
+
+export type PermanentlyDeleteGroupResponseDto = {
+  message: string;
+};
+
+export type UpdateGroupPictureDto = {
+  fileUrl: string;
+  groupId: number;
+  name: string;
+};
+
+export type UpdateLastMessageIdInputDto = {
+  messageId: number | null;
+};
+export type UpdateLastMessageIdResponseDto = {
+  success: string;
 };

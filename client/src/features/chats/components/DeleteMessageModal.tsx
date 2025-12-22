@@ -50,7 +50,7 @@ export default function DeleteMessageModal({
       // Update chat list in real-time after most recent message is deleted
       // If last remaining message is deleted, ensure last message id in private chat table is null
       if (messageList.length === 1) {
-        if (ChatType.PRIVATE) {
+        if (chatType === ChatType.PRIVATE) {
           await updateLastMessageId(null, room);
         } else {
           await updateLastGroupMessageId(null, room);

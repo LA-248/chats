@@ -1,4 +1,5 @@
 import { Server } from 'socket.io';
+import { UpdateGroupPictureDto } from '../dtos/group.dto.ts';
 import { userSockets } from '../handlers/socket-handlers.ts';
 import { GroupMember } from '../repositories/group-member.repository.ts';
 import { Group } from '../repositories/group.repository.ts';
@@ -162,7 +163,7 @@ export const removeMemberWhoLeft = async (
   const socketId = userSockets.get(userId);
   let newGroupOwner: Omit<GroupMemberInfo, 'username' | 'profile_picture'> = {
     user_id: 0,
-    role: '',
+    role: 'member',
   };
 
   const [{ room }, removedUser] = await Promise.all([
@@ -300,15 +301,15 @@ export const permanentlyDeleteGroupChat = async (
 
 // TODO: Use database transactions
 export const uploadGroupPicture = async (
-  groupId: number,
+  id: number,
   file: Express.MulterS3.File,
   io: Server
-): Promise<string> => {
+): Promise<UpdateGroupPictureDto> => {
   const groupRepository = new Group();
 
   const [fileName, { room }] = await Promise.all([
-    await groupRepository.findPictureById(groupId),
-    await groupRepository.findRoomById(groupId),
+    await groupRepository.findPictureById(id),
+    await groupRepository.findRoomById(id),
   ]);
 
   // Delete previous picture from S3 storage
@@ -316,18 +317,18 @@ export const uploadGroupPicture = async (
     // Only run if a picture exists
     await deleteS3Object(
       process.env.BUCKET_NAME!,
-      `${S3AvatarStoragePath.GROUP_AVATARS}/${groupId}/${fileName}`
+      `${S3AvatarStoragePath.GROUP_AVATARS}/${id}/${fileName}`
     );
   }
 
-  const [presignedS3Url] = await Promise.all([
+  const [fileUrl, { groupId, name }] = await Promise.all([
     await createPresignedUrl(process.env.BUCKET_NAME!, file.key),
-    await groupRepository.updatePicture(file.originalname, groupId),
+    await groupRepository.updatePicture(file.originalname, id),
   ]);
 
-  await emitGroupPictureUpdate(io, room, presignedS3Url);
+  await emitGroupPictureUpdate(io, room, fileUrl);
 
-  return presignedS3Url;
+  return { fileUrl, groupId, name };
 };
 
 export const addUserToReadList = async (
@@ -340,7 +341,7 @@ export const addUserToReadList = async (
 
 // Update the last message in a group chat, used when the most recent message is deleted
 export const updateLastGroupMessage = async (
-  newLastMessageId: number,
+  newLastMessageId: number | null,
   room: string
 ): Promise<void | null> => {
   const groupRepository = new Group();

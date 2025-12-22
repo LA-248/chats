@@ -1,4 +1,4 @@
-import { Request, RequestHandler, Response } from 'express';
+import { RequestHandler } from 'express';
 import { Server } from 'socket.io';
 import { v4 as uuidv4 } from 'uuid';
 import { ApiErrorResponse } from '../dtos/error.dto.ts';
@@ -9,9 +9,14 @@ import {
   CreateGroupChatPartialSuccessResponseDto,
   CreateGroupChatResponseDto,
   LeaveGroupResponseDto,
-  removeKickedGroupMemberResponseDto,
+  PermanentlyDeleteGroupResponseDto,
+  RemoveKickedGroupMemberResponseDto,
   RetrieveGroupInfoResponseDto,
   RetrieveGroupMemberUsernamesResponseDto,
+  UpdateGroupMemberRoleResponseDto,
+  UpdateGroupPictureDto,
+  UpdateLastMessageIdInputDto,
+  UpdateLastMessageIdResponseDto,
 } from '../dtos/group.dto.ts';
 import { ApiSuccessResponse } from '../dtos/success.dto.ts';
 import { userSockets } from '../handlers/socket-handlers.ts';
@@ -21,7 +26,14 @@ import {
   GroupIdSchema,
   GroupRoomSchema,
   NewGroupChat,
-  RemoveKickedGroupMemberSchema,
+  PermanentlyDeleteGroupParamsSchema,
+  RemoveKickedGroupMemberParamsSchema,
+  UpdateGroupPictureParamsSchema,
+  UpdateLastMessageIdBodySchema,
+  UpdateLastMessageIdParamsSchema,
+  UpdateMemberRoleBodySchema,
+  UpdateMemberRoleParamsSchema,
+  UpdateUserReadStatusParamsSchema,
 } from '../schemas/group.schema.ts';
 import {
   addUsersToGroup,
@@ -287,7 +299,7 @@ export const removeKickedGroupMember: RequestHandler<
     groupId: string;
     userId: string;
   },
-  removeKickedGroupMemberResponseDto | ApiErrorResponse,
+  RemoveKickedGroupMemberResponseDto | ApiErrorResponse,
   void
 > = async (req, res): Promise<void> => {
   try {
@@ -297,23 +309,23 @@ export const removeKickedGroupMember: RequestHandler<
       res.status(401).json({ error: 'User not authenticated' });
       return;
     }
-    const groupId = Number(req.params.groupId);
-    const targetUserId = Number(req.params.userId);
-    const parsedParams = RemoveKickedGroupMemberSchema.safeParse(req.params);
+    const parsedParams = RemoveKickedGroupMemberParamsSchema.safeParse(
+      req.params
+    );
     if (!parsedParams.success) {
       console.error('Invalid request params:', parsedParams.error);
       res.status(400).json({ error: 'Invalid request data' });
       return;
     }
 
-    const socketId = userSockets.get(targetUserId);
     const { room, removedUser } = await kickMember(
       io,
-      groupId,
-      targetUserId,
+      parsedParams.data.groupId,
+      parsedParams.data.targetUserId,
       loggedInUserId
     );
     const removedUserId = removedUser.user_id;
+    const socketId = userSockets.get(parsedParams.data.targetUserId);
 
     // Send the user id of the removed member to the frontend
     // This allows for the members list to be updated in real-time for all group chat participants
@@ -347,19 +359,34 @@ export const removeKickedGroupMember: RequestHandler<
   }
 };
 
-export const updateRole = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
+export const updateRole: RequestHandler<
+  {
+    groupId: string;
+    userId: string;
+  },
+  UpdateGroupMemberRoleResponseDto | ApiErrorResponse,
+  void
+> = async (req, res): Promise<void> => {
   try {
     const io = req.app.get('io');
-    const groupId = Number(req.params.groupId);
-    const userId = Number(req.params.userId);
-    const newRole: string = req.body.role;
+
+    const parsedBody = UpdateMemberRoleBodySchema.safeParse(req.body);
+    if (!parsedBody.success) {
+      console.error('Invalid request body:', parsedBody.error);
+      res.status(400).json({ error: 'Invalid request body data' });
+      return;
+    }
+    const parsedParams = UpdateMemberRoleParamsSchema.safeParse(req.params);
+    if (!parsedParams.success) {
+      console.error('Invalid request params:', parsedParams.error);
+      res.status(400).json({ error: 'Invalid request data' });
+      return;
+    }
+
     const { room, updatedMember } = await updateMemberRole(
-      newRole,
-      groupId,
-      userId
+      parsedBody.data.newRole,
+      parsedParams.data.groupId,
+      parsedParams.data.userId
     );
 
     io.to(room).emit('update-member-role', {
@@ -368,6 +395,8 @@ export const updateRole = async (
 
     res.status(200).json({
       message: 'Member role successfully updated',
+      user_id: updatedMember.user_id,
+      role: updatedMember.role,
     });
   } catch (error) {
     console.error('Error updating member role:', error);
@@ -377,14 +406,28 @@ export const updateRole = async (
   }
 };
 
-export const permanentlyDeleteGroup = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
+export const permanentlyDeleteGroup: RequestHandler<
+  {
+    groupId: string;
+  },
+  PermanentlyDeleteGroupResponseDto | ApiErrorResponse,
+  void
+> = async (req, res): Promise<void> => {
   try {
     const io = req.app.get('io');
-    const groupId = Number(req.params.groupId);
-    const { room, memberSocketIds } = await permanentlyDeleteGroupChat(groupId);
+
+    const parsedParams = PermanentlyDeleteGroupParamsSchema.safeParse(
+      req.params
+    );
+    if (!parsedParams.success) {
+      console.error('Invalid request params:', parsedParams.error);
+      res.status(400).json({ error: 'Invalid request data' });
+      return;
+    }
+
+    const { room, memberSocketIds } = await permanentlyDeleteGroupChat(
+      parsedParams.data.groupId
+    );
 
     // After a group is permanently deleted, send the room to the frontend so it can be filtered out of each member's chat list
     for (let i = 0; i < memberSocketIds.length; i++) {
@@ -404,18 +447,32 @@ export const permanentlyDeleteGroup = async (
   }
 };
 
-export const updateGroupPicture = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
+export const updateGroupPicture: RequestHandler<
+  { groupId: string },
+  UpdateGroupPictureDto | ApiErrorResponse,
+  void
+> = async (req, res): Promise<void> => {
   try {
     const io = req.app.get('io');
-    const groupId = Number(req.params.groupId);
+
+    const parsedParams = UpdateGroupPictureParamsSchema.safeParse(req.params);
+    if (!parsedParams.success) {
+      console.error('Invalid request params:', parsedParams.error);
+      res.status(400).json({ error: 'Invalid request data' });
+      return;
+    }
+
     const file = req.file as Express.MulterS3.File;
-    const groupPictureUrl = await uploadGroupPicture(groupId, file, io);
+    const { fileUrl, groupId, name } = await uploadGroupPicture(
+      parsedParams.data.groupId,
+      file,
+      io
+    );
 
     res.status(200).json({
-      fileUrl: groupPictureUrl,
+      fileUrl,
+      groupId,
+      name,
     });
   } catch (error) {
     console.error('Error uploading group picture:', error);
@@ -425,20 +482,27 @@ export const updateGroupPicture = async (
   }
 };
 
-export const updateUserReadStatus = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
+export const updateUserReadStatus: RequestHandler<
+  { room: string },
+  ApiErrorResponse,
+  void
+> = async (req, res): Promise<void> => {
   try {
     const userId = Number(req.user?.user_id);
-    const room = req.params.room;
+
+    const parsedParams = UpdateUserReadStatusParamsSchema.safeParse(req.params);
+    if (!parsedParams.success) {
+      console.error('Invalid request params:', parsedParams.error);
+      res.status(400).json({ error: 'Invalid request data' });
+      return;
+    }
 
     if (!userId) {
       res.status(401).json({ error: 'User not authenticated' });
       return;
     }
 
-    await addUserToReadList(userId, room);
+    await addUserToReadList(userId, parsedParams.data.room);
     res.sendStatus(200);
   } catch (error) {
     console.error('Error adding group member to read list:', error);
@@ -446,14 +510,29 @@ export const updateUserReadStatus = async (
   }
 };
 
-export const updateLastMessageId = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
+export const updateLastMessageId: RequestHandler<
+  { room: string },
+  UpdateLastMessageIdResponseDto | ApiErrorResponse,
+  UpdateLastMessageIdInputDto
+> = async (req, res): Promise<void> => {
   try {
-    const newLastMessageId = req.body.messageId;
-    const room = req.params.room;
-    await updateLastGroupMessage(newLastMessageId, room);
+    const parsedBody = UpdateLastMessageIdBodySchema.safeParse(req.body);
+    if (!parsedBody.success) {
+      console.error('Invalid request body:', parsedBody.error);
+      res.status(400).json({ error: 'Invalid request body data' });
+      return;
+    }
+    const parsedParams = UpdateLastMessageIdParamsSchema.safeParse(req.params);
+    if (!parsedParams.success) {
+      console.error('Invalid request params:', parsedParams.error);
+      res.status(400).json({ error: 'Invalid request data' });
+      return;
+    }
+
+    await updateLastGroupMessage(
+      parsedBody.data.messageId,
+      parsedParams.data.room
+    );
 
     res.status(200).json({ success: 'Last message successfully updated' });
   } catch (error) {

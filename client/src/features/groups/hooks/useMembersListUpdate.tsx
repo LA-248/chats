@@ -65,6 +65,7 @@ export default function useMembersListUpdate(
 
     socket.on('remove-member', handleMemberRemoval);
     socket.on('add-members', handleMemberAddition);
+    socket.on('update-group-owner', handleGroupMemberRoleUpdate);
     socket.on('update-member-role', handleGroupMemberRoleUpdate);
     socket.on(
       'update-profile-picture-in-groups',
@@ -75,6 +76,7 @@ export default function useMembersListUpdate(
     return () => {
       socket.off('remove-member', handleMemberRemoval);
       socket.off('add-members', handleMemberAddition);
+      socket.off('update-group-owner', handleGroupMemberRoleUpdate);
       socket.off('update-member-role', handleGroupMemberRoleUpdate);
       socket.off(
         'update-profile-picture-in-groups',

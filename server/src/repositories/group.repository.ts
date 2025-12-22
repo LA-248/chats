@@ -136,10 +136,17 @@ export class Group {
   };
 
   updatePicture = async (fileName: string, groupId: number) => {
-    await this.db.query(
-      'UPDATE groups SET group_picture = $1 WHERE group_id = $2',
+    const result = await this.db.query(
+      `
+      UPDATE groups
+      SET group_picture = $1
+      WHERE group_id = $2
+      RETURNING group_id AS "groupId", name
+      `,
       [fileName, groupId]
     );
+
+    return result.rows[0];
   };
 
   setLastMessage = async (
@@ -162,7 +169,7 @@ export class Group {
   };
 
   updateLastMessageEventTime = async (
-    messageId: number,
+    messageId: number | null,
     room: string
   ): Promise<void> => {
     await this.db.query(

@@ -50,7 +50,7 @@ export type GroupUpdatedAt = z.infer<typeof GroupUpdatedAtSchema>;
 export const NewGroupMemberSchema = z.object({
   group_id: z.number(),
   user_id: z.number(),
-  role: z.string(),
+  role: z.enum(['owner', 'admin', 'member']),
   joined_at: z.date(),
 });
 export type NewGroupMember = z.infer<typeof NewGroupMemberSchema>;
@@ -59,7 +59,7 @@ export const GroupMemberInfoSchema = z.object({
   user_id: z.number(),
   username: z.string(),
   profile_picture: z.string().nullable(),
-  role: z.string(),
+  role: z.enum(['owner', 'admin', 'member']),
 });
 
 export const AddGroupMembersSchema = z.object({
@@ -67,14 +67,41 @@ export const AddGroupMembersSchema = z.object({
     z.object({
       userId: z.number(),
       username: z.string(),
-      role: z.string(),
+      role: z.enum(['owner', 'admin', 'member']),
     })
   ),
 });
 
 export const GroupIdSchema = z.string();
 
-export const RemoveKickedGroupMemberSchema = z.object({
-  groupId: z.number(),
-  targetUserId: z.number(),
+export const RemoveKickedGroupMemberParamsSchema = z.object({
+  groupId: z.coerce.number().int().positive(),
+  targetUserId: z.coerce.number().int().positive(),
+});
+
+export const UpdateMemberRoleBodySchema = z.object({
+  newRole: z.enum(['owner', 'admin', 'member']),
+});
+export const UpdateMemberRoleParamsSchema = z.object({
+  groupId: z.coerce.number().int().positive(),
+  userId: z.coerce.number().int().positive(),
+});
+
+export const PermanentlyDeleteGroupParamsSchema = z.object({
+  groupId: z.coerce.number().int().positive(),
+});
+
+export const UpdateGroupPictureParamsSchema = z.object({
+  groupId: z.coerce.number().int().positive(),
+});
+
+export const UpdateUserReadStatusParamsSchema = z.object({
+  room: z.string(),
+});
+
+export const UpdateLastMessageIdBodySchema = z.object({
+  messageId: z.number().nullable(),
+});
+export const UpdateLastMessageIdParamsSchema = z.object({
+  room: z.string(),
 });
