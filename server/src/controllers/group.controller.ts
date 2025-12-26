@@ -321,11 +321,11 @@ export const removeKickedGroupMember: RequestHandler<
     const { room, removedUser } = await kickMember(
       io,
       parsedParams.data.groupId,
-      parsedParams.data.targetUserId,
+      parsedParams.data.userId,
       loggedInUserId
     );
     const removedUserId = removedUser.user_id;
-    const socketId = userSockets.get(parsedParams.data.targetUserId);
+    const socketId = userSockets.get(parsedParams.data.userId);
 
     // Send the user id of the removed member to the frontend
     // This allows for the members list to be updated in real-time for all group chat participants
@@ -339,9 +339,8 @@ export const removeKickedGroupMember: RequestHandler<
     });
 
     res.status(200).json({
-      username: removedUser.username,
       kickedMemberUserId: removedUser.user_id,
-      message: 'Member successfully removed',
+      message: 'Member removed',
     });
   } catch (error) {
     if (error instanceof Error) {
@@ -372,7 +371,10 @@ export const updateRole: RequestHandler<
 
     const parsedBody = UpdateMemberRoleBodySchema.safeParse(req.body);
     if (!parsedBody.success) {
-      console.error('Invalid request body:', parsedBody.error);
+      console.error(
+        'Error updating role, invalid request body:',
+        parsedBody.error
+      );
       res.status(400).json({ error: 'Invalid request body data' });
       return;
     }
@@ -384,7 +386,7 @@ export const updateRole: RequestHandler<
     }
 
     const { room, updatedMember } = await updateMemberRole(
-      parsedBody.data.newRole,
+      parsedBody.data.role,
       parsedParams.data.groupId,
       parsedParams.data.userId
     );
@@ -394,7 +396,7 @@ export const updateRole: RequestHandler<
     });
 
     res.status(200).json({
-      message: 'Member role successfully updated',
+      message: 'Member role updated',
       user_id: updatedMember.user_id,
       role: updatedMember.role,
     });

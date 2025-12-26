@@ -54,7 +54,6 @@ export type LeaveGroupResponseDto = {
 };
 
 export type RemoveKickedGroupMemberResponseDto = {
-  username: string;
   kickedMemberUserId: number;
   message: string;
 };

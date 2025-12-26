@@ -205,7 +205,7 @@ export const kickMember = async (
   loggedInUserId: number
 ): Promise<{
   room: string;
-  removedUser: Omit<GroupMemberInfo, 'profile_picture'>;
+  removedUser: Omit<GroupMemberInfo, 'username' | 'profile_picture'>;
 }> => {
   const groupRepository = new Group();
   const groupMemberRepository = new GroupMember();

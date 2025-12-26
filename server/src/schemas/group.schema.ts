@@ -76,11 +76,11 @@ export const GroupIdSchema = z.string();
 
 export const RemoveKickedGroupMemberParamsSchema = z.object({
   groupId: z.coerce.number().int().positive(),
-  targetUserId: z.coerce.number().int().positive(),
+  userId: z.coerce.number().int().positive(),
 });
 
 export const UpdateMemberRoleBodySchema = z.object({
-  newRole: z.enum(['owner', 'admin', 'member']),
+  role: z.enum(['owner', 'admin', 'member']),
 });
 export const UpdateMemberRoleParamsSchema = z.object({
   groupId: z.coerce.number().int().positive(),

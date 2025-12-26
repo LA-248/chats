@@ -135,7 +135,7 @@ export class GroupMember {
       `
       DELETE FROM group_members 
       WHERE group_id = $1 AND user_id = $2
-      RETURNING user_id, role, username
+      RETURNING user_id, role
       `,
       [groupId, userId]
     );
