@@ -3,10 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { userSockets } from '../handlers/socket-handlers.ts';
 import { ChatList } from '../repositories/chat-list.repository.ts';
 import { PrivateChat } from '../repositories/private-chat.repository.ts';
-import {
-  ChatDeletionStatus,
-  Chat as ChatItem,
-} from '../schemas/private-chat.schema.ts';
+import { Chat, ChatDeletionStatus } from '../schemas/private-chat.schema.ts';
 import { S3AvatarStoragePath } from '../types/chat.ts';
 import {
   createPresignedUrl,
@@ -17,7 +14,7 @@ export const handleChatAddition = async (
   socket: Socket,
   senderId: number,
   recipientId: number
-): Promise<ChatItem> => {
+): Promise<Chat> => {
   const privateChatRepository = new PrivateChat();
   const { room } = await privateChatRepository.findRoomByMembers(
     senderId,
@@ -30,12 +27,8 @@ export const handleChatAddition = async (
     const newRoom = uuidv4();
 
     await Promise.all([
-      await privateChatRepository.insertNewChat(senderId, recipientId, newRoom),
-      await privateChatRepository.updateChatDeletionStatus(
-        senderId,
-        false,
-        newRoom
-      ),
+      privateChatRepository.insertNewChat(senderId, recipientId, newRoom),
+      privateChatRepository.updateChatDeletionStatus(senderId, false, newRoom),
     ]);
 
     socket.join(newRoom);
@@ -79,7 +72,7 @@ export const updateDeletionStatus = async (
 export const getChat = async (
   senderId: number,
   room: string
-): Promise<ChatItem> => {
+): Promise<Chat> => {
   const privateChatRepository = new PrivateChat();
 
   const addedChat = await privateChatRepository.findChat(senderId, room);
@@ -126,9 +119,7 @@ export const addNewPrivateChat = async (
 };
 
 // TODO: Move this function to a more general location - this handles retrieving all chats to construct a user's chat list
-export const getChatListByUser = async (
-  userId: number
-): Promise<ChatItem[]> => {
+export const getChatListByUser = async (userId: number): Promise<Chat[]> => {
   const ChatListRepository = new ChatList();
   const chatList = await ChatListRepository.findAllChatsByUser(userId);
   await generatePresignedUrlsForChatList(chatList);

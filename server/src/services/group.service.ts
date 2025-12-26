@@ -167,8 +167,8 @@ export const removeMemberWhoLeft = async (
   };
 
   const [{ room }, removedUser] = await Promise.all([
-    await groupRepository.findRoomById(groupId),
-    await groupMemberRepository.deleteGroupMember(groupId, userId),
+    groupRepository.findRoomById(groupId),
+    groupMemberRepository.deleteGroupMember(groupId, userId),
   ]);
 
   await groupRepository.markUnreadByUser(userId, room);
@@ -214,12 +214,8 @@ export const kickMember = async (
   const { room } = await groupRepository.findRoomById(groupId);
 
   const [kicker, memberToRemove] = await Promise.all([
-    await groupMemberRepository.findMemberByUserId(
-      room,
-      groupId,
-      loggedInUserId
-    ),
-    await groupMemberRepository.findMemberByUserId(room, groupId, targetUserId),
+    groupMemberRepository.findMemberByUserId(room, groupId, loggedInUserId),
+    groupMemberRepository.findMemberByUserId(room, groupId, targetUserId),
   ]);
 
   // Make sure the member performing the kick can only do so to those with a lower role than theirs
@@ -258,7 +254,7 @@ export const updateMemberRole = async (
 
   const [{ room }, updatedMember] = await Promise.all([
     groupRepository.findRoomById(groupId),
-    await groupMemberRepository.updateRole(newRole, groupId, userId),
+    groupMemberRepository.updateRole(newRole, groupId, userId),
   ]);
 
   return { room, updatedMember };
@@ -270,9 +266,9 @@ export const permanentlyDeleteGroupChat = async (
   const groupRepository = new Group();
 
   const [membersInfo, { room }, groupAvatar] = await Promise.all([
-    await groupRepository.findMembersInfoById(groupId),
-    await groupRepository.findRoomById(groupId),
-    await groupRepository.findPictureById(groupId),
+    groupRepository.findMembersInfoById(groupId),
+    groupRepository.findRoomById(groupId),
+    groupRepository.findPictureById(groupId),
   ]);
 
   const memberUserIds = membersInfo.map((member) => member.user_id);
@@ -308,8 +304,8 @@ export const uploadGroupPicture = async (
   const groupRepository = new Group();
 
   const [fileName, { room }] = await Promise.all([
-    await groupRepository.findPictureById(id),
-    await groupRepository.findRoomById(id),
+    groupRepository.findPictureById(id),
+    groupRepository.findRoomById(id),
   ]);
 
   // Delete previous picture from S3 storage
@@ -322,8 +318,8 @@ export const uploadGroupPicture = async (
   }
 
   const [fileUrl, { groupId, name }] = await Promise.all([
-    await createPresignedUrl(process.env.BUCKET_NAME!, file.key),
-    await groupRepository.updatePicture(file.originalname, id),
+    createPresignedUrl(process.env.BUCKET_NAME!, file.key),
+    groupRepository.updatePicture(file.originalname, id),
   ]);
 
   await emitGroupPictureUpdate(io, room, fileUrl);

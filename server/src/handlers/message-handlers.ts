@@ -43,13 +43,13 @@ export const handleChatMessages = (socket: Socket, io: Server): void => {
       try {
         if (chatType === ChatType.PRIVATE) {
           await Promise.all([
-            await isSenderBlocked(chatId, senderId),
-            await addNewPrivateChat(io, socket, chatId, room),
+            isSenderBlocked(chatId, senderId),
+            addNewPrivateChat(io, socket, chatId, room),
           ]);
         }
 
         const [{ newMessage, updatedAt }] = await Promise.all([
-          await saveMessageInDatabase(
+          saveMessageInDatabase(
             content,
             senderId,
             chatId,
@@ -58,7 +58,7 @@ export const handleChatMessages = (socket: Socket, io: Server): void => {
             messageType,
             clientOffset
           ),
-          await restoreChat(chatId, room, chatType),
+          restoreChat(chatId, room, chatType),
         ]);
 
         broadcastMessage(
@@ -258,8 +258,8 @@ const CHAT_HANDLERS: Record<ChatType, ChatHandler> = {
 
         const [{ updated_at: updatedAt }] = await Promise.all([
           // After setting the last message, fetch the new updated_at date which is equal to the time at which the message was sent
-          await privateChatRepository.setLastMessage(newMessageId, room),
-          await privateChatRepository.updateUserReadStatus(chatId, false, room),
+          privateChatRepository.setLastMessage(newMessageId, room),
+          privateChatRepository.updateUserReadStatus(chatId, false, room),
         ]);
 
         return updatedAt;
@@ -300,8 +300,8 @@ const CHAT_HANDLERS: Record<ChatType, ChatHandler> = {
 
         const [{ updated_at: updatedAt }] = await Promise.all([
           // After setting the last message, fetch the new updated_at date which is equal to the time at which the message was sent
-          await groupRepository.setLastMessage(newMessageId, room),
-          await groupRepository.setReadBy([senderId], room),
+          groupRepository.setLastMessage(newMessageId, room),
+          groupRepository.setReadBy([senderId], room),
         ]);
 
         return updatedAt;

@@ -132,18 +132,18 @@ export const updateProfilePicture = async (
   }
 
   const [profilePictureUrl] = await Promise.all([
-    await createPresignedUrl(process.env.BUCKET_NAME!, file.key),
-    await createPresignedUrl(process.env.BUCKET_NAME!, file.key),
+    createPresignedUrl(process.env.BUCKET_NAME!, file.key),
+    createPresignedUrl(process.env.BUCKET_NAME!, file.key),
   ]);
 
   await Promise.all([
-    await updateUserInfoForAllContacts(
+    updateUserInfoForAllContacts(
       userId,
       io,
       profilePictureUrl,
       'update-profile-picture-for-contacts'
     ),
-    await updateUserInfoInAllGroups(
+    updateUserInfoInAllGroups(
       userId,
       io,
       profilePictureUrl,
@@ -162,14 +162,14 @@ export const handleUsernameUpdate = async (
   const userRepository = new User();
 
   await Promise.all([
-    await userRepository.updateUsernameById(username, userId),
-    await updateUserInfoForAllContacts(
+    userRepository.updateUsernameById(username, userId),
+    updateUserInfoForAllContacts(
       userId,
       io,
       username,
       'update-username-for-contacts'
     ),
-    await updateUserInfoInAllGroups(
+    updateUserInfoInAllGroups(
       userId,
       io,
       username,
