@@ -26,10 +26,12 @@ export const handleChatAddition = async (
   if (room === null) {
     const newRoom = uuidv4();
 
-    await Promise.all([
-      privateChatRepository.insertNewChat(senderId, recipientId, newRoom),
-      privateChatRepository.updateChatDeletionStatus(senderId, false, newRoom),
-    ]);
+    await privateChatRepository.insertNewChat(senderId, recipientId, newRoom);
+    await privateChatRepository.updateChatDeletionStatus(
+      senderId,
+      false,
+      newRoom
+    );
 
     socket.join(newRoom);
     return await getChat(senderId, newRoom); // Retrieve newly inserted/created chat for addition
@@ -75,9 +77,9 @@ export const getChat = async (
 ): Promise<Chat> => {
   const privateChatRepository = new PrivateChat();
 
-  const addedChat = await privateChatRepository.findChat(senderId, room);
-  const profilePictureName = addedChat.chat_picture;
-  const recipientId = addedChat.recipient_user_id;
+  const chat = await privateChatRepository.findChat(senderId, room);
+  const profilePictureName = chat.chat_picture;
+  const recipientId = chat.recipient_user_id;
 
   const profilePictureUrl = profilePictureName
     ? await createPresignedUrl(
@@ -85,9 +87,8 @@ export const getChat = async (
         `${S3AvatarStoragePath.USER_AVATARS}/${recipientId}/${profilePictureName}`
       )
     : null;
-  addedChat.chat_picture = profilePictureUrl;
 
-  return addedChat;
+  return { ...chat, chat_picture: profilePictureUrl };
 };
 
 // When a user receives a message from someone for the first time, add the chat to their chat list in real-time
