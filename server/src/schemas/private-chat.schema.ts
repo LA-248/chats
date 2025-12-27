@@ -1,4 +1,5 @@
 import { z } from 'zod/v4';
+import { ChatType } from '../types/chat.ts';
 import { UsernameSchema } from './user.schema.ts';
 
 export const CreatePrivateChatSchema = z.object({
@@ -27,7 +28,7 @@ export const ChatMembersSchema = z.object({
 export type ChatMembers = z.infer<typeof ChatMembersSchema>;
 
 export const ChatRoomSchema = z.object({
-  room: z.uuid(),
+  room: z.uuid().nullable(),
 });
 export type ChatRoom = z.infer<typeof ChatRoomSchema>;
 
@@ -55,10 +56,10 @@ export const ChatSchema = z.object({
   last_message_id: z.number().nullable(),
   last_message_content: z.string().nullable(),
   last_message_time: z.coerce.date().nullable(),
-  last_message_type: z.string().nullable(),
-  room: z.string(),
+  last_message_type: z.enum(ChatType).nullable(),
+  room: z.uuid().nullable(),
   read: z.boolean(),
-  chat_type: z.string(),
+  chat_type: z.enum(ChatType),
   created_at: z.coerce.date(),
   updated_at: z.coerce.date(),
   deleted: z.boolean(),

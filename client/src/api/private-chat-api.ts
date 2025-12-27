@@ -81,7 +81,7 @@ async function addChat(inputUsername: string): Promise<Chat> {
     throw new Error(data.error);
   }
 
-  return data.addedChat;
+  return data;
 }
 
 // Needed for when the most recent message in a chat is deleted

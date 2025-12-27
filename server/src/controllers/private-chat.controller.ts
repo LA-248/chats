@@ -1,7 +1,11 @@
-import { Request, Response } from 'express';
+import { Request, RequestHandler, Response } from 'express';
+import { ApiErrorResponse } from '../dtos/error.dto.ts';
 import { CreatePrivateChatInputDto } from '../dtos/private-chat.dto.ts';
 import { userSockets } from '../handlers/socket-handlers.ts';
-import { CreatePrivateChatSchema } from '../schemas/private-chat.schema.ts';
+import {
+  Chat,
+  CreatePrivateChatSchema,
+} from '../schemas/private-chat.schema.ts';
 import {
   getChatListByUser,
   handleChatAddition,
@@ -12,22 +16,26 @@ import {
 import { retrieveUserIdByUsername } from '../services/user.service.ts';
 
 // Handle adding a chat (new or previously added but deleted) to a user's chat list
-export const addChat = async (req: Request, res: Response): Promise<void> => {
+export const addChat: RequestHandler<
+  void,
+  Chat | ApiErrorResponse,
+  CreatePrivateChatInputDto
+> = async (req, res): Promise<void> => {
   try {
     const senderId = Number(req.user?.user_id);
-    const body: CreatePrivateChatInputDto = {
-      recipientName: req.body.recipientName,
-    };
+    const parsedBody = CreatePrivateChatSchema.safeParse(req.body);
 
-    const parsed = CreatePrivateChatSchema.safeParse(body);
-    if (!parsed.success) {
-      console.error('Error adding chat:', parsed.error);
-      res.status(400).json({ error: 'Error adding chat. Please try again.' });
+    if (!parsedBody.success) {
+      console.error(
+        'Error adding chat, invalid request body:',
+        parsedBody.error
+      );
+      res.status(400).json({ error: 'Invalid request data. Please try again' });
       return;
     }
 
     const { user_id: recipientId } = await retrieveUserIdByUsername(
-      parsed.data.recipientName
+      parsedBody.data.recipientName
     );
 
     const io = req.app.get('io');
@@ -35,7 +43,7 @@ export const addChat = async (req: Request, res: Response): Promise<void> => {
     const socket = io.sockets.sockets.get(userSockets.get(senderId));
 
     const addedChat = await handleChatAddition(socket, senderId, recipientId);
-    res.status(200).json({ addedChat });
+    res.status(200).json(addedChat);
   } catch (error: unknown) {
     if (error instanceof Error) {
       if (
