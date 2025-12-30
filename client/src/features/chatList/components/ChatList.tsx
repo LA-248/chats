@@ -2,7 +2,7 @@ import { useContext, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useSocket } from '../../../hooks/useSocket';
 import { ChatContext } from '../../../contexts/ChatContext';
-import type { Chat } from '../../../types/chat';
+import { ChatType, type Chat } from '../../../types/chat';
 import {
   getChatListByUserId,
   updateReadStatus,
@@ -43,7 +43,7 @@ export default function ChatList({
     setActiveChatRoom(chat.room);
     setChatName(chat.name);
 
-    if (chat.chat_type === 'private_chat') {
+    if (chat.chat_type === ChatType.PRIVATE) {
       navigate(`/chats/${chat.room}`);
       if (!chat.read) {
         await updateReadStatus(true, chat.room);

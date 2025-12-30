@@ -79,7 +79,7 @@ export class PrivateChat {
           WHEN pc.user1_id = $1 THEN pc.user1_read
           WHEN pc.user2_id = $1 THEN pc.user2_read
         END AS read,
-        'private_chat' AS chat_type,
+        'chats' AS chat_type,
         pc.created_at,
         pc.updated_at,
         CASE

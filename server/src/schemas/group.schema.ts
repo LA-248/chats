@@ -31,7 +31,7 @@ export const GroupRoomSchema = z.object({
 });
 export type GroupRoom = z.infer<typeof GroupRoomSchema>;
 
-export const GroupRoomsSchema = z.array(z.uuid());
+export const GroupRoomsSchema = z.array(z.object({ room: z.uuid() }));
 export type GroupRooms = z.infer<typeof GroupRoomsSchema>;
 
 export const GroupPictureSchema = z.object({

@@ -122,7 +122,7 @@ export class Group {
   };
 
   findAllGroupsByUser = async (userId: number): Promise<GroupRooms> => {
-    const result = await this.db.query<GroupRooms>(
+    const result = await this.db.query<GroupRoom>(
       `
       SELECT g.room
       FROM groups g
@@ -132,7 +132,7 @@ export class Group {
       [userId]
     );
 
-    return result.rows[0];
+    return result.rows;
   };
 
   updatePicture = async (fileName: string, groupId: number) => {

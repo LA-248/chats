@@ -35,6 +35,7 @@ export const privateChatRoomAuth = async (
       room
     );
     if (!privateChatMembers) {
+      console.log('Error: chat not found');
       res.status(404).json({
         error: 'Not found',
         message: 'This chat does not exist',
@@ -47,6 +48,7 @@ export const privateChatRoomAuth = async (
       if (Object.values(privateChatMembers).includes(senderId)) {
         return next();
       } else {
+        console.log('Error: unauthorised, you are not a member of this chat');
         res.status(403).json({
           error: 'Unauthorised',
           message: 'You are not a member of this chat',
@@ -55,7 +57,8 @@ export const privateChatRoomAuth = async (
         return;
       }
     }
-  } catch {
+  } catch (error) {
+    console.log('Internal server error:', error);
     res.status(500).json({
       error: 'Internal server error',
       message: 'An unexpected error occurred',
@@ -87,6 +90,7 @@ export const groupChatRoomAuth = async (
     );
 
     if (!groupChatMembers) {
+      console.log('Error: chat not found');
       res.status(404).json({
         error: 'Not found',
         message: 'This chat does not exist',
@@ -105,6 +109,7 @@ export const groupChatRoomAuth = async (
     if (groupChatMemberIds.includes(senderId)) {
       return next();
     } else {
+      console.log('Error: unauthorised, you are not a member of this chat');
       res.status(403).json({
         error: 'Unauthorised',
         message: 'You are not a member of this chat',
@@ -113,7 +118,7 @@ export const groupChatRoomAuth = async (
       return;
     }
   } catch (error) {
-    console.error(error);
+    console.error('Internal server error:', error);
     res.status(500).json({
       error: 'Internal server error',
       message: 'An unexpected error occurred',
@@ -140,6 +145,7 @@ export const authoriseGroupOwnerAction = async (
       | null = await groupMemberRepository.findMembersByRoom(room);
 
     if (!groupChatMembers) {
+      console.log('Error: chat not found');
       res.status(404).json({
         error: 'Not found',
         message: 'This chat does not exist',
@@ -149,6 +155,7 @@ export const authoriseGroupOwnerAction = async (
     }
 
     if (!loggedInUserId) {
+      console.log('Error: invalid user ID');
       res.status(401).json({ error: 'Invalid ID' });
       return;
     }
@@ -162,6 +169,7 @@ export const authoriseGroupOwnerAction = async (
     if (isOwner) {
       return next();
     } else {
+      console.log('Error: unauthorised, you are not a member of this chat');
       res.status(403).json({
         error: 'Unauthorised',
         message: 'You are unauthorised to perform this action',
@@ -170,7 +178,7 @@ export const authoriseGroupOwnerAction = async (
       return;
     }
   } catch (error) {
-    console.error(error);
+    console.error('Internal server error:', error);
     res.status(500).json({
       error: 'Internal server error',
       message: 'An unexpected error occurred',
@@ -198,6 +206,7 @@ export const authoriseGroupOwnerOrAdminAction = async (
       | null = await groupMemberRepository.findMembersByRoom(room);
 
     if (!groupChatMembers) {
+      console.log('Error: chat not found');
       res.status(404).json({
         error: 'Not found',
         message: 'This chat does not exist',
@@ -207,6 +216,7 @@ export const authoriseGroupOwnerOrAdminAction = async (
     }
 
     if (!loggedInUserId) {
+      console.log('Error: invalid user ID');
       res.status(401).json({ error: 'Invalid ID' });
       return;
     }
@@ -225,6 +235,7 @@ export const authoriseGroupOwnerOrAdminAction = async (
     if (isOwner || isAdmin) {
       return next();
     } else {
+      console.log('Error: unauthorised, you are not a member of this chat');
       res.status(403).json({
         error: 'Unauthorised',
         message: 'You are unauthorised to perform this action',
@@ -233,7 +244,7 @@ export const authoriseGroupOwnerOrAdminAction = async (
       return;
     }
   } catch (error) {
-    console.error(error);
+    console.error('Internal server error:', error);
     res.status(500).json({
       error: 'Internal server error',
       message: 'An unexpected error occurred',

@@ -3,7 +3,7 @@ import type { GroupMember } from './group';
 export interface Chat {
   chat_id: string;
   chat_picture: string | null;
-  chat_type: string;
+  chat_type: ChatType;
   deleted: boolean;
   last_message_content: string | null;
   last_message_id: number | null;

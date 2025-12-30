@@ -133,7 +133,7 @@ export const updateProfilePicture = async (
 
   const [profilePictureUrl] = await Promise.all([
     createPresignedUrl(process.env.BUCKET_NAME!, file.key),
-    createPresignedUrl(process.env.BUCKET_NAME!, file.key),
+    userRepository.updateProfilePictureById(file.originalname, userId),
   ]);
 
   await Promise.all([
@@ -221,7 +221,7 @@ const updateUserInfoInAllGroups = async (
   const rooms = await groupRepository.findAllGroupsByUser(userId);
 
   for (let i = 0; i < rooms.length; i++) {
-    const room = rooms[i];
+    const { room } = rooms[i];
     if (room) {
       io.to(room).emit(socketEvent, {
         userId,

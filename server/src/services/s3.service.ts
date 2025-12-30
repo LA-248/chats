@@ -1,19 +1,20 @@
 import {
+  DeleteObjectCommand,
   DeleteObjectsCommand,
+  GetObjectCommand,
   ListObjectsV2Command,
   S3Client,
 } from '@aws-sdk/client-s3';
-import { DeleteObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { GetObjectCommand } from '@aws-sdk/client-s3';
-import { Chat } from '../schemas/private-chat.schema.ts';
-import {
-  S3AttachmentsStoragePath,
-  S3AvatarStoragePath,
-} from '../types/chat.ts';
 import multer from 'multer';
 import multerS3 from 'multer-s3';
 import NodeCache from 'node-cache';
+import { Chat } from '../schemas/private-chat.schema.ts';
+import {
+  ChatType,
+  S3AttachmentsStoragePath,
+  S3AvatarStoragePath,
+} from '../types/chat.ts';
 const pictureUrlCache = new NodeCache({ stdTTL: 604800 });
 
 if (
@@ -155,7 +156,7 @@ export const generatePresignedUrlsForChatList = async (
   try {
     for (const chat of chatList) {
       const fileName = chat.chat_picture;
-      const isPrivateChat = chat.chat_type === 'private_chat';
+      const isPrivateChat = chat.chat_type === ChatType.PRIVATE;
       const objectKey = buildS3AvatarObjectKey(chat, isPrivateChat);
 
       // If the chat has no associated picture, set it to null and skip to the next chat
