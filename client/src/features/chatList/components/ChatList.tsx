@@ -11,8 +11,8 @@ import ChatItem from './ChatItem';
 import useClearErrorMessage from '../../../hooks/useClearErrorMessage';
 import useChatListUpdate from '../hooks/useChatListUpdate';
 import useChatUpdates from '../../chats/hooks/useChatUpdates';
-import useAddGroupToChatList from '../hooks/useAddGroupToChatList';
-import useAddNewPrivateChatToChatList from '../../chats/hooks/useAddPrivateChat';
+import useAddGroup from '../hooks/useAddGroup';
+import useAddNewPrivateChat from '../../chats/hooks/useAddPrivateChat';
 import { useChatDelete } from '../hooks/useChatDelete';
 import { useSocketErrorHandling } from '../../../hooks/useSocketErrorHandling';
 import { markUserAsRead } from '../../../api/group-chat-api';
@@ -93,9 +93,9 @@ export default function ChatList({
   );
 
   useChatListUpdate(socket, setChatList, activeChatRoom);
-  useAddGroupToChatList(socket, setChatList); // When a user is added to a group chat, notify them and add it to their chat list
+  useAddGroup(socket, setChatList); // When a user is added to a group chat, notify them and add it to their chat list
   useRemoveGroupChat(socket, setChatList, setActiveChatRoom, navigate);
-  useAddNewPrivateChatToChatList(socket, setChatList);
+  useAddNewPrivateChat(socket, setChatList);
   useChatUpdates(socket, setChatList, room!);
 
   useSocketErrorHandling(socket, setErrorMessage);

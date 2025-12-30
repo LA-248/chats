@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { Socket } from 'socket.io-client';
 import type { Chat } from '../../../types/chat';
 
-export default function useAddGroupToChatList(
+export default function useAddGroup(
   socket: Socket | null,
   setChatList: React.Dispatch<React.SetStateAction<Chat[]>>
 ) {
