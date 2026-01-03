@@ -1,10 +1,18 @@
 import { Request, RequestHandler, Response } from 'express';
 import { ApiErrorResponse } from '../dtos/error.dto.ts';
-import { CreatePrivateChatInputDto } from '../dtos/private-chat.dto.ts';
+import {
+  CreatePrivateChatInputDto,
+  UpdateLastMessageIdInputDto,
+} from '../dtos/private-chat.dto.ts';
 import { userSockets } from '../handlers/socket-handlers.ts';
 import {
   Chat,
   CreatePrivateChatSchema,
+  DeleteChatParamsSchema,
+  UpdateLastMessageIdBodySchema,
+  UpdateLastMessageIdParamsSchema,
+  UpdateReadStatusBodySchema,
+  UpdateReadStatusParamsSchema,
 } from '../schemas/private-chat.schema.ts';
 import {
   getChatListByUser,
@@ -61,32 +69,49 @@ export const addChat: RequestHandler<
 
 // Fetch the chat list of a specific user
 // TODO: Move this function to a different file - this handles all chats, not just private ones
-export const getChatList = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
+export const getChatList: RequestHandler<
+  void,
+  Chat[] | ApiErrorResponse,
+  void
+> = async (req, res): Promise<void> => {
   try {
     const userId = Number(req.user?.user_id);
     const chatList = await getChatListByUser(userId);
 
-    // Send user's chat list data to the frontend so it can be displayed in the UI
-    res.status(200).json({ chatList: chatList });
+    res.status(200).json(chatList);
   } catch (error) {
     console.error('Error retrieving chat list:', error);
     res.status(500).json({ error: 'Unable to retrieve chat list' });
   }
 };
 
-export const updateLastMessageId = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
+export const updateLastMessageId: RequestHandler<
+  { room: string },
+  void | ApiErrorResponse,
+  UpdateLastMessageIdInputDto
+> = async (req, res): Promise<void> => {
   try {
-    const newLastMessageId = req.body.messageId;
-    const room = req.params.room;
+    const parsedBody = UpdateLastMessageIdBodySchema.safeParse(req.body);
+    if (!parsedBody.success) {
+      console.error(
+        'Error updating last message id, invalid request body:',
+        parsedBody.error
+      );
+      res.status(400).json({ error: 'Invalid request body data' });
+      return;
+    }
+    const parsedParams = UpdateLastMessageIdParamsSchema.safeParse(req.params);
+    if (!parsedParams.success) {
+      console.error(
+        'Error updating last message id, invalid request parameters:',
+        parsedParams.error
+      );
+      res.status(400).json({ error: 'Invalid request parameter data' });
+      return;
+    }
 
-    await updateLastMessage(newLastMessageId, room);
-    res.status(200).json({ success: 'Last message successfully updated' });
+    await updateLastMessage(parsedBody.data.messageId, parsedParams.data.room);
+    res.sendStatus(204);
   } catch (error) {
     console.error('Error updating last message id:', error);
     res.status(500).json({
@@ -96,16 +121,37 @@ export const updateLastMessageId = async (
   }
 };
 
-export const updateChatReadStatus = async (
-  req: Request,
-  res: Response
+export const updateChatReadStatus: RequestHandler<{ room: string }> = async (
+  req,
+  res
 ): Promise<void> => {
   try {
     const userId = Number(req.user?.user_id);
-    const read = req.body.read;
-    const room = req.params.room;
 
-    await updateReadStatus(userId, read, room);
+    const parsedBody = UpdateReadStatusBodySchema.safeParse(req.body);
+    if (!parsedBody.success) {
+      console.error(
+        'Error updating read status, invalid request body:',
+        parsedBody.error
+      );
+      res.status(400).json({ error: 'Invalid request body data' });
+      return;
+    }
+    const parsedParams = UpdateReadStatusParamsSchema.safeParse(req.params);
+    if (!parsedParams.success) {
+      console.error(
+        'Error updating read status, invalid request parameters:',
+        parsedParams.error
+      );
+      res.status(400).json({ error: 'Invalid request parameter data' });
+      return;
+    }
+
+    await updateReadStatus(
+      userId,
+      parsedBody.data.read,
+      parsedParams.data.room
+    );
     res.status(200).json({ success: 'Read status updated successfully.' });
   } catch (error) {
     console.error('Error updating read status:', error);
@@ -123,9 +169,18 @@ export const deleteChat = async (
 ): Promise<void> => {
   try {
     const userId = Number(req.user?.user_id);
-    const room = req.params.room;
 
-    await updateDeletionStatus(userId, room);
+    const parsedParams = DeleteChatParamsSchema.safeParse(req.params);
+    if (!parsedParams.success) {
+      console.error(
+        'Error deleting chat, invalid request parameters:',
+        parsedParams.error
+      );
+      res.status(400).json({ error: 'Invalid request parameter data' });
+      return;
+    }
+
+    await updateDeletionStatus(userId, parsedParams.data.room);
     res.status(200).json({ message: 'Chat deleted successfully' });
   } catch (error) {
     console.error('Error deleting chat:', error);

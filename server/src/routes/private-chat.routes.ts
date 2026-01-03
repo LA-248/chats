@@ -1,9 +1,5 @@
 import express from 'express';
 import {
-  requireAuth,
-  privateChatRoomAuth,
-} from '../middlewares/auth.middleware.ts';
-import {
   addChat,
   deleteChat,
   getChatList,
@@ -11,6 +7,10 @@ import {
   updateLastMessageId,
 } from '../controllers/private-chat.controller.ts';
 import { retrieveRecipientProfile } from '../controllers/user.controller.ts';
+import {
+  privateChatRoomAuth,
+  requireAuth,
+} from '../middlewares/auth.middleware.ts';
 
 const privateChatsRouter = express.Router();
 privateChatsRouter.use(requireAuth);

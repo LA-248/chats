@@ -20,7 +20,7 @@ async function getChatListByUserId(): Promise<Chat[]> {
   }
 
   const data = await response.json();
-  return data.chatList;
+  return data;
 }
 
 async function getRecipientInfo(
@@ -99,7 +99,7 @@ async function updateLastMessageId(
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ messageId: messageId }),
+      body: JSON.stringify({ messageId }),
       credentials: 'include',
     }
   );
@@ -149,10 +149,10 @@ async function deletePrivateChat(room: string): Promise<void> {
 }
 
 export {
+  addChat,
+  deletePrivateChat,
   getChatListByUserId,
   getRecipientInfo,
-  addChat,
   updateLastMessageId,
   updateReadStatus,
-  deletePrivateChat,
 };

@@ -21,3 +21,7 @@ export interface ChatHandler {
     room: string
   ) => Promise<Date>;
 }
+
+export interface ChatRoom {
+  room: string | null;
+}

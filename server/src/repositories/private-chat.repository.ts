@@ -3,10 +3,10 @@ import {
   ChatDeletionStatus,
   ChatLastMessage,
   ChatMembers,
-  ChatRoom,
   ChatUpdatedAt,
   NewChat,
 } from '../schemas/private-chat.schema.ts';
+import { ChatRoom } from '../types/chat.ts';
 import { query } from '../utils/database-query.ts';
 
 interface Database {
@@ -197,7 +197,7 @@ export class PrivateChat {
 
   // Handle updating last message after most recent message is deleted
   updateLastMessage = async (
-    messageId: number,
+    messageId: number | null,
     room: string
   ): Promise<void> => {
     // When the last remaining message in a chat is deleted, the last_message_id is set to null,

@@ -43,7 +43,7 @@ export const handleChatAddition = async (
 
 // Update the last message for a chat, used when most recent message is deleted
 export const updateLastMessage = async (
-  newLastMessageId: number,
+  newLastMessageId: number | null,
   room: string
 ): Promise<void> => {
   const privateChatRepository = new PrivateChat();

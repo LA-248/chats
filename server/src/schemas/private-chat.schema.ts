@@ -27,11 +27,6 @@ export const ChatMembersSchema = z.object({
 });
 export type ChatMembers = z.infer<typeof ChatMembersSchema>;
 
-export const ChatRoomSchema = z.object({
-  room: z.uuid().nullable(),
-});
-export type ChatRoom = z.infer<typeof ChatRoomSchema>;
-
 export const ChatDeletionStatusSchema = z.object({
   deleted: z.boolean(),
 });
@@ -65,3 +60,19 @@ export const ChatSchema = z.object({
   deleted: z.boolean(),
 });
 export type Chat = z.infer<typeof ChatSchema>;
+
+export const UpdateLastMessageIdBodySchema = z.strictObject({
+  messageId: z.coerce.number().int().positive().nullable(),
+});
+
+export const UpdateReadStatusBodySchema = z.strictObject({
+  read: z.boolean(),
+});
+
+const RoomParamsSchema = z.strictObject({
+  room: z.uuid(),
+});
+
+export const UpdateReadStatusParamsSchema = RoomParamsSchema;
+export const UpdateLastMessageIdParamsSchema = RoomParamsSchema;
+export const DeleteChatParamsSchema = RoomParamsSchema;
