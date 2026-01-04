@@ -23,7 +23,7 @@ export default function MessageInput() {
   const { loggedInUsername, isBlocked } = useContext(UserContext);
 
   const [message, setMessage] = useState<string>('');
-  const [showEmojiPicker, setShowEmojiPicker] = useState<boolean>(false);
+  // const [showEmojiPicker, setShowEmojiPicker] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>('');
   const username = loggedInUsername;
   const messageType = MessageType.TEXT;
@@ -68,9 +68,9 @@ export default function MessageInput() {
   return (
     <div>
       <form id='message-form' action='' onSubmit={handleChatMessageSubmission}>
-        {showEmojiPicker ? (
+        {/* {showEmojiPicker ? (
           <div className='emoji-picker-container'></div>
-        ) : null}
+        ) : null} */}
 
         <div
           className='error-message'
@@ -105,7 +105,7 @@ export default function MessageInput() {
           >
             Media
           </button>
-          <button
+          {/* <button
             type='button'
             className='emoji-picker-button'
             onClick={(event) => {
@@ -119,7 +119,7 @@ export default function MessageInput() {
             }}
           >
             Emojis
-          </button>
+          </button> */}
           <button
             type='submit'
             className='submit-message-button'

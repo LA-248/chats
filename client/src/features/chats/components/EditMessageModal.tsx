@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react';
+import { useContext } from 'react';
 import { useParams } from 'react-router-dom';
 import { MessageContext } from '../../../contexts/MessageContext';
 import { editMessageById } from '../../../api/message-api';
@@ -8,7 +8,7 @@ import { ChatContext } from '../../../contexts/ChatContext';
 
 interface EditMessageModalProps {
   chatType: string;
-  messageId: number | null;
+  messageId: number;
   messageIndex: number | null;
   isModalOpen: boolean;
   setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -30,10 +30,10 @@ export default function EditMessageModal({
   const { chatId } = useContext(ChatContext);
   const { currentMessage, filteredMessages, newMessage, setNewMessage } =
     useContext(MessageContext);
-  const [showEmojiPicker, setShowEmojiPicker] = useState<boolean>(false);
+  // const [showEmojiPicker, setShowEmojiPicker] = useState<boolean>(false);
 
   const handleMessageEdit = async (
-    messageId: number | null,
+    messageId: number,
     messageIndex: number | null
   ): Promise<void> => {
     try {
@@ -84,7 +84,7 @@ export default function EditMessageModal({
             onChange={(event) => setNewMessage(event.target.value)}
             style={{ width: '100%' }}
           />
-          <button
+          {/* <button
             type='button'
             className='emoji-picker-button-edit-modal'
             onClick={(event) => {
@@ -94,12 +94,12 @@ export default function EditMessageModal({
             style={{ color: showEmojiPicker ? '#1db954' : 'white' }}
           >
             {showEmojiPicker ? 'Close' : 'Emoji menu'}
-          </button>
+          </button> */}
         </div>
 
-        {showEmojiPicker ? (
+        {/* {showEmojiPicker ? (
           <div className='emoji-picker-container'></div>
-        ) : null}
+        ) : null} */}
 
         <div className='modal-action-buttons-container'>
           <button
