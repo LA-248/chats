@@ -23,7 +23,7 @@ export const InsertUserSchema = z.object({
 export type InsertUser = z.infer<typeof InsertUserSchema>;
 
 export const UserProfileSchema = z.object({
-  user_id: z.number(),
+  user_id: z.coerce.number(),
   username: z.string(),
   profile_picture: z.string().nullable(),
 });
@@ -60,3 +60,16 @@ export const UserBlockListSchema = z.object({
   blocked_users: z.array(z.number()),
 });
 export type UserBlockList = z.infer<typeof UserBlockListSchema>;
+
+export const RetrieveLoggedInUserDataAuthSchema = z.object({
+  user_id: z.coerce.number(),
+  username: z.string(),
+  profile_picture: z.string(),
+});
+
+export const RetrieveRecipientProfileAuthSchema = z.object({
+  user_id: z.coerce.number(),
+});
+export const RetrieveRecipientProfileParamsSchema = z.object({
+  room: z.uuid(),
+});

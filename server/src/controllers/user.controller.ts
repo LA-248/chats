@@ -1,53 +1,99 @@
-import { Request, Response } from 'express';
+import { Request, RequestHandler, Response } from 'express';
+import { ApiErrorResponse } from '../dtos/error.dto.ts';
+import {
+  RetrieveLoggedInUserDataResponseDto,
+  RetrieveRecipientProfileNotFoundResponseDto,
+  RetrieveRecipientProfileResponseDto,
+} from '../dtos/user.dto.ts';
+import {
+  RetrieveLoggedInUserDataAuthSchema,
+  RetrieveRecipientProfileAuthSchema,
+  RetrieveRecipientProfileParamsSchema,
+} from '../schemas/user.schema.ts';
 import {
   createProfilePictureUrl,
   handleUsernameUpdate,
+  retrieveBlockList,
   retrieveProfilePicture,
+  retrieveRecipientData,
+  retrieveUserIdByUsername,
   updateProfilePicture,
   updateUserBlockList,
 } from '../services/user.service.ts';
-import {
-  retrieveBlockList,
-  retrieveRecipientData,
-  retrieveUserIdByUsername,
-} from '../services/user.service.ts';
 
-export const retrieveLoggedInUserData = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
+export const retrieveLoggedInUserData: RequestHandler<
+  void,
+  RetrieveLoggedInUserDataResponseDto | ApiErrorResponse,
+  void
+> = async (req, res): Promise<void> => {
   try {
-    const userId = Number(req.user?.user_id);
-    const username = req.user?.username;
-    const profilePicture = req.user?.profile_picture;
+    const parsedUser = RetrieveLoggedInUserDataAuthSchema.safeParse(req.user);
+    if (!parsedUser.success) {
+      console.error(
+        'Error retrieving data of logged in user, invalid request data:',
+        parsedUser.error
+      );
+      res.status(400).json({ error: 'An unexpected error occurred' });
+      return;
+    }
 
-    const profilePictureUrl = profilePicture
-      ? await createProfilePictureUrl(userId, profilePicture)
+    const profilePictureUrl = parsedUser.data.profile_picture
+      ? await createProfilePictureUrl(
+          parsedUser.data.user_id,
+          parsedUser.data.profile_picture
+        )
       : null;
 
     res.status(200).json({
-      userId: userId,
-      username: username,
+      userId: parsedUser.data.user_id,
+      username: parsedUser.data.username,
       profilePicture: profilePictureUrl,
     });
   } catch (error) {
     console.error('Error retrieving data of logged in user:', error);
-    res.status(500).json({ error: 'An unexpected error occurred.' });
+    res.status(500).json({ error: 'An unexpected error occurred' });
   }
 };
 
-export const retrieveRecipientProfile = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
+export const retrieveRecipientProfile: RequestHandler<
+  {
+    room: string;
+  },
+  | RetrieveRecipientProfileResponseDto
+  | RetrieveRecipientProfileNotFoundResponseDto
+  | ApiErrorResponse,
+  void
+> = async (req, res): Promise<void> => {
   try {
-    const userId = Number(req.user?.user_id);
-    const room = req.params.room;
-    const result = await retrieveRecipientData(userId, room);
+    const parsedUser = RetrieveRecipientProfileAuthSchema.safeParse(req.user);
+    if (!parsedUser.success) {
+      console.error(
+        'Error retrieving recipient profile data, invalid user request data:',
+        parsedUser.error
+      );
+      res.status(400).json({ error: 'An unexpected error occurred' });
+      return;
+    }
+    const parsedParams = RetrieveRecipientProfileParamsSchema.safeParse(
+      req.params
+    );
+    if (!parsedParams.success) {
+      console.error(
+        'Error retrieving recipient profile, invalid request parameters:',
+        parsedParams.error
+      );
+      res.status(400).json({ error: 'Invalid request parameter data' });
+      return;
+    }
+
+    const result = await retrieveRecipientData(
+      parsedUser.data.user_id,
+      parsedParams.data.room
+    );
 
     if (!result || !result.recipient) {
-      console.error('User does not exist');
-      res.status(302).json({ redirectPath: '/' });
+      console.error('User not found');
+      res.status(404).json({ redirectPath: '/' });
       return;
     }
 
