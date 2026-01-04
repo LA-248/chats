@@ -59,7 +59,6 @@ export default function Home() {
   }, [loggedInUserId]);
 
   return (
-    // Render child components only if the socket is initialised
     socket && (
       <SocketContext.Provider value={socket}>
         <div className='main-container'>

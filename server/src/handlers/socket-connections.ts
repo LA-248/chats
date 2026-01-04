@@ -31,7 +31,6 @@ function manageSocketConnections(
   socket: Socket,
   userSockets: Map<number, string>
 ) {
-  // Use type assertion to inform TypeScript about the session property
   const userId = (socket.handshake as any).session.passport.user;
   userSockets.set(userId, socket.id);
 
