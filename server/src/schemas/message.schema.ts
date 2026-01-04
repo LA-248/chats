@@ -47,3 +47,18 @@ export const LastMessageInfoSchema = z.object({
   type: z.string(),
 });
 export type LastMessageInfo = z.infer<typeof LastMessageInfoSchema>;
+
+export const EditMessageBodySchema = z.strictObject({
+  newMessage: z.string(),
+});
+export const EditMessageParamsSchema = z.strictObject({
+  type: z.string(),
+  chatId: z.string(),
+  messageId: z.coerce.number().int().positive(),
+});
+
+export const DeleteMessageParamsSchema = z.strictObject({
+  type: z.string(),
+  chatId: z.string(),
+  messageId: z.coerce.number().int().positive(),
+});

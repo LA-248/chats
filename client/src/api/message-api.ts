@@ -1,14 +1,14 @@
+import type { Socket } from 'socket.io-client';
 import { toast } from 'sonner';
 import { v4 as uuidv4 } from 'uuid';
 import { ChatType } from '../types/chat';
-import type { Socket } from 'socket.io-client';
 import { MessageType } from '../types/message';
 
 export async function editMessageById(
   chatType: string,
   chatId: number,
   newMessage: string,
-  messageId: number | null
+  messageId: number
 ): Promise<void> {
   const type = determineChatType(chatType);
 
@@ -21,7 +21,7 @@ export async function editMessageById(
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ newMessage: newMessage }),
+      body: JSON.stringify({ newMessage }),
       credentials: 'include',
     }
   );

@@ -1,8 +1,11 @@
-import { Request, RequestHandler, Response } from 'express';
+import { RequestHandler } from 'express';
 import { ApiErrorResponse } from '../dtos/error.dto.ts';
 import {
   CreatePrivateChatInputDto,
+  DeleteChatResponseDto,
   UpdateLastMessageIdInputDto,
+  UpdateReadStatusInputDto,
+  UpdateReadStatusResponseDto,
 } from '../dtos/private-chat.dto.ts';
 import { userSockets } from '../handlers/socket-handlers.ts';
 import {
@@ -121,10 +124,11 @@ export const updateLastMessageId: RequestHandler<
   }
 };
 
-export const updateChatReadStatus: RequestHandler<{ room: string }> = async (
-  req,
-  res
-): Promise<void> => {
+export const updateChatReadStatus: RequestHandler<
+  { room: string },
+  UpdateReadStatusResponseDto | ApiErrorResponse,
+  UpdateReadStatusInputDto
+> = async (req, res): Promise<void> => {
   try {
     const userId = Number(req.user?.user_id);
 
@@ -152,7 +156,9 @@ export const updateChatReadStatus: RequestHandler<{ room: string }> = async (
       parsedBody.data.read,
       parsedParams.data.room
     );
-    res.status(200).json({ success: 'Read status updated successfully.' });
+    res
+      .status(200)
+      .json({ ok: true, success: 'Read status updated successfully.' });
   } catch (error) {
     console.error('Error updating read status:', error);
     res.status(500).json({
@@ -163,10 +169,11 @@ export const updateChatReadStatus: RequestHandler<{ room: string }> = async (
 };
 
 // Delete a chat from a user's chat list
-export const deleteChat = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
+export const deleteChat: RequestHandler<
+  { room: string },
+  DeleteChatResponseDto | ApiErrorResponse,
+  void
+> = async (req, res): Promise<void> => {
   try {
     const userId = Number(req.user?.user_id);
 

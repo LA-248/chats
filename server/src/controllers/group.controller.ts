@@ -380,8 +380,11 @@ export const updateRole: RequestHandler<
     }
     const parsedParams = UpdateMemberRoleParamsSchema.safeParse(req.params);
     if (!parsedParams.success) {
-      console.error('Invalid request params:', parsedParams.error);
-      res.status(400).json({ error: 'Invalid request data' });
+      console.error(
+        'Error updating role, Invalid request parameters:',
+        parsedParams.error
+      );
+      res.status(400).json({ error: 'Invalid request parameter data' });
       return;
     }
 
