@@ -1,16 +1,11 @@
 import { RequestHandler } from 'express';
 import { ApiErrorResponse } from '../dtos/error.dto.ts';
+import { DeleteMessageResponseDto } from '../dtos/message.dto.ts';
 import {
   DeleteMessageParamsDto,
-  DeleteMessageResponseDto,
   EditMessageInputDto,
   EditMessageParamsDto,
   EditMessageResponseDto,
-} from '../dtos/message.dto.ts';
-import {
-  DeleteMessageParamsSchema,
-  EditMessageBodySchema,
-  EditMessageParamsSchema,
 } from '../schemas/message.schema.ts';
 import {
   deleteChatMessage,
@@ -25,32 +20,10 @@ export const editMessage: RequestHandler<
 > = async (req, res): Promise<void> => {
   try {
     const senderId = Number(req.user?.user_id);
+    const messageId = Number(req.params.messageId);
 
-    const parsedBody = EditMessageBodySchema.safeParse(req.body);
-    if (!parsedBody.success) {
-      console.error(
-        'Error editing message, invalid request body:',
-        parsedBody.error
-      );
-      res.status(400).json({ error: 'Invalid request body data' });
-      return;
-    }
-    const parsedParams = EditMessageParamsSchema.safeParse(req.params);
-    if (!parsedParams.success) {
-      console.error(
-        'Error editing message, invalid request parameters:',
-        parsedParams.error
-      );
-      res.status(400).json({ error: 'Invalid request parameter data' });
-      return;
-    }
-
-    await edit(
-      parsedBody.data.newMessage,
-      senderId,
-      parsedParams.data.messageId
-    );
-    res.status(200).json({ newMessage: parsedBody.data.newMessage });
+    await edit(req.body.newMessage, senderId, messageId);
+    res.status(200).json({ newMessage: req.body.newMessage });
   } catch (error) {
     console.error('Error editing message:', error);
     res.status(500).json({ error: 'Error editing message. Please try again.' });
@@ -64,22 +37,15 @@ export const deleteMessage: RequestHandler<
 > = async (req, res): Promise<void> => {
   try {
     const senderId = Number(req.user?.user_id);
-
-    const parsedParams = DeleteMessageParamsSchema.safeParse(req.params);
-    if (!parsedParams.success) {
-      console.error(
-        'Error deleting message, invalid request parameters:',
-        parsedParams.error
-      );
-      res.status(400).json({ error: 'Invalid request parameter data' });
-      return;
-    }
+    const messageId = Number(req.params.messageId);
+    const type = req.params.type;
+    const chatId = req.params.chatId;
 
     await deleteChatMessage(
       senderId,
-      parsedParams.data.messageId,
-      parsedParams.data.type,
-      parsedParams.data.chatId
+      messageId,
+      type,
+      chatId,
     );
     res.status(200).json({ ok: true, success: 'Message deleted' });
   } catch (error) {

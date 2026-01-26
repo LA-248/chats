@@ -26,4 +26,5 @@ export interface MessageContextType {
 export enum MessageType {
   TEXT = 'text',
   IMAGE = 'image',
+  VIDEO = 'video',
 }

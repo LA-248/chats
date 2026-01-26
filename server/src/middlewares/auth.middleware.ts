@@ -7,9 +7,9 @@ import { GroupMemberInfo, GroupMemberRole } from '../types/group.ts';
 export const requireAuth = (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): void => {
-  if (req.isAuthenticated()) {
+  if (req.isAuthenticated() && req.user) {
     return next();
   } else {
     res.status(401).json({
@@ -24,16 +24,15 @@ export const requireAuth = (
 export const privateChatRoomAuth = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): Promise<void> => {
   const senderId = Number(req.user?.user_id);
-  const room = req.params.room;
+  const room = String(req.params.room);
 
   try {
     const privateChatRepository = new PrivateChat();
-    const privateChatMembers = await privateChatRepository.findMembersByRoom(
-      room
-    );
+    const privateChatMembers =
+      await privateChatRepository.findMembersByRoom(room);
     if (!privateChatMembers) {
       console.log('Error: chat not found');
       res.status(404).json({
@@ -71,7 +70,7 @@ export const privateChatRoomAuth = async (
 export const groupChatRoomAuth = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): Promise<void> => {
   const senderId = Number(req.user?.user_id);
   const groupId = Number(req.params.groupId);
@@ -80,14 +79,13 @@ export const groupChatRoomAuth = async (
     const groupRepository = new Group();
     const groupMemberRepository = new GroupMember();
 
-    let room = req.params.room;
+    let room = String(req.params.room);
     if (!room) {
       ({ room } = await groupRepository.findRoomById(groupId));
     }
 
-    const groupChatMembers = await groupMemberRepository.findMembersByRoom(
-      room
-    );
+    const groupChatMembers =
+      await groupMemberRepository.findMembersByRoom(room);
 
     if (!groupChatMembers) {
       console.log('Error: chat not found');
@@ -99,7 +97,7 @@ export const groupChatRoomAuth = async (
       return;
     }
     const groupChatMemberIds = groupChatMembers.map(
-      (member: { user_id: number }) => member.user_id
+      (member: { user_id: number }) => member.user_id,
     );
 
     if (!senderId) {
@@ -130,7 +128,7 @@ export const groupChatRoomAuth = async (
 export const authoriseGroupOwnerAction = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): Promise<void> => {
   const groupRepository = new Group();
   const groupMemberRepository = new GroupMember();
@@ -163,7 +161,7 @@ export const authoriseGroupOwnerAction = async (
     const isOwner = groupChatMembers.some(
       (member) =>
         member.user_id === loggedInUserId &&
-        member.role === GroupMemberRole.OWNER
+        member.role === GroupMemberRole.OWNER,
     );
 
     if (isOwner) {
@@ -191,7 +189,7 @@ export const authoriseGroupOwnerAction = async (
 export const authoriseGroupOwnerOrAdminAction = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): Promise<void> => {
   const groupRepository = new Group();
   const groupMemberRepository = new GroupMember();
@@ -224,12 +222,12 @@ export const authoriseGroupOwnerOrAdminAction = async (
     const isOwner = groupChatMembers.some(
       (member) =>
         member.user_id === loggedInUserId &&
-        member.role === GroupMemberRole.OWNER
+        member.role === GroupMemberRole.OWNER,
     );
     const isAdmin = groupChatMembers.some(
       (member) =>
         member.user_id === loggedInUserId &&
-        member.role === GroupMemberRole.ADMIN
+        member.role === GroupMemberRole.ADMIN,
     );
 
     if (isOwner || isAdmin) {

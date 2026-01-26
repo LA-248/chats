@@ -1,4 +1,5 @@
 import { RequestHandler } from 'express';
+import { ParamsDictionary } from 'express-serve-static-core';
 import { Server } from 'socket.io';
 import { v4 as uuidv4 } from 'uuid';
 import { ApiErrorResponse } from '../dtos/error.dto.ts';
@@ -21,18 +22,13 @@ import {
 import { ApiSuccessResponse } from '../dtos/success.dto.ts';
 import { userSockets } from '../handlers/socket-handlers.ts';
 import {
-  AddGroupMembersSchema,
-  CreateGroupChatSchema,
-  GroupIdSchema,
-  GroupRoomSchema,
+  GroupRoom,
   NewGroupChat,
-  PermanentlyDeleteGroupParamsSchema,
-  RemoveKickedGroupMemberParamsSchema,
-  UpdateGroupPictureParamsSchema,
-  UpdateLastMessageIdBodySchema,
-  UpdateLastMessageIdParamsSchema,
-  UpdateMemberRoleBodySchema,
-  UpdateMemberRoleParamsSchema,
+  PermanentlyDeleteGroupParamsDto,
+  RemoveKickedGroupMemberParamsDto,
+  UpdateGroupPictureParamsDto,
+  UpdateMemberRoleBodyDto,
+  UpdateMemberRoleParamsDto,
   UpdateUserReadStatusParamsSchema,
 } from '../schemas/group.schema.ts';
 import {
@@ -53,7 +49,7 @@ import { GroupMemberInsertionResult } from '../types/group.ts';
 
 // Handle creating a group chat
 export const createGroupChat: RequestHandler<
-  Record<string, never>,
+  ParamsDictionary,
   | CreateGroupChatResponseDto
   | CreateGroupChatPartialSuccessResponseDto
   | ApiErrorResponse,
@@ -63,15 +59,6 @@ export const createGroupChat: RequestHandler<
     const io: Server = req.app.get('io');
     const room = uuidv4();
 
-    const parsedBody = CreateGroupChatSchema.safeParse(req.body);
-    if (!parsedBody.success) {
-      console.error('Unexpected group data shape:', parsedBody.error);
-      res
-        .status(400)
-        .json({ error: 'Invalid group chat data. Please check your input.' });
-      return;
-    }
-
     const {
       newGroupChat,
       failedInsertions,
@@ -80,10 +67,10 @@ export const createGroupChat: RequestHandler<
       failedInsertions: GroupMemberInsertionResult[];
     } = await createNewGroup(
       io,
-      parsedBody.data.ownerUserId,
-      parsedBody.data.name,
+      req.body.ownerUserId,
+      req.body.name,
       room,
-      parsedBody.data.membersToBeAdded
+      req.body.membersToBeAdded,
     );
 
     // Handle partial success or full success
@@ -107,23 +94,12 @@ export const createGroupChat: RequestHandler<
 };
 
 export const retrieveGroupInfo: RequestHandler<
-  { room: string },
+  GroupRoom,
   RetrieveGroupInfoResponseDto | ApiErrorResponse,
   void
 > = async (req, res): Promise<void> => {
   try {
-    const parsedParams = GroupRoomSchema.safeParse(req.params);
-    if (!parsedParams.success) {
-      console.error('Invalid group chat room:', parsedParams.error);
-      res
-        .status(400)
-        .json({ error: 'Invalid group chat room. Please check your input.' });
-      return;
-    }
-
-    const groupData = await retrieveGroupInfoWithMembers(
-      parsedParams.data.room
-    );
+    const groupData = await retrieveGroupInfoWithMembers(req.params.room);
     res.status(200).json(groupData);
   } catch (error) {
     console.error('Error retrieving group info:', error);
@@ -140,16 +116,8 @@ export const retrieveMemberUsernames: RequestHandler<
 > = async (req, res): Promise<void> => {
   try {
     const groupId = req.params.groupId;
-    const parsedParams = GroupIdSchema.safeParse(groupId);
-    if (!parsedParams.success) {
-      console.error('Invalid group ID:', parsedParams.error);
-      res
-        .status(400)
-        .json({ error: 'Invalid group chat ID. Please check your input.' });
-      return;
-    }
 
-    const usernames = await getMemberUsernames(Number(parsedParams.data));
+    const usernames = await getMemberUsernames(Number(groupId));
     res.status(200).json({ memberUsernames: usernames });
   } catch (error) {
     console.error('Error retrieving group member usernames:', error);
@@ -158,7 +126,7 @@ export const retrieveMemberUsernames: RequestHandler<
 };
 
 export const markGroupChatAsDeleted: RequestHandler<
-  { room: string },
+  GroupRoom,
   ApiSuccessResponse | ApiErrorResponse,
   void
 > = async (req, res): Promise<void> => {
@@ -169,16 +137,7 @@ export const markGroupChatAsDeleted: RequestHandler<
       return;
     }
 
-    const parsedParams = GroupRoomSchema.safeParse(req.params);
-    if (!parsedParams.success) {
-      console.error('Invalid group chat room:', parsedParams.error);
-      res
-        .status(400)
-        .json({ error: 'Invalid group chat room. Please check your input.' });
-      return;
-    }
-
-    await markGroupAsDeleted(userId, parsedParams.data.room);
+    await markGroupAsDeleted(userId, req.params.room);
     res.status(200).json({ message: 'Chat deleted successfully' });
   } catch (error) {
     console.error('Error deleting chat:', error);
@@ -188,7 +147,7 @@ export const markGroupChatAsDeleted: RequestHandler<
 
 // TODO: Use database transactions here to only insert new members in the database if all operations succeed
 export const addMembers: RequestHandler<
-  { room: string },
+  GroupRoom,
   AddMembersResponseDto | ApiErrorResponse,
   AddMembersInputDto
 > = async (req, res): Promise<void> => {
@@ -196,22 +155,10 @@ export const addMembers: RequestHandler<
     const io = req.app.get('io');
     const room = req.params.room;
 
-    const parsedBody = AddGroupMembersSchema.safeParse(req.body);
-    if (!parsedBody.success) {
-      console.error(
-        'Error adding members to group chat, invalid input:',
-        parsedBody.error
-      );
-      res
-        .status(400)
-        .json({ error: 'Invalid member data. Please check your input.' });
-      return;
-    }
-
     const addedUsersInfo = await addUsersToGroup(
       io,
       room,
-      parsedBody.data.addedMembers
+      req.body.addedMembers,
     );
 
     // Emit info of added users to update the members list in real-time
@@ -221,9 +168,7 @@ export const addMembers: RequestHandler<
 
     res.status(200).json({
       message:
-        parsedBody.data.addedMembers.length > 1
-          ? 'Members added'
-          : 'Member added',
+        req.body.addedMembers.length > 1 ? 'Members added' : 'Member added',
       addedMembers: addedUsersInfo,
     });
   } catch (error) {
@@ -248,14 +193,6 @@ export const leaveGroup: RequestHandler<
     }
 
     const groupId = Number(req.params.groupId);
-    const parsedParams = GroupIdSchema.safeParse(groupId);
-    if (!parsedParams.success) {
-      console.error('Invalid group ID:', parsedParams.error);
-      res
-        .status(400)
-        .json({ error: 'Invalid group chat ID. Please check your input.' });
-      return;
-    }
 
     const socketId = userSockets.get(userId);
     const {
@@ -295,10 +232,7 @@ export const leaveGroup: RequestHandler<
 
 // Used when the group owner or an admin kicks a member
 export const removeKickedGroupMember: RequestHandler<
-  {
-    groupId: string;
-    userId: string;
-  },
+  RemoveKickedGroupMemberParamsDto,
   RemoveKickedGroupMemberResponseDto | ApiErrorResponse,
   void
 > = async (req, res): Promise<void> => {
@@ -309,23 +243,15 @@ export const removeKickedGroupMember: RequestHandler<
       res.status(401).json({ error: 'User not authenticated' });
       return;
     }
-    const parsedParams = RemoveKickedGroupMemberParamsSchema.safeParse(
-      req.params
-    );
-    if (!parsedParams.success) {
-      console.error('Invalid request params:', parsedParams.error);
-      res.status(400).json({ error: 'Invalid request data' });
-      return;
-    }
 
     const { room, removedUser } = await kickMember(
       io,
-      parsedParams.data.groupId,
-      parsedParams.data.userId,
-      loggedInUserId
+      Number(req.params.groupId),
+      Number(req.params.userId),
+      loggedInUserId,
     );
     const removedUserId = removedUser.user_id;
-    const socketId = userSockets.get(parsedParams.data.userId);
+    const socketId = userSockets.get(Number(req.params.userId));
 
     // Send the user id of the removed member to the frontend
     // This allows for the members list to be updated in real-time for all group chat participants
@@ -359,39 +285,17 @@ export const removeKickedGroupMember: RequestHandler<
 };
 
 export const updateRole: RequestHandler<
-  {
-    groupId: string;
-    userId: string;
-  },
+  UpdateMemberRoleParamsDto,
   UpdateGroupMemberRoleResponseDto | ApiErrorResponse,
-  void
+  UpdateMemberRoleBodyDto
 > = async (req, res): Promise<void> => {
   try {
     const io = req.app.get('io');
 
-    const parsedBody = UpdateMemberRoleBodySchema.safeParse(req.body);
-    if (!parsedBody.success) {
-      console.error(
-        'Error updating role, invalid request body:',
-        parsedBody.error
-      );
-      res.status(400).json({ error: 'Invalid request body data' });
-      return;
-    }
-    const parsedParams = UpdateMemberRoleParamsSchema.safeParse(req.params);
-    if (!parsedParams.success) {
-      console.error(
-        'Error updating role, Invalid request parameters:',
-        parsedParams.error
-      );
-      res.status(400).json({ error: 'Invalid request parameter data' });
-      return;
-    }
-
     const { room, updatedMember } = await updateMemberRole(
-      parsedBody.data.role,
-      parsedParams.data.groupId,
-      parsedParams.data.userId
+      req.body.role,
+      Number(req.params.groupId),
+      Number(req.params.userId),
     );
 
     io.to(room).emit('update-member-role', {
@@ -412,26 +316,15 @@ export const updateRole: RequestHandler<
 };
 
 export const permanentlyDeleteGroup: RequestHandler<
-  {
-    groupId: string;
-  },
+  PermanentlyDeleteGroupParamsDto,
   PermanentlyDeleteGroupResponseDto | ApiErrorResponse,
   void
 > = async (req, res): Promise<void> => {
   try {
     const io = req.app.get('io');
 
-    const parsedParams = PermanentlyDeleteGroupParamsSchema.safeParse(
-      req.params
-    );
-    if (!parsedParams.success) {
-      console.error('Invalid request params:', parsedParams.error);
-      res.status(400).json({ error: 'Invalid request data' });
-      return;
-    }
-
     const { room, memberSocketIds } = await permanentlyDeleteGroupChat(
-      parsedParams.data.groupId
+      Number(req.params.groupId),
     );
 
     // After a group is permanently deleted, send the room to the frontend so it can be filtered out of each member's chat list
@@ -453,25 +346,18 @@ export const permanentlyDeleteGroup: RequestHandler<
 };
 
 export const updateGroupPicture: RequestHandler<
-  { groupId: string },
+  UpdateGroupPictureParamsDto,
   UpdateGroupPictureDto | ApiErrorResponse,
   void
 > = async (req, res): Promise<void> => {
   try {
     const io = req.app.get('io');
 
-    const parsedParams = UpdateGroupPictureParamsSchema.safeParse(req.params);
-    if (!parsedParams.success) {
-      console.error('Invalid request params:', parsedParams.error);
-      res.status(400).json({ error: 'Invalid request data' });
-      return;
-    }
-
     const file = req.file as Express.MulterS3.File;
     const { fileUrl, groupId, name } = await uploadGroupPicture(
-      parsedParams.data.groupId,
+      Number(req.params.groupId),
       file,
-      io
+      io,
     );
 
     res.status(200).json({
@@ -516,28 +402,12 @@ export const updateUserReadStatus: RequestHandler<
 };
 
 export const updateLastMessageId: RequestHandler<
-  { room: string },
+  GroupRoom,
   UpdateLastMessageIdResponseDto | ApiErrorResponse,
   UpdateLastMessageIdInputDto
 > = async (req, res): Promise<void> => {
   try {
-    const parsedBody = UpdateLastMessageIdBodySchema.safeParse(req.body);
-    if (!parsedBody.success) {
-      console.error('Invalid request body:', parsedBody.error);
-      res.status(400).json({ error: 'Invalid request body data' });
-      return;
-    }
-    const parsedParams = UpdateLastMessageIdParamsSchema.safeParse(req.params);
-    if (!parsedParams.success) {
-      console.error('Invalid request params:', parsedParams.error);
-      res.status(400).json({ error: 'Invalid request data' });
-      return;
-    }
-
-    await updateLastGroupMessage(
-      parsedBody.data.messageId,
-      parsedParams.data.room
-    );
+    await updateLastGroupMessage(req.body.messageId, req.params.room);
 
     res.status(200).json({ success: 'Last message successfully updated' });
   } catch (error) {

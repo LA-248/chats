@@ -8,7 +8,7 @@ export const CreateGroupChatSchema = z.object({
       username: z.string(),
       userId: z.number(),
       role: z.string(),
-    })
+    }),
   ),
 });
 
@@ -68,32 +68,47 @@ export const AddGroupMembersSchema = z.object({
       userId: z.number(),
       username: z.string(),
       role: z.enum(['owner', 'admin', 'member']),
-    })
+    }),
   ),
 });
 
 export const GroupIdSchema = z.string();
 
 export const RemoveKickedGroupMemberParamsSchema = z.object({
-  groupId: z.coerce.number().int().positive(),
-  userId: z.coerce.number().int().positive(),
+  groupId: z.string(),
+  userId: z.string(),
 });
+export type RemoveKickedGroupMemberParamsDto = z.infer<
+  typeof RemoveKickedGroupMemberParamsSchema
+>;
 
 export const UpdateMemberRoleBodySchema = z.object({
   role: z.enum(['owner', 'admin', 'member']),
 });
 export const UpdateMemberRoleParamsSchema = z.object({
-  groupId: z.coerce.number().int().positive(),
-  userId: z.coerce.number().int().positive(),
+  groupId: z.string(),
+  userId: z.string(),
 });
+export type UpdateMemberRoleBodyDto = z.infer<
+  typeof UpdateMemberRoleBodySchema
+>;
+export type UpdateMemberRoleParamsDto = z.infer<
+  typeof UpdateMemberRoleParamsSchema
+>;
 
 export const PermanentlyDeleteGroupParamsSchema = z.object({
-  groupId: z.coerce.number().int().positive(),
+  groupId: z.string(),
 });
+export type PermanentlyDeleteGroupParamsDto = z.infer<
+  typeof PermanentlyDeleteGroupParamsSchema
+>;
 
 export const UpdateGroupPictureParamsSchema = z.object({
-  groupId: z.coerce.number().int().positive(),
+  groupId: z.string(),
 });
+export type UpdateGroupPictureParamsDto = z.infer<
+  typeof UpdateGroupPictureParamsSchema
+>;
 
 export const UpdateUserReadStatusParamsSchema = z.object({
   room: z.string(),

@@ -10,6 +10,11 @@ import {
   enforceMessageEditRules,
 } from '../middlewares/message.middleware.ts';
 import handleMulterError from '../middlewares/multer.middleware.ts';
+import { validate } from '../middlewares/validation.middleware.ts';
+import {
+  EditMessageBodySchema,
+  EditMessageParamsSchema,
+} from '../schemas/message.schema.ts';
 import { s3ChatMediaUpload } from '../services/s3.service.ts';
 
 const messagesRouter = express.Router();
@@ -17,13 +22,14 @@ messagesRouter.use(requireAuth);
 
 messagesRouter.put(
   '/:type/:chatId/messages/:messageId',
+  validate({ body: EditMessageBodySchema, params: EditMessageParamsSchema }),
   enforceMessageEditRules,
-  editMessage
+  editMessage,
 );
 messagesRouter.delete(
   '/:type/:chatId/messages/:messageId',
   authoriseMessageDeletion,
-  deleteMessage
+  deleteMessage,
 );
 messagesRouter.post(
   '/:type/:chatId/media',
@@ -35,7 +41,7 @@ messagesRouter.post(
       next();
     });
   },
-  uploadMedia
+  uploadMedia,
 );
 
 export default messagesRouter;

@@ -1,4 +1,5 @@
 import { Request, RequestHandler, Response } from 'express';
+import { ParamsDictionary } from 'express-serve-static-core';
 import { ApiErrorResponse } from '../dtos/error.dto.ts';
 import {
   RetrieveLoggedInUserDataResponseDto,
@@ -6,7 +7,6 @@ import {
   RetrieveRecipientProfileResponseDto,
 } from '../dtos/user.dto.ts';
 import {
-  RetrieveLoggedInUserDataAuthSchema,
   RetrieveRecipientProfileAuthSchema,
   RetrieveRecipientProfileParamsSchema,
 } from '../schemas/user.schema.ts';
@@ -22,31 +22,21 @@ import {
 } from '../services/user.service.ts';
 
 export const retrieveLoggedInUserData: RequestHandler<
-  void,
+  ParamsDictionary,
   RetrieveLoggedInUserDataResponseDto | ApiErrorResponse,
   void
 > = async (req, res): Promise<void> => {
   try {
-    const parsedUser = RetrieveLoggedInUserDataAuthSchema.safeParse(req.user);
-    if (!parsedUser.success) {
-      console.error(
-        'Error retrieving data of logged in user, invalid request data:',
-        parsedUser.error
-      );
-      res.status(400).json({ error: 'An unexpected error occurred' });
-      return;
-    }
-
-    const profilePictureUrl = parsedUser.data.profile_picture
+    const profilePictureUrl = req.user?.profile_picture
       ? await createProfilePictureUrl(
-          parsedUser.data.user_id,
-          parsedUser.data.profile_picture
+          req.user.user_id,
+          req.user.profile_picture,
         )
       : null;
 
     res.status(200).json({
-      userId: parsedUser.data.user_id,
-      username: parsedUser.data.username,
+      userId: req.user!.user_id,
+      username: req.user!.username,
       profilePicture: profilePictureUrl,
     });
   } catch (error) {
@@ -69,18 +59,18 @@ export const retrieveRecipientProfile: RequestHandler<
     if (!parsedUser.success) {
       console.error(
         'Error retrieving recipient profile data, invalid user request data:',
-        parsedUser.error
+        parsedUser.error,
       );
       res.status(400).json({ error: 'An unexpected error occurred' });
       return;
     }
     const parsedParams = RetrieveRecipientProfileParamsSchema.safeParse(
-      req.params
+      req.params,
     );
     if (!parsedParams.success) {
       console.error(
         'Error retrieving recipient profile, invalid request parameters:',
-        parsedParams.error
+        parsedParams.error,
       );
       res.status(400).json({ error: 'Invalid request parameter data' });
       return;
@@ -88,7 +78,7 @@ export const retrieveRecipientProfile: RequestHandler<
 
     const result = await retrieveRecipientData(
       parsedUser.data.user_id,
-      parsedParams.data.room
+      parsedParams.data.room,
     );
 
     if (!result || !result.recipient) {
@@ -112,14 +102,14 @@ export const retrieveRecipientProfile: RequestHandler<
 
 export const retrieveIdByUsername = async (
   req: Request,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   try {
-    const username = req.params.username;
+    const username = String(req.params.username);
     const user = await retrieveUserIdByUsername(username);
     if (!user) {
       throw new Error(
-        'User does not exist. Make sure that the username is correct.'
+        'User does not exist. Make sure that the username is correct.',
       );
     }
     res.status(200).json({ userId: user.user_id });
@@ -140,7 +130,7 @@ export const retrieveIdByUsername = async (
 
 export const retrieveUserProfilePicture = async (
   req: Request,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   try {
     const userId = Number(req.params.id);
@@ -155,7 +145,7 @@ export const retrieveUserProfilePicture = async (
 
 export const retrieveBlockListById = async (
   req: Request,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   try {
     const userId = Number(req.user?.user_id);
@@ -169,7 +159,7 @@ export const retrieveBlockListById = async (
 
 export const uploadProfilePicture = async (
   req: Request,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   try {
     const userId = Number(req.params.id);
@@ -188,7 +178,7 @@ export const uploadProfilePicture = async (
 
 export const updateUsername = async (
   req: Request,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   try {
     const userId = Number(req.user?.user_id);
@@ -208,7 +198,7 @@ export const updateUsername = async (
 // Update a user's list of blocked users
 export const updateBlockedUsers = async (
   req: Request,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   try {
     const blockedUserIds = req.body.blockedUserIds;

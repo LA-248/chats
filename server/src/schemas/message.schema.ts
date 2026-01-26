@@ -51,14 +51,19 @@ export type LastMessageInfo = z.infer<typeof LastMessageInfoSchema>;
 export const EditMessageBodySchema = z.strictObject({
   newMessage: z.string(),
 });
+export type EditMessageInputDto = z.infer<typeof EditMessageBodySchema>;
+export type EditMessageResponseDto = EditMessageInputDto;
+
 export const EditMessageParamsSchema = z.strictObject({
   type: z.string(),
   chatId: z.string(),
-  messageId: z.coerce.number().int().positive(),
+  messageId: z.string(),
 });
+export type EditMessageParamsDto = z.input<typeof EditMessageParamsSchema>;
 
 export const DeleteMessageParamsSchema = z.strictObject({
   type: z.string(),
   chatId: z.string(),
-  messageId: z.coerce.number().int().positive(),
+  messageId: z.string(),
 });
+export type DeleteMessageParamsDto = z.infer<typeof DeleteMessageParamsSchema>;

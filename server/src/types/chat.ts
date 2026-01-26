@@ -18,7 +18,7 @@ export interface ChatHandler {
     senderId: number,
     newMessageId: number,
     chatId: number,
-    room: string
+    room: string,
   ) => Promise<Date>;
 }
 
