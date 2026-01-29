@@ -3,7 +3,7 @@ import { UsernameTakenError } from '../../errors/errors.ts';
 import { UserCredentialsSchema } from '../../schemas/user.schema.ts';
 import { insertNewUser } from '../../services/auth.service.ts';
 
-const handleSignUp = async (req: Request, res: Response): Promise<void> => {
+const handleSignUp = async (req: Request, res: Response) => {
   const parsed = UserCredentialsSchema.safeParse(req.body);
 
   if (!parsed.success) {

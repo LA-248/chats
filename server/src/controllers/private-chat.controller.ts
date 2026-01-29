@@ -24,7 +24,7 @@ export const addChat: RequestHandler<
   ParamsDictionary,
   Chat | ApiErrorResponse,
   CreatePrivateChatInputDto
-> = async (req, res): Promise<void> => {
+> = async (req, res) => {
   try {
     const senderId = Number(req.user?.user_id);
 
@@ -59,7 +59,7 @@ export const getChatList: RequestHandler<
   ParamsDictionary,
   Chat[] | ApiErrorResponse,
   void
-> = async (req, res): Promise<void> => {
+> = async (req, res) => {
   try {
     const userId = Number(req.user?.user_id);
     const chatList = await getChatListByUser(userId);
@@ -75,7 +75,7 @@ export const updateLastMessageId: RequestHandler<
   { room: string },
   void | ApiErrorResponse,
   UpdateLastMessageIdInputDto
-> = async (req, res): Promise<void> => {
+> = async (req, res) => {
   try {
     await updateLastMessage(req.body.messageId, req.params.room);
     res.sendStatus(204);
@@ -92,7 +92,7 @@ export const updateChatReadStatus: RequestHandler<
   { room: string },
   UpdateReadStatusResponseDto | ApiErrorResponse,
   UpdateReadStatusInputDto
-> = async (req, res): Promise<void> => {
+> = async (req, res) => {
   try {
     const userId = Number(req.user?.user_id);
 
@@ -114,7 +114,7 @@ export const deleteChat: RequestHandler<
   { room: string },
   DeleteChatResponseDto | ApiErrorResponse,
   void
-> = async (req, res): Promise<void> => {
+> = async (req, res) => {
   try {
     const userId = Number(req.user?.user_id);
     await updateDeletionStatus(userId, req.params.room);

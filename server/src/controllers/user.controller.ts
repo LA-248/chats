@@ -25,7 +25,7 @@ export const retrieveLoggedInUserData: RequestHandler<
   ParamsDictionary,
   RetrieveLoggedInUserDataResponseDto | ApiErrorResponse,
   void
-> = async (req, res): Promise<void> => {
+> = async (req, res) => {
   try {
     const profilePictureUrl = req.user?.profile_picture
       ? await createProfilePictureUrl(
@@ -53,7 +53,7 @@ export const retrieveRecipientProfile: RequestHandler<
   | RetrieveRecipientProfileNotFoundResponseDto
   | ApiErrorResponse,
   void
-> = async (req, res): Promise<void> => {
+> = async (req, res) => {
   try {
     const parsedUser = RetrieveRecipientProfileAuthSchema.safeParse(req.user);
     if (!parsedUser.success) {
@@ -100,10 +100,7 @@ export const retrieveRecipientProfile: RequestHandler<
   }
 };
 
-export const retrieveIdByUsername = async (
-  req: Request,
-  res: Response,
-): Promise<void> => {
+export const retrieveIdByUsername = async (req: Request, res: Response) => {
   try {
     const username = String(req.params.username);
     const user = await retrieveUserIdByUsername(username);
@@ -131,7 +128,7 @@ export const retrieveIdByUsername = async (
 export const retrieveUserProfilePicture = async (
   req: Request,
   res: Response,
-): Promise<void> => {
+) => {
   try {
     const userId = Number(req.params.id);
     const profilePictureUrl = await retrieveProfilePicture(userId);
@@ -143,10 +140,7 @@ export const retrieveUserProfilePicture = async (
   }
 };
 
-export const retrieveBlockListById = async (
-  req: Request,
-  res: Response,
-): Promise<void> => {
+export const retrieveBlockListById = async (req: Request, res: Response) => {
   try {
     const userId = Number(req.user?.user_id);
     const result = await retrieveBlockList(userId);
@@ -157,10 +151,7 @@ export const retrieveBlockListById = async (
   }
 };
 
-export const uploadProfilePicture = async (
-  req: Request,
-  res: Response,
-): Promise<void> => {
+export const uploadProfilePicture = async (req: Request, res: Response) => {
   try {
     const userId = Number(req.params.id);
     const file = req.file as Express.MulterS3.File;
@@ -176,10 +167,7 @@ export const uploadProfilePicture = async (
   }
 };
 
-export const updateUsername = async (
-  req: Request,
-  res: Response,
-): Promise<void> => {
+export const updateUsername = async (req: Request, res: Response) => {
   try {
     const userId = Number(req.user?.user_id);
     const io = req.app.get('io');
@@ -196,10 +184,7 @@ export const updateUsername = async (
 };
 
 // Update a user's list of blocked users
-export const updateBlockedUsers = async (
-  req: Request,
-  res: Response,
-): Promise<void> => {
+export const updateBlockedUsers = async (req: Request, res: Response) => {
   try {
     const blockedUserIds = req.body.blockedUserIds;
     const userId = Number(req.user?.user_id);

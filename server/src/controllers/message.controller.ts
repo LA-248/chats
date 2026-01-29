@@ -17,7 +17,7 @@ export const editMessage: RequestHandler<
   EditMessageParamsDto,
   EditMessageResponseDto | ApiErrorResponse,
   EditMessageInputDto
-> = async (req, res): Promise<void> => {
+> = async (req, res) => {
   try {
     const senderId = Number(req.user?.user_id);
     const messageId = Number(req.params.messageId);
@@ -34,19 +34,14 @@ export const deleteMessage: RequestHandler<
   DeleteMessageParamsDto,
   DeleteMessageResponseDto | ApiErrorResponse,
   void
-> = async (req, res): Promise<void> => {
+> = async (req, res) => {
   try {
     const senderId = Number(req.user?.user_id);
     const messageId = Number(req.params.messageId);
     const type = req.params.type;
     const chatId = req.params.chatId;
 
-    await deleteChatMessage(
-      senderId,
-      messageId,
-      type,
-      chatId,
-    );
+    await deleteChatMessage(senderId, messageId, type, chatId);
     res.status(200).json({ ok: true, success: 'Message deleted' });
   } catch (error) {
     console.error('Error deleting message:', error);
@@ -56,7 +51,7 @@ export const deleteMessage: RequestHandler<
   }
 };
 
-export const uploadMedia: RequestHandler = async (req, res): Promise<void> => {
+export const uploadMedia: RequestHandler = async (req, res) => {
   try {
     const file = req.file as Express.MulterS3.File;
     const { fileKey, fileName } = await upload(file);

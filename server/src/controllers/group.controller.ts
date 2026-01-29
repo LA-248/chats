@@ -54,7 +54,7 @@ export const createGroupChat: RequestHandler<
   | CreateGroupChatPartialSuccessResponseDto
   | ApiErrorResponse,
   CreateGroupChatInputDto
-> = async (req, res): Promise<void> => {
+> = async (req, res) => {
   try {
     const io: Server = req.app.get('io');
     const room = uuidv4();
@@ -97,7 +97,7 @@ export const retrieveGroupInfo: RequestHandler<
   GroupRoom,
   RetrieveGroupInfoResponseDto | ApiErrorResponse,
   void
-> = async (req, res): Promise<void> => {
+> = async (req, res) => {
   try {
     const groupData = await retrieveGroupInfoWithMembers(req.params.room);
     res.status(200).json(groupData);
@@ -113,7 +113,7 @@ export const retrieveMemberUsernames: RequestHandler<
   },
   RetrieveGroupMemberUsernamesResponseDto | ApiErrorResponse,
   void
-> = async (req, res): Promise<void> => {
+> = async (req, res) => {
   try {
     const groupId = req.params.groupId;
 
@@ -129,7 +129,7 @@ export const markGroupChatAsDeleted: RequestHandler<
   GroupRoom,
   ApiSuccessResponse | ApiErrorResponse,
   void
-> = async (req, res): Promise<void> => {
+> = async (req, res) => {
   try {
     const userId = Number(req.user?.user_id);
     if (!userId) {
@@ -150,7 +150,7 @@ export const addMembers: RequestHandler<
   GroupRoom,
   AddMembersResponseDto | ApiErrorResponse,
   AddMembersInputDto
-> = async (req, res): Promise<void> => {
+> = async (req, res) => {
   try {
     const io = req.app.get('io');
     const room = req.params.room;
@@ -182,7 +182,7 @@ export const leaveGroup: RequestHandler<
   { groupId: string },
   LeaveGroupResponseDto | ApiErrorResponse,
   void
-> = async (req, res): Promise<void> => {
+> = async (req, res) => {
   try {
     const io = req.app.get('io');
 
@@ -235,7 +235,7 @@ export const removeKickedGroupMember: RequestHandler<
   RemoveKickedGroupMemberParamsDto,
   RemoveKickedGroupMemberResponseDto | ApiErrorResponse,
   void
-> = async (req, res): Promise<void> => {
+> = async (req, res) => {
   try {
     const io = req.app.get('io');
     const loggedInUserId = Number(req.user?.user_id); // Get the ID of the user performing the member removal
@@ -258,11 +258,14 @@ export const removeKickedGroupMember: RequestHandler<
     io.to(room).emit('remove-member', {
       removedUserId,
     });
-    // After a member is kicked, send the room to the frontend so the group can be filtered out of their chat list
-    io.to(socketId).emit('remove-group-chat', {
-      room: room,
-      redirectPath: '/',
-    });
+
+    if (socketId) {
+      // After a member is kicked, send the room to the frontend so the group can be filtered out of their chat list
+      io.to(socketId).emit('remove-group-chat', {
+        room: room,
+        redirectPath: '/',
+      });
+    }
 
     res.status(200).json({
       kickedMemberUserId: removedUser.user_id,
@@ -319,7 +322,7 @@ export const permanentlyDeleteGroup: RequestHandler<
   PermanentlyDeleteGroupParamsDto,
   PermanentlyDeleteGroupResponseDto | ApiErrorResponse,
   void
-> = async (req, res): Promise<void> => {
+> = async (req, res) => {
   try {
     const io = req.app.get('io');
 
@@ -349,7 +352,7 @@ export const updateGroupPicture: RequestHandler<
   UpdateGroupPictureParamsDto,
   UpdateGroupPictureDto | ApiErrorResponse,
   void
-> = async (req, res): Promise<void> => {
+> = async (req, res) => {
   try {
     const io = req.app.get('io');
 
@@ -377,7 +380,7 @@ export const updateUserReadStatus: RequestHandler<
   { room: string },
   ApiErrorResponse,
   void
-> = async (req, res): Promise<void> => {
+> = async (req, res) => {
   try {
     const userId = Number(req.user?.user_id);
 
@@ -405,7 +408,7 @@ export const updateLastMessageId: RequestHandler<
   GroupRoom,
   UpdateLastMessageIdResponseDto | ApiErrorResponse,
   UpdateLastMessageIdInputDto
-> = async (req, res): Promise<void> => {
+> = async (req, res) => {
   try {
     await updateLastGroupMessage(req.body.messageId, req.params.room);
 

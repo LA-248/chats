@@ -1,12 +1,12 @@
 import { NextFunction, Request, Response } from 'express';
-import { UserProfile } from '../../schemas/user.schema.ts';
 import passport from 'passport';
+import { UserProfile } from '../../schemas/user.schema.ts';
 
 export const handleUserLogin = (
   req: Request,
   res: Response,
-  next: NextFunction
-): void => {
+  next: NextFunction,
+) => {
   passport.authenticate('local', (err: Error, user: UserProfile) => {
     if (!user) {
       res
