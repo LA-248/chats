@@ -29,7 +29,7 @@ export default function Home() {
         setLoggedInUsername(userData.username);
 
         setProfilePicture(
-          userData.profilePicture || '/images/default-avatar.jpg'
+          userData.profilePicture || '/images/default-avatar.jpg',
         );
       } catch (error) {
         if (error instanceof Error) {
@@ -37,6 +37,7 @@ export default function Home() {
         }
       }
     };
+
     fetchUserData();
   }, [setLoggedInUserId, setLoggedInUsername, setProfilePicture]);
 

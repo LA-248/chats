@@ -28,13 +28,13 @@ export class User {
         profile_picture TEXT DEFAULT NULL,
         blocked_users INTEGER[] DEFAULT '{}'
       )`,
-      []
+      [],
     );
   };
 
   insertUser = async (
     username: string,
-    hashedPassword: string
+    hashedPassword: string,
   ): Promise<UserProfile> => {
     const result = await this.db.query<UserProfile>(
       `
@@ -42,7 +42,7 @@ export class User {
         VALUES ($1, $2)
         RETURNING user_id, username, profile_picture
       `,
-      [username, hashedPassword]
+      [username, hashedPassword],
     );
 
     return result.rows[0];
@@ -51,7 +51,7 @@ export class User {
   findUserById = async (userId: number): Promise<UserProfile> => {
     const result = await this.db.query<UserProfile>(
       'SELECT user_id, username, profile_picture FROM users WHERE user_id = $1',
-      [userId]
+      [userId],
     );
 
     return result.rows[0];
@@ -60,7 +60,7 @@ export class User {
   findUserByUsername = async (username: string): Promise<UserEntity> => {
     const result = await this.db.query<UserEntity>(
       'SELECT * FROM users WHERE username = $1',
-      [username]
+      [username],
     );
 
     return result.rows[0];
@@ -68,7 +68,7 @@ export class User {
 
   findRecipientUserProfileById = async (
     userId: number,
-    room: string
+    room: string,
   ): Promise<RecipientUserProfile> => {
     const result = await query<RecipientUserProfile>(
       `
@@ -84,7 +84,7 @@ export class User {
         END
         WHERE pc.room = $2
         `,
-      [userId, room]
+      [userId, room],
     );
 
     return result.rows[0];
@@ -93,18 +93,18 @@ export class User {
   findUserIdByUsername = async (username: string): Promise<UserId> => {
     const result = await query<UserId>(
       'SELECT user_id FROM users WHERE username = $1',
-      [username]
+      [username],
     );
 
     return result.rows[0];
   };
 
   findUserProfilePictureById = async (
-    userId: number
+    userId: number,
   ): Promise<UserProfilePicture> => {
     const result = await query<UserProfilePicture>(
       'SELECT profile_picture FROM users WHERE user_id = $1',
-      [userId]
+      [userId],
     );
 
     return result.rows[0];
@@ -113,7 +113,7 @@ export class User {
   findBlockListById = async (userId: number): Promise<UserBlockList> => {
     const result = await query<UserBlockList>(
       'SELECT blocked_users FROM users WHERE user_id = $1',
-      [userId]
+      [userId],
     );
 
     return result.rows[0];
@@ -121,31 +121,31 @@ export class User {
 
   updateUsernameById = async (
     username: string,
-    userId: number
+    userId: number,
   ): Promise<void> => {
     await this.db.query<UserBlockList>(
       'UPDATE users SET username = $1 WHERE user_id = $2',
-      [username, userId]
+      [username, userId],
     );
   };
 
   updateProfilePictureById = async (
     fileName: string,
-    userId: number
+    userId: number,
   ): Promise<void> => {
     await this.db.query<UserBlockList>(
       'UPDATE users SET profile_picture = $1 WHERE user_id = $2',
-      [fileName, userId]
+      [fileName, userId],
     );
   };
 
   updateBlockedUsersById = async (
     blockedUsers: number[],
-    userId: number
+    userId: number,
   ): Promise<void> => {
     await this.db.query<UserBlockList>(
       'UPDATE users SET blocked_users = $1 WHERE user_id = $2',
-      [blockedUsers, userId]
+      [blockedUsers, userId],
     );
   };
 }

@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { userSockets } from '../handlers/socket-handlers.ts';
 import { ChatList } from '../repositories/chat-list.repository.ts';
 import { PrivateChat } from '../repositories/private-chat.repository.ts';
-import { Chat, ChatDeletionStatus } from '../schemas/private-chat.schema.ts';
+import { ChatDeletionStatus, ChatDto } from '../schemas/private-chat.schema.ts';
 import { S3AvatarStoragePath } from '../types/chat.ts';
 import {
   createPresignedUrl,
@@ -13,12 +13,12 @@ import {
 export const handleChatAddition = async (
   socket: Socket,
   senderId: number,
-  recipientId: number
-): Promise<Chat> => {
+  recipientId: number,
+): Promise<ChatDto> => {
   const privateChatRepository = new PrivateChat();
   const { room } = await privateChatRepository.findRoomByMembers(
     senderId,
-    recipientId
+    recipientId,
   );
 
   // This check is needed to know whether to insert a new chat in the database and mark it as not deleted, or to only do the latter
@@ -30,7 +30,7 @@ export const handleChatAddition = async (
     await privateChatRepository.updateChatDeletionStatus(
       senderId,
       false,
-      newRoom
+      newRoom,
     );
 
     socket.join(newRoom);
@@ -44,7 +44,7 @@ export const handleChatAddition = async (
 // Update the last message for a chat, used when most recent message is deleted
 export const updateLastMessage = async (
   newLastMessageId: number | null,
-  room: string
+  room: string,
 ): Promise<void> => {
   const privateChatRepository = new PrivateChat();
   return await privateChatRepository.updateLastMessage(newLastMessageId, room);
@@ -53,7 +53,7 @@ export const updateLastMessage = async (
 export const updateReadStatus = async (
   userId: number,
   read: boolean,
-  room: string
+  room: string,
 ): Promise<void> => {
   const privateChatRepository = new PrivateChat();
   return await privateChatRepository.updateUserReadStatus(userId, read, room);
@@ -61,20 +61,20 @@ export const updateReadStatus = async (
 
 export const updateDeletionStatus = async (
   userId: number,
-  room: string
+  room: string,
 ): Promise<ChatDeletionStatus> => {
   const privateChatRepository = new PrivateChat();
   return await privateChatRepository.updateChatDeletionStatus(
     userId,
     true,
-    room
+    room,
   );
 };
 
 export const getChat = async (
   senderId: number,
-  room: string
-): Promise<Chat> => {
+  room: string,
+): Promise<ChatDto> => {
   const privateChatRepository = new PrivateChat();
 
   const chat = await privateChatRepository.findChat(senderId, room);
@@ -84,7 +84,7 @@ export const getChat = async (
   const profilePictureUrl = profilePictureName
     ? await createPresignedUrl(
         process.env.BUCKET_NAME!,
-        `${S3AvatarStoragePath.USER_AVATARS}/${recipientId}/${profilePictureName}`
+        `${S3AvatarStoragePath.USER_AVATARS}/${recipientId}/${profilePictureName}`,
       )
     : null;
 
@@ -96,7 +96,7 @@ export const addNewPrivateChat = async (
   io: Server,
   socket: Socket,
   recipientId: number,
-  room: string
+  room: string,
 ): Promise<void> => {
   try {
     const privateChatRepository = new PrivateChat();
@@ -120,7 +120,7 @@ export const addNewPrivateChat = async (
 };
 
 // TODO: Move this function to a more general location - this handles retrieving all chats to construct a user's chat list
-export const getChatListByUser = async (userId: number): Promise<Chat[]> => {
+export const getChatListByUser = async (userId: number): Promise<ChatDto[]> => {
   const ChatListRepository = new ChatList();
   const chatList = await ChatListRepository.findAllChatsByUser(userId);
   await generatePresignedUrlsForChatList(chatList);

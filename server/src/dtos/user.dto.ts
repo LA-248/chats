@@ -10,3 +10,8 @@ export type RetrieveRecipientProfileResponseDto =
 export type RetrieveRecipientProfileNotFoundResponseDto = {
   redirectPath: string;
 };
+
+export type RetrieveIdByUsernameResponseDto = Omit<
+  RetrieveLoggedInUserDataResponseDto,
+  'username' | 'profilePicture'
+>;

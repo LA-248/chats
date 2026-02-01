@@ -19,7 +19,7 @@ export default function configurePassport() {
       [id],
       (err, result) => {
         cb(err, result.rows[0]);
-      }
+      },
     );
   });
 }

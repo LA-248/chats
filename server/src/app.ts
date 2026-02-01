@@ -3,23 +3,23 @@ dotenv.config({
   path: process.env.NODE_ENV === 'test' ? '../.env.test' : '../.env',
 });
 
-import express from 'express';
 import cors from 'cors';
-import passport from 'passport';
-import configurePassport from './config/passport-auth-setup.ts';
-import { createServer } from 'node:http';
-import { Server } from 'socket.io';
+import express from 'express';
 import sharedSession from 'express-socket.io-session';
+import { createServer } from 'node:http';
+import passport from 'passport';
+import { Server } from 'socket.io';
+import configurePassport from './config/passport-auth-setup.ts';
 
-import { sessionMiddleware } from './middlewares/session.middleware.ts';
 import { createTables } from '../db/index.ts';
 import { socketHandlers } from './handlers/socket-handlers.ts';
+import { sessionMiddleware } from './middlewares/session.middleware.ts';
 
 import authRouter from './routes/auth.routes.ts';
-import usersRouter from './routes/user.routes.ts';
-import privateChatsRouter from './routes/private-chat.routes.ts';
 import groupChatsRouter from './routes/group-chat.routes.ts';
 import messagesRouter from './routes/message.routes.ts';
+import privateChatsRouter from './routes/private-chat.routes.ts';
+import usersRouter from './routes/user.routes.ts';
 
 export const app = express();
 const server = createServer(app);
@@ -29,7 +29,7 @@ app.use(
   cors({
     origin: process.env.CLIENT_BASE_URL,
     credentials: true,
-  })
+  }),
 );
 
 app.use(express.json());

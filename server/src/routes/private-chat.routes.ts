@@ -20,6 +20,10 @@ import {
   UpdateReadStatusBodySchema,
   UpdateReadStatusParamsSchema,
 } from '../schemas/private-chat.schema.ts';
+import {
+  RetrieveRecipientProfileParamsSchema,
+  UserDataAuthSchema,
+} from '../schemas/user.schema.ts';
 
 const privateChatsRouter = express.Router();
 privateChatsRouter.use(requireAuth);
@@ -30,7 +34,15 @@ privateChatsRouter.post(
   addChat,
 );
 privateChatsRouter.get('/', getChatList);
-privateChatsRouter.get('/:room', privateChatRoomAuth, retrieveRecipientProfile);
+privateChatsRouter.get(
+  '/:room',
+  privateChatRoomAuth,
+  validate({
+    user: UserDataAuthSchema,
+    params: RetrieveRecipientProfileParamsSchema,
+  }),
+  retrieveRecipientProfile,
+);
 privateChatsRouter.put(
   '/:room/last_message',
   privateChatRoomAuth,

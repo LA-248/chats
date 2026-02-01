@@ -3,8 +3,8 @@ dotenv.config({
   path: process.env.NODE_ENV === 'test' ? '../.env.test' : '../.env',
 });
 
-import session from 'express-session';
 import connectPgSimple from 'connect-pg-simple';
+import session from 'express-session';
 import { pool } from '../../db/index.ts';
 
 const PostgresSessionStore = connectPgSimple(session);

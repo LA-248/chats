@@ -9,7 +9,7 @@ import {
   UpdateReadStatusResponseDto,
 } from '../dtos/private-chat.dto.ts';
 import { userSockets } from '../handlers/socket-handlers.ts';
-import { Chat } from '../schemas/private-chat.schema.ts';
+import { ChatDto } from '../schemas/private-chat.schema.ts';
 import {
   getChatListByUser,
   handleChatAddition,
@@ -22,7 +22,7 @@ import { retrieveUserIdByUsername } from '../services/user.service.ts';
 // Handle adding a chat (new or previously added but deleted) to a user's chat list
 export const addChat: RequestHandler<
   ParamsDictionary,
-  Chat | ApiErrorResponse,
+  ChatDto | ApiErrorResponse,
   CreatePrivateChatInputDto
 > = async (req, res) => {
   try {
@@ -57,7 +57,7 @@ export const addChat: RequestHandler<
 // TODO: Move this function to a different file - this handles all chats, not just private ones
 export const getChatList: RequestHandler<
   ParamsDictionary,
-  Chat[] | ApiErrorResponse,
+  ChatDto[] | ApiErrorResponse,
   void
 > = async (req, res) => {
   try {

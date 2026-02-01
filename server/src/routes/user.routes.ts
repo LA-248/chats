@@ -11,7 +11,14 @@ import {
 import { requireAuth } from '../middlewares/auth.middleware.ts';
 import handleMulterError from '../middlewares/multer.middleware.ts';
 import { validate } from '../middlewares/validation.middleware.ts';
-import { RetrieveLoggedInUserDataAuthSchema } from '../schemas/user.schema.ts';
+import {
+  RetrieveIdByUsernameParamsSchema,
+  RetrieveUserProfilePictureParamsSchema,
+  UpdateBlockedUsersBodySchema,
+  UpdateUsernameParamsSchema,
+  UploadProfilePictureParamsSchema,
+  UserDataAuthSchema,
+} from '../schemas/user.schema.ts';
 import { s3UserPictureUpload } from '../services/s3.service.ts';
 
 const usersRouter = express.Router();
@@ -19,18 +26,40 @@ usersRouter.use(requireAuth);
 
 usersRouter.get(
   '/',
-  validate({ user: RetrieveLoggedInUserDataAuthSchema }),
+  validate({ user: UserDataAuthSchema }),
   retrieveLoggedInUserData,
 );
-usersRouter.get('/blocked', retrieveBlockListById);
-usersRouter.get('/:username', retrieveIdByUsername);
-usersRouter.get('/:id/pictures', retrieveUserProfilePicture);
+usersRouter.get(
+  '/blocked',
+  validate({ user: UserDataAuthSchema }),
+  retrieveBlockListById,
+);
+usersRouter.get(
+  '/:username',
+  validate({ params: RetrieveIdByUsernameParamsSchema }),
+  retrieveIdByUsername,
+);
+usersRouter.get(
+  '/:id/pictures',
+  validate({ params: RetrieveUserProfilePictureParamsSchema }),
+  retrieveUserProfilePicture,
+);
 
-usersRouter.put('/', updateUsername);
-usersRouter.put('/blocked', updateBlockedUsers);
+// TODO: For these PUT routes, why not have the client send the user id as a request parameter? Instead of fetching it from the user session
+usersRouter.put(
+  '/',
+  validate({ user: UserDataAuthSchema, body: UpdateUsernameParamsSchema }),
+  updateUsername,
+);
+usersRouter.put(
+  '/blocked',
+  validate({ body: UpdateBlockedUsersBodySchema, user: UserDataAuthSchema }),
+  updateBlockedUsers,
+);
 
 usersRouter.post(
   '/:id/pictures',
+  validate({ params: UploadProfilePictureParamsSchema }),
   (req: Request, res: Response, next: NextFunction) => {
     s3UserPictureUpload.single('profile-picture')(req, res, (err) => {
       if (err) {

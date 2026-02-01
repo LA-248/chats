@@ -59,7 +59,7 @@ export const ChatSchema = z.object({
   updated_at: z.coerce.date(),
   deleted: z.boolean(),
 });
-export type Chat = z.infer<typeof ChatSchema>;
+export type ChatDto = z.infer<typeof ChatSchema>;
 
 export const UpdateLastMessageIdBodySchema = z.strictObject({
   messageId: z.coerce.number().int().positive().nullable(),

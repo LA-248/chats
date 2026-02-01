@@ -13,19 +13,19 @@ import { createPresignedUrl, deleteS3Object } from './s3.service.ts';
 
 export const createProfilePictureUrl = async (
   userId: number,
-  profilePicture: string
+  profilePicture: string,
 ): Promise<string | null> => {
   return profilePicture
     ? await createPresignedUrl(
         process.env.BUCKET_NAME!,
-        `${S3AvatarStoragePath.USER_AVATARS}/${userId}/${profilePicture}`
+        `${S3AvatarStoragePath.USER_AVATARS}/${userId}/${profilePicture}`,
       )
     : null;
 };
 
 export const retrieveRecipientData = async (
   userId: number,
-  room: string
+  room: string,
 ): Promise<{
   recipient: RecipientUserProfile;
   profilePictureUrl: string | null;
@@ -33,14 +33,14 @@ export const retrieveRecipientData = async (
   const userRepository = new User();
   const recipient = await userRepository.findRecipientUserProfileById(
     userId,
-    room
+    room,
   );
   if (!recipient) return null;
 
   const profilePictureUrl = recipient.profile_picture
     ? await createPresignedUrl(
         process.env.BUCKET_NAME!,
-        `${S3AvatarStoragePath.USER_AVATARS}/${recipient.user_id}/${recipient.profile_picture}`
+        `${S3AvatarStoragePath.USER_AVATARS}/${recipient.user_id}/${recipient.profile_picture}`,
       )
     : null;
 
@@ -53,10 +53,10 @@ export const retrieveUserById = async (id: number): Promise<UserProfile> => {
     const user = await userRepository.findUserById(id);
     if (!user) {
       console.log(
-        'User does not exist. Make sure that the username is correct.'
+        'User does not exist. Make sure that the username is correct.',
       );
       throw new Error(
-        'User does not exist. Make sure that the username is correct.'
+        'User does not exist. Make sure that the username is correct.',
       );
     }
 
@@ -66,7 +66,7 @@ export const retrieveUserById = async (id: number): Promise<UserProfile> => {
     const profilePictureUrl = user.profile_picture
       ? await createPresignedUrl(
           process.env.BUCKET_NAME!,
-          `${S3AvatarStoragePath.USER_AVATARS}/${userId}/${user.profile_picture}`
+          `${S3AvatarStoragePath.USER_AVATARS}/${userId}/${user.profile_picture}`,
         )
       : null;
 
@@ -78,7 +78,7 @@ export const retrieveUserById = async (id: number): Promise<UserProfile> => {
 };
 
 export const retrieveUserIdByUsername = async (
-  username: string
+  username: string,
 ): Promise<UserId> => {
   const userRepository = new User();
   const userId = await userRepository.findUserIdByUsername(username);
@@ -86,7 +86,7 @@ export const retrieveUserIdByUsername = async (
   if (!userId) {
     console.log('User does not exist. Make sure that the username is correct.');
     throw new Error(
-      'User does not exist. Make sure that the username is correct.'
+      'User does not exist. Make sure that the username is correct.',
     );
   }
 
@@ -104,7 +104,7 @@ export const retrieveProfilePicture = async (userId: number) => {
 };
 
 export const retrieveBlockList = async (
-  userId: number
+  userId: number,
 ): Promise<UserBlockList> => {
   const userRepository = new User();
   return await userRepository.findBlockListById(userId);
@@ -113,21 +113,20 @@ export const retrieveBlockList = async (
 export const updateProfilePicture = async (
   userId: number,
   file: Express.MulterS3.File,
-  io: Server
+  io: Server,
 ): Promise<string> => {
   const userRepository = new User();
 
   // Delete previous profile picture from S3 storage
-  const { profile_picture } = await userRepository.findUserProfilePictureById(
-    userId
-  );
+  const { profile_picture } =
+    await userRepository.findUserProfilePictureById(userId);
   const currentProfilePicture = profile_picture;
 
   if (currentProfilePicture !== null) {
     // Only run if a current profile picture exists
     await deleteS3Object(
       process.env.BUCKET_NAME!,
-      `${S3AvatarStoragePath.USER_AVATARS}/${userId}/${currentProfilePicture}`
+      `${S3AvatarStoragePath.USER_AVATARS}/${userId}/${currentProfilePicture}`,
     );
   }
 
@@ -141,13 +140,13 @@ export const updateProfilePicture = async (
       userId,
       io,
       profilePictureUrl,
-      'update-profile-picture-for-contacts'
+      'update-profile-picture-for-contacts',
     ),
     updateUserInfoInAllGroups(
       userId,
       io,
       profilePictureUrl,
-      'update-profile-picture-in-groups'
+      'update-profile-picture-in-groups',
     ),
   ]);
 
@@ -157,7 +156,7 @@ export const updateProfilePicture = async (
 export const handleUsernameUpdate = async (
   username: string,
   userId: number,
-  io: Server
+  io: Server,
 ): Promise<void> => {
   const userRepository = new User();
 
@@ -167,13 +166,13 @@ export const handleUsernameUpdate = async (
       userId,
       io,
       username,
-      'update-username-for-contacts'
+      'update-username-for-contacts',
     ),
     updateUserInfoInAllGroups(
       userId,
       io,
       username,
-      'update-username-in-groups'
+      'update-username-in-groups',
     ),
   ]);
 
@@ -182,7 +181,7 @@ export const handleUsernameUpdate = async (
 
 export const updateUserBlockList = async (
   blockedUserIds: number[],
-  userId: number
+  userId: number,
 ): Promise<void> => {
   const userRepository = new User();
   return await userRepository.updateBlockedUsersById(blockedUserIds, userId);
@@ -193,7 +192,7 @@ const updateUserInfoForAllContacts = async (
   userId: number,
   io: Server,
   newInfo: string,
-  socketEvent: string
+  socketEvent: string,
 ): Promise<void> => {
   const privateChatRepository = new PrivateChat();
   const rooms = await privateChatRepository.findAllRoomsByUser(userId);
@@ -215,7 +214,7 @@ const updateUserInfoInAllGroups = async (
   userId: number,
   io: Server,
   newInfo: string,
-  socketEvent: string
+  socketEvent: string,
 ): Promise<void> => {
   const groupRepository = new Group();
   const rooms = await groupRepository.findAllGroupsByUser(userId);

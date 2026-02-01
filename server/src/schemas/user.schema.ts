@@ -61,15 +61,32 @@ export const UserBlockListSchema = z.object({
 });
 export type UserBlockList = z.infer<typeof UserBlockListSchema>;
 
-export const RetrieveLoggedInUserDataAuthSchema = z.object({
+export const UserDataAuthSchema = z.object({
   user_id: z.coerce.number(),
   username: z.string(),
-  profile_picture: z.string(),
+  profile_picture: z.string().nullable(),
 });
 
-export const RetrieveRecipientProfileAuthSchema = z.object({
-  user_id: z.coerce.number(),
-});
 export const RetrieveRecipientProfileParamsSchema = z.object({
   room: z.uuid(),
+});
+
+export const RetrieveIdByUsernameParamsSchema = z.object({
+  username: z.string(),
+});
+
+export const RetrieveUserProfilePictureParamsSchema = z.object({
+  id: z.string(),
+});
+
+export const UploadProfilePictureParamsSchema = z.object({
+  id: z.string(),
+});
+
+export const UpdateUsernameParamsSchema = z.object({
+  username: z.string(),
+});
+
+export const UpdateBlockedUsersBodySchema = z.object({
+  blockedUserIds: z.array(z.number()),
 });

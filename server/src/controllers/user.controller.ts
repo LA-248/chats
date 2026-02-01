@@ -2,14 +2,11 @@ import { Request, RequestHandler, Response } from 'express';
 import { ParamsDictionary } from 'express-serve-static-core';
 import { ApiErrorResponse } from '../dtos/error.dto.ts';
 import {
+  RetrieveIdByUsernameResponseDto,
   RetrieveLoggedInUserDataResponseDto,
   RetrieveRecipientProfileNotFoundResponseDto,
   RetrieveRecipientProfileResponseDto,
 } from '../dtos/user.dto.ts';
-import {
-  RetrieveRecipientProfileAuthSchema,
-  RetrieveRecipientProfileParamsSchema,
-} from '../schemas/user.schema.ts';
 import {
   createProfilePictureUrl,
   handleUsernameUpdate,
@@ -55,30 +52,9 @@ export const retrieveRecipientProfile: RequestHandler<
   void
 > = async (req, res) => {
   try {
-    const parsedUser = RetrieveRecipientProfileAuthSchema.safeParse(req.user);
-    if (!parsedUser.success) {
-      console.error(
-        'Error retrieving recipient profile data, invalid user request data:',
-        parsedUser.error,
-      );
-      res.status(400).json({ error: 'An unexpected error occurred' });
-      return;
-    }
-    const parsedParams = RetrieveRecipientProfileParamsSchema.safeParse(
-      req.params,
-    );
-    if (!parsedParams.success) {
-      console.error(
-        'Error retrieving recipient profile, invalid request parameters:',
-        parsedParams.error,
-      );
-      res.status(400).json({ error: 'Invalid request parameter data' });
-      return;
-    }
-
     const result = await retrieveRecipientData(
-      parsedUser.data.user_id,
-      parsedParams.data.room,
+      Number(req.user?.user_id),
+      req.params.room,
     );
 
     if (!result || !result.recipient) {
@@ -100,7 +76,12 @@ export const retrieveRecipientProfile: RequestHandler<
   }
 };
 
-export const retrieveIdByUsername = async (req: Request, res: Response) => {
+export const retrieveIdByUsername: RequestHandler<
+  {
+    username: string;
+  },
+  RetrieveIdByUsernameResponseDto | ApiErrorResponse
+> = async (req, res) => {
   try {
     const username = String(req.params.username);
     const user = await retrieveUserIdByUsername(username);
