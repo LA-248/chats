@@ -6,10 +6,11 @@ import {
   S3Client,
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import { Request } from 'express';
 import multer from 'multer';
 import multerS3 from 'multer-s3';
 import NodeCache from 'node-cache';
-import { Chat } from '../schemas/private-chat.schema.ts';
+import { ChatDto } from '../schemas/private-chat.schema.ts';
 import {
   ChatType,
   S3AttachmentsStoragePath,
@@ -17,21 +18,12 @@ import {
 } from '../types/chat.ts';
 const pictureUrlCache = new NodeCache({ stdTTL: 604800 });
 
-if (
-  !process.env.AWS_ACCESS_KEY_ID ||
-  !process.env.AWS_SECRET_ACCESS_KEY ||
-  !process.env.AWS_REGION ||
-  !process.env.BUCKET_NAME
-) {
+if (!process.env.AWS_REGION || !process.env.BUCKET_NAME) {
   throw new Error('Missing AWS configuration environment variables');
 }
 
 export const s3Client = new S3Client({
   region: process.env.AWS_REGION,
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-  },
 });
 
 // Stream file directly to S3 using multer-s3
@@ -43,7 +35,7 @@ export const s3UserPictureUpload = multer({
     metadata: function (req, file, cb) {
       cb(null, { fieldName: file.fieldname });
     },
-    key: function (req, file, cb) {
+    key: function (req: Request, file, cb) {
       const userId = req.params.id;
       const fileName = file.originalname;
       cb(null, `${S3AvatarStoragePath.USER_AVATARS}/${userId}/${fileName}`);
@@ -60,7 +52,7 @@ export const s3GroupPictureUpload = multer({
     metadata: function (req, file, cb) {
       cb(null, { fieldName: file.fieldname });
     },
-    key: function (req, file, cb) {
+    key: function (req: Request, file, cb) {
       const groupId = req.params.groupId;
       const fileName = file.originalname;
       cb(null, `${S3AvatarStoragePath.GROUP_AVATARS}/${groupId}/${fileName}`);
@@ -77,13 +69,13 @@ export const s3ChatMediaUpload = multer({
     metadata: function (req, file, cb) {
       cb(null, { fieldName: file.fieldname });
     },
-    key: function (req, file, cb) {
+    key: function (req: Request, file, cb) {
       const chatType = req.params.type;
       const chatId = req.params.chatId;
       const fileName = file.originalname;
       cb(
         null,
-        `${S3AttachmentsStoragePath.CHAT_ATTACHMENTS}/${chatType}/${chatId}/${fileName}`
+        `${S3AttachmentsStoragePath.CHAT_ATTACHMENTS}/${chatType}/${chatId}/${fileName}`,
       );
     },
   }),
@@ -93,7 +85,7 @@ export const s3ChatMediaUpload = multer({
 // Delete object from S3 bucket
 export const deleteS3Object = async (
   bucket: string,
-  key: string
+  key: string,
 ): Promise<void> => {
   try {
     const command = new DeleteObjectCommand({
@@ -111,10 +103,10 @@ export const deleteS3Object = async (
 // Delete a directory and its contents
 export async function deleteS3Directory(
   bucket: string,
-  prefix: string
+  prefix: string,
 ): Promise<void> {
   const directoryObjects = await s3Client.send(
-    new ListObjectsV2Command({ Bucket: bucket, Prefix: prefix })
+    new ListObjectsV2Command({ Bucket: bucket, Prefix: prefix }),
   );
 
   if (!directoryObjects.Contents || directoryObjects.Contents.length < 0) {
@@ -135,7 +127,7 @@ export async function deleteS3Directory(
 // Create a presigned S3 URL for temporary access to the object
 export const createPresignedUrl = (
   bucket: string,
-  key: string
+  key: string,
 ): Promise<string> => {
   try {
     const command = new GetObjectCommand({ Bucket: bucket, Key: key });
@@ -151,7 +143,7 @@ export const createPresignedUrl = (
 // For each chat in the chat list, generate a presigned S3 url using the recipient's profile picture file name
 // This url is required to display the recipient's profile picture in the chat list
 export const generatePresignedUrlsForChatList = async (
-  chatList: Chat[]
+  chatList: ChatDto[],
 ): Promise<void> => {
   try {
     for (const chat of chatList) {
@@ -175,7 +167,7 @@ export const generatePresignedUrlsForChatList = async (
       // If there is no cached url, create a new presigned S3 url
       const presignedUrl = await createPresignedUrl(
         process.env.BUCKET_NAME!,
-        objectKey
+        objectKey,
       );
       pictureUrlCache.set(fileName, presignedUrl); // Cache the newly generated picture url
       chat.chat_picture = presignedUrl;
@@ -187,7 +179,7 @@ export const generatePresignedUrlsForChatList = async (
   }
 };
 
-function buildS3AvatarObjectKey(chat: Chat, isPrivateChat: boolean) {
+function buildS3AvatarObjectKey(chat: ChatDto, isPrivateChat: boolean) {
   if (isPrivateChat) {
     const fileName = chat.chat_picture;
     const recipientId = chat.recipient_user_id;

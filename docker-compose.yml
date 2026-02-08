@@ -20,10 +20,13 @@ services:
     volumes:
       - ./server:/app
       - node_modules_server:/app/node_modules
+      - ${HOME}/.aws:/root/.aws:ro
     env_file:
       - ./server/.env
     environment:
       - DATABASE_URL=postgres://${USERNAME}:${DATABASE_PASSWORD}@${HOST}:${DATABASE_PORT}/${DATABASE_NAME}
+      - AWS_PROFILE=${AWS_PROFILE}
+      - AWS_SDK_LOAD_CONFIG=1
     depends_on:
       - db
 
