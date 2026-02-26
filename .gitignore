@@ -11,6 +11,12 @@ lerna-debug.log*
 dist
 dist-ssr
 *.local
+.terraform/
+*.tfstate
+*.tfstate.*
+terraform.tfvars
+*.tfvars
+*.tfvars.json
 
 # Editor directories and files
 .vscode/*
