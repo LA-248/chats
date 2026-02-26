@@ -1,17 +1,20 @@
 provider "aws" {
   region  = var.aws_region
-  profile = "my-sso"
+  profile = var.aws_profile
 }
 
 provider "aws" {
   alias   = "ecr_public"
   region  = "us-east-1"
-  profile = "my-sso"
+  profile = var.aws_profile
 }
 
 variable "aws_region" {
   type    = string
   default = "eu-central-1"
+}
+variable "aws_profile" {
+  type = string
 }
 
 variable "bucket_name" {
