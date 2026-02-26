@@ -1,5 +1,11 @@
 provider "aws" {
-  region  = "eu-central-1"
+  region  = var.aws_region
+  profile = "my-sso"
+}
+
+provider "aws" {
+  alias   = "ecr_public"
+  region  = "us-east-1"
   profile = "my-sso"
 }
 
@@ -12,6 +18,10 @@ variable "bucket_name" {
   type = string
 }
 
+variable "ecr_repo_names" {
+  type = set(string)
+}
+
 resource "aws_s3_bucket" "this" {
   bucket = var.bucket_name
 }
@@ -22,4 +32,11 @@ resource "aws_s3_bucket_public_access_block" "this" {
   block_public_policy     = true
   ignore_public_acls      = true
   restrict_public_buckets = true
+}
+
+resource "aws_ecrpublic_repository" "this" {
+  provider = aws.ecr_public
+
+  for_each = var.ecr_repo_names
+  repository_name = each.value
 }
