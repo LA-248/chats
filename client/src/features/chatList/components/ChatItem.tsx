@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import type { Chat } from '../../../types/chat';
 import { MessageType } from '../../../types/message';
 import formatDate from '../../../utils/DateTimeFormat';
@@ -21,13 +22,28 @@ export default function ChatItem({
   onClick,
   onDeleteClick,
 }: ChatItemProps) {
+  const [opened, setOpened] = useState<boolean>(false);
+
+  const lastMessage = chat.last_message_time || 0;
+  const lastRead = chat.last_read_at || 0;
+  const showUnread = !opened && !isActive && lastMessage > lastRead;
+
+  const handleClick: React.MouseEventHandler<HTMLDivElement> = (event) => {
+    setOpened(true);
+    onClick(event);
+  };
+
+  useEffect(() => {
+    setOpened(false);
+  }, [chat.chat_id]);
+
   return (
     <div className='chat-item-container'>
       <div
         className={`chat-item ${isActive ? 'active' : ''}`}
         onMouseEnter={onMouseEnter}
         onMouseLeave={onMouseLeave}
-        onClick={onClick}
+        onClick={handleClick}
       >
         <img
           className='chat-pic'
@@ -41,11 +57,7 @@ export default function ChatItem({
               <div className='chat-time'>
                 {chat.last_message_time ? formatDate(chat.updated_at) : null}
               </div>
-              {!isActive && !chat.read ? (
-                <span className='unread-message-alert'></span>
-              ) : (
-                (chat.read = true)
-              )}
+              {showUnread ? <span className='unread-message-alert' /> : null}
             </div>
           </div>
           <div className='chat-metadata-container'>

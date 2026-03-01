@@ -56,7 +56,7 @@ export const handleChatMessages = (socket: Socket, io: Server): void => {
             room,
             chatType,
             messageType,
-            clientOffset
+            clientOffset,
           ),
           restoreChat(chatId, room, chatType),
         ]);
@@ -68,13 +68,13 @@ export const handleChatMessages = (socket: Socket, io: Server): void => {
           isImage
             ? await createPresignedUrl(
                 process.env.BUCKET_NAME!,
-                fileKey as string
+                fileKey as string,
               )
             : content,
           senderId,
           newMessage,
           chatType,
-          messageType
+          messageType,
         );
         broadcastChatListUpdate(io, room, content, newMessage, updatedAt);
 
@@ -88,20 +88,20 @@ export const handleChatMessages = (socket: Socket, io: Server): void => {
         if (error instanceof Error) {
           if (error.message === 'Sender is blocked by the recipient') {
             callback(
-              'You cannot send messages to this user because they have you blocked'
+              'You cannot send messages to this user because they have you blocked',
             );
           }
         }
         callback('Error sending message');
       }
-    }
+    },
   );
 };
 
 // Load all messages of a chat when opened
 export const displayChatMessages = async (
   socket: Socket,
-  room: string
+  room: string,
 ): Promise<void> => {
   if (!socket.recovered) {
     try {
@@ -110,7 +110,7 @@ export const displayChatMessages = async (
       // Get messages from database for display, filtered by room
       const messages = await messageRepository.findMessageList(
         socket.handshake.auth.serverOffset,
-        room
+        room,
       );
 
       const settled = await Promise.allSettled(messages.map(formatMessage));
@@ -184,7 +184,7 @@ export const updateMessageList = (socket: Socket, io: Server): void => {
 
       const messages = await messageRepository.findMessageList(
         socket.handshake.auth.serverOffset,
-        room
+        room,
       );
       io.to(room).emit('message-list-update-event', {
         room: room,
@@ -201,7 +201,7 @@ export const updateMessageList = (socket: Socket, io: Server): void => {
 };
 
 const formatMessage = async (
-  message: MessageStructure
+  message: MessageStructure,
 ): Promise<FormattedMessage> => {
   const recipientId = message.recipient_id;
   const groupId = message.group_id;
@@ -214,7 +214,7 @@ const formatMessage = async (
   const content = isImage
     ? await createPresignedUrl(
         process.env.BUCKET_NAME!,
-        `${S3AttachmentsStoragePath.CHAT_ATTACHMENTS}/${chatType}/${chatId}/${message.content}`
+        `${S3AttachmentsStoragePath.CHAT_ATTACHMENTS}/${chatType}/${chatId}/${message.content}`,
       )
     : message.content;
 
@@ -241,32 +241,32 @@ const CHAT_HANDLERS: Record<ChatType, ChatHandler> = {
       } catch (error) {
         if (error instanceof Error) {
           throw new Error(
-            `Unable to retrieve private chat members: ${error.message}`
+            `Unable to retrieve private chat members: ${error.message}`,
           );
         }
         throw new Error('An unexpected error occurred');
       }
     },
     postInsert: async (
-      _senderId: number,
+      senderId: number,
       newMessageId: number,
-      chatId: number,
-      room: string
+      _chatId: number,
+      room: string,
     ): Promise<Date> => {
       try {
         const privateChatRepository = new PrivateChat();
 
         const [{ updated_at: updatedAt }] = await Promise.all([
-          // After setting the last message, fetch the new updated_at date which is equal to the time at which the message was sent
+          // After setting the last message, fetch the new updated_at date, which is equal to the time at which the message was sent
           privateChatRepository.setLastMessage(newMessageId, room),
-          privateChatRepository.updateUserReadStatus(chatId, false, room),
+          privateChatRepository.updateUserReadStatus(senderId, room),
         ]);
 
         return updatedAt;
       } catch (error) {
         if (error instanceof Error) {
           throw new Error(
-            `Unable to update private chat metadata: ${error.message}`
+            `Unable to update private chat metadata: ${error.message}`,
           );
         }
         throw new Error('An unexpected error occurred');
@@ -283,7 +283,7 @@ const CHAT_HANDLERS: Record<ChatType, ChatHandler> = {
       } catch (error) {
         if (error instanceof Error) {
           throw new Error(
-            `Unable to retrieve group chat members: ${error.message}`
+            `Unable to retrieve group chat members: ${error.message}`,
           );
         }
         throw new Error('An unexpected error occurred');
@@ -293,7 +293,7 @@ const CHAT_HANDLERS: Record<ChatType, ChatHandler> = {
       senderId: number,
       newMessageId: number,
       _chatId: number,
-      room: string
+      room: string,
     ): Promise<Date> => {
       try {
         const groupRepository = new Group();
@@ -308,7 +308,7 @@ const CHAT_HANDLERS: Record<ChatType, ChatHandler> = {
       } catch (error) {
         if (error instanceof Error) {
           throw new Error(
-            `Unable to update group chat metadata: ${error.message}`
+            `Unable to update group chat metadata: ${error.message}`,
           );
         }
         throw new Error('An unexpected error occurred');
@@ -324,7 +324,7 @@ const saveMessageInDatabase = async (
   room: string,
   chatType: keyof typeof CHAT_HANDLERS,
   messageType: string,
-  clientOffset: string
+  clientOffset: string,
 ): Promise<{ newMessage: NewMessage; updatedAt: Date }> => {
   let newMessage: NewMessage | undefined;
 
@@ -347,7 +347,7 @@ const saveMessageInDatabase = async (
       isGroupChat ? chatId : null,
       room,
       messageType,
-      clientOffset
+      clientOffset,
     );
 
     // Retrieve the updated_at value of the newly inserted message - it's needed to correctly sort a user's chat list
@@ -357,7 +357,7 @@ const saveMessageInDatabase = async (
       senderId,
       newMessage.message_id,
       chatId,
-      room
+      room,
     );
 
     return { newMessage, updatedAt };
@@ -373,7 +373,7 @@ const saveMessageInDatabase = async (
       ) {
         console.error(
           'Message with this client offset already exists:',
-          clientOffset
+          clientOffset,
         );
       }
       throw error;
@@ -386,7 +386,7 @@ const saveMessageInDatabase = async (
 const restoreChat = async (
   recipientId: number,
   room: string,
-  chatType: string
+  chatType: string,
 ): Promise<void> => {
   try {
     const privateChatRepository = new PrivateChat();
@@ -398,19 +398,14 @@ const restoreChat = async (
     if (isPrivateChat) {
       const isDeleted = await privateChatRepository.findChatDeletionStatus(
         recipientId,
-        room
+        room,
       );
       if (isDeleted) {
-        await privateChatRepository.updateChatDeletionStatus(
-          recipientId,
-          false,
-          room
-        );
+        await privateChatRepository.restoreChatForUser(recipientId, room);
       }
     } else if (isGroupChat) {
-      const membersWhoDeletedChat = await groupRepository.findDeletedForList(
-        room
-      );
+      const membersWhoDeletedChat =
+        await groupRepository.findDeletedForList(room);
       if (membersWhoDeletedChat !== null) {
         await groupRepository.restore(room);
       }
@@ -431,7 +426,7 @@ const broadcastMessage = (
   senderId: number,
   newMessage: NewMessage,
   chatType: ChatType,
-  type: MessageType
+  type: MessageType,
 ): void => {
   io.to(room).emit('chat-message', {
     from: username,
@@ -451,7 +446,7 @@ const broadcastChatListUpdate = (
   room: string,
   message: string,
   newMessage: NewMessage,
-  updatedAt: Date
+  updatedAt: Date,
 ): void => {
   const isImage = newMessage.type === MessageType.IMAGE;
 

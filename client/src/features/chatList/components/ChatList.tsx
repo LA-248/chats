@@ -45,14 +45,10 @@ export default function ChatList({
 
     if (chat.chat_type === ChatType.PRIVATE) {
       navigate(`/chats/${chat.room}`);
-      if (!chat.read) {
-        await updateReadStatus(true, chat.room);
-      }
+      await updateReadStatus(chat.room);
     } else {
       navigate(`/groups/${chat.room}`);
-      if (!chat.read) {
-        await markUserAsRead(chat.room);
-      }
+      await markUserAsRead(chat.room);
     }
   };
 
@@ -76,7 +72,7 @@ export default function ChatList({
   useEffect(() => {
     if (chatSearchInputText) {
       const filtered = chatList.filter((chat) =>
-        chat.name.toLowerCase().includes(chatSearchInputText.toLowerCase())
+        chat.name.toLowerCase().includes(chatSearchInputText.toLowerCase()),
       );
       setFilteredChats(filtered);
     } else {
@@ -89,7 +85,7 @@ export default function ChatList({
     setChatSearchInputText,
     activeChatRoom,
     setActiveChatRoom,
-    setErrorMessage
+    setErrorMessage,
   );
 
   useChatListUpdate(socket, setChatList, activeChatRoom);
@@ -112,7 +108,7 @@ export default function ChatList({
         <div id='no-chats-state'>No chats found</div>
       ) : (
         filteredChats
-          .filter((chat) => !chat.deleted)
+          .filter((chat) => !chat.deleted_at)
           .map((chat) => (
             <ChatItem
               key={chat.chat_id}

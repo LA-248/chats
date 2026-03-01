@@ -4,13 +4,13 @@ export interface Chat {
   chat_id: string;
   chat_picture: string | null;
   chat_type: ChatType;
-  deleted: boolean;
+  deleted_at: Date;
   last_message_content: string | null;
   last_message_id: number | null;
   last_message_time: Date | null;
   last_message_type: string;
   name: string;
-  read: boolean;
+  last_read_at: Date;
   recipient_user_id: number | null;
   room: string;
   updated_at: Date;
