@@ -40,12 +40,21 @@ export default function ChatList({
   } = useContext(ChatContext);
 
   const handleChatClick = async (chat: Chat): Promise<void> => {
+    const readAt = new Date();
     setActiveChatRoom(chat.room);
     setChatName(chat.name);
 
     if (chat.chat_type === ChatType.PRIVATE) {
       navigate(`/chats/${chat.room}`);
       await updateReadStatus(chat.room);
+
+      setChatList((prevChatList): Chat[] => {
+        return prevChatList.map((currentChat) => {
+          return currentChat.room === chat.room
+            ? { ...currentChat, last_read_at: readAt }
+            : currentChat;
+        });
+      });
     } else {
       navigate(`/groups/${chat.room}`);
       await markUserAsRead(chat.room);
