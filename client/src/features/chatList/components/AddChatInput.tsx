@@ -25,7 +25,7 @@ export default function AddChatInput({
 
       try {
         const exists = chatList.some(
-          (chat) => chat.name === inputUsername && !chat.deleted
+          (chat) => chat.name === inputUsername && !chat.deleted_at,
         );
         if (exists) {
           throw new Error('You already have an active chat with this user');
@@ -44,10 +44,10 @@ export default function AddChatInput({
           ) {
             updatedList = [addedChat, ...prevChatList];
           } else {
-            // If it does already exist, just set the deleted flag to false
+            // If it does already exist, just set deleted_at to null
             updatedList = prevChatList.map((chat) => {
               if (chat.chat_id === addedChat.chat_id) {
-                return { ...chat, deleted: false };
+                return { ...chat, deleted_at: null };
               }
               return chat;
             });
@@ -57,7 +57,7 @@ export default function AddChatInput({
           return updatedList.sort(
             (a, b) =>
               new Date(b.updated_at).getTime() -
-              new Date(a.updated_at).getTime()
+              new Date(a.updated_at).getTime(),
           );
         });
         setInputUsername('');
@@ -67,7 +67,7 @@ export default function AddChatInput({
         }
       }
     },
-    [chatList, setChatList, inputUsername, setErrorMessage]
+    [chatList, setChatList, inputUsername, setErrorMessage],
   );
 
   useClearErrorMessage(errorMessage, setErrorMessage);
@@ -79,7 +79,7 @@ export default function AddChatInput({
           <input
             id='username-input'
             type='text'
-            placeholder='Find or start a conversation'
+            placeholder='Start a conversation'
             value={inputUsername}
             onChange={(event) => {
               setInputUsername(event.target.value);

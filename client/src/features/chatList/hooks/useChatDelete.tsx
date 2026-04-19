@@ -29,10 +29,10 @@ export function useChatDelete(
           await deleteGroupChat(groupId, deletedChat.room);
         }
 
-        // Set deleted flag as true
+        // Set deleted_at in local chat state
         setChatList((chatList) =>
           chatList.map((chat) =>
-            chat.room === deletedChat.room ? { ...chat, deleted: true } : chat
+            chat.room === deletedChat.room ? { ...chat, deleted_at: new Date() } : chat
           )
         );
 
