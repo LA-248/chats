@@ -14,10 +14,10 @@ export const NewChatSchema = z.object({
   room: z.string(),
   created_at: z.coerce.date(),
   updated_at: z.coerce.date(),
-  user1_deleted: z.boolean(),
-  user2_deleted: z.boolean(),
-  user1_read: z.boolean(),
-  user2_read: z.boolean(),
+  user1_deleted_at: z.coerce.date(),
+  user2_deleted_at: z.coerce.date(),
+  user1_last_read_at: z.coerce.date(),
+  user2_last_read_at: z.coerce.date(),
 });
 export type NewChat = z.infer<typeof NewChatSchema>;
 
@@ -28,7 +28,7 @@ export const ChatMembersSchema = z.object({
 export type ChatMembers = z.infer<typeof ChatMembersSchema>;
 
 export const ChatDeletionStatusSchema = z.object({
-  deleted: z.boolean(),
+  deleted_at: z.coerce.date(),
 });
 export type ChatDeletionStatus = z.infer<typeof ChatDeletionStatusSchema>;
 
@@ -57,16 +57,12 @@ export const ChatSchema = z.object({
   chat_type: z.enum(ChatType),
   created_at: z.coerce.date(),
   updated_at: z.coerce.date(),
-  deleted: z.boolean(),
+  deleted_at: z.coerce.date(),
 });
 export type ChatDto = z.infer<typeof ChatSchema>;
 
 export const UpdateLastMessageIdBodySchema = z.strictObject({
   messageId: z.coerce.number().int().positive().nullable(),
-});
-
-export const UpdateReadStatusBodySchema = z.strictObject({
-  read: z.boolean(),
 });
 
 const RoomParamsSchema = z.strictObject({

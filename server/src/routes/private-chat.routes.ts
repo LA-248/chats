@@ -3,7 +3,7 @@ import {
   addChat,
   deleteChat,
   getChatList,
-  updateChatReadStatus,
+  updateReadStatus,
   updateLastMessageId,
 } from '../controllers/private-chat.controller.ts';
 import { retrieveRecipientProfile } from '../controllers/user.controller.ts';
@@ -17,7 +17,6 @@ import {
   DeleteChatParamsSchema,
   UpdateLastMessageIdBodySchema,
   UpdateLastMessageIdParamsSchema,
-  UpdateReadStatusBodySchema,
   UpdateReadStatusParamsSchema,
 } from '../schemas/private-chat.schema.ts';
 import {
@@ -56,10 +55,9 @@ privateChatsRouter.put(
   '/:room/read_status',
   privateChatRoomAuth,
   validate({
-    body: UpdateReadStatusBodySchema,
     params: UpdateReadStatusParamsSchema,
   }),
-  updateChatReadStatus,
+  updateReadStatus,
 );
 privateChatsRouter.delete(
   '/:room',

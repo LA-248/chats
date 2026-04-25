@@ -5,7 +5,6 @@ import {
   CreatePrivateChatInputDto,
   DeleteChatResponseDto,
   UpdateLastMessageIdInputDto,
-  UpdateReadStatusInputDto,
   UpdateReadStatusResponseDto,
 } from '../dtos/private-chat.dto.ts';
 import { userSockets } from '../handlers/socket-handlers.ts';
@@ -13,9 +12,9 @@ import { ChatDto } from '../schemas/private-chat.schema.ts';
 import {
   getChatListByUser,
   handleChatAddition,
-  updateDeletionStatus,
+  updateDeletedAt,
   updateLastMessage,
-  updateReadStatus,
+  updateLastReadAt,
 } from '../services/private-chat.service.ts';
 import { retrieveUserIdByUsername } from '../services/user.service.ts';
 
@@ -77,7 +76,8 @@ export const updateLastMessageId: RequestHandler<
   UpdateLastMessageIdInputDto
 > = async (req, res) => {
   try {
-    await updateLastMessage(req.body.messageId, req.params.room);
+    const room = req.params.room;
+    await updateLastMessage(req.body.messageId, room);
     res.sendStatus(204);
   } catch (error) {
     console.error('Error updating last message id:', error);
@@ -88,15 +88,16 @@ export const updateLastMessageId: RequestHandler<
   }
 };
 
-export const updateChatReadStatus: RequestHandler<
+export const updateReadStatus: RequestHandler<
   { room: string },
   UpdateReadStatusResponseDto | ApiErrorResponse,
-  UpdateReadStatusInputDto
+  void
 > = async (req, res) => {
   try {
     const userId = Number(req.user?.user_id);
+    const room = req.params.room;
 
-    await updateReadStatus(userId, req.body.read, req.params.room);
+    await updateLastReadAt(userId, room);
     res
       .status(200)
       .json({ ok: true, success: 'Read status updated successfully.' });
@@ -117,7 +118,8 @@ export const deleteChat: RequestHandler<
 > = async (req, res) => {
   try {
     const userId = Number(req.user?.user_id);
-    await updateDeletionStatus(userId, req.params.room);
+    const room = req.params.room;
+    await updateDeletedAt(userId, room);
     res.status(200).json({ message: 'Chat deleted successfully' });
   } catch (error) {
     console.error('Error deleting chat:', error);

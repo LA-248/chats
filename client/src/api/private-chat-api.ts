@@ -11,7 +11,7 @@ async function getChatListByUserId(): Promise<Chat[]> {
         Accept: 'application/json',
       },
       credentials: 'include',
-    }
+    },
   );
 
   if (!response.ok) {
@@ -25,7 +25,7 @@ async function getChatListByUserId(): Promise<Chat[]> {
 
 async function getRecipientInfo(
   room: string,
-  navigate: (path: string) => void
+  navigate: (path: string) => void,
 ): Promise<UserInfo> {
   const response = await fetch(
     `${import.meta.env.VITE_SERVER_BASE_URL}/chats/private/${room}`,
@@ -35,7 +35,7 @@ async function getRecipientInfo(
         Accept: 'application/json',
       },
       credentials: 'include',
-    }
+    },
   );
   const data = await response.json();
 
@@ -73,7 +73,7 @@ async function addChat(inputUsername: string): Promise<Chat> {
         recipientName: inputUsername,
       }),
       credentials: 'include',
-    }
+    },
   );
   const data = await response.json();
 
@@ -88,7 +88,7 @@ async function addChat(inputUsername: string): Promise<Chat> {
 // Ensures the correct latest message is shown in the chat list
 async function updateLastMessageId(
   messageId: number | null,
-  room: string
+  room: string,
 ): Promise<void> {
   const response = await fetch(
     `${
@@ -101,7 +101,7 @@ async function updateLastMessageId(
       },
       body: JSON.stringify({ messageId }),
       credentials: 'include',
-    }
+    },
   );
 
   if (!response.ok) {
@@ -110,17 +110,16 @@ async function updateLastMessageId(
   }
 }
 
-async function updateReadStatus(read: boolean, room: string): Promise<void> {
+async function updateReadStatus(room: string): Promise<void> {
   const response = await fetch(
     `${import.meta.env.VITE_SERVER_BASE_URL}/chats/private/${room}/read_status`,
     {
       method: 'PUT',
       headers: {
-        'Content-Type': 'application/json',
+        Accept: 'application/json',
       },
-      body: JSON.stringify({ read }),
       credentials: 'include',
-    }
+    },
   );
 
   if (!response.ok) {
@@ -139,7 +138,7 @@ async function deletePrivateChat(room: string): Promise<void> {
         Accept: 'application/json',
       },
       credentials: 'include',
-    }
+    },
   );
 
   if (!response.ok) {

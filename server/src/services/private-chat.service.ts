@@ -21,23 +21,17 @@ export const handleChatAddition = async (
     recipientId,
   );
 
-  // This check is needed to know whether to insert a new chat in the database and mark it as not deleted, or to only do the latter
-  // All chats are marked as deleted by default to prevent incorrectly displaying them in a user's chat list
+  // This check is needed to know whether to insert a new chat in the database or restore a pre-existing one
   if (room === null) {
     const newRoom = uuidv4();
 
     await privateChatRepository.insertNewChat(senderId, recipientId, newRoom);
-    await privateChatRepository.updateChatDeletionStatus(
-      senderId,
-      false,
-      newRoom,
-    );
-
     socket.join(newRoom);
-    return await getChat(senderId, newRoom); // Retrieve newly inserted/created chat for addition
+
+    return await getChat(senderId, newRoom);
   } else {
-    await privateChatRepository.updateChatDeletionStatus(senderId, false, room);
-    return await getChat(senderId, room); // Retrieve pre-existing chat for addition after it's flagged as not deleted
+    await privateChatRepository.restoreChat(senderId, room);
+    return await getChat(senderId, room);
   }
 };
 
@@ -50,25 +44,20 @@ export const updateLastMessage = async (
   return await privateChatRepository.updateLastMessage(newLastMessageId, room);
 };
 
-export const updateReadStatus = async (
+export const updateLastReadAt = async (
   userId: number,
-  read: boolean,
   room: string,
 ): Promise<void> => {
   const privateChatRepository = new PrivateChat();
-  return await privateChatRepository.updateUserReadStatus(userId, read, room);
+  return await privateChatRepository.updateLastReadAt(userId, room);
 };
 
-export const updateDeletionStatus = async (
+export const updateDeletedAt = async (
   userId: number,
   room: string,
 ): Promise<ChatDeletionStatus> => {
   const privateChatRepository = new PrivateChat();
-  return await privateChatRepository.updateChatDeletionStatus(
-    userId,
-    true,
-    room,
-  );
+  return await privateChatRepository.updateDeletedAt(userId, room);
 };
 
 export const getChat = async (
