@@ -2,7 +2,7 @@ import type { UserInfo } from '../types/user';
 
 export async function getLoggedInUserData(): Promise<UserInfo> {
   const response = await fetch(
-    `${import.meta.env.VITE_SERVER_BASE_URL}/users`,
+    `${import.meta.env.VITE_SERVER_BASE_URL}/api/users`,
     {
       method: 'GET',
       headers: {
@@ -26,7 +26,7 @@ export async function getRecipientUserIdByUsername(
   username: string
 ): Promise<number> {
   const response = await fetch(
-    `${import.meta.env.VITE_SERVER_BASE_URL}/users/${username}`,
+    `${import.meta.env.VITE_SERVER_BASE_URL}/api/users/${username}`,
     {
       method: 'GET',
       headers: {
@@ -47,7 +47,7 @@ export async function getRecipientUserIdByUsername(
 
 export async function getUserProfilePicture(userId: number): Promise<string> {
   const response = await fetch(
-    `${import.meta.env.VITE_SERVER_BASE_URL}/users/${userId}/pictures`,
+    `${import.meta.env.VITE_SERVER_BASE_URL}/api/users/${userId}/pictures`,
     {
       method: 'GET',
       headers: {
@@ -69,7 +69,7 @@ export async function getUserProfilePicture(userId: number): Promise<string> {
 // Retrieve the block list of the logged in user
 export async function getBlockList(): Promise<number[]> {
   const response = await fetch(
-    `${import.meta.env.VITE_SERVER_BASE_URL}/users/blocked`,
+    `${import.meta.env.VITE_SERVER_BASE_URL}/api/users/blocked`,
     {
       method: 'GET',
       headers: {
@@ -90,7 +90,7 @@ export async function getBlockList(): Promise<number[]> {
 
 export async function updateUsername(username: string): Promise<string> {
   const response = await fetch(
-    `${import.meta.env.VITE_SERVER_BASE_URL}/users`,
+    `${import.meta.env.VITE_SERVER_BASE_URL}/api/users`,
     {
       method: 'PUT',
       headers: {
@@ -114,7 +114,7 @@ export async function updateUsername(username: string): Promise<string> {
 // Update a user's block list with the ID of who they want blocked
 export async function updateBlockList(userIds: number[]): Promise<void> {
   const response = await fetch(
-    `${import.meta.env.VITE_SERVER_BASE_URL}/users/blocked`,
+    `${import.meta.env.VITE_SERVER_BASE_URL}/api/users/blocked`,
     {
       method: 'PUT',
       headers: {

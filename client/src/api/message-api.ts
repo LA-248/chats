@@ -15,7 +15,7 @@ export async function editMessageById(
   const response = await fetch(
     `${
       import.meta.env.VITE_SERVER_BASE_URL
-    }/chats/${type}/${chatId}/messages/${messageId}`,
+    }/api/chats/${type}/${chatId}/messages/${messageId}`,
     {
       method: 'PUT',
       headers: {
@@ -42,7 +42,7 @@ export async function deleteMessage(
   const response = await fetch(
     `${
       import.meta.env.VITE_SERVER_BASE_URL
-    }/chats/${type}/${chatId}/messages/${messageId}`,
+    }/api/chats/${type}/${chatId}/messages/${messageId}`,
     {
       method: 'DELETE',
       headers: {
@@ -81,7 +81,7 @@ export const uploadChatMedia = async (
 
   try {
     const response = await fetch(
-      `${import.meta.env.VITE_SERVER_BASE_URL}/chats/${type}/${chatId}/media`,
+      `${import.meta.env.VITE_SERVER_BASE_URL}/api/chats/${type}/${chatId}/media`,
       {
         method: 'POST',
         body: formData,
