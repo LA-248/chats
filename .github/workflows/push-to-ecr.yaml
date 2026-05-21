@@ -1,0 +1,12 @@
+name: push-to-ecr
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+# STEPS
+# Get ECR repos for frontend and backend (public.ecr.aws/v4w2k2g6/chats/frontend, public.ecr.aws/v4w2k2g6/chats/backend)
+# Rebuild Docker image and push it to ECR using the same tag (:latest)

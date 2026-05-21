@@ -1,4 +1,4 @@
-import { Chat } from '../schemas/private-chat.schema.ts';
+import { ChatDto } from '../schemas/private-chat.schema.ts';
 import { query } from '../utils/database-query.ts';
 
 interface Database {
@@ -12,8 +12,8 @@ export class ChatList {
     this.db = db;
   }
 
-  findAllChatsByUser = async (userId: number): Promise<Chat[]> => {
-    const result = await this.db.query<Chat>(
+  findAllChatsByUser = async (userId: number): Promise<ChatDto[]> => {
+    const result = await this.db.query<ChatDto>(
       `
       SELECT
         CONCAT('p_', pc.chat_id) AS chat_id,
@@ -28,17 +28,17 @@ export class ChatList {
         m.event_time AS last_message_time,
         m.type AS last_message_type,
         pc.room,
-        CASE
-          WHEN pc.user1_id = $1 THEN pc.user1_read
-          WHEN pc.user2_id = $1 THEN pc.user2_read
-        END AS read,
         'chats' AS chat_type,
         pc.created_at,
         pc.updated_at,
         CASE
-          WHEN pc.user1_id = $1 THEN pc.user1_deleted
-          WHEN pc.user2_id = $1 THEN pc.user2_deleted
-        END AS deleted
+          WHEN pc.user1_id = $1 THEN pc.user1_deleted_at
+          WHEN pc.user2_id = $1 THEN pc.user2_deleted_at
+        END AS deleted_at,
+        CASE
+          WHEN pc.user1_id = $1 THEN pc.user1_last_read_at
+          WHEN pc.user2_id = $1 THEN pc.user2_last_read_at
+        END AS last_read_at
       FROM private_chats pc
       JOIN users u ON u.user_id = CASE
         WHEN pc.user1_id = $1 THEN pc.user2_id
@@ -59,17 +59,11 @@ export class ChatList {
         m.event_time AS last_message_time,
         m.type AS last_message_type,
         g.room,
-        CASE 
-          WHEN $1 = ANY(g.read_by) THEN TRUE 
-          ELSE FALSE 
-        END AS read,
         'group' AS chat_type,
         g.created_at,
         g.updated_at,
-        CASE 
-          WHEN $1 = ANY(g.deleted_for) THEN TRUE 
-          ELSE FALSE 
-        END AS deleted
+        gm.deleted_at,
+        gm.last_read_at
       FROM groups g
       JOIN group_members gm ON g.group_id = gm.group_id
       LEFT JOIN messages m ON g.last_message_id = m.message_id
@@ -77,7 +71,7 @@ export class ChatList {
 
       ORDER BY updated_at DESC
       `,
-      [userId]
+      [userId],
     );
 
     return result.rows;

@@ -12,7 +12,7 @@ export default function ProtectedRoutes() {
     try {
       const checkAuthStatus = async (): Promise<void> => {
         const response = await fetch(
-          `${import.meta.env.VITE_SERVER_BASE_URL}/auth/status`,
+          `${import.meta.env.VITE_SERVER_BASE_URL}/api/auth/status`,
           {
             method: 'GET',
             credentials: 'include',

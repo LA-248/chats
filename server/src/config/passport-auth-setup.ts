@@ -1,6 +1,6 @@
 import passport from 'passport';
 import { Strategy as LocalStrategy } from 'passport-local';
-import { pool } from '../../db/index.ts';
+import { pool } from '../db/index.ts';
 import { authenticateUser } from '../services/auth.service.ts';
 
 export default function configurePassport() {

@@ -5,12 +5,12 @@ dotenv.config({
 
 import pg from 'pg';
 
-import { GroupMember } from '../src/repositories/group-member.repository.ts';
-import { Group } from '../src/repositories/group.repository.ts';
-import { Message } from '../src/repositories/message.repository.ts';
-import { PrivateChat } from '../src/repositories/private-chat.repository.ts';
-import { Session } from '../src/repositories/session.repository.ts';
-import { User } from '../src/repositories/user.repository.ts';
+import { GroupMember } from '../repositories/group-member.repository.ts';
+import { Group } from '../repositories/group.repository.ts';
+import { Message } from '../repositories/message.repository.ts';
+import { PrivateChat } from '../repositories/private-chat.repository.ts';
+import { Session } from '../repositories/session.repository.ts';
+import { User } from '../repositories/user.repository.ts';
 const { Pool } = pg;
 
 // Initialise a connection pool

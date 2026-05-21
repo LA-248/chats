@@ -9,7 +9,7 @@ export function useChatDelete(
   setChatSearchInputText: React.Dispatch<React.SetStateAction<string>>,
   activeChatRoom: string | null,
   setActiveChatRoom: React.Dispatch<React.SetStateAction<string | null>>,
-  setErrorMessage: React.Dispatch<React.SetStateAction<string>>
+  setErrorMessage: React.Dispatch<React.SetStateAction<string>>,
 ) {
   const navigate = useNavigate();
 
@@ -17,7 +17,7 @@ export function useChatDelete(
   const handleChatDelete = useCallback(
     async (
       event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
-      deletedChat: Chat
+      deletedChat: Chat,
     ): Promise<void> => {
       event.stopPropagation();
 
@@ -32,8 +32,10 @@ export function useChatDelete(
         // Set deleted_at in local chat state
         setChatList((chatList) =>
           chatList.map((chat) =>
-            chat.room === deletedChat.room ? { ...chat, deleted_at: new Date() } : chat
-          )
+            chat.room === deletedChat.room
+              ? { ...chat, deleted_at: new Date() }
+              : chat,
+          ),
         );
 
         setChatSearchInputText('');
@@ -54,7 +56,7 @@ export function useChatDelete(
       setChatList,
       setChatSearchInputText,
       setErrorMessage,
-    ]
+    ],
   );
 
   return handleChatDelete;

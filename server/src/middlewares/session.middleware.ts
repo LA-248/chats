@@ -5,7 +5,7 @@ dotenv.config({
 
 import connectPgSimple from 'connect-pg-simple';
 import session from 'express-session';
-import { pool } from '../../db/index.ts';
+import { pool } from '../db/index.ts';
 
 const PostgresSessionStore = connectPgSimple(session);
 

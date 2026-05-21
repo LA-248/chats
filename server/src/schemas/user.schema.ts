@@ -70,10 +70,16 @@ export const UserDataAuthSchema = z.object({
 export const RetrieveRecipientProfileParamsSchema = z.object({
   room: z.uuid(),
 });
+export type RetrieveRecipientProfileParamsDto = z.infer<
+  typeof RetrieveRecipientProfileParamsSchema
+>;
 
 export const RetrieveIdByUsernameParamsSchema = z.object({
   username: z.string(),
 });
+export type RetrieveIdByUsernameParamsDto = z.infer<
+  typeof RetrieveIdByUsernameParamsSchema
+>;
 
 export const RetrieveUserProfilePictureParamsSchema = z.object({
   id: z.string(),

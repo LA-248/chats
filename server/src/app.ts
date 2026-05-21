@@ -11,7 +11,7 @@ import passport from 'passport';
 import { Server } from 'socket.io';
 import configurePassport from './config/passport-auth-setup.ts';
 
-import { createTables } from '../db/index.ts';
+import { createTables } from './db/index.ts';
 import { socketHandlers } from './handlers/socket-handlers.ts';
 import { sessionMiddleware } from './middlewares/session.middleware.ts';
 
@@ -43,11 +43,11 @@ configurePassport();
 
 app.use(express.static('../../client/public'));
 
-app.use('/auth', authRouter);
-app.use('/users', usersRouter);
-app.use('/chats/private', privateChatsRouter);
-app.use('/chats/group', groupChatsRouter);
-app.use('/chats', messagesRouter);
+app.use('/api/auth', authRouter);
+app.use('/api/users', usersRouter);
+app.use('/api/chats/private', privateChatsRouter);
+app.use('/api/chats/groups', groupChatsRouter);
+app.use('/api/chats', messagesRouter);
 
 const io = new Server(server, {
   cors: {

@@ -2,16 +2,16 @@ import express, { NextFunction, Request, Response } from 'express';
 import {
   addMembers,
   createGroupChat,
+  deleteGroupChat,
   leaveGroup,
-  markGroupChatAsDeleted,
   permanentlyDeleteGroup,
   removeKickedGroupMember,
   retrieveGroupInfo,
   retrieveMemberUsernames,
   updateGroupPicture,
   updateLastMessageId,
+  updateLastRead,
   updateRole,
-  updateUserReadStatus,
 } from '../controllers/group.controller.ts';
 import {
   authoriseGroupOwnerAction,
@@ -31,6 +31,7 @@ import {
   UpdateGroupPictureParamsSchema,
   UpdateLastMessageIdBodySchema,
   UpdateLastMessageIdParamsSchema,
+  UpdateLastReadStatusParamsSchema,
   UpdateMemberRoleBodySchema,
   UpdateMemberRoleParamsSchema,
 } from '../schemas/group.schema.ts';
@@ -73,9 +74,9 @@ groupChatsRouter.get(
   validate({ params: GroupRoomSchema }),
   retrieveGroupInfo,
 );
-// FIXME: Group chat auth middleware doesn't work for this route because the group ID is used instead of the room for retrieval of data
 groupChatsRouter.get(
   '/:groupId/members',
+  groupChatRoomAuth,
   validate({ params: GroupIdSchema }),
   retrieveMemberUsernames,
 );
@@ -104,7 +105,7 @@ groupChatsRouter.delete(
   '/:groupId/rooms/:room',
   groupChatRoomAuth,
   validate({ params: GroupRoomSchema }),
-  markGroupChatAsDeleted,
+  deleteGroupChat,
 );
 
 groupChatsRouter.put(
@@ -126,6 +127,13 @@ groupChatsRouter.put(
   }),
   updateRole,
 );
-groupChatsRouter.put('/:room', groupChatRoomAuth, updateUserReadStatus);
+groupChatsRouter.put(
+  '/:groupId/members/:userId/last_read',
+  groupChatRoomAuth,
+  validate({
+    params: UpdateLastReadStatusParamsSchema,
+  }),
+  updateLastRead,
+);
 
 export default groupChatsRouter;

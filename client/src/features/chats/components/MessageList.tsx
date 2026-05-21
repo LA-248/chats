@@ -5,7 +5,7 @@ import { MessageContext } from '../../../contexts/MessageContext';
 import { ChatContext } from '../../../contexts/ChatContext';
 import { updateBlockList } from '../../../api/user-api';
 import { updateReadStatus } from '../../../api/private-chat-api';
-import { markUserAsRead } from '../../../api/group-chat-api';
+import { updateLastReadAt } from '../../../api/group-chat-api';
 import ContactInfoModal from './ContactInfoModal';
 import formatDate from '../../../utils/DateTimeFormat';
 import type { GroupInfoWithMembers, GroupMember } from '../../../types/group';
@@ -52,6 +52,7 @@ export default function MessageList({
 
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>('');
+  const groupId = groupChatInfo.info.chatId;
   const groupMembersInfo = groupChatInfo.members;
 
   useEffect(() => {
@@ -65,9 +66,9 @@ export default function MessageList({
             });
             // If a message is received while the user has the chat open, automatically mark the chat as read
             if (messageData.chatType === ChatType.PRIVATE) {
-              await updateReadStatus(true, room);
+              await updateReadStatus(room);
             } else if (messageData.chatType === ChatType.GROUP) {
-              await markUserAsRead(room);
+              await updateLastReadAt(groupId, loggedInUserId);
             }
           }
         } catch (error) {
@@ -82,7 +83,7 @@ export default function MessageList({
         socket.off('chat-message', handleMessage);
       };
     }
-  }, [room, socket, setMessages]);
+  }, [room, socket, setMessages, groupId, loggedInUserId]);
 
   // Build maps that associate users in the chat with their respective username and profile picture
   // These maps can then be used to retrieve a specific user's info for display in the message list
@@ -94,7 +95,7 @@ export default function MessageList({
       groupMembersInfo.forEach((member: GroupMember) => {
         profilePictureMap.set(
           member.user_id,
-          member.profile_picture || '/images/default-avatar.jpg'
+          member.profile_picture || '/images/default-avatar.jpg',
         );
         usernameMap.set(member.user_id, member.username);
       });
@@ -102,11 +103,11 @@ export default function MessageList({
     if (isPrivateChat) {
       profilePictureMap.set(
         loggedInUserId,
-        profilePicture || '/images/default-avatar.jpg'
+        profilePicture || '/images/default-avatar.jpg',
       );
       profilePictureMap.set(
         recipientUserId,
-        recipientProfilePicture || '/images/default-avatar.jpg'
+        recipientProfilePicture || '/images/default-avatar.jpg',
       );
       usernameMap.set(loggedInUserId, loggedInUsername);
       usernameMap.set(recipientUserId, chatName);
@@ -130,11 +131,11 @@ export default function MessageList({
     if (!isGroupChat || !socket) return;
 
     const handleMemberProfilePictureUpdate = (
-      data: UserProfileUpdate
+      data: UserProfileUpdate,
     ): void => {
       profilePictureMap.set(
         data.userId,
-        data.newInfo || '/images/default-avatar.jpg'
+        data.newInfo || '/images/default-avatar.jpg',
       );
     };
     const handleMemberUsernameUpdate = (data: UserProfileUpdate): void => {
@@ -143,13 +144,13 @@ export default function MessageList({
 
     socket.on(
       'update-profile-picture-in-groups',
-      handleMemberProfilePictureUpdate
+      handleMemberProfilePictureUpdate,
     );
     socket.on('update-username-in-groups', handleMemberUsernameUpdate);
     return () => {
       socket.off(
         'update-profile-picture-in-groups',
-        handleMemberProfilePictureUpdate
+        handleMemberProfilePictureUpdate,
       );
 
       socket.off('update-username-in-groups', handleMemberUsernameUpdate);

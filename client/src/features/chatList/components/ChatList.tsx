@@ -15,8 +15,9 @@ import useAddGroup from '../hooks/useAddGroup';
 import useAddNewPrivateChat from '../../chats/hooks/useAddPrivateChat';
 import { useChatDelete } from '../hooks/useChatDelete';
 import { useSocketErrorHandling } from '../../../hooks/useSocketErrorHandling';
-import { markUserAsRead } from '../../../api/group-chat-api';
+import { updateLastReadAt } from '../../../api/group-chat-api';
 import useRemoveGroupChat from '../hooks/useRemoveGroupChat';
+import { UserContext } from '../../../contexts/UserContext';
 
 export default function ChatList({
   setChatName,
@@ -30,6 +31,7 @@ export default function ChatList({
   const [filteredChats, setFilteredChats] = useState<Chat[]>([]);
   const [hoverChatId, setHoverChatId] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState<string>('');
+  const { loggedInUserId } = useContext(UserContext);
   const {
     chatSearchInputText,
     setChatSearchInputText,
@@ -57,7 +59,8 @@ export default function ChatList({
       });
     } else {
       navigate(`/groups/${chat.room}`);
-      await markUserAsRead(chat.room);
+      const groupId: number = Number(chat.chat_id.split('_').pop()); // There must be a cleaner way to do this
+      await updateLastReadAt(groupId, loggedInUserId);
     }
   };
 

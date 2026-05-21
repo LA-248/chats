@@ -259,7 +259,7 @@ const CHAT_HANDLERS: Record<ChatType, ChatHandler> = {
         const [{ updated_at: updatedAt }] = await Promise.all([
           // After setting the last message, fetch the new updated_at date, which is equal to the time at which the message was sent
           privateChatRepository.setLastMessage(newMessageId, room),
-          privateChatRepository.updateUserReadStatus(senderId, room),
+          privateChatRepository.updateLastReadAt(senderId, room),
         ]);
 
         return updatedAt;
@@ -292,16 +292,17 @@ const CHAT_HANDLERS: Record<ChatType, ChatHandler> = {
     postInsert: async (
       senderId: number,
       newMessageId: number,
-      _chatId: number,
+      chatId: number,
       room: string,
     ): Promise<Date> => {
       try {
         const groupRepository = new Group();
+        const groupMemberRepository = new GroupMember();
 
         const [{ updated_at: updatedAt }] = await Promise.all([
           // After setting the last message, fetch the new updated_at date which is equal to the time at which the message was sent
           groupRepository.setLastMessage(newMessageId, room),
-          groupRepository.setReadBy([senderId], room),
+          groupMemberRepository.updateLastReadAt(chatId, senderId),
         ]);
 
         return updatedAt;
@@ -401,7 +402,7 @@ const restoreChat = async (
         room,
       );
       if (isDeleted) {
-        await privateChatRepository.restoreChatForUser(recipientId, room);
+        await privateChatRepository.restoreChat(recipientId, room);
       }
     } else if (isGroupChat) {
       const membersWhoDeletedChat =

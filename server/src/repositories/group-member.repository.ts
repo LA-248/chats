@@ -21,17 +21,19 @@ export class GroupMember {
           user_id INTEGER REFERENCES users(user_id) ON DELETE CASCADE,
           role VARCHAR(50),
           joined_at TIMESTAMPTZ DEFAULT NOW(),
+          deleted_at TIMESTAMPTZ,
+          last_read_at TIMESTAMPTZ,
           PRIMARY KEY (group_id, user_id)
         )
       `,
-      []
+      [],
     );
   };
 
   insertGroupMember = async (
     groupId: number,
     userId: number,
-    role: string
+    role: string,
   ): Promise<NewGroupMember> => {
     const result = await this.db.query<NewGroupMember>(
       `
@@ -39,14 +41,14 @@ export class GroupMember {
       VALUES ($1, $2, $3)
       RETURNING *
       `,
-      [groupId, userId, role]
+      [groupId, userId, role],
     );
 
     return result.rows[0];
   };
 
   findMembersByRoom = async (
-    room: string
+    room: string,
   ): Promise<Omit<GroupMemberInfo, 'username' | 'profile_picture'>[]> => {
     const result = await this.db.query<
       Omit<GroupMemberInfo, 'username' | 'profile_picture'>
@@ -59,7 +61,7 @@ export class GroupMember {
       JOIN groups g ON g.group_id = gm.group_id
       WHERE g.room = $1
       `,
-      [room]
+      [room],
     );
 
     return result.rows;
@@ -68,7 +70,7 @@ export class GroupMember {
   findMemberByUserId = async (
     room: string,
     groupId: number,
-    userId: number
+    userId: number,
   ): Promise<Omit<GroupMemberInfo, 'username' | 'profile_picture'>> => {
     const result = await this.db.query<
       Omit<GroupMemberInfo, 'username' | 'profile_picture'>
@@ -79,7 +81,7 @@ export class GroupMember {
       JOIN groups g ON g.group_id = gm.group_id
       WHERE g.room = $1 AND gm.group_id = $2 AND gm.user_id = $3
       `,
-      [room, groupId, userId]
+      [room, groupId, userId],
     );
 
     return result.rows[0];
@@ -87,7 +89,7 @@ export class GroupMember {
 
   findRandomMember = async (
     room: string,
-    groupId: number
+    groupId: number,
   ): Promise<Omit<GroupMemberInfo, 'username' | 'profile_picture'>> => {
     const result = await this.db.query<
       Omit<GroupMemberInfo, 'username' | 'profile_picture'>
@@ -99,7 +101,7 @@ export class GroupMember {
       WHERE g.room = $1 AND g.group_id = $2
       LIMIT 1
       `,
-      [room, groupId]
+      [room, groupId],
     );
 
     return result.rows[0];
@@ -108,7 +110,7 @@ export class GroupMember {
   updateRole = async (
     role: string,
     groupId: number,
-    userId: number
+    userId: number,
   ): Promise<Omit<GroupMemberInfo, 'username' | 'profile_picture'>> => {
     const result = await this.db.query<
       Omit<GroupMemberInfo, 'username' | 'profile_picture'>
@@ -119,7 +121,41 @@ export class GroupMember {
       WHERE group_id = $2 AND user_id = $3
       RETURNING user_id, role
       `,
-      [role, groupId, userId]
+      [role, groupId, userId],
+    );
+
+    return result.rows[0];
+  };
+  
+  updateLastReadAt = async (
+    groupId: number,
+    userId: number,
+  ): Promise<GroupMemberInfo> => {
+    const result = await this.db.query<GroupMemberInfo>(
+      `
+      UPDATE group_members
+      SET last_read_at = NOW()
+      WHERE group_id = $1 AND user_id = $2
+      RETURNING group_id, user_id, last_read_at
+      `,
+      [groupId, userId],
+    );
+
+    return result.rows[0];
+  }
+
+  deleteGroupForMember = async (
+    groupId: number,
+    userId: number,
+  ): Promise<GroupMemberInfo> => {
+    const result = await this.db.query<GroupMemberInfo>(
+      `
+      UPDATE group_members
+      SET deleted_at = NOW()
+      WHERE group_id = $1 AND user_id = $2
+      RETURNING group_id, user_id
+      `,
+      [groupId, userId],
     );
 
     return result.rows[0];
@@ -127,7 +163,7 @@ export class GroupMember {
 
   deleteGroupMember = async (
     groupId: number,
-    userId: number
+    userId: number,
   ): Promise<Omit<GroupMemberInfo, 'profile_picture'>> => {
     const result = await this.db.query<
       Omit<GroupMemberInfo, 'profile_picture'>
@@ -137,7 +173,7 @@ export class GroupMember {
       WHERE group_id = $1 AND user_id = $2
       RETURNING user_id, role
       `,
-      [groupId, userId]
+      [groupId, userId],
     );
 
     return result.rows[0];

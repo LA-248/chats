@@ -1,6 +1,6 @@
 import {
-  Chat,
   ChatDeletionStatus,
+  ChatDto,
   ChatLastMessage,
   ChatMembers,
   ChatUpdatedAt,
@@ -29,23 +29,23 @@ export class PrivateChat {
           user2_id INTEGER REFERENCES users(user_id) ON DELETE SET NULL,
           last_message_id INTEGER REFERENCES messages(message_id) ON DELETE SET NULL,
           room UUID UNIQUE NOT NULL,
-          created_at TIMESTAMPTZ DEFAULT NOW(),
-          updated_at TIMESTAMPTZ DEFAULT NOW(),
-          user1_deleted BOOLEAN DEFAULT TRUE,
-          user2_deleted BOOLEAN DEFAULT TRUE,
-          user1_read BOOLEAN DEFAULT TRUE,
-          user2_read BOOLEAN DEFAULT TRUE,
+          created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+          updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+          user1_deleted_at TIMESTAMPTZ,
+          user2_deleted_at TIMESTAMPTZ,
+          user1_last_read_at TIMESTAMPTZ,
+          user2_last_read_at TIMESTAMPTZ,
           UNIQUE (user1_id, user2_id)
         )
       `,
-      []
+      [],
     );
   };
 
   insertNewChat = async (
     user1Id: number,
     user2Id: number,
-    room: string
+    room: string,
   ): Promise<NewChat> => {
     const result = await this.db.query<NewChat>(
       `
@@ -53,14 +53,14 @@ export class PrivateChat {
         VALUES ($1, $2, $3)
         RETURNING *
       `,
-      [user1Id, user2Id, room]
+      [user1Id, user2Id, room],
     );
 
     return result.rows[0];
   };
 
-  findChat = async (userId: number, room: string): Promise<Chat> => {
-    const result = await this.db.query<Chat>(
+  findChat = async (userId: number, room: string): Promise<ChatDto> => {
+    const result = await this.db.query<ChatDto>(
       `
       SELECT
         CONCAT('p_', pc.chat_id) AS chat_id,
@@ -76,16 +76,16 @@ export class PrivateChat {
         m.type AS last_message_type,
         pc.room,
         CASE
-          WHEN pc.user1_id = $1 THEN pc.user1_read
-          WHEN pc.user2_id = $1 THEN pc.user2_read
-        END AS read,
+          WHEN pc.user1_id = $1 THEN pc.user1_last_read_at
+          WHEN pc.user2_id = $1 THEN pc.user2_last_read_at
+        END AS last_read_at,
         'chats' AS chat_type,
         pc.created_at,
         pc.updated_at,
         CASE
-          WHEN pc.user1_id = $1 THEN pc.user1_deleted
-          WHEN pc.user2_id = $1 THEN pc.user2_deleted
-        END AS deleted
+          WHEN pc.user1_id = $1 THEN pc.user1_deleted_at
+          WHEN pc.user2_id = $1 THEN pc.user2_deleted_at
+        END AS deleted_at
       FROM private_chats pc
       JOIN users u ON u.user_id = CASE
         WHEN pc.user1_id = $1 THEN pc.user2_id
@@ -94,7 +94,7 @@ export class PrivateChat {
       LEFT JOIN messages m ON pc.last_message_id = m.message_id
       WHERE (pc.user1_id = $1 OR pc.user2_id = $1) AND pc.room = $2
       `,
-      [userId, room]
+      [userId, room],
     );
 
     return result.rows[0];
@@ -103,7 +103,7 @@ export class PrivateChat {
   findMembersByRoom = async (room: string): Promise<ChatMembers> => {
     const result = await this.db.query<ChatMembers>(
       'SELECT user1_id, user2_id FROM private_chats WHERE room = $1',
-      [room]
+      [room],
     );
 
     return result.rows[0];
@@ -111,7 +111,7 @@ export class PrivateChat {
 
   findRoomByMembers = async (
     user1Id: number,
-    user2Id: number
+    user2Id: number,
   ): Promise<ChatRoom> => {
     const result = await this.db.query<ChatRoom>(
       `
@@ -119,7 +119,7 @@ export class PrivateChat {
       WHERE (user1_id = $1 AND user2_id = $2)
       OR (user1_id = $2 AND user2_id = $1)
       `,
-      [user1Id, user2Id]
+      [user1Id, user2Id],
     );
 
     return { room: result.rows[0]?.room ?? null };
@@ -132,7 +132,7 @@ export class PrivateChat {
       SELECT room FROM private_chats 
       WHERE (user1_id = $1 OR user2_id = $1)
       `,
-      [userId]
+      [userId],
     );
 
     return result.rows;
@@ -140,19 +140,19 @@ export class PrivateChat {
 
   findChatDeletionStatus = async (
     userId: number,
-    room: string
+    room: string,
   ): Promise<ChatDeletionStatus> => {
     const result = await this.db.query<ChatDeletionStatus>(
       `
       SELECT
         CASE
-          WHEN user1_id = $1 THEN user1_deleted
-          ELSE user2_deleted
-        END AS deleted
+          WHEN user1_id = $1 THEN user1_deleted_at
+          ELSE user2_deleted_at
+        END AS deleted_at
       FROM private_chats
       WHERE room = $2
       `,
-      [userId, room]
+      [userId, room],
     );
 
     return result.rows[0];
@@ -161,7 +161,7 @@ export class PrivateChat {
   findUpdatedAtDate = async (room: string): Promise<ChatUpdatedAt> => {
     const result = await this.db.query<ChatUpdatedAt>(
       'SELECT updated_at FROM private_chats WHERE room = $1',
-      [room]
+      [room],
     );
 
     return result.rows[0];
@@ -170,7 +170,7 @@ export class PrivateChat {
   findLastMessageId = async (room: string): Promise<ChatLastMessage> => {
     const result = await this.db.query<ChatLastMessage>(
       'SELECT last_message_id FROM private_chats WHERE room = $1',
-      [room]
+      [room],
     );
 
     return result.rows[0];
@@ -178,7 +178,7 @@ export class PrivateChat {
 
   setLastMessage = async (
     messageId: number,
-    room: string
+    room: string,
   ): Promise<ChatUpdatedAt> => {
     const result = await this.db.query<ChatUpdatedAt>(
       `
@@ -189,7 +189,7 @@ export class PrivateChat {
       WHERE room = $2
       RETURNING updated_at
       `,
-      [messageId, room]
+      [messageId, room],
     );
 
     return result.rows[0];
@@ -198,7 +198,7 @@ export class PrivateChat {
   // Handle updating last message after most recent message is deleted
   updateLastMessage = async (
     messageId: number | null,
-    room: string
+    room: string,
   ): Promise<void> => {
     // When the last remaining message in a chat is deleted, the last_message_id is set to null,
     // otherwise set it to the message id of the new last message
@@ -211,7 +211,7 @@ export class PrivateChat {
           updated_at = NOW()
         WHERE room = $1
         `,
-        [room]
+        [room],
       );
     } else {
       await this.db.query(
@@ -225,54 +225,70 @@ export class PrivateChat {
           AND m.message_id = $1
           AND m.room = $2
         `,
-        [messageId, room]
+        [messageId, room],
       );
     }
   };
 
-  updateChatDeletionStatus = async (
+  updateDeletedAt = async (
     userId: number,
-    isDeleted: boolean,
-    room: string
+    room: string,
   ): Promise<ChatDeletionStatus> => {
     const result = await this.db.query<ChatDeletionStatus>(
       `
       UPDATE private_chats
       SET
-        user1_deleted = CASE WHEN user1_id = $1 THEN $2 ELSE user1_deleted END,
-        user2_deleted = CASE WHEN user2_id = $1 THEN $2 ELSE user2_deleted END
-      WHERE room = $3
+        user1_deleted_at = CASE WHEN user1_id = $1 THEN NOW() ELSE user1_deleted_at END,
+        user2_deleted_at = CASE WHEN user2_id = $1 THEN NOW() ELSE user2_deleted_at END
+      WHERE room = $2
       RETURNING
         CASE
-          WHEN user1_id = $1 THEN user1_deleted
-          WHEN user2_id = $1 THEN user2_deleted
-        END AS deleted
+          WHEN user1_id = $1 THEN user1_deleted_at
+          WHEN user2_id = $1 THEN user2_deleted_at
+        END AS deleted_at
       `,
-      [userId, isDeleted, room]
+      [userId, room],
     );
 
     return result.rows[0];
   };
 
-  updateUserReadStatus = async (
+  updateLastReadAt = async (
     userId: number,
-    read: boolean,
-    room: string
+    room: string,
   ): Promise<void> => {
     await this.db.query(
       `
       UPDATE private_chats
       SET
-        user1_read = CASE WHEN user1_id = $1 THEN $2 ELSE user1_read END,
-        user2_read = CASE WHEN user2_id = $1 THEN $2 ELSE user2_read END
-      WHERE room = $3
+        user1_last_read_at = CASE WHEN user1_id = $1 THEN NOW() ELSE user1_last_read_at END,
+        user2_last_read_at = CASE WHEN user2_id = $1 THEN NOW() ELSE user2_last_read_at END
+      WHERE room = $2
       RETURNING
         CASE
-        WHEN user1_id = $1 THEN user1_read
-          WHEN user2_id = $1 THEN user2_read
-        END AS read
+        WHEN user1_id = $1 THEN user1_last_read_at
+          WHEN user2_id = $1 THEN user2_last_read_at
+        END AS last_read_at
       `,
-      [userId, read, room]
+      [userId, room],
+    );
+  };
+
+  restoreChat = async (userId: number, room: string): Promise<void> => {
+    await this.db.query(
+      `
+    UPDATE private_chats
+    SET
+      user1_deleted_at = CASE WHEN user1_id = $1 THEN NULL ELSE user1_deleted_at END,
+      user2_deleted_at = CASE WHEN user2_id = $1 THEN NULL ELSE user2_deleted_at END
+    WHERE room = $2 AND ($1 = user1_id OR $1 = user2_id)
+    RETURNING
+      CASE
+        WHEN user1_id = $1 THEN user1_deleted_at
+        WHEN user2_id = $1 THEN user2_deleted_at
+      END AS deleted_at
+    `,
+      [userId, room],
     );
   };
 }

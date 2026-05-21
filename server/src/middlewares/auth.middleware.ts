@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import { GroupMember } from '../repositories/group-member.repository.ts';
 import { Group } from '../repositories/group.repository.ts';
 import { PrivateChat } from '../repositories/private-chat.repository.ts';
+import { GroupChatAuthParamsSchema } from '../schemas/group.schema.ts';
 import { GroupMemberInfo, GroupMemberRole } from '../types/group.ts';
 
 export const requireAuth = (
@@ -73,15 +74,39 @@ export const groupChatRoomAuth = async (
   next: NextFunction,
 ): Promise<void> => {
   const senderId = Number(req.user?.user_id);
-  const groupId = Number(req.params.groupId);
 
   try {
     const groupRepository = new Group();
     const groupMemberRepository = new GroupMember();
 
-    let room = String(req.params.room);
-    if (!room) {
+    const result = GroupChatAuthParamsSchema.safeParse(req.params);
+    if (!result.success) {
+      console.error('groupChatRoomAuth: Invalid request params', result.error);
+      res.status(400).json({
+        error: 'Bad request',
+        message: 'Invalid request params',
+      });
+      return;
+    }
+
+    const groupId = result.data?.groupId;
+    let room = result.data?.room;
+
+    // Group routes can either have the room or groupId as a request parameter
+    // That's why the room is fetched using the groupId if the route doesn't have it as a request param
+    if (!room && groupId) {
       ({ room } = await groupRepository.findRoomById(groupId));
+    }
+
+    if (!room) {
+      console.error(
+        'groupChatRoomAuth: Invalid request params. Room request parameter missing.',
+      );
+      res.status(400).json({
+        error: 'Bad request',
+        message: 'Invalid request params',
+      });
+      return;
     }
 
     const groupChatMembers =
@@ -153,7 +178,7 @@ export const authoriseGroupOwnerAction = async (
     }
 
     if (!loggedInUserId) {
-      console.log('Error: invalid user ID');
+      console.error('Error: invalid user ID');
       res.status(401).json({ error: 'Invalid ID' });
       return;
     }
@@ -167,7 +192,7 @@ export const authoriseGroupOwnerAction = async (
     if (isOwner) {
       return next();
     } else {
-      console.log('Error: unauthorised, you are not a member of this chat');
+      console.error('Error: you are unauthorised to perform this action');
       res.status(403).json({
         error: 'Unauthorised',
         message: 'You are unauthorised to perform this action',
@@ -233,7 +258,7 @@ export const authoriseGroupOwnerOrAdminAction = async (
     if (isOwner || isAdmin) {
       return next();
     } else {
-      console.log('Error: unauthorised, you are not a member of this chat');
+      console.log('Error: you are unauthorised to perform this action');
       res.status(403).json({
         error: 'Unauthorised',
         message: 'You are unauthorised to perform this action',

@@ -10,7 +10,7 @@ recipient if they had it marked as deleted
 export default function useChatListUpdate(
   socket: Socket | null,
   setChatList: React.Dispatch<React.SetStateAction<Chat[]>>,
-  activeChatRoom: string | null
+  activeChatRoom: string | null,
 ) {
   useEffect(() => {
     if (socket) {
@@ -24,16 +24,14 @@ export default function useChatListUpdate(
                     last_message_content: chatData.lastMessageContent,
                     last_message_time: chatData.lastMessageTime,
                     updated_at: chatData.updatedAt,
-                    deleted: false,
-                    read: activeChatRoom !== chat.room ? false : true,
                   }
-                : chat
+                : chat,
             )
             .sort((a, b) => {
               const timeA = a.updated_at ? new Date(a.updated_at).getTime() : 0;
               const timeB = b.updated_at ? new Date(b.updated_at).getTime() : 0;
               return timeB - timeA;
-            })
+            }),
         );
       };
 
@@ -49,13 +47,13 @@ export default function useChatListUpdate(
                     last_message_time: lastMessageData.lastMessageTime,
                     updated_at: lastMessageData.updatedAt,
                   }
-                : chat
+                : chat,
             )
             .sort((a, b) => {
               const timeA = a.updated_at ? new Date(a.updated_at).getTime() : 0;
               const timeB = b.updated_at ? new Date(b.updated_at).getTime() : 0;
               return timeB - timeA;
-            })
+            }),
         );
       };
 

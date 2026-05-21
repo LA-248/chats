@@ -1,7 +1,7 @@
 import bcrypt from 'bcrypt';
 import request from 'supertest';
 import { app } from '../../app.ts';
-import { createTables, pool } from '../../../db/index.ts';
+import { createTables, pool } from '../../db/index.ts';
 
 beforeAll(async () => {
   await createTables();
@@ -15,7 +15,7 @@ beforeEach(async () => {
   await pool.query(
     `INSERT INTO users (user_id, username, hashed_password) VALUES 
     ($1, $2, $3)`,
-    [1, 'test', hashed]
+    [1, 'test', hashed],
   );
 });
 

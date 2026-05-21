@@ -31,20 +31,18 @@ export class Group {
           name TEXT,
           group_picture TEXT,
           room UUID UNIQUE NOT NULL,
-          deleted_for INTEGER[],
-          read_by INTEGER[],
-          created_at TIMESTAMPTZ DEFAULT NOW(),
-          updated_at TIMESTAMPTZ DEFAULT NOW()
+          created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+          updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
         )
       `,
-      []
+      [],
     );
   };
 
   insertNewGroupChat = async (
     ownerUserId: number,
     name: string,
-    room: string
+    room: string,
   ): Promise<NewGroupChat> => {
     const result = await this.db.query<NewGroupChat>(
       `
@@ -52,7 +50,7 @@ export class Group {
         VALUES ($1, $2, $3)
         RETURNING group_id, room, name
       `,
-      [ownerUserId, name, room]
+      [ownerUserId, name, room],
     );
 
     return result.rows[0];
@@ -70,7 +68,7 @@ export class Group {
       JOIN group_members gm ON u.user_id = gm.user_id
       WHERE gm.group_id = $1
       `,
-      [groupId]
+      [groupId],
     );
 
     return result.rows;
@@ -79,7 +77,7 @@ export class Group {
   findGroupInfoByRoom = async (room: string): Promise<GroupInfo> => {
     const result = await this.db.query<GroupInfo>(
       'SELECT group_id, name, group_picture FROM groups WHERE room = $1',
-      [room]
+      [room],
     );
 
     return result.rows[0];
@@ -88,7 +86,7 @@ export class Group {
   findRoomById = async (groupId: number): Promise<GroupRoom> => {
     const result = await this.db.query<GroupRoom>(
       'SELECT room FROM groups WHERE group_id = $1',
-      [groupId]
+      [groupId],
     );
 
     return result.rows[0];
@@ -97,7 +95,7 @@ export class Group {
   findPictureById = async (groupId: number): Promise<GroupPicture> => {
     const result = await this.db.query(
       'SELECT group_picture FROM groups WHERE group_id = $1',
-      [groupId]
+      [groupId],
     );
 
     return { group_picture: result.rows[0]?.group_picture ?? null };
@@ -106,7 +104,7 @@ export class Group {
   findDeletedForList = async (room: string): Promise<GroupDeletedForList> => {
     const result = await this.db.query(
       'SELECT deleted_for FROM groups WHERE room = $1',
-      [room]
+      [room],
     );
 
     return { deleted_for: result.rows[0]?.deleted_for ?? null };
@@ -115,7 +113,7 @@ export class Group {
   findUpdatedAtDate = async (room: string): Promise<GroupUpdatedAt> => {
     const result = await this.db.query<GroupUpdatedAt>(
       'SELECT updated_at FROM groups WHERE room = $1',
-      [room]
+      [room],
     );
 
     return result.rows[0];
@@ -129,7 +127,7 @@ export class Group {
       JOIN group_members gm ON g.group_id = gm.group_id
       WHERE gm.user_id = $1
       `,
-      [userId]
+      [userId],
     );
 
     return result.rows;
@@ -143,7 +141,7 @@ export class Group {
       WHERE group_id = $2
       RETURNING group_id AS "groupId", name
       `,
-      [fileName, groupId]
+      [fileName, groupId],
     );
 
     return result.rows[0];
@@ -151,7 +149,7 @@ export class Group {
 
   setLastMessage = async (
     messageId: number,
-    room: string
+    room: string,
   ): Promise<GroupUpdatedAt> => {
     const result = await this.db.query<GroupUpdatedAt>(
       `
@@ -162,7 +160,7 @@ export class Group {
       WHERE room = $2
       RETURNING updated_at
       `,
-      [messageId, room]
+      [messageId, room],
     );
 
     return result.rows[0];
@@ -170,7 +168,7 @@ export class Group {
 
   updateLastMessageEventTime = async (
     messageId: number | null,
-    room: string
+    room: string,
   ): Promise<void> => {
     await this.db.query(
       `
@@ -183,54 +181,7 @@ export class Group {
         AND m.message_id = $1
         AND m.room = $2
       `,
-      [messageId, room]
-    );
-  };
-
-  markReadByUser = async (userId: number, room: string): Promise<void> => {
-    await this.db.query(
-      `
-      UPDATE groups
-      SET read_by = array_append(read_by, $1)
-      WHERE room = $2
-      `,
-      [userId, room]
-    );
-  };
-
-  markUnreadByUser = async (userId: number, room: string): Promise<void> => {
-    await this.db.query(
-      `
-      UPDATE groups
-      SET read_by = array_remove(read_by, $1)
-      WHERE room = $2 AND $1 = ANY(read_by)
-      `,
-      [userId, room]
-    );
-  };
-
-  setReadBy = async (userId: number[], room: string): Promise<void> => {
-    await this.db.query(
-      `
-      UPDATE groups
-      SET read_by = $1::integer[]
-      WHERE room = $2;
-      `,
-      [userId, room]
-    );
-  };
-
-  updateDeletedForList = async (
-    userId: number,
-    room: string
-  ): Promise<void> => {
-    await this.db.query(
-      `
-      UPDATE groups
-      SET deleted_for = array_append(deleted_for, $1)
-      WHERE room = $2
-      `,
-      [userId, room]
+      [messageId, room],
     );
   };
 
@@ -241,14 +192,14 @@ export class Group {
       SET deleted_for = '{}'
       WHERE room = $1;
       `,
-      [room]
+      [room],
     );
   };
 
   updateOwner = async (
     userId: number,
     groupId: number,
-    room: string
+    room: string,
   ): Promise<void> => {
     await this.db.query(
       `
@@ -256,7 +207,7 @@ export class Group {
       SET owner_user_id = $1
       WHERE group_id = $2 AND room = $3
       `,
-      [userId, groupId, room]
+      [userId, groupId, room],
     );
   };
 

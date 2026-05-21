@@ -31,10 +31,10 @@ export class Message {
         event_time TIMESTAMPTZ DEFAULT NOW(),
         is_edited BOOLEAN DEFAULT FALSE,
         type TEXT NOT NULL,
-        UNIQUE (room, event_time, message_id)
+        CHECK ((group_id IS NULL) <> (recipient_id IS NULL))
       )
       `,
-      []
+      [],
     );
   };
 
@@ -45,7 +45,7 @@ export class Message {
     groupId: number | null,
     room: string,
     type: string,
-    clientOffset: string
+    clientOffset: string,
   ): Promise<NewMessage> => {
     const result = await this.db.query<NewMessage>(
       `
@@ -61,7 +61,7 @@ export class Message {
       VALUES ($1, $2, $3, $4, $5, $6, $7)
       RETURNING message_id, event_time, type
       `,
-      [content, senderId, recipientId, groupId, room, type, clientOffset]
+      [content, senderId, recipientId, groupId, room, type, clientOffset],
     );
 
     return result.rows[0];
@@ -75,7 +75,7 @@ export class Message {
       FROM messages
       WHERE sender_id = $1 AND message_id = $2
       `,
-      [senderId, messageId]
+      [senderId, messageId],
     );
 
     return result.rows[0];
@@ -89,7 +89,7 @@ export class Message {
       FROM messages
       WHERE message_id = $1
       `,
-      [messageId]
+      [messageId],
     );
 
     return result.rows[0];
@@ -98,7 +98,7 @@ export class Message {
   findMessageType = async (messageId: number): Promise<string> => {
     const result = await this.db.query(
       'SELECT type FROM messages WHERE message_id = $1',
-      [messageId]
+      [messageId],
     );
 
     return result.rows[0].type;
@@ -106,7 +106,7 @@ export class Message {
 
   findMessageList = async (
     serverOffset: string,
-    room: string
+    room: string,
   ): Promise<MessageType[]> => {
     const result = await this.db.query<MessageType>(
       `
@@ -127,14 +127,14 @@ export class Message {
         AND m.room = $2
       ORDER BY m.event_time ASC;
       `,
-      [serverOffset, room]
+      [serverOffset, room],
     );
 
     return result.rows;
   };
 
   findLastMessageInfo = async (
-    room: string
+    room: string,
   ): Promise<LastMessageInfo | null> => {
     const result = await this.db.query<LastMessageInfo>(
       `
@@ -146,7 +146,7 @@ export class Message {
       WHERE room = $1
       ORDER BY message_id DESC LIMIT 1 
       `,
-      [room]
+      [room],
     );
 
     return result.rows[0];
@@ -155,7 +155,7 @@ export class Message {
   updateMessageContent = async (
     newMessage: string,
     senderId: number,
-    messageId: number
+    messageId: number,
   ): Promise<void> => {
     await this.db.query(
       `
@@ -165,17 +165,17 @@ export class Message {
         is_edited = true
       WHERE sender_id = $2 AND message_id = $3
       `,
-      [newMessage, senderId, messageId]
+      [newMessage, senderId, messageId],
     );
   };
 
   deleteMessage = async (
     senderId: number,
-    messageId: number
+    messageId: number,
   ): Promise<void> => {
     await this.db.query(
       'DELETE FROM messages WHERE sender_id = $1 AND message_id = $2',
-      [senderId, messageId]
+      [senderId, messageId],
     );
   };
 }

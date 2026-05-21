@@ -21,9 +21,10 @@ export const editMessage: RequestHandler<
   try {
     const senderId = Number(req.user?.user_id);
     const messageId = Number(req.params.messageId);
+    const newMessage = req.body.newMessage;
 
-    await edit(req.body.newMessage, senderId, messageId);
-    res.status(200).json({ newMessage: req.body.newMessage });
+    await edit(newMessage, senderId, messageId);
+    res.status(200).json({ newMessage });
   } catch (error) {
     console.error('Error editing message:', error);
     res.status(500).json({ error: 'Error editing message. Please try again.' });

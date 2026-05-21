@@ -8,6 +8,10 @@ import {
   RetrieveRecipientProfileResponseDto,
 } from '../dtos/user.dto.ts';
 import {
+  RetrieveIdByUsernameParamsDto,
+  RetrieveRecipientProfileParamsDto,
+} from '../schemas/user.schema.ts';
+import {
   createProfilePictureUrl,
   handleUsernameUpdate,
   retrieveBlockList,
@@ -43,9 +47,7 @@ export const retrieveLoggedInUserData: RequestHandler<
 };
 
 export const retrieveRecipientProfile: RequestHandler<
-  {
-    room: string;
-  },
+  RetrieveRecipientProfileParamsDto,
   | RetrieveRecipientProfileResponseDto
   | RetrieveRecipientProfileNotFoundResponseDto
   | ApiErrorResponse,
@@ -77,9 +79,7 @@ export const retrieveRecipientProfile: RequestHandler<
 };
 
 export const retrieveIdByUsername: RequestHandler<
-  {
-    username: string;
-  },
+  RetrieveIdByUsernameParamsDto,
   RetrieveIdByUsernameResponseDto | ApiErrorResponse
 > = async (req, res) => {
   try {

@@ -56,10 +56,13 @@ export const NewGroupMemberSchema = z.object({
 export type NewGroupMember = z.infer<typeof NewGroupMemberSchema>;
 
 export const GroupMemberInfoSchema = z.object({
-  user_id: z.number(),
+  group_id: z.coerce.number(),
+  user_id: z.coerce.number(),
   username: z.string(),
   profile_picture: z.string().nullable(),
   role: z.enum(['owner', 'admin', 'member']),
+  last_read_at: z.coerce.date().nullable(),
+  deleted_at: z.coerce.date().nullable(),
 });
 
 export const AddGroupMembersSchema = z.object({
@@ -72,7 +75,17 @@ export const AddGroupMembersSchema = z.object({
   ),
 });
 
-export const GroupIdSchema = z.string();
+// TODO: Need to create a schema that checks that either groupId or room exists
+export const GroupChatAuthParamsSchema = z
+  .object({
+    room: z.string().min(1).optional(),
+    groupId: z.coerce.number().int().positive().optional(),
+  })
+  .refine((value) => value.room || value.groupId, {
+    message: 'Either room or groupId is required',
+  });
+
+export const GroupIdSchema = z.number();
 
 export const RemoveKickedGroupMemberParamsSchema = z.object({
   groupId: z.string(),
@@ -110,9 +123,13 @@ export type UpdateGroupPictureParamsDto = z.infer<
   typeof UpdateGroupPictureParamsSchema
 >;
 
-export const UpdateUserReadStatusParamsSchema = z.object({
-  room: z.string(),
+export const UpdateLastReadStatusParamsSchema = z.object({
+  groupId: z.string(),
+  userId: z.string(),
 });
+export type UpdateLastReadStatusParamsDto = z.infer<
+  typeof UpdateLastReadStatusParamsSchema
+>;
 
 export const UpdateLastMessageIdBodySchema = z.object({
   messageId: z.number().nullable(),

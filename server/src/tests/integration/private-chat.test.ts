@@ -1,7 +1,7 @@
 import bcrypt from 'bcrypt';
 import request from 'supertest';
 import { app } from '../../app.ts';
-import { createTables, pool } from '../../../db/index.ts';
+import { createTables, pool } from '../../db/index.ts';
 
 beforeAll(async () => {
   await createTables();
@@ -24,7 +24,7 @@ describe('POST /chats', () => {
     await pool.query(
       `INSERT INTO users (user_id, username, hashed_password) VALUES
         (2, 'test2',  $1)`,
-      [hashed]
+      [hashed],
     );
 
     const agent = request.agent(app);

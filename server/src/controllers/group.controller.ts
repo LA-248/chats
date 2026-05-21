@@ -27,21 +27,21 @@ import {
   PermanentlyDeleteGroupParamsDto,
   RemoveKickedGroupMemberParamsDto,
   UpdateGroupPictureParamsDto,
+  UpdateLastReadStatusParamsDto,
   UpdateMemberRoleBodyDto,
   UpdateMemberRoleParamsDto,
-  UpdateUserReadStatusParamsSchema,
 } from '../schemas/group.schema.ts';
 import {
   addUsersToGroup,
-  addUserToReadList,
   createNewGroup,
+  deleteGroupForMember,
   getMemberUsernames,
   kickMember,
-  markGroupAsDeleted,
   permanentlyDeleteGroupChat,
   removeMemberWhoLeft,
   retrieveGroupInfoWithMembers,
   updateLastGroupMessage,
+  updateLastReadAt,
   updateMemberRole,
   uploadGroupPicture,
 } from '../services/group.service.ts';
@@ -58,6 +58,9 @@ export const createGroupChat: RequestHandler<
   try {
     const io: Server = req.app.get('io');
     const room = uuidv4();
+    const ownerUserId = req.body.ownerUserId;
+    const name = req.body.name;
+    const membersToBeAdded = req.body.membersToBeAdded;
 
     const {
       newGroupChat,
@@ -65,13 +68,7 @@ export const createGroupChat: RequestHandler<
     }: {
       newGroupChat: NewGroupChat;
       failedInsertions: GroupMemberInsertionResult[];
-    } = await createNewGroup(
-      io,
-      req.body.ownerUserId,
-      req.body.name,
-      room,
-      req.body.membersToBeAdded,
-    );
+    } = await createNewGroup(io, ownerUserId, name, room, membersToBeAdded);
 
     // Handle partial success or full success
     // This ensures that the group is still created even if certain members could not be added
@@ -125,19 +122,22 @@ export const retrieveMemberUsernames: RequestHandler<
   }
 };
 
-export const markGroupChatAsDeleted: RequestHandler<
-  GroupRoom,
+export const deleteGroupChat: RequestHandler<
+  {
+    groupId: string;
+  },
   ApiSuccessResponse | ApiErrorResponse,
   void
 > = async (req, res) => {
   try {
+    const groupId = Number(req.params.groupId);
     const userId = Number(req.user?.user_id);
     if (!userId) {
       res.status(401).json({ error: 'User not authenticated' });
       return;
     }
 
-    await markGroupAsDeleted(userId, req.params.room);
+    await deleteGroupForMember(groupId, userId);
     res.status(200).json({ message: 'Chat deleted successfully' });
   } catch (error) {
     console.error('Error deleting chat:', error);
@@ -376,27 +376,21 @@ export const updateGroupPicture: RequestHandler<
   }
 };
 
-export const updateUserReadStatus: RequestHandler<
-  { room: string },
+export const updateLastRead: RequestHandler<
+  UpdateLastReadStatusParamsDto,
   ApiErrorResponse,
   void
 > = async (req, res) => {
-  try {
-    const userId = Number(req.user?.user_id);
-
-    const parsedParams = UpdateUserReadStatusParamsSchema.safeParse(req.params);
-    if (!parsedParams.success) {
-      console.error('Invalid request params:', parsedParams.error);
-      res.status(400).json({ error: 'Invalid request data' });
-      return;
-    }
+  try {    
+    const userId = Number(req.params.userId);
+    const groupId = Number(req.params.groupId);
 
     if (!userId) {
       res.status(401).json({ error: 'User not authenticated' });
       return;
     }
 
-    await addUserToReadList(userId, parsedParams.data.room);
+    await updateLastReadAt(groupId, userId);
     res.sendStatus(200);
   } catch (error) {
     console.error('Error adding group member to read list:', error);

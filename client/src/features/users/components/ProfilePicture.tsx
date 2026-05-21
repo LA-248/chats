@@ -10,7 +10,7 @@ export default function ProfilePicture() {
 
   const apiEndpoint = `${
     import.meta.env.VITE_SERVER_BASE_URL
-  }/users/${loggedInUserId}/pictures`;
+  }/api/users/${loggedInUserId}/pictures`;
 
   const { handleFileInputClick, handleMediaUpload } = useMediaUpload(
     fileInputRef,

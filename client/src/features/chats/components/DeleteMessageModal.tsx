@@ -35,7 +35,7 @@ export default function DeleteMessageModal({
 
   const handleMessageDelete = async (
     messageId: number | null,
-    messageIndex: number | null
+    messageIndex: number | null,
   ): Promise<void> => {
     try {
       if (!socket || !room) return;
