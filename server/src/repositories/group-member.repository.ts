@@ -1,4 +1,7 @@
-import { NewGroupMember } from '../schemas/group.schema.ts';
+import {
+  GroupDeletionStatus,
+  NewGroupMember,
+} from '../schemas/group.schema.ts';
 import { GroupMemberInfo } from '../types/group.ts';
 import { query } from '../utils/database-query.ts';
 
@@ -107,6 +110,22 @@ export class GroupMember {
     return result.rows[0];
   };
 
+  findDeletionStatus = async (
+    recipientId: number,
+  ): Promise<GroupDeletionStatus> => {
+    const result = await this.db.query<GroupDeletionStatus>(
+      `
+      SELECT deleted_at
+      FROM group_members
+      WHERE user_id = $1  
+      RETURNING deleted_at
+      `,
+      [recipientId],
+    );
+
+    return result.rows[0];
+  };
+
   updateRole = async (
     role: string,
     groupId: number,
@@ -126,7 +145,7 @@ export class GroupMember {
 
     return result.rows[0];
   };
-  
+
   updateLastReadAt = async (
     groupId: number,
     userId: number,
@@ -142,7 +161,7 @@ export class GroupMember {
     );
 
     return result.rows[0];
-  }
+  };
 
   deleteGroupForMember = async (
     groupId: number,
@@ -177,5 +196,16 @@ export class GroupMember {
     );
 
     return result.rows[0];
+  };
+
+  restore = async (groupId: number): Promise<void> => {
+    await this.db.query(
+      `
+      UPDATE group_members
+      SET deleted_at = NULL
+      WHERE group_id = $1 AND deleted_at IS NOT NULL;
+      `,
+      [groupId],
+    );
   };
 }

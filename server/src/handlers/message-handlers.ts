@@ -385,13 +385,13 @@ const saveMessageInDatabase = async (
 
 // Mark a chat as not deleted in the database on incoming message if it was previously marked as deleted
 const restoreChat = async (
-  recipientId: number,
+  recipientId: number, // For group chats, this is the groupId
   room: string,
   chatType: string,
 ): Promise<void> => {
   try {
     const privateChatRepository = new PrivateChat();
-    const groupRepository = new Group();
+    const groupMemberRepository = new GroupMember();
 
     const isPrivateChat = chatType === ChatType.PRIVATE;
     const isGroupChat = chatType === ChatType.GROUP;
@@ -405,11 +405,8 @@ const restoreChat = async (
         await privateChatRepository.restoreChat(recipientId, room);
       }
     } else if (isGroupChat) {
-      const membersWhoDeletedChat =
-        await groupRepository.findDeletedForList(room);
-      if (membersWhoDeletedChat !== null) {
-        await groupRepository.restore(room);
-      }
+      const groupId = recipientId;
+      await groupMemberRepository.restore(groupId);
     }
   } catch (error) {
     // Here the error is swallowed, this is because we don't want to block the sender's message from being delivered if restoring -

@@ -31,6 +31,12 @@ export const GroupRoomSchema = z.object({
 });
 export type GroupRoom = z.infer<typeof GroupRoomSchema>;
 
+export const GroupIdAndRoomParamsSchema = z.object({
+  groupId: z.string(),
+  room: z.uuid(),
+});
+export type GroupIdAndRoom = z.infer<typeof GroupIdAndRoomParamsSchema>;
+
 export const GroupRoomsSchema = z.array(z.object({ room: z.uuid() }));
 export type GroupRooms = z.infer<typeof GroupRoomsSchema>;
 
@@ -39,10 +45,10 @@ export const GroupPictureSchema = z.object({
 });
 export type GroupPicture = z.infer<typeof GroupPictureSchema>;
 
-export const GroupDeletedForListSchema = z.object({
-  deleted_for: z.array(z.number()).nullable(),
+export const GroupDeletionStatusSchema = z.object({
+  deleted_at: z.coerce.date(),
 });
-export type GroupDeletedForList = z.infer<typeof GroupDeletedForListSchema>;
+export type GroupDeletionStatus= z.infer<typeof GroupDeletionStatusSchema>;
 
 export const GroupUpdatedAtSchema = z.object({ updated_at: z.coerce.date() });
 export type GroupUpdatedAt = z.infer<typeof GroupUpdatedAtSchema>;

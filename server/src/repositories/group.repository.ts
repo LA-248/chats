@@ -1,5 +1,4 @@
 import {
-  GroupDeletedForList,
   GroupInfo,
   GroupPicture,
   GroupRoom,
@@ -101,15 +100,6 @@ export class Group {
     return { group_picture: result.rows[0]?.group_picture ?? null };
   };
 
-  findDeletedForList = async (room: string): Promise<GroupDeletedForList> => {
-    const result = await this.db.query(
-      'SELECT deleted_for FROM groups WHERE room = $1',
-      [room],
-    );
-
-    return { deleted_for: result.rows[0]?.deleted_for ?? null };
-  };
-
   findUpdatedAtDate = async (room: string): Promise<GroupUpdatedAt> => {
     const result = await this.db.query<GroupUpdatedAt>(
       'SELECT updated_at FROM groups WHERE room = $1',
@@ -182,17 +172,6 @@ export class Group {
         AND m.room = $2
       `,
       [messageId, room],
-    );
-  };
-
-  restore = async (room: string): Promise<void> => {
-    await this.db.query(
-      `
-      UPDATE groups
-      SET deleted_for = '{}'
-      WHERE room = $1;
-      `,
-      [room],
     );
   };
 

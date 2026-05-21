@@ -24,6 +24,7 @@ import { validate } from '../middlewares/validation.middleware.ts';
 import {
   AddGroupMembersSchema,
   CreateGroupChatSchema,
+  GroupIdAndRoomParamsSchema,
   GroupIdSchema,
   GroupRoomSchema,
   PermanentlyDeleteGroupParamsSchema,
@@ -104,7 +105,7 @@ groupChatsRouter.delete(
 groupChatsRouter.delete(
   '/:groupId/rooms/:room',
   groupChatRoomAuth,
-  validate({ params: GroupRoomSchema }),
+  validate({ params: GroupIdAndRoomParamsSchema }),
   deleteGroupChat,
 );
 

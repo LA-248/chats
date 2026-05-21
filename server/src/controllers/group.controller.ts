@@ -381,7 +381,7 @@ export const updateLastRead: RequestHandler<
   ApiErrorResponse,
   void
 > = async (req, res) => {
-  try {    
+  try {
     const userId = Number(req.params.userId);
     const groupId = Number(req.params.groupId);
 
