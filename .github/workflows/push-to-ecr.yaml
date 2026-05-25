@@ -42,7 +42,7 @@ jobs:
 
           git tag $next_server_tag
           git push origin $next_server_tag
-          echo "next_server_tag=$next_tag" >> "$GITHUB_OUTPUT"
+          echo "next_server_tag=$next_server_tag" >> "$GITHUB_OUTPUT"
 
   increment-client-tag:
     runs-on: ubuntu-latest
@@ -75,7 +75,7 @@ jobs:
 
           git tag $next_client_tag
           git push origin $next_client_tag
-          echo "next_client_tag=$next_client"tag" >> "$GITHUB_OUTPUT"
+          echo "next_client_tag=$next_client_tag" >> "$GITHUB_OUTPUT"
 
   build-server:
     runs-on: ubuntu-latest
