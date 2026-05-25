@@ -39,8 +39,8 @@ jobs:
             next_server_tag="server-v$major.$minor.$patch"
           fi
 
-          git tag $next_tag
-          git push origin $next_tag
+          git tag $next_server_tag
+          git push origin $next_server_tag
           echo "next_server_tag=$next_tag" >> "$GITHUB_OUTPUT"
 
   increment-client-tag:
@@ -71,8 +71,8 @@ jobs:
             next_client_tag="client-v$major.$minor.$patch"
           fi
 
-          git tag $next_tag
-          git push origin $next_tag
+          git tag $next_client_tag
+          git push origin $next_client_tag
           echo "next_client_tag=$next_tag" >> "$GITHUB_OUTPUT"
 
   build-server:
