@@ -24,11 +24,12 @@ jobs:
           fetch-tags: true
 
       - id: tag
+        name: Resolve latest tag and increment
         run: |
           latest_server_tag=$(git tag --list 'server-v*' --sort=-v:refname | head -n 1)
 
           if [ -z "$latest_server_tag" ]; then
-            next_tag="server-v1.0.0"
+            next_server_tag="server-v1.0.0"
           else
             version="${latest_server_tag#server-v}"
             major=$(echo "$version" | cut -d. -f1)
@@ -56,11 +57,12 @@ jobs:
           fetch-tags: true
 
       - id: tag
+        name: Resolve latest tag and increment
         run: |
           latest_client_tag=$(git tag --list 'client-v*' --sort=-v:refname | head -n 1)
 
           if [ -z "$latest_client_tag" ]; then
-            next_tag="client-v1.0.0"
+            next_client_tag="client-v1.0.0"
           else
             version="${latest_client_tag#client-v}"
             major=$(echo "$version" | cut -d. -f1)
@@ -73,7 +75,7 @@ jobs:
 
           git tag $next_client_tag
           git push origin $next_client_tag
-          echo "next_client_tag=$next_tag" >> "$GITHUB_OUTPUT"
+          echo "next_client_tag=$next_client"tag" >> "$GITHUB_OUTPUT"
 
   build-server:
     runs-on: ubuntu-latest
@@ -109,7 +111,3 @@ jobs:
           node-version: '22.20'
       - run: npm ci
       - run: npm run build
-
-# STEPS
-# Get ECR repos for frontend and backend (public.ecr.aws/v4w2k2g6/chats/frontend, public.ecr.aws/v4w2k2g6/chats/backend)
-# Rebuild Docker image and push it to ECR using the same tag (:latest)
