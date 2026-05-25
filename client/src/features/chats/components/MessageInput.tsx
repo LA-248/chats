@@ -61,7 +61,6 @@ export default function MessageInput() {
     chatId,
     room!,
     chatType,
-    setErrorMessage
   );
   useClearErrorMessage(errorMessage, setErrorMessage);
 

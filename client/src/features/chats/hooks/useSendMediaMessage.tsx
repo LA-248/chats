@@ -9,7 +9,6 @@ export function useSendMediaMessage(
   chatId: number,
   room: string,
   chatType: string,
-  setErrorMessage: React.Dispatch<React.SetStateAction<string>>
 ) {
   const socket = useSocket();
 
@@ -30,7 +29,6 @@ export function useSendMediaMessage(
         chatId,
         room,
         chatType,
-        setErrorMessage
       );
     }
   };

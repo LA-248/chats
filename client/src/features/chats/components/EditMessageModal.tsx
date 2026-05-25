@@ -8,7 +8,7 @@ import { ChatContext } from '../../../contexts/ChatContext';
 
 interface EditMessageModalProps {
   chatType: string;
-  messageId: number;
+  messageId: number | null;
   messageIndex: number | null;
   isModalOpen: boolean;
   setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -33,7 +33,7 @@ export default function EditMessageModal({
   // const [showEmojiPicker, setShowEmojiPicker] = useState<boolean>(false);
 
   const handleMessageEdit = async (
-    messageId: number,
+    messageId: number | null,
     messageIndex: number | null
   ): Promise<void> => {
     try {
@@ -44,7 +44,7 @@ export default function EditMessageModal({
         return;
       }
       // Update the database with the edited message
-      if (chatId) {
+      if (chatId && messageId) {
         await editMessageById(chatType, chatId, newMessage, messageId);
       }
 
