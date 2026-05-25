@@ -21,7 +21,7 @@ jobs:
 
       - id: tag 
         run: |
-          latest_server_tag=$(git tag --sort=-v:refname 'server-v*' | head -n 1)
+          latest_server_tag=$(git tag --list 'server-v*' --sort=-v:refname | head -n 1)
 
           if [ -z "$latest_server_tag" ]; then
             next_tag="server-v1.0.0"
@@ -53,10 +53,10 @@ jobs:
 
       - id: tag 
         run: |
-          latest_client_tag=$(git tag --sort=-v:refname 'client-v*' | head -n 1)
+          latest_client_tag=$(git tag --list 'client-v*' --sort=-v:refname | head -n 1)
 
           if [ -z "$latest_client_tag" ]; then
-            next_client_tag="client-v1.0.0"
+            next_tag="client-v1.0.0"
           else
             version="${latest_client_tag#client-v}"
             major=$(echo "$version" | cut -d. -f1)
