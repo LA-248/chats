@@ -24,6 +24,6 @@ resource "aws_s3_bucket_public_access_block" "this" {
 resource "aws_ecrpublic_repository" "this" {
   provider = aws.ecr_public
 
-  for_each = var.ecr_repo_names
+  for_each        = var.ecr_repo_names
   repository_name = each.value
 }
