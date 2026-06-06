@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chats-server
+  namespace: dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: chats-server
+  template:
+    metadata:
+      labels:
+        app: chats-server
+    spec:
+      containers:
+        - name: chats-server
+          image: public.ecr.aws/v4w2k2g6/chats/backend:dev
+          imagePullPolicy: Always
+          resources:
+            requests:
+              cpu: '25m'
+              memory: '64Mi'
+            limits:
+              cpu: '500m'
+              memory: '512Mi'
+          envFrom:
+            - secretRef:
+                name: secrets-config
