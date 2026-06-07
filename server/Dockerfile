@@ -14,6 +14,3 @@ RUN npm ci
 
 # Copy the rest of the backend source code
 COPY . .
-
-# Start the development server
-CMD ["npm", "run", "dev"]
