@@ -145,5 +145,4 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
       - name: Push server Docker image to ECR
         run: |
-          image_tag=${{ needs.build-image-server.outputs.server_image_tag }}
-          docker push ${{ secrets.ECR_REPO }}:${{ image_tag }}
+          docker push ${{ secrets.ECR_REPO }}:${{ needs.build-image-server.outputs.server_image_tag }}
