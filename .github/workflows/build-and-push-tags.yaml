@@ -113,7 +113,7 @@ jobs:
 
     env:
       ECR_REPO: ${{ secrets.ECR_REPO }}
-      AWS_REGION: ${{ vars.AWS_REGION }}
+      ECR_PUBLIC_REGION: ${{ vars.ECR_PUBLIC_REGION }}
       IMAGE_TAG: ${{ needs.increment-server-tag.outputs.latest_server_tag }}
 
     needs: 
@@ -127,11 +127,18 @@ jobs:
     steps:
       - name: Clone the repository
         uses: actions/checkout@v6
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v6.1.0
         with:
           role-to-assume: arn:aws:iam::461201847742:role/github-actions-ecr-push
-          aws-region: ${{ env.AWS_REGION }}
+          aws-region: ${{ env.ECR_PUBLIC_REGION }}
+
+      - name: Login to Amazon ECR Public
+        uses: aws-actions/amazon-ecr-login@v2
+        with:
+          registry-type: public
+
       - id: tag
         name: Build and tag Docker image
         run: |
@@ -139,7 +146,8 @@ jobs:
           image_ref="$ECR_REPO:$IMAGE_TAG"
 
           docker build -t "$ECR_REPO:$image_tag" .
-      - name: Push server Docker image to ECR
+
+      - name: Push Docker image to ECR
         run: |
           image_tag=${{ needs.increment-server-tag.outputs.latest_server_tag }}
           docker push "$ECR_REPO:$IMAGE_TAG"
