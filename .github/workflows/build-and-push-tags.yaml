@@ -3,9 +3,7 @@ name: Build and push tags
 run-name: Build and push tags
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
 
 permissions:
   contents: write
