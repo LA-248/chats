@@ -127,9 +127,9 @@ jobs:
         name: Build and tag Docker image
         run: |
           git_server_tag=${{ needs.increment-server-tag.outputs.latest_server_tag }}
-          image_tag=${{ github_server_tag }}
+          image_tag="chats:$git_server_tag"
 
-          docker build -t chats:$image_tag .
+          docker build -t $image_tag .
           echo "image_tag=$image_tag" >> "$GITHUB_OUTPUT"
       
   push-server-image-to-ecr:
