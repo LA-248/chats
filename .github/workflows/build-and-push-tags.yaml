@@ -135,7 +135,7 @@ jobs:
   push-server-image-to-ecr:
     runs-on: ubuntu-latest
     needs:
-      - build-image-server
+      - build-server-image
     
     steps:
       - name: Configure AWS credentials
