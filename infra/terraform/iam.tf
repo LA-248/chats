@@ -25,6 +25,8 @@ resource "aws_iam_role" "github_actions_ecr_push" {
         Condition = {
           StringEquals = {
             "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
+          }
+          StringLike = {
             "token.actions.githubusercontent.com:sub" = "repo:LA-248/chats:*"
           }
         }
