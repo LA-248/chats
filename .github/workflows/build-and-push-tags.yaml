@@ -1,6 +1,6 @@
-name: Build and push tags
+name: Build, tag, and push images
 
-run-name: Build and push tags
+run-name: Build, tag, and push images
 
 on:
   workflow_dispatch:
@@ -140,12 +140,48 @@ jobs:
       - id: tag
         name: Build and tag Docker image
         run: |
-          image_tag=${{ needs.increment-server-tag.outputs.latest_server_tag }}
-          image_ref="$ECR_REPO:$IMAGE_TAG"
-
-          docker build -t "$ECR_REPO:$image_tag" .
+          docker build -t "$ECR_REPO:$IMAGE_TAG" .
 
       - name: Push Docker image to ECR
         run: |
-          image_tag=${{ needs.increment-server-tag.outputs.latest_server_tag }}
+          docker push "$ECR_REPO:$IMAGE_TAG"
+
+  build-and-push-client-image:
+    runs-on: ubuntu-latest
+
+    env:
+      ECR_REPO: ${{ secrets.ECR_REPO }}
+      ECR_PUBLIC_REGION: ${{ vars.ECR_PUBLIC_REGION }}
+      IMAGE_TAG: ${{ needs.increment-client-tag.outputs.latest_client_tag }}
+
+    needs: 
+      - build-client
+      - increment-client-tag
+
+    defaults:
+      run:
+        working-directory: ./client
+    
+    steps:
+      - name: Clone the repository
+        uses: actions/checkout@v6
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6.1.0
+        with:
+          role-to-assume: arn:aws:iam::461201847742:role/github-actions-ecr-push
+          aws-region: ${{ env.ECR_PUBLIC_REGION }}
+
+      - name: Login to Amazon ECR Public
+        uses: aws-actions/amazon-ecr-login@v2
+        with:
+          registry-type: public
+
+      - id: tag
+        name: Build and tag Docker image
+        run: |
+          docker build -t "$ECR_REPO:$IMAGE_TAG" .
+
+      - name: Push Docker image to ECR
+        run: |
           docker push "$ECR_REPO:$IMAGE_TAG"
