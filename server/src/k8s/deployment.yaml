@@ -17,6 +17,8 @@ spec:
         - name: chats-server
           image: public.ecr.aws/v4w2k2g6/chats:server-v1.0.0
           imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
           resources:
             requests:
               cpu: '25m'
