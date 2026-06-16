@@ -14,3 +14,7 @@ RUN npm ci
 
 # Copy the rest of the backend source code
 COPY . .
+
+RUN npm run build
+
+CMD [ "npm",  "start" ]
