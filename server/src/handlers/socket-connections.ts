@@ -1,13 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Socket } from 'socket.io';
 import { ChatList } from '../repositories/chat-list.repository.ts';
-import '../types/socket.d.ts';
 
 async function initialiseChatRooms(socket: Socket) {
   const ChatListRepository = new ChatList();
   const joinedRooms: string[] = [];
 
-  const userId = (socket.handshake as any).session.passport.user;
+  const userId = (socket as any).request.session.passport.user;
   const chatList = await ChatListRepository.findAllChatsByUser(userId);
 
   for (let i = 0; i < chatList.length; i++) {
@@ -29,9 +28,9 @@ async function initialiseChatRooms(socket: Socket) {
 // This allows for socket connections to be associated with the correct user
 function manageSocketConnections(
   socket: Socket,
-  userSockets: Map<number, string>
+  userSockets: Map<number, string>,
 ) {
-  const userId = (socket.handshake as any).session.passport.user;
+  const userId = (socket as any).request.session.passport.user;
   userSockets.set(userId, socket.id);
 
   socket.on('disconnect', () => {

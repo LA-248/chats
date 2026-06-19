@@ -5,7 +5,6 @@ dotenv.config({
 
 import cors from 'cors';
 import express from 'express';
-import sharedSession from 'express-socket.io-session';
 import { createServer } from 'node:http';
 import passport from 'passport';
 import { Server } from 'socket.io';
@@ -57,7 +56,7 @@ const io = new Server(server, {
   },
   connectionStateRecovery: {},
 });
-io.use(sharedSession(sessionMiddleware, { autoSave: true }));
+io.engine.use(sessionMiddleware);
 app.set('io', io);
 socketHandlers(io);
 
