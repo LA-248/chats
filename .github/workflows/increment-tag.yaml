@@ -30,7 +30,7 @@ jobs:
           TAG_PREFIX: ${{ inputs.tag-prefix }}
         run: |
           latest_tag=$(git tag --list '${TAG_PREFIX}-v*' --sort=-v:refname | head -n 1)
-          echo "${TAG_PREFIX}"
+          echo "Tag prefix is ${TAG_PREFIX}"
 
           if [ -z "$latest_tag" ]; then
             next_tag="${TAG_PREFIX}-v1.0.0"
