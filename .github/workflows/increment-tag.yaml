@@ -1,0 +1,48 @@
+name: Increment tag
+
+on:
+  workflow_call:
+    inputs:
+      tag-prefix:
+        required: true
+        type: string
+    outputs:
+      latest_tag:
+        description: The newly created tag
+        value: ${{ jobs.increment-tag.outputs.latest_tag }}
+
+jobs:
+  increment-tag:
+    runs-on: ubuntu-latest
+
+    outputs:
+      latest_tag: ${{ steps.tag.outputs.next_tag }}
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - id: tag
+        name: Resolve latest tag and increment
+        env:
+          TAG_PREFIX: ${{ inputs.tag-prefix }}
+        run: |
+          latest_tag=$(git tag --list '${TAG_PREFIX}-v*' --sort=-v:refname | head -n 1)
+
+          if [ -z "$latest_tag" ]; then
+            next_tag="${TAG_PREFIX}-v1.0.0"
+          else
+            version="${latest_tag#${{ inputs.tag-prefix }}-v}"
+            major=$(echo "$version" | cut -d. -f1)
+            minor=$(echo "$version" | cut -d. -f2)
+            patch=$(echo "$version" | cut -d. -f3)
+
+            patch=$((patch + 1))
+            next_tag="${TAG_PREFIX}-v$major.$minor.$patch"
+          fi
+
+          git tag $next_tag
+          git push origin $next_tag
+          echo "next_tag=$next_tag" >> "$GITHUB_OUTPUT"
