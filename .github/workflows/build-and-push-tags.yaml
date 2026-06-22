@@ -56,7 +56,7 @@ jobs:
     env:
       ECR_REPO: ${{ secrets.ECR_REPO }}
       ECR_PUBLIC_REGION: ${{ vars.ECR_PUBLIC_REGION }}
-      IMAGE_TAG: ${{ needs.increment-server-tag.outputs.latest_server_tag }}
+      IMAGE_TAG: ${{ needs.increment-server-tag.outputs.latest_tag }}
 
     needs: 
       - build-server
@@ -96,7 +96,7 @@ jobs:
     env:
       ECR_REPO: ${{ secrets.ECR_REPO }}
       ECR_PUBLIC_REGION: ${{ vars.ECR_PUBLIC_REGION }}
-      IMAGE_TAG: ${{ needs.increment-client-tag.outputs.latest_client_tag }}
+      IMAGE_TAG: ${{ needs.increment-client-tag.outputs.latest_tag }}
 
     needs: 
       - build-client
