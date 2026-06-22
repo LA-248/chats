@@ -29,7 +29,7 @@ jobs:
         env:
           TAG_PREFIX: ${{ inputs.tag-prefix }}
         run: |
-          latest_tag=$(git tag --list '${TAG_PREFIX}-v*' --sort=-v:refname | head -n 1)
+          latest_tag=$(git tag --list "${TAG_PREFIX}-v*" --sort=-v:refname | head -n 1)
           echo "Tag prefix is ${TAG_PREFIX}"
 
           if [ -z "$latest_tag" ]; then
