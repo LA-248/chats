@@ -55,6 +55,8 @@ jobs:
     with:
       image_tag: ${{ needs.increment-server-tag.outputs.latest_tag }} 
       working_directory: ./server
+    secrets:
+      ECR_REPO: ${{ secrets.ECR_REPO }}
 
     needs: 
       - build-server
@@ -65,6 +67,8 @@ jobs:
     with:
       image_tag: ${{ needs.increment-client-tag.outputs.latest_tag }} 
       working_directory: ./client
+    secrets:
+      ECR_REPO: ${{ secrets.ECR_REPO }}
 
     needs: 
       - build-client

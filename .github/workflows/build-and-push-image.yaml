@@ -9,6 +9,9 @@ on:
       working_directory:
         type: string
         required: true
+    secrets:
+      ECR_REPO:
+        required: true
 
 jobs:
   build-and-push-image:
