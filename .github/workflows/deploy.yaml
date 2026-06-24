@@ -1,6 +1,6 @@
-name: Build, tag, and push images
+name: Deploy 
 
-run-name: Build, tag, and push images
+run-name: Deploy
 
 on:
   workflow_dispatch:
