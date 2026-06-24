@@ -1,4 +1,4 @@
-name: Increment tag
+name: Reusable - Increment tag
 
 on:
   workflow_call:

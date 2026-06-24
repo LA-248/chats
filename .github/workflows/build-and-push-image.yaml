@@ -1,4 +1,4 @@
-name: Build, tag, and push image
+name: Reusable - Build, tag, and push image
 
 run-name: Build, tag, and push image
 
