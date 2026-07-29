@@ -3,8 +3,8 @@ import { Server } from 'socket.io';
 import {
   displayChatMessages,
   handleChatMessages,
-  updateMostRecentMessage,
   updateMessageList,
+  updateMostRecentMessage,
 } from './message-handlers.ts';
 import {
   initialiseChatRooms,
@@ -17,11 +17,8 @@ const userSockets = new Map<number, string>();
 const socketHandlers = (io: Server) => {
   io.on('connection', (socket) => {
     // Check if user is authenticated
-    if (
-      (socket.handshake as any).session.passport.user &&
-      (socket.handshake as any).session.passport.user
-    ) {
-      const userId = (socket.handshake as any).session.passport.user;
+    if ((socket.handshake as any).request.session.passport.user) {
+      const userId = (socket.handshake as any).request.session.passport.user;
       console.log(`User connected`);
       console.log(`User ID: ${userId}`);
 
@@ -38,6 +35,7 @@ const socketHandlers = (io: Server) => {
       });
     } else {
       socket.disconnect();
+      return;
     }
   });
 };

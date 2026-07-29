@@ -37,7 +37,7 @@ export const handleChatMessages = (socket: Socket, io: Server): void => {
         fileKey,
       } = data;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const senderId = (socket.handshake as any).session.passport.user;
+      const senderId = (socket as any).request.session.passport.user;;
       const isImage = messageType === MessageType.IMAGE;
 
       try {

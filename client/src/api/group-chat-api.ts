@@ -166,8 +166,7 @@ export async function deleteGroupChat(
   room: string,
 ): Promise<void> {
   const response = await fetch(
-    `${
-      import.meta.env.VITE_SERVER_BASE_URL
+    `${import.meta.env.VITE_SERVER_BASE_URL
     }/api/chats/groups/${groupId}/rooms/${room}`,
     {
       method: 'DELETE',
@@ -209,8 +208,7 @@ export async function removeGroupMember(
   userId: number,
 ): Promise<string> {
   const response = await fetch(
-    `${
-      import.meta.env.VITE_SERVER_BASE_URL
+    `${import.meta.env.VITE_SERVER_BASE_URL
     }/api/chats/groups/${groupId}/members/${userId}`,
     {
       method: 'DELETE',
@@ -235,8 +233,7 @@ export async function updateGroupMemberRole(
   newRole: string,
 ): Promise<string> {
   const response = await fetch(
-    `${
-      import.meta.env.VITE_SERVER_BASE_URL
+    `${import.meta.env.VITE_SERVER_BASE_URL
     }/api/chats/groups/${groupId}/members/${userId}`,
     {
       method: 'PUT',
