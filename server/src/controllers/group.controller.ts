@@ -358,7 +358,7 @@ export const updateGroupPicture: RequestHandler<
 
     const file = req.file as Express.MulterS3.File;
     const { fileUrl, groupId, name } = await uploadGroupPicture(
-      Number(req.params.groupId),
+      Number(req.params.id),
       file,
       io,
     );

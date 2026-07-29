@@ -1,4 +1,4 @@
-import express, { NextFunction, Request, Response } from 'express';
+import express from 'express';
 import {
   deleteMessage,
   editMessage,
@@ -9,13 +9,13 @@ import {
   authoriseMessageDeletion,
   enforceMessageEditRules,
 } from '../middlewares/message.middleware.ts';
-import handleMulterError from '../middlewares/multer.middleware.ts';
 import { validate } from '../middlewares/validation.middleware.ts';
 import {
   EditMessageBodySchema,
   EditMessageParamsSchema,
 } from '../schemas/message.schema.ts';
-import { s3ChatMediaUpload } from '../services/s3.service.ts';
+import { mediaUploadMiddleware } from '../middlewares/media-upload.middleware.ts';
+import { MulterUploadField, S3AttachmentsStoragePath } from '../types/chat.ts';
 
 const messagesRouter = express.Router();
 messagesRouter.use(requireAuth);
@@ -32,15 +32,11 @@ messagesRouter.delete(
   deleteMessage,
 );
 messagesRouter.post(
-  '/:type/:chatId/media',
-  (req: Request, res: Response, next: NextFunction) => {
-    s3ChatMediaUpload.single('media-upload')(req, res, (err) => {
-      if (err) {
-        return handleMulterError(err, req, res, next);
-      }
-      next();
-    });
-  },
+  '/:type/:id/media',
+  mediaUploadMiddleware(
+    MulterUploadField.MEDIA_UPLOAD,
+    S3AttachmentsStoragePath.CHAT_ATTACHMENTS
+  ),
   uploadMedia,
 );
 

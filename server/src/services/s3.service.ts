@@ -13,7 +13,6 @@ import NodeCache from 'node-cache';
 import { ChatDto } from '../schemas/private-chat.schema.ts';
 import {
   ChatType,
-  S3AttachmentsStoragePath,
   S3AvatarStoragePath,
 } from '../types/chat.ts';
 const pictureUrlCache = new NodeCache({ stdTTL: 604800 });
@@ -26,61 +25,30 @@ export const s3Client = new S3Client({
   region: process.env.AWS_REGION,
 });
 
-// Stream file directly to S3 using multer-s3
-export const s3UserPictureUpload = multer({
-  storage: multerS3({
-    s3: s3Client,
-    bucket: process.env.BUCKET_NAME,
-    cacheControl: 'max-age=31536000', // Cache the uploaded image - reducing the need to re-fetch it from the database
-    metadata: function (req, file, cb) {
-      cb(null, { fieldName: file.fieldname });
-    },
-    key: function (req: Request, file, cb) {
-      const userId = req.params.id;
-      const fileName = file.originalname;
-      cb(null, `${S3AvatarStoragePath.USER_AVATARS}/${userId}/${fileName}`);
-    },
-  }),
-  limits: { fileSize: 10 * 1024 * 1024 },
-});
-
-export const s3GroupPictureUpload = multer({
-  storage: multerS3({
-    s3: s3Client,
-    bucket: process.env.BUCKET_NAME,
-    cacheControl: 'max-age=31536000', // Cache the uploaded image - reducing the need to re-fetch it from the database
-    metadata: function (req, file, cb) {
-      cb(null, { fieldName: file.fieldname });
-    },
-    key: function (req: Request, file, cb) {
-      const groupId = req.params.groupId;
-      const fileName = file.originalname;
-      cb(null, `${S3AvatarStoragePath.GROUP_AVATARS}/${groupId}/${fileName}`);
-    },
-  }),
-  limits: { fileSize: 10 * 1024 * 1024 },
-});
-
-export const s3ChatMediaUpload = multer({
-  storage: multerS3({
-    s3: s3Client,
-    bucket: process.env.BUCKET_NAME,
-    cacheControl: 'max-age=31536000', // Cache the uploaded image - reducing the need to re-fetch it from the database
-    metadata: function (req, file, cb) {
-      cb(null, { fieldName: file.fieldname });
-    },
-    key: function (req: Request, file, cb) {
-      const chatType = req.params.type;
-      const chatId = req.params.chatId;
-      const fileName = file.originalname;
-      cb(
-        null,
-        `${S3AttachmentsStoragePath.CHAT_ATTACHMENTS}/${chatType}/${chatId}/${fileName}`,
-      );
-    },
-  }),
-  limits: { fileSize: 2 * 1024 * 1024 * 1024 },
-});
+export const createS3Uploader = ({
+  id,
+  storagePathPrefix,
+  maxFileSize = 10 * 1024 * 1024,
+}: { id: string, storagePathPrefix: string, maxFileSize?: number }) =>
+  multer({
+    storage: multerS3({
+      s3: s3Client,
+      bucket: process.env.BUCKET_NAME!,
+      cacheControl: 'max-age=31536000', // Cache the uploaded image - reducing the need to re-fetch it from the database
+      metadata: function (_req, file, cb) {
+        cb(null, { fieldName: file.fieldname });
+      },
+      key: function (_req: Request, file, cb) {
+        const fileName = file.originalname;
+        const storagePath = `${storagePathPrefix}/${id}/${fileName}`;
+        cb(
+          null,
+          storagePath,
+        );
+      },
+    }),
+    limits: { fileSize: maxFileSize },
+  });
 
 // Delete object from S3 bucket
 export const deleteS3Object = async (
@@ -158,7 +126,7 @@ export const generatePresignedUrlsForChatList = async (
       }
 
       // If there is a cache of the picture for the given chat, use it and skip to the next chat
-      const cachedUrl = pictureUrlCache.get<string>(fileName);
+      const cachedUrl = pictureUrlCache.get<string>(objectKey);
       if (cachedUrl) {
         chat.chat_picture = cachedUrl;
         continue;
@@ -169,7 +137,7 @@ export const generatePresignedUrlsForChatList = async (
         process.env.BUCKET_NAME!,
         objectKey,
       );
-      pictureUrlCache.set(fileName, presignedUrl); // Cache the newly generated picture url
+      pictureUrlCache.set(objectKey, presignedUrl); // Cache the newly generated picture url
       chat.chat_picture = presignedUrl;
     }
   } catch (error: unknown) {

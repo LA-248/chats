@@ -1,4 +1,4 @@
-import express, { NextFunction, Request, Response } from 'express';
+import express from 'express';
 import {
   retrieveBlockListById,
   retrieveIdByUsername,
@@ -9,7 +9,6 @@ import {
   uploadProfilePicture,
 } from '../controllers/user.controller.ts';
 import { requireAuth } from '../middlewares/auth.middleware.ts';
-import handleMulterError from '../middlewares/multer.middleware.ts';
 import { validate } from '../middlewares/validation.middleware.ts';
 import {
   RetrieveIdByUsernameParamsSchema,
@@ -19,7 +18,8 @@ import {
   UploadProfilePictureParamsSchema,
   UserDataAuthSchema,
 } from '../schemas/user.schema.ts';
-import { s3UserPictureUpload } from '../services/s3.service.ts';
+import { mediaUploadMiddleware } from '../middlewares/media-upload.middleware.ts';
+import { MulterUploadField, S3AvatarStoragePath } from '../types/chat.ts';
 
 const usersRouter = express.Router();
 usersRouter.use(requireAuth);
@@ -60,14 +60,7 @@ usersRouter.put(
 usersRouter.post(
   '/:id/pictures',
   validate({ params: UploadProfilePictureParamsSchema }),
-  (req: Request, res: Response, next: NextFunction) => {
-    s3UserPictureUpload.single('profile-picture')(req, res, (err) => {
-      if (err) {
-        return handleMulterError(err, req, res, next);
-      }
-      next();
-    });
-  },
+  mediaUploadMiddleware(MulterUploadField.USER_AVATAR, S3AvatarStoragePath.USER_AVATARS),
   uploadProfilePicture,
 );
 

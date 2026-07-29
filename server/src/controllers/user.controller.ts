@@ -30,9 +30,9 @@ export const retrieveLoggedInUserData: RequestHandler<
   try {
     const profilePictureUrl = req.user?.profile_picture
       ? await createProfilePictureUrl(
-          req.user.user_id,
-          req.user.profile_picture,
-        )
+        req.user.user_id,
+        req.user.profile_picture,
+      )
       : null;
 
     res.status(200).json({
@@ -83,7 +83,7 @@ export const retrieveIdByUsername: RequestHandler<
   RetrieveIdByUsernameResponseDto | ApiErrorResponse
 > = async (req, res) => {
   try {
-    const username = String(req.params.username);
+    const username = req.params.username;
     const user = await retrieveUserIdByUsername(username);
     if (!user) {
       throw new Error(

@@ -12,6 +12,12 @@ export enum S3AttachmentsStoragePath {
   CHAT_ATTACHMENTS = 'attachments/chats',
 }
 
+export enum MulterUploadField {
+  USER_AVATAR = 'profile-picture',
+  GROUP_PICTURE = 'group-picture',
+  MEDIA_UPLOAD = 'media-upload',
+}
+
 export interface ChatHandler {
   getMembers: (room: string) => Promise<number[]>;
   postInsert: (

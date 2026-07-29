@@ -17,9 +17,9 @@ export const createProfilePictureUrl = async (
 ): Promise<string | null> => {
   return profilePicture
     ? await createPresignedUrl(
-        process.env.BUCKET_NAME!,
-        `${S3AvatarStoragePath.USER_AVATARS}/${userId}/${profilePicture}`,
-      )
+      process.env.BUCKET_NAME!,
+      `${S3AvatarStoragePath.USER_AVATARS}/${userId}/${profilePicture}`,
+    )
     : null;
 };
 
@@ -39,9 +39,9 @@ export const retrieveRecipientData = async (
 
   const profilePictureUrl = recipient.profile_picture
     ? await createPresignedUrl(
-        process.env.BUCKET_NAME!,
-        `${S3AvatarStoragePath.USER_AVATARS}/${recipient.user_id}/${recipient.profile_picture}`,
-      )
+      process.env.BUCKET_NAME!,
+      `${S3AvatarStoragePath.USER_AVATARS}/${recipient.user_id}/${recipient.profile_picture}`,
+    )
     : null;
 
   return { recipient, profilePictureUrl };
@@ -65,9 +65,9 @@ export const retrieveUserById = async (id: number): Promise<UserProfile> => {
 
     const profilePictureUrl = user.profile_picture
       ? await createPresignedUrl(
-          process.env.BUCKET_NAME!,
-          `${S3AvatarStoragePath.USER_AVATARS}/${userId}/${user.profile_picture}`,
-        )
+        process.env.BUCKET_NAME!,
+        `${S3AvatarStoragePath.USER_AVATARS}/${userId}/${user.profile_picture}`,
+      )
       : null;
 
     return { user_id: userId, username, profile_picture: profilePictureUrl };

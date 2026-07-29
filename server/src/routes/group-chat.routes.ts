@@ -1,4 +1,4 @@
-import express, { NextFunction, Request, Response } from 'express';
+import express from 'express';
 import {
   addMembers,
   createGroupChat,
@@ -19,7 +19,6 @@ import {
   groupChatRoomAuth,
   requireAuth,
 } from '../middlewares/auth.middleware.ts';
-import handleMulterError from '../middlewares/multer.middleware.ts';
 import { validate } from '../middlewares/validation.middleware.ts';
 import {
   AddGroupMembersSchema,
@@ -36,7 +35,8 @@ import {
   UpdateMemberRoleBodySchema,
   UpdateMemberRoleParamsSchema,
 } from '../schemas/group.schema.ts';
-import { s3GroupPictureUpload } from '../services/s3.service.ts';
+import { mediaUploadMiddleware } from '../middlewares/media-upload.middleware.ts';
+import { MulterUploadField, S3AvatarStoragePath } from '../types/chat.ts';
 
 const groupChatsRouter = express.Router();
 groupChatsRouter.use(requireAuth);
@@ -55,17 +55,10 @@ groupChatsRouter.post(
   addMembers,
 );
 groupChatsRouter.post(
-  '/:groupId/pictures',
+  '/:id/pictures',
   groupChatRoomAuth,
   validate({ params: UpdateGroupPictureParamsSchema }),
-  (req: Request, res: Response, next: NextFunction) => {
-    s3GroupPictureUpload.single('group-picture')(req, res, (err) => {
-      if (err) {
-        return handleMulterError(err, req, res, next);
-      }
-      next();
-    });
-  },
+  mediaUploadMiddleware(MulterUploadField.GROUP_PICTURE, S3AvatarStoragePath.GROUP_AVATARS),
   updateGroupPicture,
 );
 

@@ -48,7 +48,7 @@ export type GroupPicture = z.infer<typeof GroupPictureSchema>;
 export const GroupDeletionStatusSchema = z.object({
   deleted_at: z.coerce.date(),
 });
-export type GroupDeletionStatus= z.infer<typeof GroupDeletionStatusSchema>;
+export type GroupDeletionStatus = z.infer<typeof GroupDeletionStatusSchema>;
 
 export const GroupUpdatedAtSchema = z.object({ updated_at: z.coerce.date() });
 export type GroupUpdatedAt = z.infer<typeof GroupUpdatedAtSchema>;
@@ -123,7 +123,7 @@ export type PermanentlyDeleteGroupParamsDto = z.infer<
 >;
 
 export const UpdateGroupPictureParamsSchema = z.object({
-  groupId: z.string(),
+  id: z.string(),
 });
 export type UpdateGroupPictureParamsDto = z.infer<
   typeof UpdateGroupPictureParamsSchema
