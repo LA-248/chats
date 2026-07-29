@@ -9,13 +9,11 @@ import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { Request } from 'express';
 import multer from 'multer';
 import multerS3 from 'multer-s3';
-import NodeCache from 'node-cache';
 import { ChatDto } from '../schemas/private-chat.schema.ts';
 import {
   ChatType,
   S3AvatarStoragePath,
 } from '../types/chat.ts';
-const pictureUrlCache = new NodeCache({ stdTTL: 604800 });
 
 if (!process.env.AWS_REGION || !process.env.BUCKET_NAME) {
   throw new Error('Missing AWS configuration environment variables');
@@ -110,44 +108,52 @@ export const createPresignedUrl = (
 
 // For each chat in the chat list, generate a presigned S3 url using the recipient's profile picture file name
 // This url is required to display the recipient's profile picture in the chat list
-export const generatePresignedUrlsForChatList = async (
+export const generateChatListPresignedUrls = async (
   chatList: ChatDto[],
-): Promise<void> => {
+): Promise<ChatDto[]> => {
   try {
-    for (const chat of chatList) {
-      const fileName = chat.chat_picture;
-      const isPrivateChat = chat.chat_type === ChatType.PRIVATE;
-      const objectKey = buildS3AvatarObjectKey(chat, isPrivateChat);
+    const results = await Promise.allSettled(
+      chatList.map(async (chat) => {
+        if (!chat.chat_picture) {
+          return null;
+        }
 
-      // If the chat has no associated picture, set it to null and skip to the next chat
-      if (!fileName) {
-        chat.chat_picture = null;
-        continue;
+        const isPrivateChat = chat.chat_type === ChatType.PRIVATE;
+        const objectKey = buildAvatarObjectKey(chat, isPrivateChat);
+
+        const presignedUrl = createPresignedUrl(
+          process.env.BUCKET_NAME!,
+          objectKey,
+        );
+        return presignedUrl;
+      })
+    )
+
+    const updatedChatList = results.map((result, index) => {
+      const chat = chatList[index];
+
+      if (result.status === "fulfilled") {
+        return { ...chat, chat_picture: result.value };
+      } else {
+        console.error("Error loading profile picture:", result.reason);
+        return { ...chat, chat_picture: null };
       }
+    })
 
-      // If there is a cache of the picture for the given chat, use it and skip to the next chat
-      const cachedUrl = pictureUrlCache.get<string>(objectKey);
-      if (cachedUrl) {
-        chat.chat_picture = cachedUrl;
-        continue;
-      }
+    return updatedChatList;
+  } catch (error) {
+    // An unexpected picture processing error shouldn't prevent the entire chat list from being rendered
+    // This handles unexpected errors gracefully by still rendering the chat list but setting all chat pictures to null
+    console.error("Unexpected error generating chat picture URLs:", error);
 
-      // If there is no cached url, create a new presigned S3 url
-      const presignedUrl = await createPresignedUrl(
-        process.env.BUCKET_NAME!,
-        objectKey,
-      );
-      pictureUrlCache.set(objectKey, presignedUrl); // Cache the newly generated picture url
-      chat.chat_picture = presignedUrl;
-    }
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      throw error;
-    }
+    return chatList.map((chat) => ({
+      ...chat,
+      chat_picture: null,
+    }));
   }
 };
 
-function buildS3AvatarObjectKey(chat: ChatDto, isPrivateChat: boolean) {
+function buildAvatarObjectKey(chat: ChatDto, isPrivateChat: boolean) {
   if (isPrivateChat) {
     const fileName = chat.chat_picture;
     const recipientId = chat.recipient_user_id;

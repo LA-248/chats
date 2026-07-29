@@ -7,7 +7,7 @@ import { ChatDeletionStatus, ChatDto } from '../schemas/private-chat.schema.ts';
 import { S3AvatarStoragePath } from '../types/chat.ts';
 import {
   createPresignedUrl,
-  generatePresignedUrlsForChatList,
+  generateChatListPresignedUrls,
 } from './s3.service.ts';
 
 export const handleChatAddition = async (
@@ -72,9 +72,9 @@ export const getChat = async (
 
   const profilePictureUrl = profilePictureName
     ? await createPresignedUrl(
-        process.env.BUCKET_NAME!,
-        `${S3AvatarStoragePath.USER_AVATARS}/${recipientId}/${profilePictureName}`,
-      )
+      process.env.BUCKET_NAME!,
+      `${S3AvatarStoragePath.USER_AVATARS}/${recipientId}/${profilePictureName}`,
+    )
     : null;
 
   return { ...chat, chat_picture: profilePictureUrl };
@@ -112,6 +112,5 @@ export const addNewPrivateChat = async (
 export const getChatListByUser = async (userId: number): Promise<ChatDto[]> => {
   const ChatListRepository = new ChatList();
   const chatList = await ChatListRepository.findAllChatsByUser(userId);
-  await generatePresignedUrlsForChatList(chatList);
-  return chatList;
+  return generateChatListPresignedUrls(chatList);
 };
