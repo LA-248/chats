@@ -5,7 +5,7 @@ import {
 } from '../middlewares/message.middleware.ts';
 import { GroupMember } from '../repositories/group-member.repository.ts';
 import { Group } from '../repositories/group.repository.ts';
-import { Message } from '../repositories/message.repository.ts';
+import { Message as MessageRepository } from '../repositories/message.repository.ts';
 import { PrivateChat } from '../repositories/private-chat.repository.ts';
 import {
   FormattedMessage,
@@ -19,12 +19,12 @@ import {
   ChatType,
   S3AttachmentsStoragePath,
 } from '../types/chat.ts';
-import { MessageEvent, MessageType } from '../types/message.ts';
+import { Message, ClientMessageEventPayload, MessageType } from '../types/message.ts';
 
 export const handleChatMessages = (socket: Socket, io: Server): void => {
   socket.on(
     'chat-message',
-    async (data: MessageEvent, clientOffset, callback) => {
+    async (data: ClientMessageEventPayload, clientOffset, callback) => {
       // In the context of private chats, chatId equals the ID of the recipient
       // fileKey is used for media uploads
       const {
@@ -37,7 +37,7 @@ export const handleChatMessages = (socket: Socket, io: Server): void => {
         fileKey,
       } = data;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const senderId = (socket as any).request.session.passport.user;;
+      const senderId = (socket as any).request.session.passport.user;
       const isImage = messageType === MessageType.IMAGE;
 
       try {
@@ -60,17 +60,13 @@ export const handleChatMessages = (socket: Socket, io: Server): void => {
           ),
           restoreChat(chatId, room, chatType),
         ]);
+        const messageContent = isImage ? await createPresignedUrl(process.env.BUCKET_NAME!, fileKey as string) : content;
 
         broadcastMessage(
           io,
           room,
           username,
-          isImage
-            ? await createPresignedUrl(
-                process.env.BUCKET_NAME!,
-                fileKey as string,
-              )
-            : content,
+          messageContent,
           senderId,
           newMessage,
           chatType,
@@ -105,7 +101,7 @@ export const displayChatMessages = async (
 ): Promise<void> => {
   if (!socket.recovered) {
     try {
-      const messageRepository = new Message();
+      const messageRepository = new MessageRepository();
 
       // Get messages from database for display, filtered by room
       const messages = await messageRepository.findMessageList(
@@ -136,7 +132,7 @@ export const updateMostRecentMessage = (socket: Socket, io: Server): void => {
   socket.on('last-message-updated', async (data) => {
     const { room, chatType } = data;
     try {
-      const messageRepository = new Message();
+      const messageRepository = new MessageRepository();
       const privateChatRepository = new PrivateChat();
       const groupRepository = new Group();
 
@@ -180,7 +176,7 @@ export const updateMostRecentMessage = (socket: Socket, io: Server): void => {
 export const updateMessageList = (socket: Socket, io: Server): void => {
   socket.on('message-list-update-event', async (room, updateType) => {
     try {
-      const messageRepository = new Message();
+      const messageRepository = new MessageRepository();
 
       const messages = await messageRepository.findMessageList(
         socket.handshake.auth.serverOffset,
@@ -213,9 +209,9 @@ const formatMessage = async (
 
   const content = isImage
     ? await createPresignedUrl(
-        process.env.BUCKET_NAME!,
-        `${S3AttachmentsStoragePath.CHAT_ATTACHMENTS}/${chatType}/${chatId}/${message.content}`,
-      )
+      process.env.BUCKET_NAME!,
+      `${S3AttachmentsStoragePath.CHAT_ATTACHMENTS}/${chatType}/${chatId}/${message.content}`,
+    )
     : message.content;
 
   return {
@@ -225,7 +221,7 @@ const formatMessage = async (
     id: message.message_id,
     senderId: message.sender_id,
     isEdited: message.is_edited,
-    type: message.type,
+    messageType: message.type,
   };
 };
 
@@ -330,7 +326,7 @@ const saveMessageInDatabase = async (
   let newMessage: NewMessage | undefined;
 
   try {
-    const messageRepository = new Message();
+    const messageRepository = new MessageRepository();
     const chatHandler = CHAT_HANDLERS[chatType];
     const isPrivateChat = chatType === ChatType.PRIVATE;
     const isGroupChat = chatType === ChatType.GROUP;
@@ -341,8 +337,8 @@ const saveMessageInDatabase = async (
       message,
       senderId,
       // Terrible hack to get past the foreign key constraint in the messages table
-      // This error happens because the recipient id in the messages table references the users table,
-      // when sending messages in a group chat, the group id is used as the recipient id which does not exist in the user's table
+      // This error happens because the recipient id in the messages table references the users table.
+      // When sending messages in a group chat, the group id is used as the recipient id which does not exist in the user's table
       // TODO: Create distinct tables for private and group chat messages
       isPrivateChat ? chatId : null,
       isGroupChat ? chatId : null,
@@ -365,7 +361,7 @@ const saveMessageInDatabase = async (
   } catch (error) {
     // TODO: Use database transactions instead of manually deleting inserted messages when an error occurs
     if (newMessage) {
-      const messageRepository = new Message();
+      const messageRepository = new MessageRepository();
       await messageRepository.deleteMessage(senderId, newMessage.message_id);
     }
     if (error instanceof Error) {
@@ -424,18 +420,20 @@ const broadcastMessage = (
   senderId: number,
   newMessage: NewMessage,
   chatType: ChatType,
-  type: MessageType,
+  messageType: MessageType,
 ): void => {
-  io.to(room).emit('chat-message', {
+  const payload: Message = {
     from: username,
-    content: content,
-    room: room,
+    content,
+    room,
     eventTime: newMessage.event_time,
     id: newMessage.message_id,
-    senderId: senderId,
-    chatType: chatType,
-    type: type,
-  });
+    senderId,
+    chatType,
+    messageType,
+  }
+
+  io.to(room).emit('chat-message', payload);
 };
 
 // Update the chat's preview info in the chat list for everyone in the room

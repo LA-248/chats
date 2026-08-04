@@ -37,7 +37,7 @@ export const FormattedMessageSchema = z.object({
   id: z.number(),
   senderId: z.number().int().positive(),
   isEdited: z.boolean(),
-  type: z.string(),
+  messageType: z.string(),
 });
 export type FormattedMessage = z.infer<typeof FormattedMessageSchema>;
 

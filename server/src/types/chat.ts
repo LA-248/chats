@@ -18,7 +18,7 @@ export enum MulterUploadField {
   MEDIA_UPLOAD = 'media-upload',
 }
 
-export interface ChatHandler {
+export type ChatHandler = {
   getMembers: (room: string) => Promise<number[]>;
   postInsert: (
     senderId: number,
@@ -28,6 +28,6 @@ export interface ChatHandler {
   ) => Promise<Date>;
 }
 
-export interface ChatRoom {
+export type ChatRoom = {
   room: string | null;
 }

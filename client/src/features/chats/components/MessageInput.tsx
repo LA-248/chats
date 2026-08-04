@@ -1,12 +1,13 @@
 import { v4 as uuidv4 } from 'uuid';
-import { useContext, useRef, useState } from 'react';
-import { useLocation, useParams } from 'react-router-dom';
+import { useContext, useEffect, useRef, useState } from 'react';
+import { useMatch, useParams } from 'react-router-dom';
 import { useSocket } from '../../../hooks/useSocket';
 import { UserContext } from '../../../contexts/UserContext';
 import { ChatContext } from '../../../contexts/ChatContext';
-import { MessageType } from '../../../types/message';
+import { MessageType, type ClientMessageEventPayload } from '../../../types/message';
 import { useSendMediaMessage } from '../hooks/useSendMediaMessage';
 import useClearErrorMessage from '../../../hooks/useClearErrorMessage';
+import { ChatType } from '../../../types/chat';
 
 export default function MessageInput() {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -14,10 +15,11 @@ export default function MessageInput() {
     null
   ) as React.RefObject<HTMLFormElement>;
   const socket = useSocket();
-  const location = useLocation();
-  const pathSegments = location.pathname.split('/');
-  const chatType = pathSegments[1];
   const { room } = useParams();
+  const isPrivate = useMatch("/chats/:room") !== null;
+  const chatType: ChatType = isPrivate
+    ? ChatType.PRIVATE
+    : ChatType.GROUP;
 
   const { chatId } = useContext(ChatContext);
   const { loggedInUsername, isBlocked } = useContext(UserContext);
@@ -33,16 +35,19 @@ export default function MessageInput() {
   ): void => {
     event.preventDefault();
     if (message) {
-      if (!socket) return;
+      if (!socket || !room) return;
       const content = message;
 
-      // Compute a unique offset
-      const clientOffset = uuidv4();
+      const messagePayload: ClientMessageEventPayload =
+        { username, chatId, content, room, chatType, messageType };
+
+      const clientOffset = uuidv4(); // Compute a unique offset
+
+
       // Send the message and its metadata to the server
       socket.emit(
         'chat-message',
-        { username, chatId, content, room, chatType, messageType },
-        clientOffset,
+        messagePayload, clientOffset,
         (response: string) => {
           if (response) {
             setErrorMessage(response);

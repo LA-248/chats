@@ -201,15 +201,14 @@ export default function MessageList({
                     <div className='message-metadata'>
                       <div className='message-details'>
                         <div
-                          className={`message-from ${
-                            loggedInUserId !== messageData.senderId &&
+                          className={`message-from ${loggedInUserId !== messageData.senderId &&
                             isPrivateChat
-                              ? 'clickable'
-                              : ''
-                          }`}
+                            ? 'clickable'
+                            : ''
+                            }`}
                           onClick={() =>
                             loggedInUserId !== messageData.senderId &&
-                            isPrivateChat
+                              isPrivateChat
                               ? setIsModalOpen(true)
                               : null
                           }
@@ -220,9 +219,9 @@ export default function MessageList({
                           {formatDate(messageData.eventTime)}
                         </div>
                         {hoveredIndex === index &&
-                        loggedInUserId === messageData.senderId ? (
+                          loggedInUserId === messageData.senderId ? (
                           <div className='message-actions-button'>
-                            {messageData.type === MessageType.TEXT ? (
+                            {messageData.messageType === MessageType.TEXT ? (
                               <div
                                 className='message-edit-button'
                                 onClick={() => {
@@ -249,7 +248,7 @@ export default function MessageList({
                         ) : null}
                       </div>
                       <div className='message-content-container'>
-                        {messageData.type === MessageType.TEXT ? (
+                        {messageData.messageType === MessageType.TEXT ? (
                           <div className='message-content'>
                             {messageData.content}
                           </div>

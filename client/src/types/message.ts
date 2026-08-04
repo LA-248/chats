@@ -1,16 +1,28 @@
-export interface Message {
+import type { ChatType } from './chat';
+
+export type Message = {
   from: string;
   content: string;
+  room: string;
   eventTime: Date;
   id: number;
   senderId: number;
-  isEdited: boolean;
-  chatType?: string;
-  room?: string;
-  type: string;
+  isEdited?: boolean;
+  chatType: ChatType;
+  messageType: MessageType;
 }
 
-export interface MessageContextType {
+export type ClientMessageEventPayload = {
+  username: string;
+  chatId: number;
+  content: string;
+  room: string;
+  chatType: ChatType;
+  messageType: MessageType;
+  fileKey?: string;
+}
+
+export type MessageContextType = {
   messages: Message[];
   setMessages: React.Dispatch<React.SetStateAction<Message[]>>;
   currentMessage: string;

@@ -1,6 +1,19 @@
+import { NewMessage } from '../schemas/message.schema.ts';
 import { ChatType } from './chat.ts';
 
-export interface MessageEvent {
+export type Message = {
+  from: string;
+  content: string;
+  room: string;
+  eventTime: NewMessage['event_time'];
+  id: NewMessage['message_id'];
+  senderId: number;
+  isEdited?: boolean;
+  chatType: ChatType;
+  messageType: MessageType;
+}
+
+export type ClientMessageEventPayload = {
   username: string;
   chatId: number;
   content: string;
@@ -10,7 +23,7 @@ export interface MessageEvent {
   fileKey?: string;
 }
 
-export interface MessageSenderId {
+export type MessageSenderId = {
   messageSenderId: number;
 }
 
