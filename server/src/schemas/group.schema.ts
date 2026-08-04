@@ -91,7 +91,10 @@ export const GroupChatAuthParamsSchema = z
     message: 'Either room or groupId is required',
   });
 
-export const GroupIdSchema = z.number();
+export const GroupIdSchema = z.object({
+  groupId: z.string().trim().min(1),
+});
+export type GroupIdParamsDto = z.infer<typeof GroupIdSchema>;
 
 export const RemoveKickedGroupMemberParamsSchema = z.object({
   groupId: z.string(),
@@ -123,7 +126,7 @@ export type PermanentlyDeleteGroupParamsDto = z.infer<
 >;
 
 export const UpdateGroupPictureParamsSchema = z.object({
-  id: z.string(),
+  groupId: z.string(),
 });
 export type UpdateGroupPictureParamsDto = z.infer<
   typeof UpdateGroupPictureParamsSchema

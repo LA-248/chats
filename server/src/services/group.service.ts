@@ -294,7 +294,7 @@ export const permanentlyDeleteGroupChat = async (
 
 // TODO: Use database transactions
 export const uploadGroupPicture = async (
-  id: number,
+  id: number, // groupId sent as part of the request
   file: Express.MulterS3.File,
   io: Server,
 ): Promise<UpdateGroupPictureDto> => {
@@ -314,10 +314,16 @@ export const uploadGroupPicture = async (
     );
   }
 
-  const [fileUrl, { groupId, name }] = await Promise.all([
+  const [fileUrl, updatedGroup] = await Promise.all([
     createPresignedUrl(process.env.BUCKET_NAME!, file.key),
     groupRepository.updatePicture(file.originalname, id),
   ]);
+
+  if (!updatedGroup) {
+    throw new Error(`Group ${id} not found`);
+  }
+
+  const { groupId, name } = updatedGroup;
 
   await emitGroupPictureUpdate(io, room, fileUrl);
 

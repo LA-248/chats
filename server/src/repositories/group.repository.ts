@@ -134,7 +134,7 @@ export class Group {
       [fileName, groupId],
     );
 
-    return result.rows[0];
+    return result.rows[0] ?? null;
   };
 
   setLastMessage = async (

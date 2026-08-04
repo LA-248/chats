@@ -8,11 +8,12 @@ export const mediaUploadMiddleware = (fieldName: MulterUploadField, storagePathP
   res: Response,
   next: NextFunction
 ) => {
-  const id = req.params.id; // Either a userId, groupId, or chatId
+  const id = req.params.id ?? req.params.groupId; // Either a userId, groupId, or chatId
   let chatType;
   if (req.params.type) {
     chatType = req.params.type;
   }
+
   const resolvedStoragePath = chatType
     ? `${storagePathPrefix}/${chatType}`
     : storagePathPrefix

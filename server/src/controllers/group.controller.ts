@@ -22,6 +22,7 @@ import {
 import { ApiSuccessResponse } from '../dtos/success.dto.ts';
 import { userSockets } from '../handlers/socket-handlers.ts';
 import {
+  GroupIdParamsDto,
   GroupRoom,
   NewGroupChat,
   PermanentlyDeleteGroupParamsDto,
@@ -105,9 +106,7 @@ export const retrieveGroupInfo: RequestHandler<
 };
 
 export const retrieveMemberUsernames: RequestHandler<
-  {
-    groupId: string;
-  },
+  GroupIdParamsDto,
   RetrieveGroupMemberUsernamesResponseDto | ApiErrorResponse,
   void
 > = async (req, res) => {
@@ -358,7 +357,7 @@ export const updateGroupPicture: RequestHandler<
 
     const file = req.file as Express.MulterS3.File;
     const { fileUrl, groupId, name } = await uploadGroupPicture(
-      Number(req.params.id),
+      Number(req.params.groupId),
       file,
       io,
     );

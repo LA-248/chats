@@ -41,8 +41,6 @@ import { MulterUploadField, S3AvatarStoragePath } from '../types/chat.ts';
 const groupChatsRouter = express.Router();
 groupChatsRouter.use(requireAuth);
 
-// TODO: Rename :groupId route parameter to :id
-
 groupChatsRouter.post(
   '/',
   validate({ body: CreateGroupChatSchema }),
@@ -55,7 +53,7 @@ groupChatsRouter.post(
   addMembers,
 );
 groupChatsRouter.post(
-  '/:id/pictures',
+  '/:groupId/pictures',
   groupChatRoomAuth,
   validate({ params: UpdateGroupPictureParamsSchema }),
   mediaUploadMiddleware(MulterUploadField.GROUP_PICTURE, S3AvatarStoragePath.GROUP_AVATARS),
@@ -85,14 +83,14 @@ groupChatsRouter.delete(
   '/:groupId/members/:userId',
   groupChatRoomAuth,
   authoriseGroupOwnerOrAdminAction,
-  validate({ params: PermanentlyDeleteGroupParamsSchema }),
+  validate({ params: RemoveKickedGroupMemberParamsSchema }),
   removeKickedGroupMember,
 );
 groupChatsRouter.delete(
   '/:groupId',
   groupChatRoomAuth,
   authoriseGroupOwnerAction,
-  validate({ params: RemoveKickedGroupMemberParamsSchema }),
+  validate({ params: PermanentlyDeleteGroupParamsSchema }),
   permanentlyDeleteGroup,
 );
 groupChatsRouter.delete(
