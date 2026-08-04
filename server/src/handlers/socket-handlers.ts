@@ -17,26 +17,26 @@ const userSockets = new Map<number, string>();
 const socketHandlers = (io: Server) => {
   io.on('connection', (socket) => {
     // Check if user is authenticated
-    if ((socket.handshake as any).request.session.passport.user) {
-      const userId = (socket.handshake as any).request.session.passport.user;
-      console.log(`User connected`);
-      console.log(`User ID: ${userId}`);
-
-      initialiseChatRooms(socket);
-      manageSocketConnections(socket, userSockets);
-
-      handleChatMessages(socket, io);
-      updateMostRecentMessage(socket, io);
-      updateMessageList(socket, io);
-
-      // Recipient data could also potentially be fetched here instead of doing it in a separate HTTP request
-      socket.on('open-chat', (room: string) => {
-        displayChatMessages(socket, room);
-      });
-    } else {
+    const userId = (socket as any).request.session?.passport?.user;
+    if (!userId) {
       socket.disconnect();
       return;
     }
+
+    console.log(`User connected`);
+    console.log(`User ID: ${userId}`);
+
+    initialiseChatRooms(socket);
+    manageSocketConnections(socket, userSockets);
+
+    handleChatMessages(socket, io);
+    updateMostRecentMessage(socket, io);
+    updateMessageList(socket, io);
+
+    // Recipient data could also potentially be fetched here instead of doing it in a separate HTTP request
+    socket.on('open-chat', (room: string) => {
+      displayChatMessages(socket, room);
+    });
   });
 };
 

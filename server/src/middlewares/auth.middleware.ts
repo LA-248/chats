@@ -84,7 +84,7 @@ export const groupChatRoomAuth = async (
       console.error('groupChatRoomAuth: Invalid request params', result.error);
       res.status(400).json({
         error: 'Bad request',
-        message: 'Invalid request params',
+        message: 'The request is invalid',
       });
       return;
     }
@@ -104,7 +104,7 @@ export const groupChatRoomAuth = async (
       );
       res.status(400).json({
         error: 'Bad request',
-        message: 'Invalid request params',
+        message: 'The request is invalid',
       });
       return;
     }

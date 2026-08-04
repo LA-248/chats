@@ -6,7 +6,12 @@ async function initialiseChatRooms(socket: Socket) {
   const ChatListRepository = new ChatList();
   const joinedRooms: string[] = [];
 
-  const userId = (socket as any).request.session.passport.user;
+  const userId = (socket as any).request.session?.passport?.user;
+  if (!userId) {
+    socket.disconnect();
+    return;
+  }
+
   const chatList = await ChatListRepository.findAllChatsByUser(userId);
 
   for (let i = 0; i < chatList.length; i++) {
@@ -30,7 +35,12 @@ function manageSocketConnections(
   socket: Socket,
   userSockets: Map<number, string>,
 ) {
-  const userId = (socket as any).request.session.passport.user;
+  const userId = (socket as any).request.session?.passport?.user;
+  if (!userId) {
+    socket.disconnect();
+    return;
+  }
+
   userSockets.set(userId, socket.id);
 
   socket.on('disconnect', () => {
