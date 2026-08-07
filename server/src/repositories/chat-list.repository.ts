@@ -1,4 +1,4 @@
-import { ChatDto } from '../schemas/private-chat.schema.ts';
+import { ChatDto } from '../types/chat.ts';
 import { query } from '../utils/database-query.ts';
 
 interface Database {

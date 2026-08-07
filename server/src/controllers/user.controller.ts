@@ -28,16 +28,20 @@ export const retrieveLoggedInUserData: RequestHandler<
   void
 > = async (req, res) => {
   try {
-    const profilePictureUrl = req.user?.profile_picture
+    const profilePicture = String(req.user?.profile_picture);
+    const userId = Number(req.user?.user_id);
+    const username = String(req.user?.username);
+
+    const profilePictureUrl = profilePicture
       ? await createProfilePictureUrl(
-        req.user.user_id,
-        req.user.profile_picture,
+        userId,
+        profilePicture,
       )
       : null;
 
     res.status(200).json({
-      userId: req.user!.user_id,
-      username: req.user!.username,
+      userId,
+      username,
       profilePicture: profilePictureUrl,
     });
   } catch (error) {

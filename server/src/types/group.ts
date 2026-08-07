@@ -4,41 +4,40 @@ import {
   NewGroupMember,
 } from '../schemas/group.schema.ts';
 
-export interface GroupInfo {
+export type GroupInfo = {
   group_id: number;
   name: string;
   group_picture: string | null;
 }
 
-export interface GroupParticipant {
+export type GroupMember = {
   user_id: number;
   username: string;
-  profile_picture: string | null;
   role: string;
 }
 
-export interface GroupMemberToBeAdded {
+export type GroupMemberToBeAdded = {
   username: string;
   userId: number;
   role: string;
 }
 
-export interface AddedUserInfo {
+export type AddedUserInfo = {
   user_id: number;
   username: string;
   profile_picture: string | null;
 }
 
-export interface GroupInfoWithMembers {
+export type GroupInfoWithMembers = {
   info: {
     chatId: number;
     name: string;
     groupPicture: string | null;
   };
-  members: GroupParticipant[];
+  members: GroupMember[];
 }
 
-export interface GroupMemberInsertionResult {
+export type GroupMemberInsertionResult = {
   status: 'fulfilled' | 'rejected';
   value?: NewGroupMember;
   reason?: Error | string;

@@ -45,7 +45,7 @@ export async function getRecipientUserIdByUsername(
   return data.userId;
 }
 
-export async function getUserProfilePicture(userId: number): Promise<string> {
+export async function getUserProfilePicture(userId: number): Promise<string | null> {
   const response = await fetch(
     `${import.meta.env.VITE_SERVER_BASE_URL}/api/users/${userId}/pictures`,
     {

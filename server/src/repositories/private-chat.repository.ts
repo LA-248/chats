@@ -1,12 +1,11 @@
 import {
   ChatDeletionStatus,
-  ChatDto,
   ChatLastMessage,
   ChatMembers,
   ChatUpdatedAt,
   NewChat,
 } from '../schemas/private-chat.schema.ts';
-import { ChatRoom } from '../types/chat.ts';
+import { ChatDto, ChatRoom } from '../types/chat.ts';
 import { query } from '../utils/database-query.ts';
 
 interface Database {

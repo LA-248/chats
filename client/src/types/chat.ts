@@ -1,23 +1,23 @@
 import type { GroupMember } from './group';
 
-export interface Chat {
+export type Chat = {
   chat_id: string;
   chat_picture: string | null;
   chat_type: ChatType;
-  deleted_at: Date | null;
+  recipient_user_id: number | null;
+  name: string;
+  room: string;
   last_message_content: string | null;
   last_message_id: number | null;
   last_message_time: Date | null;
   last_message_type: string;
-  name: string;
   last_read_at: Date;
-  recipient_user_id: number | null;
-  room: string;
-  updated_at: Date;
   created_at: Date;
+  updated_at: Date;
+  deleted_at: Date | null;
 }
 
-export interface ChatMetadata {
+export type ChatMetadata = {
   room: string;
   lastMessageContent: string;
   lastMessageTime: Date;
@@ -30,7 +30,7 @@ export enum ChatType {
   GROUP = 'groups',
 }
 
-export interface ChatContextType {
+export type ChatContextType = {
   chatList: Chat[];
   setChatList: React.Dispatch<React.SetStateAction<Chat[]>>;
   activeChatRoom: string | null;
@@ -46,7 +46,7 @@ export interface ChatContextType {
     React.SetStateAction<string | null>
   >;
   groupPicture: string | null;
-  setGroupPicture: React.Dispatch<React.SetStateAction<string>>;
+  setGroupPicture: React.Dispatch<React.SetStateAction<string | null>>;
   membersList: GroupMember[];
   setMembersList: React.Dispatch<React.SetStateAction<GroupMember[]>>;
 }

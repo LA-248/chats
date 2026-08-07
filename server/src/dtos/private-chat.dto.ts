@@ -1,10 +1,10 @@
 import { z } from 'zod/v4';
 import {
-  CreatePrivateChatSchema,
+  CreatePrivateChatBodySchema,
   UpdateLastMessageIdBodySchema,
 } from '../schemas/private-chat.schema.ts';
 
-export type CreatePrivateChatInputDto = z.infer<typeof CreatePrivateChatSchema>;
+export type CreatePrivateChatInputDto = z.infer<typeof CreatePrivateChatBodySchema>;
 
 export type UpdateLastMessageIdInputDto = z.infer<
   typeof UpdateLastMessageIdBodySchema

@@ -1,8 +1,7 @@
 import { z } from 'zod/v4';
-import { ChatType } from '../types/chat.ts';
 import { UsernameSchema } from './user.schema.ts';
 
-export const CreatePrivateChatSchema = z.object({
+export const CreatePrivateChatBodySchema = z.object({
   recipientName: UsernameSchema,
 });
 
@@ -41,25 +40,6 @@ export const ChatLastMessageSchema = z.object({
   last_message_id: z.number().nullable(),
 });
 export type ChatLastMessage = z.infer<typeof ChatLastMessageSchema>;
-
-// TODO: This schema applies to both private and group chats, so it should be moved to a different file
-export const ChatSchema = z.object({
-  chat_id: z.string(),
-  recipient_user_id: z.number().nullable(),
-  name: z.string(),
-  chat_picture: z.string().nullable(),
-  last_message_id: z.number().nullable(),
-  last_message_content: z.string().nullable(),
-  last_message_time: z.coerce.date().nullable(),
-  last_message_type: z.enum(ChatType).nullable(),
-  room: z.uuid(),
-  read: z.boolean(),
-  chat_type: z.enum(ChatType),
-  created_at: z.coerce.date(),
-  updated_at: z.coerce.date(),
-  deleted_at: z.coerce.date(),
-});
-export type ChatDto = z.infer<typeof ChatSchema>;
 
 export const UpdateLastMessageIdBodySchema = z.strictObject({
   messageId: z.coerce.number().int().positive().nullable(),

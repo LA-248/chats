@@ -7,17 +7,18 @@ export default function ProfilePicture() {
   const formRef = useRef(null);
   const { profilePicture, setProfilePicture, loggedInUserId } =
     useContext(UserContext);
+  const successMessage = 'Picture uploaded successfully'
 
-  const apiEndpoint = `${
-    import.meta.env.VITE_SERVER_BASE_URL
-  }/api/users/${loggedInUserId}/pictures`;
+  const apiEndpoint = `${import.meta.env.VITE_SERVER_BASE_URL
+    }/api/users/${loggedInUserId}/pictures`;
+
 
   const { handleFileInputClick, handleMediaUpload } = useMediaUpload(
     fileInputRef,
     formRef,
     apiEndpoint,
     setProfilePicture,
-    'Picture uploaded successfully'
+    successMessage
   );
 
   return (
@@ -25,7 +26,7 @@ export default function ProfilePicture() {
       <img
         className='profile-picture'
         alt='Profile avatar'
-        src={profilePicture ?? undefined}
+        src={profilePicture ?? '/images/default-avatar.jpg'}
       ></img>
       <form
         ref={formRef}

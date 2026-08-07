@@ -3,13 +3,13 @@ import type { UserContextType } from '../types/user';
 
 const defaultUserContext: UserContextType = {
   loggedInUserId: 0,
-  setLoggedInUserId: () => {},
+  setLoggedInUserId: () => { },
   loggedInUsername: '',
-  setLoggedInUsername: () => {},
+  setLoggedInUsername: () => { },
   profilePicture: '',
-  setProfilePicture: () => {},
+  setProfilePicture: () => { },
   isBlocked: false,
-  setIsBlocked: () => {},
+  setIsBlocked: () => { },
 };
 
 const UserContext = createContext<UserContextType>(defaultUserContext);
@@ -17,7 +17,7 @@ const UserContext = createContext<UserContextType>(defaultUserContext);
 const UserProvider = ({ children }: { children: ReactNode }) => {
   const [loggedInUserId, setLoggedInUserId] = useState<number>(0);
   const [loggedInUsername, setLoggedInUsername] = useState<string>('');
-  const [profilePicture, setProfilePicture] = useState<string>('');
+  const [profilePicture, setProfilePicture] = useState<string | null>('');
   const [isBlocked, setIsBlocked] = useState<boolean>(false);
 
   return (

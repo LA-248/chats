@@ -1,7 +1,7 @@
 import { Server } from 'socket.io';
 import { UpdateGroupPictureDto } from '../dtos/group.dto.ts';
 import { userSockets } from '../handlers/socket-handlers.ts';
-import { GroupMember } from '../repositories/group-member.repository.ts';
+import { GroupMember as GroupMemberRepository } from '../repositories/group-member.repository.ts';
 import { Group } from '../repositories/group.repository.ts';
 import {
   GroupInfo,
@@ -15,11 +15,11 @@ import {
 import {
   AddedUserInfo,
   GroupInfoWithMembers,
+  GroupMember,
   GroupMemberInfo,
   GroupMemberInsertionResult,
   GroupMemberRole,
   GroupMemberToBeAdded,
-  GroupParticipant,
 } from '../types/group.ts';
 import createGroupPictureUrl from '../utils/create-group-picture-url.ts';
 import {
@@ -53,7 +53,7 @@ export const retrieveGroupInfoWithMembers = async (
 
 export const retrieveGroupMembersInfo = async (
   groupId: number,
-): Promise<GroupParticipant[]> => {
+): Promise<GroupMember[]> => {
   const groupRepository = new Group();
   const groupMembersInfo = await groupRepository.findMembersInfoById(groupId);
 
@@ -77,7 +77,7 @@ export const getMemberUsernames = async (
   const groupRepository = new Group();
 
   const groupMembersInfo = await groupRepository.findMembersInfoById(groupId);
-  return groupMembersInfo.map((member: GroupParticipant) => member.username);
+  return groupMembersInfo.map((member: GroupMember) => member.username);
 };
 
 export const createNewGroup = async (
@@ -91,7 +91,7 @@ export const createNewGroup = async (
   failedInsertions: GroupMemberInsertionResult[];
 }> => {
   const groupRepository = new Group();
-  const groupMemberRepository = new GroupMember();
+  const groupMemberRepository = new GroupMemberRepository();
 
   const newGroupChat: NewGroupChat = await groupRepository.insertNewGroupChat(
     ownerUserId,
@@ -130,7 +130,7 @@ export const addUsersToGroup = async (
   addedMembers: GroupMemberToBeAdded[],
 ): Promise<AddedUserInfo[]> => {
   const groupRepository = new Group();
-  const groupMemberRepository = new GroupMember();
+  const groupMemberRepository = new GroupMemberRepository();
 
   const groupInfo = await groupRepository.findGroupInfoByRoom(room);
 
@@ -158,7 +158,7 @@ export const removeMemberWhoLeft = async (
   newGroupOwner: Pick<GroupMemberInfo, 'user_id' | 'role'>;
 }> => {
   const groupRepository = new Group();
-  const groupMemberRepository = new GroupMember();
+  const groupMemberRepository = new GroupMemberRepository();
 
   const socketId = userSockets.get(userId);
   let newGroupOwner: Pick<GroupMemberInfo, 'user_id' | 'role'> = {
@@ -206,7 +206,7 @@ export const kickMember = async (
   removedUser: Pick<GroupMemberInfo, 'user_id' | 'role'>;
 }> => {
   const groupRepository = new Group();
-  const groupMemberRepository = new GroupMember();
+  const groupMemberRepository = new GroupMemberRepository();
   const socketId = userSockets.get(targetUserId);
 
   const { room } = await groupRepository.findRoomById(groupId);
@@ -247,7 +247,7 @@ export const updateMemberRole = async (
   updatedMember: Pick<GroupMemberInfo, 'user_id' | 'role'>;
 }> => {
   const groupRepository = new Group();
-  const groupMemberRepository = new GroupMember();
+  const groupMemberRepository = new GroupMemberRepository();
 
   const [{ room }, updatedMember] = await Promise.all([
     groupRepository.findRoomById(groupId),
@@ -334,7 +334,7 @@ export const updateLastReadAt = async (
   groupId: number,
   userId: number,
 ): Promise<Pick<GroupMemberInfo, 'group_id' | 'user_id' | 'last_read_at'>> => {
-  const groupMemberRepository = new GroupMember();
+  const groupMemberRepository = new GroupMemberRepository();
   return await groupMemberRepository.updateLastReadAt(groupId, userId);
 };
 
@@ -354,7 +354,7 @@ export const deleteGroupForMember = async (
   groupId: number,
   userId: number,
 ): Promise<GroupMemberInfo> => {
-  const groupMemberRepository = new GroupMember();
+  const groupMemberRepository = new GroupMemberRepository();
   return await groupMemberRepository.deleteGroupForMember(groupId, userId);
 };
 

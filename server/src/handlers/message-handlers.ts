@@ -3,7 +3,7 @@ import {
   authoriseChatMessage,
   isSenderBlocked,
 } from '../middlewares/message.middleware.ts';
-import { GroupMember } from '../repositories/group-member.repository.ts';
+import { GroupMember as GroupMemberRepository } from '../repositories/group-member.repository.ts';
 import { Group } from '../repositories/group.repository.ts';
 import { Message as MessageRepository } from '../repositories/message.repository.ts';
 import { PrivateChat } from '../repositories/private-chat.repository.ts';
@@ -273,7 +273,7 @@ const CHAT_HANDLERS: Record<ChatType, ChatHandler> = {
     // Get all members of a group chat, this is then used for an authorisation check in the authoriseChatMessage function
     getMembers: async (room: string): Promise<number[]> => {
       try {
-        const groupMemberRepository = new GroupMember();
+        const groupMemberRepository = new GroupMemberRepository();
         const members = await groupMemberRepository.findMembersByRoom(room);
         return members ? members.map((member) => member.user_id) : [];
       } catch (error) {
@@ -293,7 +293,7 @@ const CHAT_HANDLERS: Record<ChatType, ChatHandler> = {
     ): Promise<Date> => {
       try {
         const groupRepository = new Group();
-        const groupMemberRepository = new GroupMember();
+        const groupMemberRepository = new GroupMemberRepository();
 
         const [{ updated_at: updatedAt }] = await Promise.all([
           // After setting the last message, fetch the new updated_at date which is equal to the time at which the message was sent
@@ -387,7 +387,7 @@ const restoreChat = async (
 ): Promise<void> => {
   try {
     const privateChatRepository = new PrivateChat();
-    const groupMemberRepository = new GroupMember();
+    const groupMemberRepository = new GroupMemberRepository();
 
     const isPrivateChat = chatType === ChatType.PRIVATE;
     const isGroupChat = chatType === ChatType.GROUP;

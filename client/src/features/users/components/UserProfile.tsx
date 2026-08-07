@@ -1,8 +1,8 @@
 import { Link } from 'react-router-dom';
 import Logout from './UserLogout';
 
-interface UserProfileProps {
-  profilePicture: string;
+type UserProfileProps = {
+  profilePicture: string | null;
   loggedInUsername: string;
   setActiveChatRoom: React.Dispatch<React.SetStateAction<string | null>>;
 }
@@ -16,7 +16,7 @@ export default function UserProfile({
     <div className='profile-settings-container'>
       <div className='user-profile-info'>
         <img
-          src={profilePicture}
+          src={profilePicture ?? '/images/default-avatar.jpg'}
           alt='Profile'
           className='user-profile-picture'
         ></img>

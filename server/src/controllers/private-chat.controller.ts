@@ -8,7 +8,6 @@ import {
   UpdateReadStatusResponseDto,
 } from '../dtos/private-chat.dto.ts';
 import { userSockets } from '../handlers/socket-handlers.ts';
-import { ChatDto } from '../schemas/private-chat.schema.ts';
 import {
   getChatListByUser,
   handleChatAddition,
@@ -17,6 +16,7 @@ import {
   updateLastReadAt,
 } from '../services/private-chat.service.ts';
 import { retrieveUserIdByUsername } from '../services/user.service.ts';
+import { ChatDto } from '../types/chat.ts';
 
 // Handle adding a chat (new or previously added but deleted) to a user's chat list
 export const addChat: RequestHandler<
@@ -26,9 +26,10 @@ export const addChat: RequestHandler<
 > = async (req, res) => {
   try {
     const senderId = Number(req.user?.user_id);
+    const recipientName = req.body.recipientName;
 
     const { user_id: recipientId } = await retrieveUserIdByUsername(
-      req.body.recipientName,
+      recipientName,
     );
 
     const io = req.app.get('io');

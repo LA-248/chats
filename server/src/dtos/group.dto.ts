@@ -6,8 +6,8 @@ import {
 } from '../schemas/group.schema.ts';
 import {
   AddedUserInfo,
+  GroupMember,
   GroupMemberInsertionResult,
-  GroupParticipant,
 } from '../types/group.ts';
 
 export type CreateGroupChatInputDto = z.infer<typeof CreateGroupChatSchema>;
@@ -32,7 +32,7 @@ export type RetrieveGroupInfoResponseDto = {
     name: string;
     groupPicture: string | null;
   };
-  members: GroupParticipant[];
+  members: GroupMember[];
 };
 
 export type RetrieveGroupMemberUsernamesResponseDto = {

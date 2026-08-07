@@ -29,7 +29,7 @@ export default function GroupPicture() {
       <img
         className='group-picture'
         alt='Group avatar'
-        src={groupPicture || '/images/default-avatar.jpg'}
+        src={groupPicture ?? '/images/default-avatar.jpg'}
       ></img>
       <form
         ref={formRef}

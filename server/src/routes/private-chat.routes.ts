@@ -13,7 +13,7 @@ import {
 } from '../middlewares/auth.middleware.ts';
 import { validate } from '../middlewares/validation.middleware.ts';
 import {
-  CreatePrivateChatSchema,
+  CreatePrivateChatBodySchema,
   DeleteChatParamsSchema,
   UpdateLastMessageIdBodySchema,
   UpdateLastMessageIdParamsSchema,
@@ -29,7 +29,10 @@ privateChatsRouter.use(requireAuth);
 
 privateChatsRouter.post(
   '/',
-  validate({ body: CreatePrivateChatSchema }),
+  validate({
+    user: UserDataAuthSchema,
+    body: CreatePrivateChatBodySchema
+  }),
   addChat,
 );
 privateChatsRouter.get('/', getChatList);
@@ -55,13 +58,17 @@ privateChatsRouter.put(
   '/:room/read_status',
   privateChatRoomAuth,
   validate({
+    user: UserDataAuthSchema,
     params: UpdateReadStatusParamsSchema,
   }),
   updateReadStatus,
 );
 privateChatsRouter.delete(
   '/:room',
-  validate({ params: DeleteChatParamsSchema }),
+  validate({
+    user: UserDataAuthSchema,
+    params: DeleteChatParamsSchema
+  }),
   deleteChat,
 );
 

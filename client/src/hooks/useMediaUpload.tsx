@@ -4,7 +4,7 @@ export function useMediaUpload(
   fileInputRef: React.RefObject<HTMLInputElement | null>,
   formRef: React.RefObject<HTMLFormElement | null>,
   apiEndpoint: string,
-  setPicture?: React.Dispatch<React.SetStateAction<string>>,
+  setPicture?: React.Dispatch<React.SetStateAction<string | null>>,
   successMessage?: string
 ) {
   // Use the reference to the file picker input to open it when clicking on the upload button

@@ -3,8 +3,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { userSockets } from '../handlers/socket-handlers.ts';
 import { ChatList } from '../repositories/chat-list.repository.ts';
 import { PrivateChat } from '../repositories/private-chat.repository.ts';
-import { ChatDeletionStatus, ChatDto } from '../schemas/private-chat.schema.ts';
-import { S3AvatarStoragePath } from '../types/chat.ts';
+import { ChatDeletionStatus } from '../schemas/private-chat.schema.ts';
+import { ChatDto, S3AvatarStoragePath } from '../types/chat.ts';
 import {
   createPresignedUrl,
   generateChatListPresignedUrls,

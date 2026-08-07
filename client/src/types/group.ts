@@ -1,35 +1,33 @@
-export interface GroupMemberToBeAdded {
+export type GroupMemberToBeAdded = {
   username: string;
   userId: number;
-  profilePicture?: string;
-  role: string;
+  role: GroupMemberRole;
 }
 
-export interface GroupMember {
+export type GroupMember = {
   user_id: number;
   username: string;
-  profile_picture: string | null;
-  role: string;
+  role: GroupMemberRole;
 }
 
-export interface GroupInfoWithMembers {
+export type GroupInfoWithMembers = {
   info: {
     chatId: number;
     name: string;
-    groupPicture: string;
+    groupPicture: string | null;
   };
   members: GroupMember[];
 }
 
-export interface RemovedGroupChat {
+export type RemovedGroupChat = {
   room: string;
   redirectPath: string;
 }
 
-export interface GroupMemberToRemove {
+export type GroupMemberToRemove = {
   username: string;
   userId: number;
-  role: string;
+  role: GroupMemberRole;
 }
 
 export enum GroupMemberRole {

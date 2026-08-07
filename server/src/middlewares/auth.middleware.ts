@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import { GroupMember } from '../repositories/group-member.repository.ts';
+import { GroupMember as GroupMemberRepository } from '../repositories/group-member.repository.ts';
 import { Group } from '../repositories/group.repository.ts';
 import { PrivateChat } from '../repositories/private-chat.repository.ts';
 import { GroupChatAuthParamsSchema } from '../schemas/group.schema.ts';
@@ -77,7 +77,7 @@ export const groupChatRoomAuth = async (
 
   try {
     const groupRepository = new Group();
-    const groupMemberRepository = new GroupMember();
+    const groupMemberRepository = new GroupMemberRepository();
 
     const result = GroupChatAuthParamsSchema.safeParse(req.params);
     if (!result.success) {
@@ -156,7 +156,7 @@ export const authoriseGroupOwnerAction = async (
   next: NextFunction,
 ): Promise<void> => {
   const groupRepository = new Group();
-  const groupMemberRepository = new GroupMember();
+  const groupMemberRepository = new GroupMemberRepository();
   const loggedInUserId = Number(req.user?.user_id);
   const groupId = Number(req.params.groupId);
 
@@ -217,7 +217,7 @@ export const authoriseGroupOwnerOrAdminAction = async (
   next: NextFunction,
 ): Promise<void> => {
   const groupRepository = new Group();
-  const groupMemberRepository = new GroupMember();
+  const groupMemberRepository = new GroupMemberRepository();
   const loggedInUserId = Number(req.user?.user_id);
   const groupId = Number(req.params.groupId);
 

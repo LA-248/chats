@@ -4,21 +4,21 @@ import type { GroupMember } from '../types/group';
 
 const defaultChatContext: ChatContextType = {
   chatList: [],
-  setChatList: () => {},
+  setChatList: () => { },
   activeChatRoom: null,
-  setActiveChatRoom: () => {},
+  setActiveChatRoom: () => { },
   chatSearchInputText: '',
-  setChatSearchInputText: () => {},
+  setChatSearchInputText: () => { },
   chatId: 0,
-  setChatId: () => {},
+  setChatId: () => { },
   chatName: '',
-  setChatName: () => {},
-  recipientProfilePicture: null,
-  setRecipientProfilePicture: () => {},
-  groupPicture: null,
-  setGroupPicture: () => {},
+  setChatName: () => { },
+  recipientProfilePicture: '',
+  setRecipientProfilePicture: () => { },
+  groupPicture: '',
+  setGroupPicture: () => { },
   membersList: [],
-  setMembersList: () => {},
+  setMembersList: () => { },
 };
 
 const ChatContext = createContext<ChatContextType>(defaultChatContext);
@@ -31,8 +31,8 @@ const ChatProvider = ({ children }: { children: ReactNode }) => {
   const [chatSearchInputText, setChatSearchInputText] = useState<string>('');
   const [recipientProfilePicture, setRecipientProfilePicture] = useState<
     string | null
-  >(null);
-  const [groupPicture, setGroupPicture] = useState<string>('');
+  >('');
+  const [groupPicture, setGroupPicture] = useState<string | null>('');
   const [membersList, setMembersList] = useState<GroupMember[]>([]);
 
   return (

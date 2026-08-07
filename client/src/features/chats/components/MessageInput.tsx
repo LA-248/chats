@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import { useContext, useEffect, useRef, useState } from 'react';
+import { useContext, useRef, useState } from 'react';
 import { useMatch, useParams } from 'react-router-dom';
 import { useSocket } from '../../../hooks/useSocket';
 import { UserContext } from '../../../contexts/UserContext';

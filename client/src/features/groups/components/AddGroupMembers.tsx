@@ -108,7 +108,8 @@ export default function AddGroupMembers({
     }
 
     try {
-      const result = await addMembers(room!, addedMembers);
+      if (!room) return;
+      const result = await addMembers(room, addedMembers);
       toast.success(result.message);
       setAddedMembers([]);
       setIsModalOpen(false);

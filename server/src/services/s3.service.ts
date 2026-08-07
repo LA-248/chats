@@ -9,8 +9,8 @@ import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { Request } from 'express';
 import multer from 'multer';
 import multerS3 from 'multer-s3';
-import { ChatDto } from '../schemas/private-chat.schema.ts';
 import {
+  ChatDto,
   ChatType,
   S3AvatarStoragePath,
 } from '../types/chat.ts';

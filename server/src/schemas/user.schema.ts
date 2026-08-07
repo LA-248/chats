@@ -62,7 +62,7 @@ export const UserBlockListSchema = z.object({
 export type UserBlockList = z.infer<typeof UserBlockListSchema>;
 
 export const UserDataAuthSchema = z.object({
-  user_id: z.coerce.number(),
+  user_id: z.coerce.number().positive(),
   username: z.string(),
   profile_picture: z.string().nullable(),
 });
