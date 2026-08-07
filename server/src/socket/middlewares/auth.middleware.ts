@@ -19,6 +19,7 @@ export const authoriseChatMessage = (
         success: false,
         error: 'Invalid message payload',
       });
+      console.error('Invalid message payload:', result.error);
       return;
     }
 

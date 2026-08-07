@@ -9,7 +9,7 @@ export const ClientMessageEventSchema = z.object({
   room: z.uuid(),
   chatType: z.enum(ChatType),
   messageType: z.enum(MessageType),
-  fileKey: z.string().nullable(),
+  fileKey: z.string().optional(),
 });
 
 export const InsertMessageSchema = z.object({
