@@ -164,7 +164,7 @@ export const authoriseGroupOwnerAction = async (
 
   try {
     const groupChatMembers:
-      | Omit<GroupMemberInfo, 'username' | 'profile_picture'>[]
+      | Pick<GroupMemberInfo, 'user_id' | 'role'>[]
       | null = await groupMemberRepository.findMembersByRoom(room);
 
     if (!groupChatMembers) {
@@ -225,7 +225,7 @@ export const authoriseGroupOwnerOrAdminAction = async (
 
   try {
     const groupChatMembers:
-      | Omit<GroupMemberInfo, 'username' | 'profile_picture'>[]
+      | Pick<GroupMemberInfo, 'user_id' | 'role'>[]
       | null = await groupMemberRepository.findMembersByRoom(room);
 
     if (!groupChatMembers) {

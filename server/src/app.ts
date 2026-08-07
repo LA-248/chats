@@ -9,9 +9,9 @@ import { createServer } from 'node:http';
 import passport from 'passport';
 import { Server } from 'socket.io';
 import configurePassport from './config/passport-auth-setup.ts';
+import { configureSockets } from './socket/index.ts';
 
 import { createTables } from './db/index.ts';
-import { socketHandlers } from './handlers/socket-handlers.ts';
 import { sessionMiddleware } from './middlewares/session.middleware.ts';
 
 import authRouter from './routes/auth.routes.ts';
@@ -58,7 +58,7 @@ const io = new Server(server, {
 });
 io.engine.use(sessionMiddleware);
 app.set('io', io);
-socketHandlers(io);
+configureSockets(io);
 
 createTables();
 

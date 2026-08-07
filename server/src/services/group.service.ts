@@ -1,6 +1,6 @@
 import { Server } from 'socket.io';
 import { UpdateGroupPictureDto } from '../dtos/group.dto.ts';
-import { userSockets } from '../handlers/socket-handlers.ts';
+import { userSockets } from '../socket/handlers/socket.handler.ts';
 import { GroupMember as GroupMemberRepository } from '../repositories/group-member.repository.ts';
 import { Group } from '../repositories/group.repository.ts';
 import {
@@ -79,6 +79,21 @@ export const getMemberUsernames = async (
   const groupMembersInfo = await groupRepository.findMembersInfoById(groupId);
   return groupMembersInfo.map((member: GroupMember) => member.username);
 };
+
+export const findGroupMembersByRoom = async (room: string): Promise<number[]> => {
+  try {
+    const groupMemberRepository = new GroupMemberRepository();
+    const members = await groupMemberRepository.findMembersByRoom(room);
+    return members ? members.map((member) => member.user_id) : [];
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error(
+        `Unable to retrieve group chat members: ${error.message}`,
+      );
+    }
+    throw new Error('An unexpected error occurred');
+  }
+}
 
 export const createNewGroup = async (
   io: Server,

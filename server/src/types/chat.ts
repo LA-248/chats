@@ -38,7 +38,6 @@ export enum MulterUploadField {
 }
 
 export type ChatHandler = {
-  getMembers: (room: string) => Promise<number[]>;
   postInsert: (
     senderId: number,
     newMessageId: number,

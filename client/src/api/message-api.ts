@@ -2,7 +2,7 @@ import type { Socket } from 'socket.io-client';
 import { toast } from 'sonner';
 import { v4 as uuidv4 } from 'uuid';
 import { ChatType } from '../types/chat';
-import { MessageType } from '../types/message';
+import { MessageType, type ClientMessageEventPayload } from '../types/message';
 
 export async function editMessageById(
   chatType: string,
@@ -13,8 +13,7 @@ export async function editMessageById(
   const type = determineChatType(chatType);
 
   const response = await fetch(
-    `${
-      import.meta.env.VITE_SERVER_BASE_URL
+    `${import.meta.env.VITE_SERVER_BASE_URL
     }/api/chats/${type}/${chatId}/messages/${messageId}`,
     {
       method: 'PUT',
@@ -40,8 +39,7 @@ export async function deleteMessage(
   const type = determineChatType(chatType);
 
   const response = await fetch(
-    `${
-      import.meta.env.VITE_SERVER_BASE_URL
+    `${import.meta.env.VITE_SERVER_BASE_URL
     }/api/chats/${type}/${chatId}/messages/${messageId}`,
     {
       method: 'DELETE',
@@ -65,9 +63,11 @@ export const uploadChatMedia = async (
   username: string,
   chatId: number,
   room: string,
-  chatType: string
+  chatType: ChatType
 ): Promise<void> => {
   event.preventDefault();
+
+  if (!socket) return;
 
   const type = determineChatType(chatType);
 
@@ -97,34 +97,28 @@ export const uploadChatMedia = async (
     const content = data.fileName;
     const fileKey = data.fileKey;
 
-    if (socket) {
-      const messageType = MessageType.IMAGE;
-      const clientOffset = uuidv4();
+    const messageType = MessageType.IMAGE;
+    const clientOffset = uuidv4();
 
-      socket.emit(
-        'chat-message',
-        {
-          username,
-          chatId,
-          content,
-          room,
-          chatType,
-          messageType,
-          fileKey,
-        },
-        clientOffset,
-        (response: string) => {
-          // If the media was successfully uploaded, show a success toast and dismiss the loading toast
-          if (response === 'Media uploaded') {
-            toast.success(response);
-            toast.dismiss(loadingToast);
-          } else {
-            toast.error(response);
-            toast.dismiss(loadingToast);
-          }
+    const messagePayload: ClientMessageEventPayload =
+      { username, chatId, content, room, chatType, messageType, fileKey };
+
+
+    // TODO: Move this logic out of here
+    socket.emit(
+      'chat-message',
+      messagePayload,
+      clientOffset,
+      (response: { success: boolean, message?: string, error?: string }) => {
+        if (response.success) {
+          toast.success(response.message);
+          toast.dismiss(loadingToast);
+        } else {
+          toast.error(response.error);
+          toast.dismiss(loadingToast);
         }
-      );
-    }
+      }
+    );
   } catch (error) {
     if (error instanceof Error) {
       toast.dismiss(loadingToast);

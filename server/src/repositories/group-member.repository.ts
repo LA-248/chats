@@ -52,9 +52,9 @@ export class GroupMember {
 
   findMembersByRoom = async (
     room: string,
-  ): Promise<Omit<GroupMemberInfo, 'username' | 'profile_picture'>[]> => {
+  ): Promise<Pick<GroupMemberInfo, 'user_id' | 'role'>[]> => {
     const result = await this.db.query<
-      Omit<GroupMemberInfo, 'username' | 'profile_picture'>
+      Pick<GroupMemberInfo, 'user_id' | 'role'>
     >(
       `
       SELECT
@@ -74,9 +74,9 @@ export class GroupMember {
     room: string,
     groupId: number,
     userId: number,
-  ): Promise<Omit<GroupMemberInfo, 'username' | 'profile_picture'>> => {
+  ): Promise<Pick<GroupMemberInfo, 'user_id' | 'role'>> => {
     const result = await this.db.query<
-      Omit<GroupMemberInfo, 'username' | 'profile_picture'>
+      Pick<GroupMemberInfo, 'user_id' | 'role'>
     >(
       `
       SELECT gm.user_id, gm.role
@@ -93,9 +93,9 @@ export class GroupMember {
   findRandomMember = async (
     room: string,
     groupId: number,
-  ): Promise<Omit<GroupMemberInfo, 'username' | 'profile_picture'>> => {
+  ): Promise<Pick<GroupMemberInfo, 'user_id' | 'role'>> => {
     const result = await this.db.query<
-      Omit<GroupMemberInfo, 'username' | 'profile_picture'>
+      Pick<GroupMemberInfo, 'user_id' | 'role'>
     >(
       `
       SELECT gm.user_id, gm.role
@@ -130,9 +130,9 @@ export class GroupMember {
     role: string,
     groupId: number,
     userId: number,
-  ): Promise<Omit<GroupMemberInfo, 'username' | 'profile_picture'>> => {
+  ): Promise<Pick<GroupMemberInfo, 'user_id' | 'role'>> => {
     const result = await this.db.query<
-      Omit<GroupMemberInfo, 'username' | 'profile_picture'>
+      Pick<GroupMemberInfo, 'user_id' | 'role'>
     >(
       `
       UPDATE group_members 
@@ -183,9 +183,9 @@ export class GroupMember {
   deleteGroupMember = async (
     groupId: number,
     userId: number,
-  ): Promise<Omit<GroupMemberInfo, 'profile_picture'>> => {
+  ): Promise<Pick<GroupMemberInfo, 'user_id' | 'role'>> => {
     const result = await this.db.query<
-      Omit<GroupMemberInfo, 'profile_picture'>
+      Pick<GroupMemberInfo, 'user_id' | 'role'>
     >(
       `
       DELETE FROM group_members 

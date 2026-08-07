@@ -45,7 +45,6 @@ usersRouter.get(
   retrieveUserProfilePicture,
 );
 
-// TODO: For these PUT routes, why not have the client send the user id as a request parameter? Instead of fetching it from the user session
 usersRouter.put(
   '/',
   validate({ user: UserDataAuthSchema, body: UpdateUsernameParamsSchema }),

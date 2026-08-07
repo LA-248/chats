@@ -47,10 +47,11 @@ export default function MessageInput() {
       // Send the message and its metadata to the server
       socket.emit(
         'chat-message',
-        messagePayload, clientOffset,
-        (response: string) => {
-          if (response) {
-            setErrorMessage(response);
+        messagePayload,
+        clientOffset,
+        (response: { success: boolean, message?: string, error?: string }) => {
+          if (!response.success) {
+            setErrorMessage(response.error ?? 'Unknown error');
           }
         }
       );

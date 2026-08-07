@@ -1,6 +1,7 @@
 import type { ChangeEvent } from 'react';
 import { uploadChatMedia } from '../../../api/message-api';
 import { useSocket } from '../../../hooks/useSocket';
+import type { ChatType } from '../../../types/chat';
 
 export function useSendMediaMessage(
   fileInputRef: React.RefObject<HTMLInputElement | null>,
@@ -8,7 +9,7 @@ export function useSendMediaMessage(
   username: string,
   chatId: number,
   room: string,
-  chatType: string,
+  chatType: ChatType,
 ) {
   const socket = useSocket();
 

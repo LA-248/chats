@@ -1,4 +1,16 @@
 import { z } from 'zod/v4';
+import { ChatType } from '../types/chat.ts';
+import { MessageType } from '../types/message.ts';
+
+export const ClientMessageEventSchema = z.object({
+  username: z.string(),
+  chatId: z.coerce.number().int().positive(),
+  content: z.string(),
+  room: z.uuid(),
+  chatType: z.enum(ChatType),
+  messageType: z.enum(MessageType),
+  fileKey: z.string().nullable(),
+});
 
 export const InsertMessageSchema = z.object({
   content: z.string(),

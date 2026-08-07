@@ -5,6 +5,7 @@ import { editMessageById } from '../../../api/message-api';
 import { useSocket } from '../../../hooks/useSocket';
 import Modal from '../../../components/ModalTemplate';
 import { ChatContext } from '../../../contexts/ChatContext';
+import { MessageUpdateEventType } from '../../../types/message';
 
 interface EditMessageModalProps {
   chatType: string;
@@ -54,7 +55,7 @@ export default function EditMessageModal({
         socket.emit('last-message-updated', { room, chatType });
       }
       // Emit event to notify the server of message deletion and update the message list for everyone in the room
-      socket.emit('message-list-update-event', room, 'editing');
+      socket.emit('message-list-update-event', room, MessageUpdateEventType.EDIT);
 
       setNewMessage('');
       setIsModalOpen(false);

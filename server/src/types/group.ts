@@ -14,12 +14,14 @@ export type GroupMember = {
   user_id: number;
   username: string;
   role: string;
+  profile_picture?: string | null;
 }
 
 export type GroupMemberToBeAdded = {
   username: string;
   userId: number;
   role: string;
+  profilePicture?: string | null;
 }
 
 export type AddedUserInfo = {

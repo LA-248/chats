@@ -20,7 +20,7 @@ import {
   UpdateLastMessageIdResponseDto,
 } from '../dtos/group.dto.ts';
 import { ApiSuccessResponse } from '../dtos/success.dto.ts';
-import { userSockets } from '../handlers/socket-handlers.ts';
+import { userSockets } from '../socket/handlers/socket.handler.ts';
 import {
   GroupIdParamsDto,
   GroupRoom,

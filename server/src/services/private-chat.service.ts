@@ -108,6 +108,21 @@ export const addNewPrivateChat = async (
   }
 };
 
+export const findMembersByRoom = async (room: string): Promise<number[]> => {
+  try {
+    const privateChatRepository = new PrivateChat();
+    const members = await privateChatRepository.findMembersByRoom(room);
+    return members ? Object.values(members) : [];
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error(
+        `Unable to retrieve private chat members: ${error.message}`,
+      );
+    }
+    throw new Error('An unexpected error occurred');
+  }
+}
+
 // TODO: Move this function to a more general location - this handles retrieving all chats to construct a user's chat list
 export const getChatListByUser = async (userId: number): Promise<ChatDto[]> => {
   const ChatListRepository = new ChatList();

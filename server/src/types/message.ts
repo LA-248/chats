@@ -1,4 +1,5 @@
-import { NewMessage } from '../schemas/message.schema.ts';
+import { z } from 'zod/v4';
+import { ClientMessageEventSchema, NewMessage } from '../schemas/message.schema.ts';
 import { ChatType } from './chat.ts';
 
 export type Message = {
@@ -13,15 +14,7 @@ export type Message = {
   messageType: MessageType;
 }
 
-export type ClientMessageEventPayload = {
-  username: string;
-  chatId: number;
-  content: string;
-  room: string;
-  chatType: ChatType;
-  messageType: MessageType;
-  fileKey?: string;
-}
+export type ClientMessageEventPayload = z.infer<typeof ClientMessageEventSchema>;
 
 export type MessageSenderId = {
   messageSenderId: number;
@@ -31,4 +24,9 @@ export enum MessageType {
   TEXT = 'text',
   IMAGE = 'image',
   VIDEO = 'video',
+}
+
+export enum MessageUpdateEventType {
+  DELETE = 'deleting',
+  EDIT = 'editing',
 }

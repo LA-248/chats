@@ -1,21 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import { Message } from '../repositories/message.repository.ts';
 import { User } from '../repositories/user.repository.ts';
-import { ChatHandler } from '../types/chat.ts';
 import { MessageType } from '../types/message.ts';
-
-// Prevent users from sending messages to chat rooms they are not a part of
-// This check is needed because messages do not go through the existing auth middleware since they are handled via sockets and not HTTP routes
-export const authoriseChatMessage = async (
-  chatHandler: ChatHandler,
-  room: string,
-  senderId: number
-): Promise<void> => {
-  const memberIds = await chatHandler.getMembers(room);
-  if (!memberIds.includes(senderId)) {
-    throw new Error('User is not authorised to send messages in this chat');
-  }
-};
 
 export const authoriseMessageDeletion = async (
   req: Request,

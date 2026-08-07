@@ -40,3 +40,8 @@ export enum MessageType {
   IMAGE = 'image',
   VIDEO = 'video',
 }
+
+export enum MessageUpdateEventType {
+  DELETE = 'deleting',
+  EDIT = 'editing',
+}

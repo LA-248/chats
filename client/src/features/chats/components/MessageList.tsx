@@ -95,7 +95,7 @@ export default function MessageList({
       groupMembersInfo.forEach((member: GroupMember) => {
         profilePictureMap.set(
           member.user_id,
-          member.profile_picture || '/images/default-avatar.jpg',
+          member.profile_picture ?? '/images/default-avatar.jpg',
         );
         usernameMap.set(member.user_id, member.username);
       });
@@ -107,7 +107,7 @@ export default function MessageList({
       );
       profilePictureMap.set(
         recipientUserId,
-        recipientProfilePicture || '/images/default-avatar.jpg',
+        recipientProfilePicture ?? '/images/default-avatar.jpg',
       );
       usernameMap.set(loggedInUserId, loggedInUsername);
       usernameMap.set(recipientUserId, chatName);

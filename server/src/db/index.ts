@@ -14,7 +14,7 @@ import { User } from '../repositories/user.repository.ts';
 const { Pool } = pg;
 
 // Initialise a connection pool
-const pool = new Pool({
+export const pool = new Pool({
   user: process.env.USERNAME,
   host: process.env.HOST,
   database: process.env.DATABASE_NAME,
@@ -22,7 +22,7 @@ const pool = new Pool({
   port: Number(process.env.DATABASE_PORT),
 });
 
-async function createTables(): Promise<void> {
+export async function createTables(): Promise<void> {
   try {
     const userRepository = new User();
     await userRepository.createUsersTable();
@@ -46,4 +46,3 @@ async function createTables(): Promise<void> {
   }
 }
 
-export { createTables, pool };

@@ -1,101 +1,101 @@
 import { Server, Socket } from 'socket.io';
 import {
-  authoriseChatMessage,
   isSenderBlocked,
-} from '../middlewares/message.middleware.ts';
-import { GroupMember as GroupMemberRepository } from '../repositories/group-member.repository.ts';
-import { Group } from '../repositories/group.repository.ts';
-import { Message as MessageRepository } from '../repositories/message.repository.ts';
-import { PrivateChat } from '../repositories/private-chat.repository.ts';
+} from '../../middlewares/message.middleware.ts';
+import { GroupMember as GroupMemberRepository } from '../../repositories/group-member.repository.ts';
+import { Group } from '../../repositories/group.repository.ts';
+import { Message as MessageRepository } from '../../repositories/message.repository.ts';
+import { PrivateChat } from '../../repositories/private-chat.repository.ts';
 import {
   FormattedMessage,
   Message as MessageStructure,
   NewMessage,
-} from '../schemas/message.schema.ts';
-import { addNewPrivateChat } from '../services/private-chat.service.ts';
-import { createPresignedUrl } from '../services/s3.service.ts';
+} from '../../schemas/message.schema.ts';
+import { addNewPrivateChat } from '../../services/private-chat.service.ts';
+import { createPresignedUrl } from '../../services/s3.service.ts';
 import {
   ChatHandler,
   ChatType,
   S3AttachmentsStoragePath,
-} from '../types/chat.ts';
-import { Message, ClientMessageEventPayload, MessageType } from '../types/message.ts';
+} from '../../types/chat.ts';
+import { Message, ClientMessageEventPayload, MessageType } from '../../types/message.ts';
+import { MessageUpdateEventType } from '../../types/message.ts';
 
-export const handleChatMessages = (socket: Socket, io: Server): void => {
-  socket.on(
-    'chat-message',
-    async (data: ClientMessageEventPayload, clientOffset, callback) => {
-      // In the context of private chats, chatId equals the ID of the recipient
-      // fileKey is used for media uploads
-      const {
-        username,
-        chatId,
-        content,
-        room,
-        chatType,
-        messageType,
-        fileKey,
-      } = data;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const senderId = (socket as any).request.session.passport.user;
-      const isImage = messageType === MessageType.IMAGE;
+export const createChatMessageHandler = (socket: Socket, io: Server) =>
+  async (data: ClientMessageEventPayload, clientOffset: string, callback: any) => {
+    // In the context of private chats, chatId equals the ID of the recipient
+    // fileKey is used for media uploads.
+    const {
+      username,
+      chatId,
+      content,
+      room,
+      chatType,
+      messageType,
+      fileKey,
+    } = data;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const senderId = (socket as any).request.session.passport.user;
+    const isImage = messageType === MessageType.IMAGE;
 
-      try {
-        if (chatType === ChatType.PRIVATE) {
-          await Promise.all([
-            isSenderBlocked(chatId, senderId),
-            addNewPrivateChat(io, socket, chatId, room),
-          ]);
-        }
-
-        const [{ newMessage, updatedAt }] = await Promise.all([
-          saveMessageInDatabase(
-            content,
-            senderId,
-            chatId,
-            room,
-            chatType,
-            messageType,
-            clientOffset,
-          ),
-          restoreChat(chatId, room, chatType),
+    try {
+      if (chatType === ChatType.PRIVATE) {
+        await Promise.all([
+          isSenderBlocked(chatId, senderId),
+          addNewPrivateChat(io, socket, chatId, room),
         ]);
-        const messageContent = isImage ? await createPresignedUrl(process.env.BUCKET_NAME!, fileKey as string) : content;
+      }
 
-        broadcastMessage(
-          io,
-          room,
-          username,
-          messageContent,
+      const [{ newMessage, updatedAt }] = await Promise.all([
+        saveMessageInDatabase(
+          content,
           senderId,
-          newMessage,
+          chatId,
+          room,
           chatType,
           messageType,
-        );
-        broadcastChatListUpdate(io, room, content, newMessage, updatedAt);
+          clientOffset,
+        ),
+        restoreChat(chatId, room, chatType),
+      ]);
+      const messageContent = isImage ? await createPresignedUrl(process.env.BUCKET_NAME!, fileKey as string) : content;
 
-        if (isImage) {
-          callback('Media uploaded');
-        }
+      broadcastMessage(
+        io,
+        room,
+        username,
+        messageContent,
+        senderId,
+        newMessage,
+        chatType,
+        messageType,
+      );
+      broadcastChatListUpdate(io, room, content, newMessage, updatedAt);
 
-        return;
-      } catch (error: unknown) {
-        console.error('Error handling chat message:', error);
-        if (error instanceof Error) {
-          if (error.message === 'Sender is blocked by the recipient') {
-            callback(
-              'You cannot send messages to this user because they have you blocked',
-            );
-          }
-        }
-        callback('Error sending message');
+      if (isImage) {
+        callback({ success: true, message: 'Media uploaded' });
       }
-    },
-  );
-};
+
+      return;
+    } catch (error: unknown) {
+      console.error('Error handling chat message:', error);
+      if (error instanceof Error) {
+        if (error.message === 'Sender is blocked by the recipient') {
+          callback({
+            success: false,
+            error: 'You cannot send messages to this user because they have you blocked',
+          });
+        }
+      }
+      callback({
+        success: false,
+        error: 'Error sending message',
+      });
+    }
+  }
 
 // Load all messages of a chat when opened
-export const displayChatMessages = async (
+export const displayChatMessagesHandler = async (
   socket: Socket,
   room: string,
 ): Promise<void> => {
@@ -128,9 +128,10 @@ export const displayChatMessages = async (
 };
 
 // Send updated message info for the chat list after the last remaining message in a chat is deleted or edited
-export const updateMostRecentMessage = (socket: Socket, io: Server): void => {
-  socket.on('last-message-updated', async (data) => {
+export const updateRecentMessageHandler = (socket: Socket, io: Server) =>
+  async (data: { room: string, chatType: ChatType }) => {
     const { room, chatType } = data;
+
     try {
       const messageRepository = new MessageRepository();
       const privateChatRepository = new PrivateChat();
@@ -168,13 +169,12 @@ export const updateMostRecentMessage = (socket: Socket, io: Server): void => {
       });
       return;
     }
-  });
-};
+  };
 
 // TODO: Don't retrieve the whole message list after a message is deleted or edited - optimise it
 // Listen for message deletes and edits, and emit the updated message list to the relevant room
-export const updateMessageList = (socket: Socket, io: Server): void => {
-  socket.on('message-list-update-event', async (room, updateType) => {
+export const updateMessageListHandler = (socket: Socket, io: Server) =>
+  async (room: string, updateType: MessageUpdateEventType) => {
     try {
       const messageRepository = new MessageRepository();
 
@@ -193,8 +193,7 @@ export const updateMessageList = (socket: Socket, io: Server): void => {
       });
       return;
     }
-  });
-};
+  };
 
 const formatMessage = async (
   message: MessageStructure,
@@ -229,20 +228,6 @@ const formatMessage = async (
 const CHAT_HANDLERS: Record<ChatType, ChatHandler> = {
   [ChatType.PRIVATE]: {
     // Get private chat members, this is then used for an authorisation check in the authoriseChatMessage function
-    getMembers: async (room: string): Promise<number[]> => {
-      try {
-        const privateChatRepository = new PrivateChat();
-        const members = await privateChatRepository.findMembersByRoom(room);
-        return members ? Object.values(members) : [];
-      } catch (error) {
-        if (error instanceof Error) {
-          throw new Error(
-            `Unable to retrieve private chat members: ${error.message}`,
-          );
-        }
-        throw new Error('An unexpected error occurred');
-      }
-    },
     postInsert: async (
       senderId: number,
       newMessageId: number,
@@ -271,20 +256,6 @@ const CHAT_HANDLERS: Record<ChatType, ChatHandler> = {
   },
   [ChatType.GROUP]: {
     // Get all members of a group chat, this is then used for an authorisation check in the authoriseChatMessage function
-    getMembers: async (room: string): Promise<number[]> => {
-      try {
-        const groupMemberRepository = new GroupMemberRepository();
-        const members = await groupMemberRepository.findMembersByRoom(room);
-        return members ? members.map((member) => member.user_id) : [];
-      } catch (error) {
-        if (error instanceof Error) {
-          throw new Error(
-            `Unable to retrieve group chat members: ${error.message}`,
-          );
-        }
-        throw new Error('An unexpected error occurred');
-      }
-    },
     postInsert: async (
       senderId: number,
       newMessageId: number,
@@ -331,8 +302,6 @@ const saveMessageInDatabase = async (
     const isPrivateChat = chatType === ChatType.PRIVATE;
     const isGroupChat = chatType === ChatType.GROUP;
 
-    await authoriseChatMessage(chatHandler, room, senderId);
-
     newMessage = await messageRepository.insertNewMessage(
       message,
       senderId,
@@ -348,8 +317,7 @@ const saveMessageInDatabase = async (
     );
 
     // Retrieve the updated_at value of the newly inserted message - it's needed to correctly sort a user's chat list
-    // The updated_at value differs from last_message_time in that it will always be populated with the date of the latest chat activity (e.g. message, chat creation, etc),
-    // whereas the last_message_time can be null if no messages exist in a chat
+    // The updated_at value differs from last_message_time in that it will always be populated with the date of the latest chat activity (e.g. message, chat creation, etc), whereas the last_message_time can be null if no messages exist in a chat
     const updatedAt = await chatHandler.postInsert(
       senderId,
       newMessage.message_id,

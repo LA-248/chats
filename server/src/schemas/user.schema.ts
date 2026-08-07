@@ -23,14 +23,14 @@ export const InsertUserSchema = z.object({
 export type InsertUser = z.infer<typeof InsertUserSchema>;
 
 export const UserProfileSchema = z.object({
-  user_id: z.coerce.number(),
+  user_id: z.coerce.number().positive(),
   username: z.string(),
   profile_picture: z.string().nullable(),
 });
 export type UserProfile = z.infer<typeof UserProfileSchema>;
 
 export const UserEntitySchema = z.object({
-  user_id: z.number(),
+  user_id: z.coerce.number().positive(),
   username: z.string(),
   hashed_password: z.string(),
   profile_picture: z.string().nullable(),
@@ -39,7 +39,7 @@ export const UserEntitySchema = z.object({
 export type UserEntity = z.infer<typeof UserEntitySchema>;
 
 export const RecipientUserProfileSchema = z.object({
-  user_id: z.number(),
+  user_id: z.coerce.number().positive(),
   username: z.string(),
   profile_picture: z.string().nullable(),
   blocked_users: z.array(z.number()),
