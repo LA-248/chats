@@ -1,7 +1,7 @@
-// Store user-to-socket mappings in a hash map
-
 import { Socket } from "socket.io";
 
+// TODO: This should be stored in Redis
+// Store user-to-socket mappings in a hash map
 // This allows for socket connections to be associated with the correct user
 export function manageSocketConnections(
   socket: Socket,

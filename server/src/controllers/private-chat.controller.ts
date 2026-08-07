@@ -7,7 +7,6 @@ import {
   UpdateLastMessageIdInputDto,
   UpdateReadStatusResponseDto,
 } from '../dtos/private-chat.dto.ts';
-import { userSockets } from '../handlers/socket-handlers.ts';
 import {
   getChatListByUser,
   handleChatAddition,
@@ -17,6 +16,7 @@ import {
 } from '../services/private-chat.service.ts';
 import { retrieveUserIdByUsername } from '../services/user.service.ts';
 import { ChatDto } from '../types/chat.ts';
+import { userSockets } from '../socket/index.ts';
 
 // Handle adding a chat (new or previously added but deleted) to a user's chat list
 export const addChat: RequestHandler<

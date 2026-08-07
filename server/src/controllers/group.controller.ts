@@ -20,7 +20,6 @@ import {
   UpdateLastMessageIdResponseDto,
 } from '../dtos/group.dto.ts';
 import { ApiSuccessResponse } from '../dtos/success.dto.ts';
-import { userSockets } from '../socket/handlers/socket.handler.ts';
 import {
   GroupIdParamsDto,
   GroupRoom,
@@ -47,6 +46,7 @@ import {
   uploadGroupPicture,
 } from '../services/group.service.ts';
 import { GroupMemberInsertionResult } from '../types/group.ts';
+import { userSockets } from '../socket/index.ts';
 
 // Handle creating a group chat
 export const createGroupChat: RequestHandler<

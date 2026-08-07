@@ -1,6 +1,5 @@
 import { Server } from 'socket.io';
 import { UpdateGroupPictureDto } from '../dtos/group.dto.ts';
-import { userSockets } from '../socket/handlers/socket.handler.ts';
 import { GroupMember as GroupMemberRepository } from '../repositories/group-member.repository.ts';
 import { Group } from '../repositories/group.repository.ts';
 import {
@@ -28,6 +27,7 @@ import {
   deleteS3Object,
 } from './s3.service.ts';
 import { retrieveUserById } from './user.service.ts';
+import { userSockets } from '../socket/index.ts';
 
 // TODO: Rename this function, it's confusing
 export const retrieveGroupInfoWithMembers = async (
