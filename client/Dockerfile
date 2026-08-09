@@ -1,16 +1,14 @@
-FROM node:20-alpine
-
-# Define the working directory inside the container
+FROM node:20-alpine AS base
 WORKDIR /app
-
 # Copy package.json and package-lock.json first for better layer caching
 COPY package*.json ./
-
-# Install the project dependencies
 RUN npm ci
 
-# Copy the rest of the frontend source code
-COPY . .
-
-# Start the development server
+FROM base AS development 
+# No need to copy the source code in the dev stage,
+# since the compose file copies the source code into the container using a bind mount
 CMD ["npm", "run", "dev"]
+
+FROM base AS builder
+COPY . .
+RUN npm run build
