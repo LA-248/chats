@@ -5,11 +5,11 @@ services:
       target: development
     ports:
       - "3000:3000"
+    expose: # Port exposed by the container on the compose network
+      - "3000"
     volumes:
       - ./client:/app
       - node_modules_client:/app/node_modules
-    env_file:
-      - ./client/.env.development.local
     depends_on:
       - server
 
@@ -17,8 +17,8 @@ services:
     build:
       context: ./server
       target: development
-    ports:
-      - "8080:8080"
+    expose:
+      - "8080"
     volumes:
       - ./server:/app
       - node_modules_server:/app/node_modules
@@ -40,6 +40,8 @@ services:
       POSTGRES_DB: ${DATABASE_NAME}
     ports:
       - "6543:5432"
+    expose:
+      - "5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     env_file:
