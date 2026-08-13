@@ -9,8 +9,7 @@ export default function ProfilePicture() {
     useContext(UserContext);
   const successMessage = 'Picture uploaded successfully'
 
-  const apiEndpoint = `${import.meta.env.VITE_SERVER_BASE_URL
-    }/api/users/${loggedInUserId}/pictures`;
+  const apiEndpoint = `/api/users/${loggedInUserId}/pictures`;
 
 
   const { handleFileInputClick, handleMediaUpload } = useMediaUpload(

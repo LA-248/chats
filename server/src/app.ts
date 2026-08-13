@@ -22,7 +22,7 @@ import usersRouter from './routes/user.routes.ts';
 
 export const app = express();
 const server = createServer(app);
-const port = process.env.PORT || 4000;
+const port = process.env.PORT || 8080;
 
 app.use(
   cors({

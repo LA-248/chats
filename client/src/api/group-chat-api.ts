@@ -13,7 +13,7 @@ export async function createGroupChat(
   }
 
   const response = await fetch(
-    `${import.meta.env.VITE_SERVER_BASE_URL}/api/chats/groups`,
+    `/api/chats/groups`,
     {
       method: 'POST',
       headers: {
@@ -42,7 +42,7 @@ export async function addMembers(
   addedMembers: GroupMemberToBeAdded[],
 ): Promise<{ message: string }> {
   const response = await fetch(
-    `${import.meta.env.VITE_SERVER_BASE_URL}/api/chats/groups/${room}/members`,
+    `/api/chats/groups/${room}/members`,
     {
       method: 'POST',
       headers: {
@@ -68,7 +68,7 @@ export async function retrieveGroupChatInfo(
   navigate: (path: string) => void,
 ): Promise<GroupInfoWithMembers> {
   const response = await fetch(
-    `${import.meta.env.VITE_SERVER_BASE_URL}/api/chats/groups/${room}`,
+    `/api/chats/groups/${room}`,
     {
       method: 'GET',
       headers: {
@@ -99,7 +99,7 @@ export async function retrieveGroupMembersInfo(
   groupId: number,
 ): Promise<string[]> {
   const response = await fetch(
-    `${import.meta.env.VITE_SERVER_BASE_URL}/api/chats/groups/${groupId}/members`,
+    `/api/chats/groups/${groupId}/members`,
     {
       method: 'GET',
       headers: {
@@ -123,7 +123,7 @@ export async function updateLastGroupMessageId(
   room: string,
 ): Promise<void> {
   const response = await fetch(
-    `${import.meta.env.VITE_SERVER_BASE_URL}/api/chats/groups/${room}/last_message`,
+    `/api/chats/groups/${room}/last_message`,
     {
       method: 'PUT',
       headers: {
@@ -145,7 +145,7 @@ export async function updateLastReadAt(
   userId: number,
 ): Promise<void> {
   const response = await fetch(
-    `${import.meta.env.VITE_SERVER_BASE_URL}/api/chats/groups/${groupId}/members/${userId}/last_read`,
+    `/api/chats/groups/${groupId}/members/${userId}/last_read`,
     {
       method: 'PUT',
       headers: {
@@ -166,8 +166,7 @@ export async function deleteGroupChat(
   room: string,
 ): Promise<void> {
   const response = await fetch(
-    `${import.meta.env.VITE_SERVER_BASE_URL
-    }/api/chats/groups/${groupId}/rooms/${room}`,
+    `/api/chats/groups/${groupId}/rooms/${room}`,
     {
       method: 'DELETE',
       headers: {
@@ -185,7 +184,7 @@ export async function deleteGroupChat(
 
 export async function leaveGroup(groupId: number): Promise<string> {
   const response = await fetch(
-    `${import.meta.env.VITE_SERVER_BASE_URL}/api/chats/groups/${groupId}/members/me`,
+    `/api/chats/groups/${groupId}/members/me`,
     {
       method: 'DELETE',
       headers: {
@@ -208,8 +207,7 @@ export async function removeGroupMember(
   userId: number,
 ): Promise<string> {
   const response = await fetch(
-    `${import.meta.env.VITE_SERVER_BASE_URL
-    }/api/chats/groups/${groupId}/members/${userId}`,
+    `/api/chats/groups/${groupId}/members/${userId}`,
     {
       method: 'DELETE',
       headers: {
@@ -233,8 +231,7 @@ export async function updateGroupMemberRole(
   newRole: string,
 ): Promise<string> {
   const response = await fetch(
-    `${import.meta.env.VITE_SERVER_BASE_URL
-    }/api/chats/groups/${groupId}/members/${userId}`,
+    `/api/chats/groups/${groupId}/members/${userId}`,
     {
       method: 'PUT',
       headers: {
@@ -257,7 +254,7 @@ export async function updateGroupMemberRole(
 export async function permanentlyDeleteGroup(groupId: number): Promise<string> {
   const response = await fetch(
     // TODO: Rename route to avoid conflict with existing one
-    `${import.meta.env.VITE_SERVER_BASE_URL}/api/chats/groups/${groupId}`,
+    `/api/chats/groups/${groupId}`,
     {
       method: 'DELETE',
       headers: {

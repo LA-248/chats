@@ -44,7 +44,7 @@ export default function Home() {
   useEffect(() => {
     if (loggedInUserId) {
       // Connect to socket server running on the backend
-      const socketInstance = io(`${import.meta.env.VITE_SERVER_BASE_URL}`, {
+      const socketInstance = io({
         auth: {
           serverOffset: 0,
         },

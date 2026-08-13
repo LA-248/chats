@@ -2,9 +2,9 @@ import type { Chat } from '../types/chat';
 import type { UserInfo } from '../types/user';
 
 // Fetch the chat list of a specific user
-async function getChatListByUserId(): Promise<Chat[]> {
+export async function getChatListByUserId(): Promise<Chat[]> {
   const response = await fetch(
-    `${import.meta.env.VITE_SERVER_BASE_URL}/api/chats/private`,
+    `/api/chats/private`,
     {
       method: 'GET',
       headers: {
@@ -23,12 +23,12 @@ async function getChatListByUserId(): Promise<Chat[]> {
   return data;
 }
 
-async function getRecipientInfo(
+export async function getRecipientInfo(
   room: string,
   navigate: (path: string) => void,
 ): Promise<UserInfo> {
   const response = await fetch(
-    `${import.meta.env.VITE_SERVER_BASE_URL}/api/chats/private/${room}`,
+    `/api/chats/private/${room}`,
     {
       method: 'GET',
       headers: {
@@ -56,13 +56,13 @@ async function getRecipientInfo(
 }
 
 // Add a chat to the user's chat list
-async function addChat(inputUsername: string): Promise<Chat> {
+export async function addChat(inputUsername: string): Promise<Chat> {
   if (!inputUsername) {
     throw new Error('Username is required');
   }
 
   const response = await fetch(
-    `${import.meta.env.VITE_SERVER_BASE_URL}/api/chats/private`,
+    `/api/chats/private`,
     {
       method: 'POST',
       headers: {
@@ -86,14 +86,12 @@ async function addChat(inputUsername: string): Promise<Chat> {
 
 // Needed for when the most recent message in a chat is deleted
 // Ensures the correct latest message is shown in the chat list
-async function updateLastMessageId(
+export async function updateLastMessageId(
   messageId: number | null,
   room: string,
 ): Promise<void> {
   const response = await fetch(
-    `${
-      import.meta.env.VITE_SERVER_BASE_URL
-    }/api/chats/private/${room}/last_message`,
+    `/api/chats/private/${room}/last_message`,
     {
       method: 'PUT',
       headers: {
@@ -110,9 +108,9 @@ async function updateLastMessageId(
   }
 }
 
-async function updateReadStatus(room: string): Promise<void> {
+export async function updateReadStatus(room: string): Promise<void> {
   const response = await fetch(
-    `${import.meta.env.VITE_SERVER_BASE_URL}/api/chats/private/${room}/read_status`,
+    `/api/chats/private/${room}/read_status`,
     {
       method: 'PUT',
       headers: {
@@ -129,9 +127,9 @@ async function updateReadStatus(room: string): Promise<void> {
 }
 
 // Delete a chat from the user's chat list
-async function deletePrivateChat(room: string): Promise<void> {
+export async function deletePrivateChat(room: string): Promise<void> {
   const response = await fetch(
-    `${import.meta.env.VITE_SERVER_BASE_URL}/api/chats/private/${room}`,
+    `/api/chats/private/${room}`,
     {
       method: 'DELETE',
       headers: {
@@ -147,11 +145,3 @@ async function deletePrivateChat(room: string): Promise<void> {
   }
 }
 
-export {
-  addChat,
-  deletePrivateChat,
-  getChatListByUserId,
-  getRecipientInfo,
-  updateLastMessageId,
-  updateReadStatus,
-};
