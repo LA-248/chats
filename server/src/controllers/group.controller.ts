@@ -40,8 +40,8 @@ import {
   permanentlyDeleteGroupChat,
   removeMemberWhoLeft,
   retrieveGroupInfoWithMembers,
+  updateGroupMemberLastReadAt,
   updateLastGroupMessage,
-  updateLastReadAt,
   updateMemberRole,
   uploadGroupPicture,
 } from '../services/group.service.ts';
@@ -389,7 +389,7 @@ export const updateLastRead: RequestHandler<
       return;
     }
 
-    await updateLastReadAt(groupId, userId);
+    await updateGroupMemberLastReadAt(groupId, userId);
     res.sendStatus(200);
   } catch (error) {
     console.error('Error adding group member to read list:', error);

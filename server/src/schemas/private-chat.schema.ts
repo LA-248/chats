@@ -27,7 +27,7 @@ export const ChatMembersSchema = z.object({
 export type ChatMembers = z.infer<typeof ChatMembersSchema>;
 
 export const ChatDeletionStatusSchema = z.object({
-  deleted_at: z.coerce.date(),
+  deleted_at: z.coerce.date().nullable(),
 });
 export type ChatDeletionStatus = z.infer<typeof ChatDeletionStatusSchema>;
 

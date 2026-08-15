@@ -345,7 +345,7 @@ export const uploadGroupPicture = async (
   return { fileUrl, groupId, name };
 };
 
-export const updateLastReadAt = async (
+export const updateGroupMemberLastReadAt = async (
   groupId: number,
   userId: number,
 ): Promise<Pick<GroupMemberInfo, 'group_id' | 'user_id' | 'last_read_at'>> => {
@@ -365,6 +365,15 @@ export const updateLastGroupMessage = async (
   );
 };
 
+export const setLastGroupMessage = async (
+  newMessageId: number,
+  room: string,
+): Promise<Date> => {
+  const groupRepository = new Group();
+  const result = await groupRepository.setLastMessage(newMessageId, room);
+  return result.updated_at;
+}
+
 export const deleteGroupForMember = async (
   groupId: number,
   userId: number,
@@ -372,6 +381,14 @@ export const deleteGroupForMember = async (
   const groupMemberRepository = new GroupMemberRepository();
   return await groupMemberRepository.deleteGroupForMember(groupId, userId);
 };
+
+// Restore group chat for all members
+export const restore = async (
+  groupId: number,
+): Promise<void> => {
+  const groupMemberRepository = new GroupMemberRepository();
+  return await groupMemberRepository.restore(groupId);
+}
 
 // Update the picture of a group for all its members in real-time
 const emitGroupPictureUpdate = async (

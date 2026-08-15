@@ -140,7 +140,7 @@ export class PrivateChat {
   findChatDeletionStatus = async (
     userId: number,
     room: string,
-  ): Promise<ChatDeletionStatus> => {
+  ): Promise<ChatDeletionStatus | null> => {
     const result = await this.db.query<ChatDeletionStatus>(
       `
       SELECT
@@ -154,7 +154,7 @@ export class PrivateChat {
       [userId, room],
     );
 
-    return result.rows[0];
+    return result.rows[0] ?? null;
   };
 
   findUpdatedAtDate = async (room: string): Promise<ChatUpdatedAt> => {
@@ -255,8 +255,8 @@ export class PrivateChat {
   updateLastReadAt = async (
     userId: number,
     room: string,
-  ): Promise<void> => {
-    await this.db.query(
+  ): Promise<Date> => {
+    const result = await this.db.query(
       `
       UPDATE private_chats
       SET
@@ -271,10 +271,12 @@ export class PrivateChat {
       `,
       [userId, room],
     );
+
+    return result.rows[0].last_read_at;
   };
 
-  restoreChat = async (userId: number, room: string): Promise<void> => {
-    await this.db.query(
+  restoreChat = async (userId: number, room: string): Promise<Date> => {
+    const result = await this.db.query(
       `
     UPDATE private_chats
     SET
@@ -289,5 +291,7 @@ export class PrivateChat {
     `,
       [userId, room],
     );
+
+    return result.rows[0].deleted_at;
   };
 }

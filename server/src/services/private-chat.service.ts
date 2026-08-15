@@ -3,12 +3,13 @@ import { v4 as uuidv4 } from 'uuid';
 import { ChatList } from '../repositories/chat-list.repository.ts';
 import { PrivateChat } from '../repositories/private-chat.repository.ts';
 import { ChatDeletionStatus } from '../schemas/private-chat.schema.ts';
-import { ChatDto, S3AvatarStoragePath } from '../types/chat.ts';
+import { ChatDto, ChatType, S3AvatarStoragePath } from '../types/chat.ts';
 import {
   createPresignedUrl,
   generateChatListPresignedUrls,
 } from './s3.service.ts';
 import { userSockets } from '../socket/index.ts';
+import { restore } from './group.service.ts';
 
 export const handleChatAddition = async (
   socket: Socket,
@@ -35,53 +36,8 @@ export const handleChatAddition = async (
   }
 };
 
-// Update the last message for a chat, used when most recent message is deleted
-export const updateLastMessage = async (
-  newLastMessageId: number | null,
-  room: string,
-): Promise<void> => {
-  const privateChatRepository = new PrivateChat();
-  return await privateChatRepository.updateLastMessage(newLastMessageId, room);
-};
-
-export const updateLastReadAt = async (
-  userId: number,
-  room: string,
-): Promise<void> => {
-  const privateChatRepository = new PrivateChat();
-  return await privateChatRepository.updateLastReadAt(userId, room);
-};
-
-export const updateDeletedAt = async (
-  userId: number,
-  room: string,
-): Promise<ChatDeletionStatus> => {
-  const privateChatRepository = new PrivateChat();
-  return await privateChatRepository.updateDeletedAt(userId, room);
-};
-
-export const getChat = async (
-  senderId: number,
-  room: string,
-): Promise<ChatDto> => {
-  const privateChatRepository = new PrivateChat();
-
-  const chat = await privateChatRepository.findChat(senderId, room);
-  const profilePictureName = chat.chat_picture;
-  const recipientId = chat.recipient_user_id;
-
-  const profilePictureUrl = profilePictureName
-    ? await createPresignedUrl(
-      process.env.BUCKET_NAME!,
-      `${S3AvatarStoragePath.USER_AVATARS}/${recipientId}/${profilePictureName}`,
-    )
-    : null;
-
-  return { ...chat, chat_picture: profilePictureUrl };
-};
-
 // When a user receives a message from someone for the first time, add the chat to their chat list in real-time
-export const addNewPrivateChat = async (
+export const addNewPrivateChatOnFirstMessage = async (
   io: Server,
   socket: Socket,
   recipientId: number,
@@ -92,6 +48,8 @@ export const addNewPrivateChat = async (
 
     const lastMessageId = await privateChatRepository.findLastMessageId(room);
     const socketId = userSockets.get(recipientId);
+
+    if (!socketId || lastMessageId !== null) return;
 
     // If lastMessageId is null, it means it's the first message being sent in the chat, which should -
     // trigger the chat to be added to the recipient's chat list
@@ -122,6 +80,91 @@ export const findMembersByRoom = async (room: string): Promise<number[]> => {
     throw new Error('An unexpected error occurred');
   }
 }
+
+// Mark a chat as not deleted in the database on incoming message if it was previously marked as deleted
+export const restoreChat = async (
+  recipientId: number, // For group chats, this is the groupId
+  room: string,
+  chatType: string,
+): Promise<void> => {
+  try {
+    const privateChatRepository = new PrivateChat();
+
+    const isPrivateChat = chatType === ChatType.PRIVATE;
+    const isGroupChat = chatType === ChatType.GROUP;
+
+    if (isPrivateChat) {
+      const result = await privateChatRepository.findChatDeletionStatus(
+        recipientId,
+        room,
+      );
+      if (!result?.deleted_at) return; // If result or deleted_at is null, there's nothing to restore, return early
+      await privateChatRepository.restoreChat(recipientId, room);
+    } else if (isGroupChat) {
+      const groupId = recipientId;
+      restore(groupId);
+    }
+  } catch (error) {
+    // Here the error is swallowed, this is because we don't want to block the sender's message from being delivered if restoring -
+    // the chat for the recipient fails
+    console.error('Error restoring chat:', error);
+  }
+};
+
+// Update the last message for a chat, used when most recent message is deleted
+export const updateLastMessage = async (
+  newLastMessageId: number | null,
+  room: string,
+): Promise<void> => {
+  const privateChatRepository = new PrivateChat();
+  return await privateChatRepository.updateLastMessage(newLastMessageId, room);
+};
+
+export const updateLastReadAt = async (
+  userId: number,
+  room: string,
+): Promise<Date> => {
+  const privateChatRepository = new PrivateChat();
+  const result = await privateChatRepository.updateLastReadAt(userId, room);
+  return result;
+};
+
+export const updateDeletedAt = async (
+  userId: number,
+  room: string,
+): Promise<ChatDeletionStatus> => {
+  const privateChatRepository = new PrivateChat();
+  return await privateChatRepository.updateDeletedAt(userId, room);
+};
+
+export const setLastMessage = async (
+  newMessageId: number,
+  room: string
+): Promise<Date> => {
+  const privateChatRepository = new PrivateChat();
+  const result = await privateChatRepository.setLastMessage(newMessageId, room);
+  return result.updated_at;
+};
+
+export const getChat = async (
+  senderId: number,
+  room: string,
+): Promise<ChatDto> => {
+  const privateChatRepository = new PrivateChat();
+
+  const chat = await privateChatRepository.findChat(senderId, room);
+  const profilePictureName = chat.chat_picture;
+  const recipientId = chat.recipient_user_id;
+
+  const profilePictureUrl = profilePictureName
+    ? await createPresignedUrl(
+      process.env.BUCKET_NAME!,
+      `${S3AvatarStoragePath.USER_AVATARS}/${recipientId}/${profilePictureName}`,
+    )
+    : null;
+
+  return { ...chat, chat_picture: profilePictureUrl };
+};
 
 // TODO: Move this function to a more general location - this handles retrieving all chats to construct a user's chat list
 export const getChatListByUser = async (userId: number): Promise<ChatDto[]> => {

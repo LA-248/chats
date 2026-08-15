@@ -8,14 +8,14 @@ import { PrivateChat } from '../../repositories/private-chat.repository.ts';
 import {
   NewMessage,
 } from '../../schemas/message.schema.ts';
-import { addNewPrivateChat } from '../../services/private-chat.service.ts';
+import { addNewPrivateChatOnFirstMessage, restoreChat } from '../../services/private-chat.service.ts';
 import { createPresignedUrl } from '../../services/s3.service.ts';
 import {
   ChatType,
 } from '../../types/chat.ts';
 import { Message, ClientMessageEventPayload, MessageType } from '../../types/message.ts';
 import { MessageUpdateEventType } from '../../types/message.ts';
-import { formatMessage, restoreChat, saveMessageInDatabase } from '../../services/message.service.ts';
+import { formatMessage, saveMessageToDatabase } from '../../services/message.service.ts';
 
 export const createChatMessageHandler = (socket: Socket, io: Server) =>
   async (data: ClientMessageEventPayload, clientOffset: string, callback: any) => {
@@ -38,12 +38,12 @@ export const createChatMessageHandler = (socket: Socket, io: Server) =>
       if (chatType === ChatType.PRIVATE) {
         await Promise.all([
           isSenderBlocked(chatId, senderId),
-          addNewPrivateChat(io, socket, chatId, room),
+          addNewPrivateChatOnFirstMessage(io, socket, chatId, room),
         ]);
       }
 
       const [{ newMessage, updatedAt }] = await Promise.all([
-        saveMessageInDatabase(
+        saveMessageToDatabase(
           content,
           senderId,
           chatId,

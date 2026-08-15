@@ -78,7 +78,8 @@ export const updateLastMessageId: RequestHandler<
 > = async (req, res) => {
   try {
     const room = req.params.room;
-    await updateLastMessage(req.body.messageId, room);
+    const messageId = req.body.messageId;
+    await updateLastMessage(messageId, room);
     res.sendStatus(204);
   } catch (error) {
     console.error('Error updating last message id:', error);

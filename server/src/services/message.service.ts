@@ -1,10 +1,9 @@
-import { GroupMember } from '../repositories/group-member.repository.ts';
-import { Group } from '../repositories/group.repository.ts';
 import { Message as MessageRepository } from '../repositories/message.repository.ts';
-import { PrivateChat } from '../repositories/private-chat.repository.ts';
 import { FormattedMessage, Message, NewMessage } from '../schemas/message.schema.ts';
-import { ChatHandler, ChatType, S3AttachmentsStoragePath } from '../types/chat.ts';
+import { ChatType, S3AttachmentsStoragePath } from '../types/chat.ts';
 import { MessageType } from '../types/message.ts';
+import { setLastGroupMessage, updateGroupMemberLastReadAt } from './group.service.ts';
+import { setLastMessage, updateLastReadAt } from './private-chat.service.ts';
 import { createPresignedUrl, deleteS3Object } from './s3.service.ts';
 
 export const edit = async (
@@ -77,73 +76,12 @@ export const formatMessage = async (
   };
 };
 
-// Handlers for chat type specific operations, allows for polymorphic behaviour at runtime
-const CHAT_HANDLERS: Record<ChatType, ChatHandler> = {
-  [ChatType.PRIVATE]: {
-    // Get private chat members, this is then used for an authorisation check in the authoriseChatMessage function
-    postInsert: async (
-      senderId: number,
-      newMessageId: number,
-      _chatId: number,
-      room: string,
-    ): Promise<Date> => {
-      try {
-        const privateChatRepository = new PrivateChat();
-
-        const [{ updated_at: updatedAt }] = await Promise.all([
-          // After setting the last message, fetch the new updated_at date, which is equal to the time at which the message was sent
-          privateChatRepository.setLastMessage(newMessageId, room),
-          privateChatRepository.updateLastReadAt(senderId, room),
-        ]);
-
-        return updatedAt;
-      } catch (error) {
-        if (error instanceof Error) {
-          throw new Error(
-            `Unable to update private chat metadata: ${error.message}`,
-          );
-        }
-        throw new Error('An unexpected error occurred');
-      }
-    },
-  },
-  [ChatType.GROUP]: {
-    // Get all members of a group chat, this is then used for an authorisation check in the authoriseChatMessage function
-    postInsert: async (
-      senderId: number,
-      newMessageId: number,
-      chatId: number,
-      room: string,
-    ): Promise<Date> => {
-      try {
-        const groupRepository = new Group();
-        const groupMemberRepository = new GroupMember();
-
-        const [{ updated_at: updatedAt }] = await Promise.all([
-          // After setting the last message, fetch the new updated_at date which is equal to the time at which the message was sent
-          groupRepository.setLastMessage(newMessageId, room),
-          groupMemberRepository.updateLastReadAt(chatId, senderId),
-        ]);
-
-        return updatedAt;
-      } catch (error) {
-        if (error instanceof Error) {
-          throw new Error(
-            `Unable to update group chat metadata: ${error.message}`,
-          );
-        }
-        throw new Error('An unexpected error occurred');
-      }
-    },
-  },
-};
-
-export const saveMessageInDatabase = async (
-  message: string,
+export const saveMessageToDatabase = async (
+  messageContent: string,
   senderId: number,
   chatId: number,
   room: string,
-  chatType: keyof typeof CHAT_HANDLERS,
+  chatType: ChatType,
   messageType: string,
   clientOffset: string,
 ): Promise<{ newMessage: NewMessage; updatedAt: Date }> => {
@@ -151,12 +89,11 @@ export const saveMessageInDatabase = async (
 
   try {
     const messageRepository = new MessageRepository();
-    const chatHandler = CHAT_HANDLERS[chatType];
     const isPrivateChat = chatType === ChatType.PRIVATE;
     const isGroupChat = chatType === ChatType.GROUP;
 
     newMessage = await messageRepository.insertNewMessage(
-      message,
+      messageContent,
       senderId,
       // Terrible hack to get past the foreign key constraint in the messages table
       // This error happens because the recipient id in the messages table references the users table.
@@ -171,12 +108,15 @@ export const saveMessageInDatabase = async (
 
     // Retrieve the updated_at value of the newly inserted message - it's needed to correctly sort a user's chat list
     // The updated_at value differs from last_message_time in that it will always be populated with the date of the latest chat activity (e.g. message, chat creation, etc), whereas the last_message_time can be null if no messages exist in a chat
-    const updatedAt = await chatHandler.postInsert(
-      senderId,
-      newMessage.message_id,
-      chatId,
-      room,
-    );
+    const [updatedAt] = await Promise.all(
+      isPrivateChat
+        ? [
+          setLastMessage(newMessage.message_id, room),
+          updateLastReadAt(senderId, room)
+        ] : [
+          setLastGroupMessage(newMessage.message_id, room),
+          updateGroupMemberLastReadAt(chatId, senderId)
+        ]);
 
     return { newMessage, updatedAt };
   } catch (error) {
@@ -200,34 +140,3 @@ export const saveMessageInDatabase = async (
   }
 };
 
-// Mark a chat as not deleted in the database on incoming message if it was previously marked as deleted
-export const restoreChat = async (
-  recipientId: number, // For group chats, this is the groupId
-  room: string,
-  chatType: string,
-): Promise<void> => {
-  try {
-    const privateChatRepository = new PrivateChat();
-    const groupMemberRepository = new GroupMember();
-
-    const isPrivateChat = chatType === ChatType.PRIVATE;
-    const isGroupChat = chatType === ChatType.GROUP;
-
-    if (isPrivateChat) {
-      const isDeleted = await privateChatRepository.findChatDeletionStatus(
-        recipientId,
-        room,
-      );
-      if (isDeleted) {
-        await privateChatRepository.restoreChat(recipientId, room);
-      }
-    } else if (isGroupChat) {
-      const groupId = recipientId;
-      await groupMemberRepository.restore(groupId);
-    }
-  } catch (error) {
-    // Here the error is swallowed, this is because we don't want to block the sender's message from being delivered if restoring -
-    // the chat for the recipient fails
-    console.error('Error restoring chat:', error);
-  }
-};
