@@ -66,6 +66,26 @@ export const addNewPrivateChatOnFirstMessage = async (
   }
 };
 
+export const getChat = async (
+  senderId: number,
+  room: string,
+): Promise<ChatDto> => {
+  const privateChatRepository = new PrivateChat();
+
+  const chat = await privateChatRepository.findChat(senderId, room);
+  const profilePictureName = chat.chat_picture;
+  const recipientId = chat.recipient_user_id;
+
+  const profilePictureUrl = profilePictureName
+    ? await createPresignedUrl(
+      process.env.BUCKET_NAME!,
+      `${S3AvatarStoragePath.USER_AVATARS}/${recipientId}/${profilePictureName}`,
+    )
+    : null;
+
+  return { ...chat, chat_picture: profilePictureUrl };
+};
+
 export const findMembersByRoom = async (room: string): Promise<number[]> => {
   try {
     const privateChatRepository = new PrivateChat();
@@ -146,25 +166,6 @@ export const setLastMessage = async (
   return result.updated_at;
 };
 
-export const getChat = async (
-  senderId: number,
-  room: string,
-): Promise<ChatDto> => {
-  const privateChatRepository = new PrivateChat();
-
-  const chat = await privateChatRepository.findChat(senderId, room);
-  const profilePictureName = chat.chat_picture;
-  const recipientId = chat.recipient_user_id;
-
-  const profilePictureUrl = profilePictureName
-    ? await createPresignedUrl(
-      process.env.BUCKET_NAME!,
-      `${S3AvatarStoragePath.USER_AVATARS}/${recipientId}/${profilePictureName}`,
-    )
-    : null;
-
-  return { ...chat, chat_picture: profilePictureUrl };
-};
 
 // TODO: Move this function to a more general location - this handles retrieving all chats to construct a user's chat list
 export const getChatListByUser = async (userId: number): Promise<ChatDto[]> => {
