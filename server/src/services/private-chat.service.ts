@@ -56,8 +56,12 @@ export const addNewPrivateChatOnFirstMessage = async (
     if (socketId && lastMessageId === null) {
       const newChat = await getChat(recipientId, room);
       const recipientSocket = io.sockets.sockets.get(socketId);
-      recipientSocket?.join(room);
-      socket.to(socketId).emit('add-private-chat-to-chat-list', newChat);
+
+      // Only add chat if it does not already exist in the user's chat list
+      if (!newChat.deleted_at) {
+        recipientSocket?.join(room);
+        socket.to(socketId).emit('add-private-chat-to-chat-list', newChat);
+      }
     }
   } catch (error) {
     // Here the error is swallowed, this is because we don't want to block the sender's message from being delivered if adding -

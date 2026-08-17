@@ -14,13 +14,11 @@ import { createPresignedUrl, deleteS3Object } from './s3.service.ts';
 export const createProfilePictureUrl = async (
   userId: number,
   profilePicture: string,
-): Promise<string | null> => {
-  return profilePicture
-    ? await createPresignedUrl(
-      process.env.BUCKET_NAME!,
-      `${S3AvatarStoragePath.USER_AVATARS}/${userId}/${profilePicture}`,
-    )
-    : null;
+): Promise<string> => {
+  return await createPresignedUrl(
+    process.env.BUCKET_NAME!,
+    `${S3AvatarStoragePath.USER_AVATARS}/${userId}/${profilePicture}`,
+  )
 };
 
 export const retrieveRecipientData = async (

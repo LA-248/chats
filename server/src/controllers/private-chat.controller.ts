@@ -33,8 +33,8 @@ export const addChat: RequestHandler<
     );
 
     const io = req.app.get('io');
-    // Retrieve specific socket instance by socket ID
-    const socket = io.sockets.sockets.get(userSockets.get(senderId));
+    const socket = io.sockets.sockets.get(userSockets.get(senderId)); // Retrieve specific socket instance by socket ID
+    if (!socket) return;
 
     const addedChat = await handleChatAddition(socket, senderId, recipientId);
     res.status(200).json(addedChat);

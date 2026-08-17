@@ -28,7 +28,7 @@ export const retrieveLoggedInUserData: RequestHandler<
   void
 > = async (req, res) => {
   try {
-    const profilePicture = String(req.user?.profile_picture);
+    const profilePicture = req.user?.profile_picture;
     const userId = Number(req.user?.user_id);
     const username = String(req.user?.username);
 
