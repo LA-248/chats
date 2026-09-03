@@ -22,7 +22,7 @@ export class User {
   createUsersTable = async (): Promise<void> => {
     await this.db.query(
       `CREATE TABLE IF NOT EXISTS users (
-        user_id SERIAL PRIMARY KEY,
+        id SERIAL PRIMARY KEY,
         username VARCHAR(30) NOT NULL UNIQUE,
         hashed_password TEXT NOT NULL,
         profile_picture TEXT DEFAULT NULL,

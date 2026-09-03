@@ -26,7 +26,7 @@ export class Group {
         CREATE TABLE IF NOT EXISTS groups (
           group_id SERIAL PRIMARY KEY,
           owner_user_id INTEGER REFERENCES users(user_id) ON DELETE SET NULL,
-          last_message_id INTEGER REFERENCES messages(message_id) ON DELETE SET NULL,
+          last_message_id INTEGER REFERENCES messages(id) ON DELETE SET NULL,
           name TEXT,
           group_picture TEXT,
           room UUID UNIQUE NOT NULL,
@@ -168,7 +168,7 @@ export class Group {
         updated_at = m.event_time
       FROM messages m
       WHERE groups.room = $2
-        AND m.message_id = $1
+        AND m.id = $1
         AND m.room = $2
       `,
       [messageId, room],

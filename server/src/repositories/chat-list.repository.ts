@@ -44,7 +44,7 @@ export class ChatList {
         WHEN pc.user1_id = $1 THEN pc.user2_id
         ELSE pc.user1_id
       END
-      LEFT JOIN messages m ON pc.last_message_id = m.message_id
+      LEFT JOIN messages m ON pc.last_message_id = m.id
       WHERE (pc.user1_id = $1 OR pc.user2_id = $1)
 
       UNION ALL
@@ -66,7 +66,7 @@ export class ChatList {
         gm.last_read_at
       FROM groups g
       JOIN group_members gm ON g.group_id = gm.group_id
-      LEFT JOIN messages m ON g.last_message_id = m.message_id
+      LEFT JOIN messages m ON g.last_message_id = m.id
       WHERE gm.user_id = $1
 
       ORDER BY updated_at DESC

@@ -69,7 +69,7 @@ export const formatMessage = async (
     from: message.sender_username,
     content,
     eventTime: message.event_time,
-    id: message.message_id,
+    id: message.id,
     senderId: message.sender_id,
     isEdited: message.is_edited,
     messageType: message.type,
@@ -111,10 +111,10 @@ export const saveMessageToDatabase = async (
     const [updatedAt] = await Promise.all(
       isPrivateChat
         ? [
-          setLastMessage(newMessage.message_id, room),
+          setLastMessage(newMessage.id, room),
           updateLastReadAt(senderId, room)
         ] : [
-          setLastGroupMessage(newMessage.message_id, room),
+          setLastGroupMessage(newMessage.id, room),
           updateGroupMemberLastReadAt(chatId, senderId)
         ]);
 
@@ -123,7 +123,7 @@ export const saveMessageToDatabase = async (
     // TODO: Use database transactions instead of manually deleting inserted messages when an error occurs
     if (newMessage) {
       const messageRepository = new MessageRepository();
-      await messageRepository.deleteMessage(senderId, newMessage.message_id);
+      await messageRepository.deleteMessage(senderId, newMessage.id);
     }
     if (error instanceof Error) {
       if (

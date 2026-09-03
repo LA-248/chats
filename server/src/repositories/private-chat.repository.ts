@@ -26,7 +26,7 @@ export class PrivateChat {
           chat_id SERIAL PRIMARY KEY,
           user1_id INTEGER REFERENCES users(user_id) ON DELETE SET NULL,
           user2_id INTEGER REFERENCES users(user_id) ON DELETE SET NULL,
-          last_message_id INTEGER REFERENCES messages(message_id) ON DELETE SET NULL,
+          last_message_id INTEGER REFERENCES messages(id) ON DELETE SET NULL,
           room UUID UNIQUE NOT NULL,
           created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
           updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -90,7 +90,7 @@ export class PrivateChat {
         WHEN pc.user1_id = $1 THEN pc.user2_id
         ELSE pc.user1_id
       END
-      LEFT JOIN messages m ON pc.last_message_id = m.message_id
+      LEFT JOIN messages m ON pc.last_message_id = m.id
       WHERE (pc.user1_id = $1 OR pc.user2_id = $1) AND pc.room = $2
       `,
       [userId, room],
@@ -221,7 +221,7 @@ export class PrivateChat {
           updated_at = m.event_time
         FROM messages m
         WHERE private_chats.room = $2
-          AND m.message_id = $1
+          AND m.id = $1
           AND m.room = $2
         `,
         [messageId, room],

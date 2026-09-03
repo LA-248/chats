@@ -207,7 +207,7 @@ const broadcastMessage = (
     content,
     room,
     eventTime: newMessage.event_time,
-    id: newMessage.message_id,
+    id: newMessage.id,
     senderId,
     chatType,
     messageType,

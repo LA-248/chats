@@ -23,14 +23,14 @@ export const InsertMessageSchema = z.object({
 export type InsertMessage = z.infer<typeof InsertMessageSchema>;
 
 export const NewMessageSchema = z.object({
-  message_id: z.number(),
+  id: z.number(),
   event_time: z.coerce.date(),
   type: z.string(),
 });
 export type NewMessage = z.infer<typeof NewMessageSchema>;
 
 export const MessageSchema = z.object({
-  message_id: z.number(),
+  id: z.number(),
   sender_id: z.number(),
   recipient_id: z.number().int().positive().nullable(),
   group_id: z.number().int().positive().nullable(),

@@ -21,7 +21,7 @@ export class Message {
     await this.db.query(
       `
       CREATE TABLE IF NOT EXISTS messages (
-        message_id SERIAL PRIMARY KEY,
+        id SERIAL PRIMARY KEY,
         sender_id INTEGER REFERENCES users(user_id) ON DELETE CASCADE,
         recipient_id INTEGER REFERENCES users(user_id) ON DELETE CASCADE,
         group_id INTEGER REFERENCES groups(group_id) ON DELETE CASCADE,
@@ -59,7 +59,7 @@ export class Message {
         client_offset
       ) 
       VALUES ($1, $2, $3, $4, $5, $6, $7)
-      RETURNING message_id, event_time, type
+      RETURNING id, event_time, type
       `,
       [content, senderId, recipientId, groupId, room, type, clientOffset],
     );
@@ -73,7 +73,7 @@ export class Message {
       SELECT
         content
       FROM messages
-      WHERE sender_id = $1 AND message_id = $2
+      WHERE sender_id = $1 AND id = $2
       `,
       [senderId, messageId],
     );
@@ -87,7 +87,7 @@ export class Message {
       SELECT
         sender_id AS "messageSenderId"
       FROM messages
-      WHERE message_id = $1
+      WHERE id = $1
       `,
       [messageId],
     );
@@ -97,7 +97,7 @@ export class Message {
 
   findMessageType = async (messageId: number): Promise<string> => {
     const result = await this.db.query(
-      'SELECT type FROM messages WHERE message_id = $1',
+      'SELECT type FROM messages WHERE id = $1',
       [messageId],
     );
 
@@ -111,7 +111,7 @@ export class Message {
     const result = await this.db.query<MessageType>(
       `
       SELECT
-        m.message_id,
+        m.id,
         m.sender_id,
         m.recipient_id,
         m.group_id,
@@ -123,7 +123,7 @@ export class Message {
       FROM messages m
       JOIN users u
       ON m.sender_id = u.user_id
-      WHERE m.message_id > $1
+      WHERE m.id > $1
         AND m.room = $2
       ORDER BY m.event_time ASC;
       `,
@@ -144,7 +144,7 @@ export class Message {
         type
       FROM messages
       WHERE room = $1
-      ORDER BY message_id DESC LIMIT 1 
+      ORDER BY id DESC LIMIT 1 
       `,
       [room],
     );
@@ -163,7 +163,7 @@ export class Message {
       SET
         content = $1,
         is_edited = true
-      WHERE sender_id = $2 AND message_id = $3
+      WHERE sender_id = $2 AND id = $3
       `,
       [newMessage, senderId, messageId],
     );
@@ -174,7 +174,7 @@ export class Message {
     messageId: number,
   ): Promise<void> => {
     await this.db.query(
-      'DELETE FROM messages WHERE sender_id = $1 AND message_id = $2',
+      'DELETE FROM messages WHERE sender_id = $1 AND id = $2',
       [senderId, messageId],
     );
   };

@@ -7,7 +7,7 @@ export type Message = {
   content: string;
   room: string;
   eventTime: NewMessage['event_time'];
-  id: NewMessage['message_id'];
+  id: NewMessage['id'];
   senderId: number;
   isEdited?: boolean;
   chatType: ChatType;
