@@ -19,7 +19,6 @@ interface MessageListProps {
   groupChatInfo: GroupInfoWithMembers;
   recipientUserId: number;
   hoveredIndex: number | null;
-  setMessages: React.Dispatch<React.SetStateAction<Message[]>>;
   setHoveredIndex: React.Dispatch<React.SetStateAction<number | null>>;
   setIsEditModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setIsDeleteModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -33,7 +32,6 @@ export default function MessageList({
   groupChatInfo,
   recipientUserId,
   hoveredIndex,
-  setMessages,
   setHoveredIndex,
   setIsEditModalOpen,
   setIsDeleteModalOpen,
@@ -47,7 +45,7 @@ export default function MessageList({
   const { recipientProfilePicture, chatName } = useContext(ChatContext);
   const { loggedInUsername, loggedInUserId, profilePicture } =
     useContext(UserContext);
-  const { setCurrentMessage, messageSearchValueText, filteredMessages } =
+  const { setMessages, setCurrentMessage, messageSearchValueText, filteredMessages } =
     useContext(MessageContext);
 
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
