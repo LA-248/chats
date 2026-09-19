@@ -8,7 +8,6 @@ import { updateLastGroupMessageId } from '../../../api/group-chat-api';
 import Modal from '../../../components/ModalTemplate';
 import { ChatType } from '../../../types/chat';
 import { ChatContext } from '../../../contexts/ChatContext';
-import { MessageUpdateEventType } from '../../../types/message';
 
 interface DeleteMessageModalProps {
   chatType: string;
@@ -71,8 +70,8 @@ export default function DeleteMessageModal({
 
         socket.emit('last-message-updated', { room, chatType });
       }
-      // Emit event to notify the server of message deletion and update the message list for everyone in the room
-      socket.emit('message-list-update-event', room, MessageUpdateEventType.DELETE);
+      // Emit event to notify the server of message deletion and remove the message for everyone in the room
+      socket.emit('message-deleted', messageId, room);
 
       setIsModalOpen(false);
     } catch (error) {

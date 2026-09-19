@@ -9,7 +9,7 @@ import {
 } from '../schemas/message.schema.ts';
 import {
   deleteChatMessage,
-  edit,
+  editChatMessage,
   upload,
 } from '../services/message.service.ts';
 
@@ -23,7 +23,7 @@ export const editMessage: RequestHandler<
     const messageId = Number(req.params.messageId);
     const newMessage = req.body.newMessage;
 
-    await edit(newMessage, senderId, messageId);
+    await editChatMessage(newMessage, senderId, messageId);
     res.status(200).json({ newMessage });
   } catch (error) {
     console.error('Error editing message:', error);

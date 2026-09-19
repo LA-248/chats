@@ -17,6 +17,18 @@ export type ChatDto = {
   deleted_at: Date | null;
 }
 
+export type InsertedChat = {
+  id: number;
+  type: ChatType;
+  room: string;
+  created_at: Date;
+  updated_at: Date;
+  last_message_at: Date | null;
+  last_message_id: number | null;
+  name: string | null;
+  picture: string | null;
+}
+
 export enum ChatType {
   PRIVATE = 'chats',
   GROUP = 'groups',
@@ -35,15 +47,6 @@ export enum MulterUploadField {
   USER_AVATAR = 'profile-picture',
   GROUP_PICTURE = 'group-picture',
   MEDIA_UPLOAD = 'media-upload',
-}
-
-export type ChatHandler = {
-  postInsert: (
-    senderId: number,
-    newMessageId: number,
-    chatId: number,
-    room: string,
-  ) => Promise<Date>;
 }
 
 export type ChatRoom = {

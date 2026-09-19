@@ -5,12 +5,11 @@ import { editMessageById } from '../../../api/message-api';
 import { useSocket } from '../../../hooks/useSocket';
 import Modal from '../../../components/ModalTemplate';
 import { ChatContext } from '../../../contexts/ChatContext';
-import { MessageUpdateEventType } from '../../../types/message';
+import type { ClientMessageEditEventPayload } from '../../../types/message';
 
 interface EditMessageModalProps {
   chatType: string;
   messageId: number | null;
-  messageIndex: number | null;
   isModalOpen: boolean;
   setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
   errorMessage: string;
@@ -20,7 +19,6 @@ interface EditMessageModalProps {
 export default function EditMessageModal({
   chatType,
   messageId,
-  messageIndex,
   isModalOpen,
   setIsModalOpen,
   errorMessage,
@@ -35,27 +33,30 @@ export default function EditMessageModal({
 
   const handleMessageEdit = async (
     messageId: number | null,
-    messageIndex: number | null
   ): Promise<void> => {
     try {
-      if (!socket) return;
+      if (!socket || !room || messageId === null) return;
 
       if (!newMessage) {
         setIsModalOpen(false);
         return;
       }
-      // Update the database with the edited message
+
+      // TODO: Write to database in socket event instead of API call
       if (chatId && messageId) {
         await editMessageById(chatType, chatId, newMessage, messageId);
       }
 
       const messageList = [...filteredMessages];
-      const isLastMessage = messageIndex === messageList.length - 1;
+      // TODO: Perfrom this check on the server
+      const isLastMessage = messageList[messageList.length - 1]?.id === messageId;
       if (isLastMessage) {
         socket.emit('last-message-updated', { room, chatType });
       }
-      // Emit event to notify the server of message deletion and update the message list for everyone in the room
-      socket.emit('message-list-update-event', room, MessageUpdateEventType.EDIT);
+
+      const messageEditPayload: ClientMessageEditEventPayload =
+        { messageId, content: newMessage, room };
+      socket.emit('message-edited', messageEditPayload);
 
       setNewMessage('');
       setIsModalOpen(false);
@@ -106,7 +107,7 @@ export default function EditMessageModal({
           <button
             className='confirm-action-button'
             style={{ backgroundColor: '#1db954' }}
-            onClick={() => handleMessageEdit(messageId, messageIndex)}
+            onClick={() => handleMessageEdit(messageId)}
           >
             Save
           </button>

@@ -1,11 +1,11 @@
 import type { ChatType } from './chat';
 
 export type Message = {
+  id: number;
   from: string;
   content: string;
   room: string;
   eventTime: Date;
-  id: number;
   senderId: number;
   isEdited?: boolean;
   chatType: ChatType;
@@ -20,6 +20,18 @@ export type ClientMessageEventPayload = {
   chatType: ChatType;
   messageType: MessageType;
   fileKey?: string;
+}
+
+export type ClientMessageEditEventPayload = {
+  messageId: number;
+  content: string;
+  room: string;
+}
+
+export type ServerMessageEditEventPayload = {
+  messageId: number;
+  content: string;
+  room: string;
 }
 
 export type MessageContextType = {
@@ -41,7 +53,3 @@ export enum MessageType {
   VIDEO = 'video',
 }
 
-export enum MessageUpdateEventType {
-  DELETE = 'deleting',
-  EDIT = 'editing',
-}

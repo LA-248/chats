@@ -1,8 +1,6 @@
-import { useContext, useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 import { useSocket } from '../../../hooks/useSocket';
-import { MessageContext } from '../../../contexts/MessageContext';
-import type { Message } from '../../../types/message';
 import { useSocketErrorHandling } from '../../../hooks/useSocketErrorHandling';
 import ContactHeader from './ContactHeader';
 import MessageList from './MessageList';
@@ -18,8 +16,6 @@ function ChatView() {
   const pathSegments = location.pathname.split('/');
   const chatType = pathSegments[1];
 
-  const { setMessages } = useContext(MessageContext);
-
   const { room } = useParams();
   const socket = useSocket();
   const [messageId, setMessageId] = useState<number | null>(null);
@@ -30,44 +26,13 @@ function ChatView() {
   const [errorMessage, setErrorMessage] = useState<string>('');
 
   const privateChatInfo = useFetchPrivateChatInfo(
-    room!,
+    room!, // the route pattern chats/:room guarantees room exists at runtime
     chatType,
     setErrorMessage
   );
   const groupChatInfo = useFetchGroupChatInfo(room!, chatType, setErrorMessage);
 
   useSocketErrorHandling(socket, setErrorMessage);
-
-  useEffect(() => {
-    if (!socket) return;
-
-    // Display all messages of a chat when opened
-    const displayInitialMessages = (initialMessages: Message[]): void => {
-      setMessages(initialMessages);
-    };
-
-    const handleMessageListUpdate = (messageListData: {
-      room: string;
-      updatedMessageList: Message[];
-    }): void => {
-      if (messageListData.room === room) {
-        setMessages(messageListData.updatedMessageList);
-      }
-    };
-
-    socket.emit('open-chat', room);
-
-    // Display all messages on load when opening a chat
-    socket.on('initial-messages', displayInitialMessages);
-
-    // Update chat message list for everyone in a room after a message is deleted or edited
-    socket.on('message-list-update-event', handleMessageListUpdate);
-
-    return () => {
-      socket.off('initial-messages', displayInitialMessages);
-      socket.off('message-list-update-event', handleMessageListUpdate);
-    };
-  }, [socket, room, setMessages, setErrorMessage]);
 
   return (
     <div className='chat-view-container'>
@@ -108,7 +73,6 @@ function ChatView() {
       <EditMessageModal
         chatType={chatType}
         messageId={messageId}
-        messageIndex={messageIndex}
         isModalOpen={isEditModalOpen}
         setIsModalOpen={setIsEditModalOpen}
         errorMessage={errorMessage}

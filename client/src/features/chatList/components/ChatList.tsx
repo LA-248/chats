@@ -104,7 +104,7 @@ export default function ChatList({
   useAddGroup(socket, setChatList); // When a user is added to a group chat, notify them and add it to their chat list
   useRemoveGroupChat(socket, setChatList, setActiveChatRoom, navigate);
   useAddNewPrivateChat(socket, setChatList);
-  useChatUpdates(socket, setChatList, room!);
+  useChatUpdates(socket, setChatList, room!); // the route pattern chats/:room guarantees room exists at runtime
 
   useSocketErrorHandling(socket, setErrorMessage);
   useClearErrorMessage(errorMessage, setErrorMessage);

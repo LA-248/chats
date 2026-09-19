@@ -13,8 +13,7 @@ import { createPresignedUrl } from '../../services/s3.service.ts';
 import {
   ChatType,
 } from '../../types/chat.ts';
-import { Message, ClientMessageEventPayload, MessageType } from '../../types/message.ts';
-import { MessageUpdateEventType } from '../../types/message.ts';
+import { Message, ClientMessageEventPayload, MessageType, ClientMessageEditEventPayload, ServerMessageEditEventPayload } from '../../types/message.ts';
 import { formatMessage, saveMessageToDatabase } from '../../services/message.service.ts';
 
 export const createChatMessageHandler = (socket: Socket, io: Server) =>
@@ -167,25 +166,35 @@ export const updateRecentMessageHandler = (socket: Socket, io: Server) =>
     }
   };
 
-// TODO: Don't retrieve the whole message list after a message is deleted or edited - optimise it
-// Listen for message deletes and edits, and emit the updated message list to the relevant room
-export const updateMessageListHandler = (socket: Socket, io: Server) =>
-  async (room: string, updateType: MessageUpdateEventType) => {
+export const editMessageHandler = (socket: Socket, io: Server) =>
+  async (data: ClientMessageEditEventPayload) => {
     try {
-      const messageRepository = new MessageRepository();
+      const { messageId, content, room } = data;
 
-      const messages = await messageRepository.findMessageList(
-        socket.handshake.auth.serverOffset,
-        room,
-      );
-      io.to(room).emit('message-list-update-event', {
-        room: room,
-        updatedMessageList: await Promise.all(messages.map(formatMessage)),
+      const messageEditPayload: ServerMessageEditEventPayload =
+        { messageId, content, room };
+
+      io.to(room).emit('message-edited', messageEditPayload);
+    } catch (error) {
+      console.error('Unexpected error:', error);
+      socket.emit('custom-error', {
+        error: `Error editing message. Please try again.`,
+      });
+      return;
+    }
+  };
+
+export const deleteMessageHandler = (socket: Socket, io: Server) =>
+  async (messageId: number, room: string) => {
+    try {
+      io.to(room).emit('message-deleted', {
+        messageId,
+        room
       });
     } catch (error) {
       console.error('Unexpected error:', error);
       socket.emit('custom-error', {
-        error: `Error ${updateType} message. Please try again.`,
+        error: `Error deleting message. Please try again.`,
       });
       return;
     }

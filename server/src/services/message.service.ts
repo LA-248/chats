@@ -6,7 +6,7 @@ import { setLastGroupMessage, updateGroupMemberLastReadAt } from './group.servic
 import { setLastMessage, updateLastReadAt } from './private-chat.service.ts';
 import { createPresignedUrl, deleteS3Object } from './s3.service.ts';
 
-export const edit = async (
+export const editChatMessage = async (
   newMessage: string,
   senderId: number,
   messageId: number,

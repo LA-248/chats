@@ -2,8 +2,9 @@ import { Server, Socket } from "socket.io";
 import { authoriseChatMessage } from "./middlewares/auth.middleware.ts";
 import {
   createChatMessageHandler,
+  deleteMessageHandler,
   displayChatMessagesHandler,
-  updateMessageListHandler,
+  editMessageHandler,
   updateRecentMessageHandler,
 } from './handlers/chat.handler.ts';
 
@@ -22,8 +23,12 @@ export const registerChatEvents = (
     updateRecentMessageHandler(socket, io),
   );
 
-  socket.on('message-list-update-event',
-    updateMessageListHandler(socket, io),
+  socket.on('message-edited',
+    editMessageHandler(socket, io),
+  );
+
+  socket.on('message-deleted',
+    deleteMessageHandler(socket, io),
   );
 
   // Recipient data could also potentially be fetched here instead of doing it in a separate HTTP request

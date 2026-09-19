@@ -65,7 +65,7 @@ export default function MessageInput() {
     formRef,
     username,
     chatId,
-    room!,
+    room!, // the route pattern chats/:room guarantees room exists at runtime
     chatType,
   );
   useClearErrorMessage(errorMessage, setErrorMessage);

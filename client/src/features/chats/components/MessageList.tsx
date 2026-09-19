@@ -9,7 +9,7 @@ import { updateLastReadAt } from '../../../api/group-chat-api';
 import ContactInfoModal from './ContactInfoModal';
 import formatDate from '../../../utils/DateTimeFormat';
 import type { GroupInfoWithMembers, GroupMember } from '../../../types/group';
-import { MessageType, type Message } from '../../../types/message';
+import { MessageType, type Message, type ServerMessageEditEventPayload } from '../../../types/message';
 import { ChatType } from '../../../types/chat';
 import type { UserProfileUpdate } from '../../../types/user';
 
@@ -54,33 +54,76 @@ export default function MessageList({
   const groupMembersInfo = groupChatInfo.members;
 
   useEffect(() => {
-    if (socket) {
-      const handleMessage = async (messageData: Message): Promise<void> => {
-        try {
-          // Append message to UI only if the user is currently in the room where the message was sent
-          if (room === messageData.room) {
-            setMessages((prevMessages: Message[]) => {
-              return prevMessages.concat(messageData);
-            });
-            // If a message is received while the user has the chat open, automatically mark the chat as read
-            if (messageData.chatType === ChatType.PRIVATE) {
-              await updateReadStatus(room);
-            } else if (messageData.chatType === ChatType.GROUP) {
-              await updateLastReadAt(groupId, loggedInUserId);
-            }
-          }
-        } catch (error) {
-          if (error instanceof Error) {
-            setErrorMessage(error.message);
+    if (!socket) return;
+
+    socket.emit('open-chat', room);
+
+    const handleMessage = async (messageData: Message): Promise<void> => {
+      try {
+        // Append message to UI only if the user is currently in the room where the message was sent
+        if (room === messageData.room) {
+          setMessages((prevMessages: Message[]) => {
+            return prevMessages.concat(messageData);
+          });
+          // If a message is received while the user has the chat open, automatically mark the chat as read
+          if (messageData.chatType === ChatType.PRIVATE) {
+            await updateReadStatus(room);
+          } else if (messageData.chatType === ChatType.GROUP) {
+            await updateLastReadAt(groupId, loggedInUserId);
           }
         }
-      };
-      socket.on('chat-message', handleMessage);
+      } catch (error) {
+        if (error instanceof Error) {
+          setErrorMessage(error.message);
+        }
+      }
+    };
 
-      return () => {
-        socket.off('chat-message', handleMessage);
-      };
-    }
+    // Display all messages of a chat when opened
+    const displayInitialMessages = (initialMessages: Message[]): void => {
+      setMessages(initialMessages);
+    };
+
+    const handleMessageEdit = (messageEditEventPayload:
+      ServerMessageEditEventPayload
+    ): void => {
+      if (messageEditEventPayload.room === room) {
+        setMessages((prevMessages: Message[]) => {
+          return prevMessages
+            .map((message) => {
+              if (message.id === messageEditEventPayload.messageId) {
+                return { ...message, content: messageEditEventPayload.content, isEdited: true };
+              } else {
+                return message;
+              }
+            })
+        });
+      }
+    };
+
+    const handleMessageDelete = (messageDeleteEventPayload: {
+      messageId: number;
+      room: string;
+    }): void => {
+      if (messageDeleteEventPayload.room === room) {
+        setMessages((prevMessages: Message[]) => {
+          return prevMessages
+            .filter(message => message.id !== messageDeleteEventPayload.messageId);
+        });
+      }
+    };
+
+    socket.on('chat-message', handleMessage);
+    socket.on('initial-messages', displayInitialMessages);
+    socket.on('message-edited', handleMessageEdit);
+    socket.on('message-deleted', handleMessageDelete);
+
+    return () => {
+      socket.off('chat-message', handleMessage);
+      socket.off('initial-messages', displayInitialMessages);
+      socket.off('message-edited', handleMessageEdit);
+      socket.off('message-deleted', handleMessageDelete);
+    };
   }, [room, socket, setMessages, groupId, loggedInUserId]);
 
   // Build maps that associate users in the chat with their respective username and profile picture

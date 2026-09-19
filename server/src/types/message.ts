@@ -16,6 +16,18 @@ export type Message = {
 
 export type ClientMessageEventPayload = z.infer<typeof ClientMessageEventSchema>;
 
+export type ClientMessageEditEventPayload = {
+  messageId: number;
+  content: string;
+  room: string;
+}
+
+export type ServerMessageEditEventPayload = {
+  messageId: number;
+  content: string;
+  room: string;
+}
+
 export type MessageSenderId = {
   messageSenderId: number;
 }
@@ -26,7 +38,3 @@ export enum MessageType {
   VIDEO = 'video',
 }
 
-export enum MessageUpdateEventType {
-  DELETE = 'deleting',
-  EDIT = 'editing',
-}
